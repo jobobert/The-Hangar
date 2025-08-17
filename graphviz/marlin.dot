@@ -1,109 +1,73 @@
 graph model {
-    rankdir=LR;
+    rankdir = LR;
     
-
+    
     // Legend
     subgraph cluster_legend {
-        label="Legend";
-        node [shape=plaintext];
-        key [label=<<table border="0" cellpadding="2" cellspacing="0" cellborder="0">
+        label = "Legend";
+        node [shape = plaintext;];
+        key [label = <<table border="0" cellpadding="2" cellspacing="0" cellborder="0">
             <tr><td align="right" port="i1">5v Servo</td></tr>
             <tr><td align="right" port="i2">5v Signal</td></tr>
             <tr><td align="right" port="i3">12v 12 Gauge</td></tr>
             <tr><td align="right" port="i4">12v 20 Gauge</td></tr>
-            </table>>];
-        key2 [label=<<table border="0" cellpadding="2" cellspacing="0" cellborder="0">
+            </table>>;];
+        key2 [label = <<table border="0" cellpadding="2" cellspacing="0" cellborder="0">
             <tr><td port="i1">&nbsp;</td></tr>
             <tr><td port="i2">&nbsp;</td></tr>
             <tr><td port="i3">&nbsp;</td></tr>
             <tr><td port="i4">&nbsp;</td></tr>
-            </table>>];
-        key:i1:e -- key2:i1:w [color="#a8700f"];
-        key:i2:e -- key2:i2:w [color="#a8700f" style=dashed];
-        key:i3:e -- key2:i3:w [color="#2430d3" penwidth=4];
-        key:i4:e -- key2:i4:w [color="#2430d3" pendwidth=2 ];
+            </table>>;];
+        key:i1:e -- key2:i1:w [color = "#a8700f";];
+        key:i2:e -- key2:i2:w [color = "#a8700f"; style = dashed;];
+        key:i3:e -- key2:i3:w [color = "#2430d3"; penwidth = 4;];
+        key:i4:e -- key2:i4:w [color = "#2430d3"; pendwidth = 2;];
     }
     
-
-    // Definitions
-    "conn_1" [
-        label = "XT-60"
-        shape="house"
-    ];
-    "conn_2" [
-        label = "XT-60"
-        shape="house"
-    ];
-    "sw_1" [
-        label = "RF\lSwitch"
-        shape="rect"
-        ];
-    "led" [
-        label = "LED\lplug"
-        shape="house"
-    ]
-    "esc" [
-        label = "ESC"
-        shape = "rect"
-    ];
-    "rudder_servo" [
-        label="Rudder"
-        shape="trapezium"
-    ];
-    "ballast" [
-        label="Ballast\lController"
-    ];
-    "dive_plane_servo" [
-        label="Dive Planes"
-        shape="trapezium"
-    ];
-    "fore_plane_servo" [
-        label="Fore Planes" 
-        shape="trapezium"
-    ];
-    "batt_1" [
-        label="3s2200"
-    ];
-    "batt_2" [
-        label="3s2200"
-    ];
-    "bec" [
-        label="BEC"
-        shape="rect"
-    ];
-    "receiver" [
-        label = "<f0>Receiver | <f1>Port 1 | <f2>Port 2 | <f3>Port 3 | <f4>Port 4 | <f5>Port 5 | <f6>Port 6"
-        shape = "record"
-    ];
-
-    // Connections
-       
-    batt_1 -- conn_1 [color = "#2430d3" penwidth=4]
-    batt_2 -- conn_2  [color = "#2430d3" penwidth=4]
-
-    conn_1 -- sw_1 [color = "#2430d3" penwidth=4]
-    conn_2 -- sw_1 [color = "#2430d3" penwidth=4]
-
-    conn_1 -- led [color = "#2430d3" ]
-    conn_2 -- led [color = "#2430d3" ]
     
-    sw_1 -- bec [color = "#2430d3" ];
-
-    bec -- receiver:f6 [color = "#a8700f"];
-
-    receiver:f1:e -- rudder_servo [color = "#a8700f" ];
-
-    receiver:f2:e -- dive_plane_servo [color = "#a8700f" ];
-
-    receiver:f3:e -- esc [color = "#a8700f" ];
-
-    receiver:f4:e -- fore_plane_servo [color = "#a8700f" ];
-
-    receiver:f5:e -- ballast [color = "#a8700f" ];
-
+    // Nodes
+    "conn_1" [label = "XT-60";shape = "house";];
+    "conn_2" [label = "XT-60";shape = "house";];
+    "sw_1" [label = "RF\lSwitch";shape = "rect";];
+    "led" [label = "LED\lplug";shape = "house";];
+    "esc" [label = "ESC";shape = "rect";];
+    "rudder_servo" [label = "Rudder";shape = "trapezium";];
+    "ballast" [label = "Ballast\lController";];
+    "dive_plane_servo" [label = "Dive Planes";shape = "trapezium";];
+    "fore_plane_servo" [label = "Fore Planes";shape = "trapezium";];
+    "batt_1" [label = "3s2200";];
+    "batt_2" [label = "3s2200";];
+    "bec" [label = "BEC";shape = "rect";];
+    "receiver" [label = "<f0>Receiver | <f1>Port 1 | <f2>Port 2 | <f3>Port 3 | <f4>Port 4 | <f5>Port 5 | <f6>Port 6";shape = "record";];
+    
+    // Edges
+    
+    batt_1 -- conn_1 [color = "#2430d3"; penwidth = 4;];
+    batt_2 -- conn_2 [color = "#2430d3"; penwidth = 4;];
+    
+    conn_1 -- sw_1 [color = "#2430d3"; penwidth = 4;];
+    conn_2 -- sw_1 [color = "#2430d3"; penwidth = 4;];
+    
+    conn_1 -- led [color = "#2430d3";];
+    conn_2 -- led [color = "#2430d3";];
+    
+    sw_1 -- bec [color = "#2430d3";];
+    
+    bec -- receiver:f6 [color = "#a8700f";];
+    
+    receiver:f1:e -- rudder_servo [color = "#a8700f";];
+    
+    receiver:f2:e -- dive_plane_servo [color = "#a8700f";];
+    
+    receiver:f3:e -- esc [color = "#a8700f";];
+    
+    receiver:f4:e -- fore_plane_servo [color = "#a8700f";];
+    
+    receiver:f5:e -- ballast [color = "#a8700f";];
+    
     
     // Title
-    fontsize=30
-    label="Marlin/Narwhal Wiring Diagram"
-    labelloc="t"
+    fontsize = 30;
+    label = "Marlin/Narwhal Wiring Diagram";
+    labelloc = "t";
 }

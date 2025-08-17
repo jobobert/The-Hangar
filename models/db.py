@@ -256,6 +256,8 @@ db.define_table('model'
                 #
                 , Field('fieldnotes', type='text', label='Field Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes))
                 #
+                , Field('diagram', type='text', label='.dot Diagram Code', comment="need .dot comment link")
+                #
                 , format=lambda row: row.name)
 
 db.define_table('modelstate', Field('name', type='string', label='State'), format=lambda row: row.name
