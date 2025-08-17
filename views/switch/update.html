@@ -1,0 +1,12 @@
+{{extend 'layout.html'}}
+
+<h1>Switch</h1>
+
+{{=form}}
+<hr>
+
+{{if switch_id:}}
+{{=LOAD('switch', 'renderpositions.load', args=[switch_id], ajax=True, content='Getting Details...')}}
+{{else:}}
+Create the switch first
+{{pass}}

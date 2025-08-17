@@ -1,0 +1,15 @@
+{{if options:}}
+    {{=form.custom.begin}}
+    <button class="btn button-model-select" type="submit">
+        {{if model[0].selected:}}
+        {{=show_icon('checkmark-filled.png', 30)}}
+        {{else:}}
+        {{=show_icon('checkmark-unfilled.png', 30)}}
+        {{pass}}
+    </button>
+    {{=form.custom.end}}
+{{else:}}
+    {{=form.custom.begin}}
+        <input class="btn {{='btn-primary' if model[0].selected else 'btn-outline-primary'}}"  type="submit" value="{{='Unselect' if model[0].selected else 'Select' }}">
+    {{=form.custom.end}}
+{{pass}}

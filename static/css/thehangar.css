@@ -1,0 +1,838 @@
+/* The Model Edit Form */
+
+.model_form_label {
+    font-style: italic;
+}
+
+.model_form_label_required {
+    font-weight: bold;
+}
+
+.model_form_comment {
+    display: none;
+}
+
+.model_form_field_calc {
+    background-color: #ece9e9;
+}
+
+.model_detail_row {
+    background-color: rgba(131, 128, 131, 0.5);
+    padding: 0 1rem 0 1rem;
+    margin-bottom: 0;
+    font-size: smaller;
+}
+
+/* Model States */
+/* 1 = Retired/Disposed */
+.modelstate_bg_1 {
+    color: #ffffff;
+    background-color: #474b47;
+}
+
+.modelstate_border-left_1 {
+    border-left: solid 4px #474b47;
+}
+
+.modelstate_border-bottom_1 {
+    border-bottom: solid 1px #474b47;
+}
+
+/* 2 = Idea */
+.modelstate_bg_2 {
+    color: #ffffff;
+    background-color: #5549c5;
+}
+
+.modelstate_border-left_2 {
+    border-left: solid 4px #5549c5;
+}
+
+.modelstate_border-bottom_2 {
+    border-bottom: solid 1px #5549c5;
+}
+
+/* 3 = On The Board */
+.modelstate_bg_3 {
+    color: #ffffff;
+    background-color: #b18802;
+}
+
+.modelstate_border-left_3 {
+    border-left: solid 4px #b18802;
+}
+
+.modelstate_border-bottom_3 {
+    border-bottom: solid 1px #b18802;
+}
+
+/* 4 = Ready for Maiden */
+.modelstate_bg_4 {
+    color: #2c2a2a;
+    background-color: #b8e614;
+}
+
+.modelstate_border-left_4 {
+    border-left: solid 4px #b8e614;
+}
+
+.modelstate_border-bottom_4 {
+    border-bottom: solid 1px #b8e614;
+}
+
+/* 5 = In Service */
+.modelstate_bg_5 {
+    /*color: #534f4f;*/
+    color: #ffffff;
+    background-color: #24a718;
+}
+
+.modelstate_border-left_5 {
+    border-left: solid 4px #24a718;
+}
+
+.modelstate_border-bottom_5 {
+    border-bottom: solid 1px #24a718;
+}
+
+/* 6 = Outof Service */
+.modelstate_bg_6 {
+    color: #ffffff;
+    background-color: #a72918;
+}
+
+.modelstate_border-left_6 {
+    border-left: solid 4px #a72918;
+}
+
+.modelstate_border-bottom_6 {
+    border-bottom: solid 1px #a72918;
+}
+
+/* 7 = Under Repair */
+.modelstate_bg_7 {
+    color: #ffffff;
+    background-color: #ac5832;
+}
+
+.modelstate_border-left_7 {
+    border-left: solid 4px #ac5832;
+}
+
+.modelstate_border-bottom_7 {
+    border-bottom: solid 1px #ac5832;
+}
+
+/* None */
+.modelstate_bg_None {
+    color: #ffffff;
+    background-color: #1d1f1d;
+}
+
+.modelstate_border-left_None {
+    border-left: solid 4px #1d1f1d;
+}
+
+.modelstate_border-bottom_None {
+    border-bottom: solid 1px #1d1f1d;
+}
+
+.model_attr_light {
+    color: rgb(136, 135, 135);
+}
+
+.model_transmitter {
+    margin-bottom: 1em;
+    background-color: #efefef;
+    padding-left: 1rem;
+}
+
+.model_transmitter span {
+    padding-right: .5rem;
+}
+
+.model_transmitter_label {
+    font-weight: bold;
+}
+
+.model_transmitter_content {
+    font-weight: normal;
+    padding-left: .5rem;
+}
+
+.model_transmitter a,
+a:visited {
+    text-decoration: none;
+    color: inherit;
+
+}
+
+div.card-header,
+div.card-title {
+    border-bottom: 3px solid #630556;
+    padding-bottom: 3px;
+}
+
+div.pie-card {
+    max-width: 610px;
+    min-width: 610px;
+    -moz-box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+}
+
+div.model-card {
+    max-width: 310px;
+    min-width: 310px;
+    -moz-box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+}
+
+div.model-card-pl {
+    max-width: 400px;
+    min-width: 400px;
+    -moz-box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+}
+
+div.model-card::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    /* hide shadow behind image */
+    -webkit-box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);
+    width: 80%;
+    left: 10%;
+    /* one half of the remaining 30% */
+    height: 100px;
+    bottom: 0;
+}
+
+div.model-card-dark {
+    background-color: #2E333A;
+    color: white;
+}
+
+div.card-footer-dark {
+    background-color: rgb(136, 135, 135) !important;
+}
+
+.th-new-link {
+    float: right;
+    position: relative;
+
+}
+
+.component_name {
+    display: inline;
+}
+
+.component_name a {
+    font-weight: normal;
+    display: inline;
+}
+
+.component_type {
+    font-weight: bold;
+    display: inline;
+}
+
+.component_subtype {
+    font-style: italic;
+    display: block;
+}
+
+.component_purpose {
+    font-style: italic;
+    display: inline;
+}
+
+.component_channel {
+    font-style: italic;
+    display: inline;
+}
+
+.component-item {
+    border-bottom: 1px solid #efefef;
+    padding: 2px;
+}
+
+.component-item-image {
+    max-width: 100px;
+    max-height: auto;
+    object-fit: contain;
+}
+
+.component-item-name {
+    font-weight: bold;
+}
+
+.component-item-type {
+    font: inherit;
+}
+
+.component-item-significantdetail {
+    font-style: italic;
+    padding-left: 1rem;
+}
+
+.component-item-channel {
+    font: inherit;
+}
+
+.component-item-channel_label {
+    font-style: italic;
+}
+
+.component-item-channel_value {
+    font-weight: bold;
+}
+
+.component-item-purpose {
+    font: inherit;
+}
+
+.component-item-purpose_label {
+    font-style: italic;
+}
+
+.component-item-purpose_value {
+    font-weight: bold;
+}
+
+.component-item-attachment {
+    font: inherit;
+}
+
+.component-item-buttons {
+    font: inherit;
+}
+
+.activitynote_date_dashboard {
+    font-size: x-small;
+    color: #ffffff;
+    background-color: #830c83;
+    display: block;
+    padding-left: 1em;
+}
+
+.activity_activitydate {
+    font: inherit;
+}
+
+.activity_activitytype {
+    font: inherit;
+}
+
+a.activitytype_Flight {
+    background-color: #24a718;
+}
+
+div.activitytype_Flight {
+    /*background-color: #24a718;*/
+    border-left: solid 2px #24a718;
+}
+
+a.activitytype_Crash {
+    background-color: #e4274a;
+}
+
+div.activitytype_Crash {
+    border-left: solid 2px #e4274a;
+}
+
+a.activitytype_Repair {
+    background-color: #2435d1;
+}
+
+div.activitytype_Repair {
+    border-left: solid 2px #2435d1;
+}
+
+a.activitytype_Purchase {
+    background-color: #830c83;
+}
+
+div.activitytype_Purchase {
+    border-left: solid 2px #830c83;
+}
+
+a.activitytype_Retirement {
+    background-color: #4c4d49;
+}
+
+div.activitytype_Retirement {
+    border-left: solid 2px #4c4d49;
+}
+
+a.activitytype_Note {
+    background-color: #108aa0;
+}
+
+div.activitytype_Note {
+    border-left: solid 2px #108aa0;
+}
+
+a.activitytype_StateChange {
+    background-color: #f52397;
+}
+
+div.activitytype_StateChange {
+    border-left: solid 2px #f52397;
+}
+
+a.activitytype_Other {
+    background-color: #bff52b;
+}
+
+div.activitytype_Other {
+    border-left: solid 2px #bff52b;
+}
+
+.activity_location {
+    font-style: italic;
+    padding-left: 1em;
+}
+
+.default-model-image {
+    display: block;
+    max-width: 268px;
+    max-height: 268px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.tool_name {
+    font: inherit;
+}
+
+.tool_tooltype {
+    font-style: italic;
+    padding-left: 1em;
+}
+
+.attachment_name {
+    font: inherit;
+}
+
+.attachment_icon {
+    font: inherit;
+}
+
+.img-filter {
+    list-style-type: none;
+}
+
+.filterform ul {
+    list-style-type: none;
+    width: 100%;
+}
+
+.filterform ul li {
+    display: inline-block;
+    margin-right: .5em;
+}
+
+.filterform ul li div.w2p_fl {
+    font-style: italic;
+    font-size: smaller;
+    display: inline-block;
+    margin-bottom: -2px;
+}
+
+.filterform ul li div select {
+    border-radius: 4px;
+    border: solid rgb(77, 75, 75) 1px;
+}
+
+span.card-icon {
+    margin-right: 5px;
+    display: inline-block;
+}
+
+.packinglist-card {
+    min-width: 20rem;
+}
+
+.packinglist-checkbox {
+    margin-left: -1rem;
+    margin-right: 1rem;
+}
+
+.packinglist-transmitter {
+    font-style: italic;
+    font-size: smaller;
+    padding-left: 1rem;
+}
+
+.itemlist-grid {
+    width: 100%;
+}
+
+.itemlist-grid td {
+    height: 4rem;
+}
+
+.itemlist-grid td img {
+    width: 4rem;
+    object-fit: contain;
+}
+
+.itemlist-grid td a img {
+    width: inherit !important;
+    object-fit: contain;
+}
+
+.model-summary {
+    border-bottom: solid 2px #4d0743;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-bottom: 1px;
+}
+
+table>thead>tr>td {
+    font-weight: bold;
+}
+
+.packinglist_select td img {
+    max-width: 100px;
+
+}
+
+@page {
+    size: 8.5in 11in;
+    margin: 2cm;
+    /*orphans: 4; 
+    widows: 2;*/
+}
+
+@media print {
+
+    .model-card {
+        page-break-inside: avoid;
+        break-inside: avoid-page;
+    }
+
+    .card-header>.cart-title>h5 {
+        font-size: smaller;
+    }
+
+    .card-body {
+        font-size: smaller;
+    }
+
+    a[href*='//']:after {
+        content: " (" attr(href) ") ";
+        color: #000;
+    }
+
+    .btn-toolbar {
+        display: none;
+    }
+
+    .btn,
+    .th-new-link {
+        display: none;
+    }
+
+    .no-print {
+        display: none;
+    }
+
+    .card-deck.card {
+        width: 48%;
+    }
+
+    form {
+        display: none;
+    }
+}
+
+.two-column {
+    -moz-column-count: 2;
+    -moz-column-gap: 10px;
+    -webkit-column-count: 2;
+    -webkit-column-gap: 10px;
+    column-count: 2;
+    column-gap: 10px;
+}
+
+.dashboard-list {
+    overflow: hidden;
+    display: block;
+    white-space: nowrap;
+}
+
+.dashboard-tab {
+    background-color: rgba(131, 128, 131, 0.5);
+    font-weight: bold;
+    color: rgba(0, 0, 0, .5);
+    border: #ffffff solid 2px;
+}
+
+.dashboard-highlight {
+    background-color: #efefef;
+    font-weight: bold;
+}
+
+.dashboard-highlight:after {
+    content: ">>"
+}
+
+.dashboard-button-table {
+    /*margin: 0px;
+    padding: 1em;
+    background-color: #efefef;*/
+    width: 100%;
+    height: 100%;
+    border-spacing: 2px;
+    border-collapse: separate;
+}
+
+.dashboard-button-table td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 2px;
+}
+
+.dashboard-activity-date {
+    font: inherit;
+}
+
+.dashboard-activity-model {
+    font-weight: bold;
+}
+
+.dashboard-activity-type {
+    font-style: italic;
+}
+
+.todo_critical {
+    color: red;
+}
+
+.dash-button {
+    background-color: rgb(129, 126, 126);
+    border: none;
+    color: white;
+    text-align: center;
+    vertical-align: center;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-block;
+    font-size: inherit;
+    margin: 4px 2px;
+    padding: 1px;
+    cursor: pointer;
+    width: 100%;
+    height: 3em;
+}
+
+.dash-button-dark {
+    background-color: #3b3a3a;
+}
+
+.dash-attributes dl dt {
+    display: inline-block;
+}
+
+.dash-attributes dl dd {
+    display: block;
+}
+
+/*.dash-attributes dl dd:after{
+    content: '\A';
+    white-space: pre;
+}*/
+
+a.nav-link {
+    white-space: nowrap !important;
+}
+
+/*#model-details{
+    line-height: 1;
+}
+
+#model-details div.collapse[aria-expanded="false"]{
+    display: block;
+    height: 200px !important;
+    overflow: hidden;
+}
+
+#model-details div.collapsing[aria-expanded="false"]{
+    height: 200px !important;
+}*/
+
+div.web2py_htmltable table tr td,
+div.web2py_htmltable table tr th {
+    padding-left: 5px;
+    padding-right: 5px;
+    border-bottom: 1px solid #efefef;
+}
+
+div.web2py_htmltable table tr:hover {
+    background-color: #efefef;
+}
+
+.componentlist_choose {
+    margin: 3em;
+    padding: 1em;
+    background-color: #c0bd20;
+}
+
+/*  
+For hiding/showing text in a div - see model/index.html
+*/
+.hideContent {
+    overflow: hidden;
+    line-height: 1em;
+    max-height: 15em;
+}
+
+.showContent {
+    line-height: 1em;
+    height: auto;
+}
+
+div.attribute-list dl dt {
+    display: inline-block;
+}
+
+div.attribute-list dl dd {
+    display: inline;
+}
+
+div.attribute-list dl dd:after {
+    content: "\A";
+    white-space: pre;
+
+}
+
+table.battery {
+    width: 300px;
+}
+
+td.battery-voltage {
+    text-align: center;
+    background-color: #efefef;
+}
+
+td.battery-cellcount {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 20;
+    font-weight: bold;
+    border-left: 2px solid #efefef;
+    border-bottom: 2px solid #efefef;
+}
+
+td.battery-chemistry {
+    width: 100px;
+    height: 25px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 20;
+    font-weight: bold;
+    border-left: 2px solid #efefef;
+    border-right: 2px solid #efefef;
+    border-bottom: 2px solid #efefef;
+}
+
+td.battery-mah {
+    height: 25px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 20;
+    font-weight: bold;
+    border-left: 2px solid #efefef;
+    border-right: 2px solid #efefef;
+    border-bottom: 2px solid #efefef;
+}
+
+td.battery-crating {
+    width: 50px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 20;
+    font-weight: bold;
+    border-right: 2px solid #efefef;
+    border-bottom: 2px solid #efefef;
+}
+
+td.battery-ownedcount {
+    text-align: center;
+    vertical-align: middle;
+    background-color: #efefef;
+}
+
+/* Export Styles */
+.export-row {
+    padding-left: 2em;
+}
+
+.export-row_header {
+    background-color: rgb(69, 36, 161);
+}
+
+.export-col_header {
+    background-color: rgb(69, 36, 161);
+    font-weight: bold;
+}
+
+div.export-field_value img.export-image-sm {
+    width: 100%;
+    height: auto;
+    max-width: 200px;
+    object-fit: contain;
+}
+
+.export-field_notes {
+    padding-left: 2em;
+    border-left: 5px solid #888585;
+}
+
+.export-notfound {
+    font-weight: bold;
+    padding-left: 2em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.button-model-select {
+    padding: 0px;
+    margin: 0px;
+    background: transparent;
+}
+
+.library-header {
+    background-color: #efefef;
+}
+
+a.library-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.library-list {
+    border-bottom: solid 1px #969292;
+    padding-bottom: 1em;
+    padding-top: .5em;
+}
+
+.hass-body {
+    background-color: rgb(0, 0, 0);
+
+}
+
+div.breadcrumb {
+    Padding-left: 1em;
+    font-weight: bold;
+
+}

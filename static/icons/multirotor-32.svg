@@ -1,0 +1,37 @@
+<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+ <desc/>
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="34" width="34" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <g stroke="null" id="Layer1">
+   <g stroke="null" id="Shape1">
+    <desc transform="translate(1.1666666269302368,1.3333333730697632) translate(1,-17) translate(3.5,40.5) scale(0.49180328845977783) translate(-3.5,-40.5) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m25.338798,9.587431c0,-1.629693 -1.651426,-2.95082 -3.688525,-2.95082c-2.037098,0 -3.688525,1.321126 -3.688525,2.95082c0,1.629689 1.651426,2.95082 3.688525,2.95082c2.037098,0 3.688525,-1.321131 3.688525,-2.95082z" id="shapePath1"/>
+   </g>
+   <g stroke="null" id="Shape2">
+    <desc transform="translate(1.1666666269302368,1.3333333730697632) translate(1,-17) translate(3.5,40.5) scale(0.49180328845977783) translate(-3.5,-40.5) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m5.666667,10.079235c0,-1.629693 1.651412,-2.95082 3.688525,-2.95082c2.037098,0 3.688525,1.321126 3.688525,2.95082c0,1.629689 -1.651426,2.95082 -3.688525,2.95082c-2.037118,0 -3.688525,-1.321131 -3.688525,-2.95082z" id="shapePath2"/>
+   </g>
+   <g stroke="null" id="Shape3">
+    <desc transform="translate(1.1666666269302368,1.3333333730697632) translate(1,-17) translate(3.5,40.5) scale(0.49180328845977783) translate(-3.5,-40.5) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m5.666667,21.882514c0,1.629689 1.651412,2.95082 3.688525,2.95082c2.037098,0 3.688525,-1.321131 3.688525,-2.95082c0,-1.629689 -1.651426,-2.95082 -3.688525,-2.95082c-2.037118,0 -3.688525,1.321131 -3.688525,2.95082z" id="shapePath3"/>
+   </g>
+   <g stroke="null" id="Shape4">
+    <desc transform="translate(1.1666666269302368,1.3333333730697632) translate(1,-17) translate(3.5,40.5) scale(0.49180328845977783) translate(-3.5,-40.5) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m25.338798,21.882514c0,1.629689 -1.651426,2.95082 -3.688525,2.95082c-2.037098,0 -3.688525,-1.321131 -3.688525,-2.95082c0,-1.629689 1.651426,-2.95082 3.688525,-2.95082c2.037098,0 3.688525,1.321131 3.688525,2.95082z" id="shapePath4"/>
+   </g>
+   <g stroke="null" id="Shape5">
+    <desc transform="translate(1.1666666269302368,1.3333333730697632) translate(1,-17) translate(3.5,40.5) scale(0.49180328845977783) translate(-3.5,-40.5) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m10.5847,12.046448c2.114115,0.810295 2.523934,3.239066 4.918033,3.442623c-1.04818,1.162918 -7.235725,5.426312 -2.459016,5.901639c1.476885,-4.082508 6.825394,-6.059017 8.360656,-0.983607c0.851607,-3.969738 -4.52159,-6.783738 -0.491803,-9.344262c-1.80118,5.183607 -11.16064,-1.32933 -10.327869,0.983607z" id="shapePath5"/>
+   </g>
+   <g stroke="null" id="Shape6">
+    <desc transform="translate(1.1666666269302368,1.3333333730697632) translate(1,-17) translate(3.5,40.5) scale(0.49180328845977783) translate(-3.5,-40.5) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m65.666668,-81.396177z" id="shapePath6"/>
+   </g>
+  </g>
+ </g>
+</svg>

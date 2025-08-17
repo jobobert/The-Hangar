@@ -1,0 +1,79 @@
+{{extend 'layout_dashboard.html'}}
+
+<div class="row">
+    <div class="col-3 pt-2 pl-0 pr-0" style="background-color: #efefef;">
+        {{if not models:}}
+
+        <div class="col-sm-12 m-5">
+            <h3>No Models Found</h3>
+            <a href="{{=URL('default', 'setui', args=[''])}}">Return to Card View</a>
+        </div>
+
+        {{else:}}
+        <ul class="list-group">
+            <li class="list-group-item"><a href="{{=URL('default', 'index')}}">Overview</a> /
+                <a href="{{=URL('default', 'setui', args=[''])}}">Cards</a>
+            </li>
+            {{for model in models:}}
+            <li class="dashboard-list list-group-item modelstate_border-left_{{=model.modelstate}} {{=' dashboard-highlight' if int(model.id) == int(selected) else ''}}">
+                <a href="{{=URL('default', 'index',args=model.id)}}">
+                    <img src="{{=URL('default', 'download', args=model.img)}}" style="max-width: 48px; max-height: 48px;" />
+                    {{=model.name}}</a>
+            </li>
+            {{pass}}
+        </ul>
+        {{pass}}
+    </div>
+    <div class="col-9 mt-2 ">
+
+        {{if selected == -1:}}
+        <div class="row">
+            <div class="col-12">
+                {{=LOAD('model','renderstatecounts.load', args=['dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')), 'Loading States'))}}
+            </div>
+        </div>
+        <div class="row">
+            <button type="button" class="btn" data-toggle="modal" data-target="#todo">New Todo</button>
+            <!-- <button type="button" class="btn">New Event</button> -->
+        </div>
+        <div class="row">
+            {{=LOAD('activity', 'calendar.load')}}
+        </div>
+        <div class="row">
+            {{=LOAD('todo','renderlist.load', args=['dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')), 'Loading Todos'))}}
+        </div>
+
+        <script>
+            $(function () {
+                $('#list li:first-child a').tab('show')
+            })
+        </script>
+
+        {{else:}}
+        {{=LOAD('model','renderdashboard.load', args=[selected], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')), 'Getting Model Details...'))}}
+        {{pass}}
+    </div>
+</div>
+
+<div class="modal fade" id="todo" tabindex="-1" role="dialog" aria-labelledby="New todo" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">New Todo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{try:}}
+                {{=LOAD('todo','newmodal.load', args=[model.id], ajax=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                {{except:}}
+                No model is available to attach a todo to, sorry.
+                {{pass}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

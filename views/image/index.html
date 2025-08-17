@@ -1,0 +1,54 @@
+{{extend 'layout.html'}}
+
+<div class="row">
+    <h1>Images</h1>
+</div>
+<div class="row mb-2">
+    <div>
+        <a class="btn btn-primary d-inline-block" href="{{=URL('image','update')}}">Add New</a>
+        <ul id="img-filter" class="img-filter d-inline-block">
+            {{=form.custom.begin}}
+            <li>{{=form.custom.widget.text}}</li>
+            <li>{{=form.custom.submit}}</li>
+            {{=form.custom.end}}
+        </ul>
+    </div>
+</div>
+
+<div class="row mt-2">
+    <div class="col-sm-12">
+        <div class="card-deck">
+            {{for img in images:}}
+            <div class="card p-2" style="max-width: 18rem; min-width: 18rem;">
+                <div class="card-header p-0 m-2" style="border: none; background-color: white;">
+                    {{for tag in img.tags:}}
+                    <span class="badge badge-pill badge-info">{{=tag}}</span>
+                    {{pass}}
+                </div>
+                <img class="card-img-top" src="{{=URL('default', 'download', args=img.img)}}">
+                <div class="card-body">
+                    <input type="text" style="max-width: 10rem;" value="{{=URL('default', 'download', args=img.img)}}" id="url">
+                    <button class="btn btn-primary" onclick="copyToClipboard();">Copy</button>
+                </div>
+            </div>
+            {{pass}}
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard() {
+        /* Get the text field */
+        var copyText = document.getElementById("url");
+
+        /* Select the text field */
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+        /* Copy the text inside the text field */
+        document.execCommand("copy");
+
+        /* Alert the copied text */
+        //alert("Copied the text: " + copyText.value);
+    }
+</script>

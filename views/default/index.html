@@ -1,0 +1,112 @@
+{{extend 'layout.html'}}
+
+<!--<div class="d-print-none alert alert-secondary" role="alert">Todo: </div>-->
+<style>
+  .filterform {
+    background-color: beige;
+    padding: 5px;
+    margin-top: 5px;
+  }
+
+  .filterform div {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .filterform div div {
+    display: block;
+    margin-right: 5px;
+    padding: 2px;
+
+  }
+
+  .filterform fieldset~div {
+    margin-bottom: 2px;
+  }
+
+  .w2p_fl {
+    font-size: 10pt;
+  }
+
+  .w2p_fw {
+    font-size: 10pt;
+  }
+
+  .filterform label {
+    margin-bottom: 1px;
+    padding: 0px;
+  }
+
+  input[type=checkbox] {
+    padding-left: 10px;
+  }
+
+  .filterform select {
+    font-size: 10pt;
+    padding: 2px;
+  }
+</style>
+
+<div class="row mb-2 d-print-none">
+  <div class="col-sm-12">
+    <a class="btn btn-secondary" href="{{=URL('default','index', vars=dict(s='1*'))}}">Show All</a>
+    <a class="btn btn-secondary" href="{{=URL('default','index', vars=dict(s='4*'))}}">Show Active</a>
+    <button class="btn btn-secondary" data-toggle="collapse" data-target="#todos">Todos</button>
+    <button class="btn btn-primary" data-toggle="collapse" data-target="#filters">More</button>
+  </div>
+  <div id="filters" class="collapse">
+    {{=form}}
+  </div>
+</div>
+
+<div class="row mt-2 d-print-none">
+  {{fc = 0}}
+  {{for f in filters:}}
+  {{if filters[f]:}}
+  <span class="badge badge-secondary">{{=filters[f]}}</span>
+  {{fc = fc + 1}}
+  {{pass}}
+  {{pass}}
+  {{if fc > 0:}}
+  <span><a href="{{=URL('default','index', vars=dict(clear='true'))}}">Clear</a></span>
+  {{pass}}
+</div>
+
+<div id="todos" class="collapse col-sm-7">
+  {{=LOAD('todo','renderlist.load', ajax=True, ajax_trap=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+</div>
+
+{{if log:}}
+<ul>
+  {{for l in log:}}
+  <li>{{=l}}</li>
+  {{pass}}
+</ul>
+{{pass}}
+
+
+<div class=" row mt-2">
+  {{if not models:}}
+
+  <div class="col-sm-12 m-5">
+    <h3>No Models Found</h3>
+    <i>Perhaps try a different state?</i>
+  </div>
+  {{=LOAD('model','renderstatecounts.load', ajax_trap=True, content=DIV(IMG(_src=URL('static',
+  'images/waiting.gif')),"State Counts"))}}
+
+  {{else:}}
+
+  <div class="col-sm-12">
+    <div class="card-deck">
+      {{=LOAD('model','renderstatecounts.load', ajax_trap=True, content=DIV(IMG(_src=URL('static',
+      'images/waiting.gif')),"State Counts"))}}
+      {{for model in models:}}
+      {{=LOAD('model','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+      'images/waiting.gif')),model.name))}}
+      {{pass}}
+    </div>
+  </div>
+
+  {{pass}}
+</div>

@@ -1,0 +1,148 @@
+{{extend 'layout.html'}}
+
+<div class="card-deck">
+    {{if todos:}}
+    <div class="card packinglist-card d-print-none">
+        <div class="card-header">
+            <h5 class="card-title">Open Todos</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush two-column">
+                {{for t in todos:}}
+                <li class="list-group-item">
+                    <div class="d-inline;">{{=B(t[0])}} {{=t[1]}}</div>
+                </li>
+                {{pass}}
+            </ul>
+        </div>
+    </div>
+    {{pass}}
+
+    <div class="card packinglist-card">
+        <div class="card-header">
+            <h5 class="card-title">Models</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush two-column">
+                {{for x in models:}}
+                <li class="list-group-item">
+                    <div>
+                        <div style=""><input type="checkbox" class="packinglist-checkbox" />{{=x[0]}}
+                            
+                    </div>
+                    <div style="margin-left: 2em;">
+                        {{if x[1]:}}
+                        <input type="checkbox" class="packinglist-checkbox" />Wings
+                        {{pass}}
+                        {{if x[2]:}}
+                        <span>and Tube</span>
+                        {{pass}}
+                        
+                    </div>
+
+                    <div style="margin-left: 2em; ">
+                        {{if x[3]:}}
+                        <input type="checkbox" class="packinglist-checkbox" />Struts
+                        {{pass}}
+                    </div>
+                    <div style="margin-left: 2em; ">
+                        {{if x[4]:}}
+                        <input type="checkbox" class="packinglist-checkbox" />Sails
+                        {{pass}}
+                    </div>
+                </li>
+                {{pass}}
+            </ul>
+        </div>
+    </div>
+
+    {{if transmitters:}}
+    <div class="card packinglist-card">
+        <div class="card-header">
+            <h5 class="card-title">Transmitters</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                {{for x in transmitters:}}
+                <li class="list-group-item"><input type="checkbox" class="packinglist-checkbox" />{{=x}}</li>
+                {{pass}}
+            </ul>
+        </div>
+    </div>
+    {{pass}}
+
+    {{if tools:}}
+    <div class="card packinglist-card">
+        <div class="card-header">
+            <h5 class="card-title">Tools</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush two-column">
+                {{for x in tools:}}
+                <li class="list-group-item"><input type="checkbox" class="packinglist-checkbox" />{{=x}}</li>
+                {{pass}}
+            </ul>
+        </div>
+    </div>
+    {{pass}}
+
+    {{if supportitems:}}
+    <div class="card packinglist-card">
+        <div class="card-header">
+            <h5 class="card-title">Support Items</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush two-column">
+                {{for x in supportitems:}}
+                <li class="list-group-item"><input type="checkbox" class="packinglist-checkbox" />{{=x}}</li>
+                {{pass}}
+            </ul>
+        </div>
+    </div>
+    {{pass}}
+
+    {{if batteries:}}
+    <div class="card packinglist-card">
+        <div class="card-header">
+            <h5 class="card-title">Batteries</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush two-column">
+                {{for x in batteries:}}
+                <li class="list-group-item"><input type="checkbox" class="packinglist-checkbox" />{{=x}}</li>
+                {{pass}}
+            </ul>
+        </div>
+    </div>
+    {{pass}}
+
+    {{if propellers:}}
+    <div class="card packinglist-card">
+        <div class="card-header">
+            <h5 class="card-title">Propellers</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush two-column">
+                {{for x in propellers:}}
+                <li class="list-group-item"><input type="checkbox" class="packinglist-checkbox" />{{=x}}</li>
+                {{pass}}
+            </ul>
+        </div>
+    </div>
+    {{pass}}
+
+    {{if rocketmotors:}}
+    <div class="card packinglist-card">
+        <div class="card-header">
+            <h5 class="card-title">Rocket Motors</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush two-column">
+                {{for x in rocketmotors:}}
+                <li class="list-group-item"><input type="checkbox" class="packinglist-checkbox" />{{=x}} Motor</li>
+                {{pass}}
+            </ul>
+        </div>
+    </div>
+    {{pass}}
+</div>

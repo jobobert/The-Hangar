@@ -1,0 +1,44 @@
+def rendercard():
+
+    #session.forget(response)
+    model_id = request.args[0]
+    si_query = db(db.propeller.model == model_id)
+
+    si_count = si_query.count() 
+
+    fields = ['item']
+    form = SQLFORM(db.propeller, fields=fields, formstyle='bootstrap4_inline', submit_button='Add')
+    for s in form.elements('input', _type='text'):
+        s['_autocomplete'] = 'off'
+    form.vars.model = model_id
+    if form.process(session=None, formname='siform').accepted:
+        response.flash = "New Propeller Added"
+    elif form.errors:
+        response.flash = "Error Adding New Propeller"
+
+    del_id = 0
+    deleteform = SQLFORM.factory()
+    if deleteform.process(session=None, formname='propellerdeleteform').accepted:
+        for y, z in request.vars.items():
+            if z == "Remove":
+                del_id = y
+                db(db.propeller.id == del_id).delete()
+                response.flash = "Removal Success"
+                #response.flash = str(del_id) + " Removal Success"
+    elif deleteform.errors:
+        response.flash = "Removal Failure"
+
+    items = si_query.select()
+
+    return dict(items=items, model_id=model_id, item_count=si_count, form=form, deleteform=deleteform)
+
+
+def remove():
+    #session.forget(response)
+    item_id = request.args(0)
+    response.flash = item_id
+    
+    if item_id:
+        db(db.propeller.id == item_id).delete()
+        #redirect(URL('default', 'breadcrumb_back'))
+        return redirect(URL('propeller', 'index', args=item_id, extension="html"))

@@ -1,0 +1,11 @@
+<h5>Recent Flights</h5>
+<ul class="list-group">
+    {{for flight in flights:}}
+    <li class="list-group-item">
+        <span class="dashboard-activity-model"> {{=flight.model.name}}</span>
+        <span class="dashboard-activity-type">{{=flight.activitytype}}</span>
+        on
+        <span class="dashboard-activity-date">{{=flight.activitydate.strftime('%b %d')}}</span>
+    </li>
+    {{pass}}
+</ul>

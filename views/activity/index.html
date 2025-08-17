@@ -1,0 +1,51 @@
+{{extend 'layout.html'}}
+
+<div class="container">
+    <div class="row">
+        <p>This needs to be a calendar</p>
+
+    </div>
+
+    <div class="row">
+        <div class="col-6">
+            <table>
+                <tr>
+                    <td><strong>{{=getattr(db.activity, 'activitydate').label}}</strong></td>
+                    <td>{{=activity.activitydate}}</td>
+                </tr>
+                <tr>
+                    <td><strong>Model</strong></td>
+                    <td>{{=activity.model.name}}</td>
+                </tr>
+                <tr>
+                    <td><strong>{{=getattr(db.activity, 'activitytype').label}}</strong></td>
+                    <td>{{=activity.activitytype}}</td>
+                </tr>
+                <tr>
+                    <td><strong>{{=getattr(db.activity, 'duration').label}}</strong></td>
+                    <td>{{=activity.duration}}</td>
+                </tr>
+                <tr>
+                    <td><strong>{{=getattr(db.activity, 'activitylocation').label}}</strong></td>
+                    <td>{{=activity.activitylocation}}</td>
+                </tr>
+                <tr>
+                    <td colspan="3">{{=MARKMIN(activity.notes)}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-6">
+            {{if activity.img:}}
+            <img style="max-width: 400px;" class="card-img-top" src="{{=URL('default', 'download', args=activity.img)}}" alt="Activity Image">
+            {{else:}}
+            No image available
+            {{pass}}
+        </div>
+
+    </div>
+
+
+    <div class="row mt-5 mb-5">
+        <a class="btn btn-primary" href="{{=URL('activity','update',args=activity.id,extension='html')}}">Edit</a>
+    </div>
+</div>

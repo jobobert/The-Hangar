@@ -1,0 +1,74 @@
+{{extend 'layout.html'}}
+
+<div class="container ">
+    <div class="row library-header">
+        <div class="col-sm-12">
+            <div class="d-inline">{{=library_type_icon(article,32)}}</div>
+            {{=DIV(H1(article.name),_class="d-inline-block")}}
+        </div>
+    </div>
+    <div class="row library-header">
+        <div class="col-sm-12">
+            {{=DIV(I(article.summary), _class="pl-5")}}
+        </div>
+    </div>
+    <div class="row library-header">
+        <div class="col-sm-6">{{=B("Author:")}} {{=article.author}}</div>
+        <div class="col-sm-6 ">{{=B("Source:")}} {{=article.articlesource}}</div>
+    </div>
+
+    {{if article.attachment:}}
+    <div class="row library-header p-2">
+        <div class="col-sm-12">
+            <div class="d-inline-block">
+                <a href="{{=URL('default', 'download', args=article.attachment)}}">
+                    {{try:}}
+                    {{=filetype_icon(article.attachment, 32) }}
+                    
+                    {{(filename, file) = db.article.attachment.retrieve(article.attachment)}}
+                    
+                    {{=filename}}
+                    {{except Exception as e:}}
+                    Error getting the attachment
+                    {{pass}}
+                </a>
+            </div>
+            <div class="d-inline-block">{{=article.showAttachmentPopup()}}</div>
+        </div>
+    </div>
+    {{pass}}
+
+    {{if article.img:}}
+    <div class="row pt-5">
+        <div class="col-sm-12">
+            <img src="{{=URL('default', 'download', args=article.img)}}" alt="Image" />
+        </div>
+    </div>
+    {{pass}}
+    
+    <div class="row pt-5">
+        <div class="col-sm-12">
+            {{if article.notes:}}
+                {{=MARKMIN(article.notes)}}
+            {{else:}}
+                <h2>No content found, edit now</h2>
+            {{pass}}
+        </div>
+    </div>
+
+    <div class="row">
+        
+        {{if isimage(article.attachment):}}
+        <img class="img-thumbnail rounded" 
+            src="{{=URL('default', 'download', args=article.attachment)}}" alt="Attachment" />
+        {{elif ispdf(article.attachment):}}
+        <iframe src="http://docs.google.com/gview?url={{=URL('default', 'download', args=article.attachment, scheme=True, host=True)}}&embedded=true" frameborder="0"></iframe>
+        {{pass}}
+        http://docs.google.com/gview?url={{=URL('default', 'download', args=article.attachment, scheme=True, host=True)}}&embedded=true
+    </div>
+    
+    <div class="row mt-5 mb-5">
+        <a class="btn btn-secondary" href="{{=URL('library','update',args=article.id,extension='html')}}">Edit</a>
+        <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
+    </div>
+</div>

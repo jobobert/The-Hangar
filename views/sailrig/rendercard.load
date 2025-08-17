@@ -1,0 +1,38 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('boat-48.svg', 25)}}</span>{{=rig_count}} Rigs</h5>
+    </div>
+    <div class="card-body">
+        {{=deleteform.custom.begin}}
+        {{for mr in model_rigs:}}
+
+        <div class="row">
+            <div class="col-8">
+                <div class="tool_name"><a class="text-decoration-none" href="{{=URL('sailrig','index.html',args=[mr.id])}}">{{=mr.rigname}}</a></div>
+            </div>
+            <div class="col-4 mt-2">
+                <button class="btn btn-secondary" type="submit" value="Remove" name="{{=mr.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+            </div>
+        </div>
+        <div class="row boarder-bottom">
+            <div class="col-12">
+                <div>{{=mr.notes or ''}}</div>
+            </div>
+        </div>
+        {{pass}}
+        {{=deleteform.custom.end}}
+
+    </div>
+</div>
+<div class="card-footer">
+    <div class=" m-2 ">
+        <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_sailrig" role="button" aria-expanded="false" aria-controls="collapseform_sailrig">New</a>
+    </div>
+    <div class=" m-2 collapse " id="collapseform_sailrig">
+        <div class="card-body">
+            <div class="mt-3">
+                {{=newform}}
+            </div>
+        </div>
+    </div>
+</div>

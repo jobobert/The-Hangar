@@ -1,0 +1,25 @@
+<div class="card model-card-pl mb-2 test">
+    <h3>{{=model.name}}</h3>
+    {{if model.transmitter:}}
+    <h5 class="ml-3">Transmitter</h5>
+    <div class="ml-5">
+        {{=model.transmitter.nickname}}</div>
+    {{pass}}
+
+    <h5 class="ml-3">Batteries</h5>
+    {{if batteries:}}
+    {{for battery in batteries:}}
+    <div class="ml-5">{{=battery.battery.name}}</div>
+    {{pass}}
+    {{else:}}
+    <div class="ml-5">No Batteries</div>
+    {{pass}}
+
+    <h5 class="ml-3">Switches</h5>
+    <div class="ml-5">{{=LOAD('switch', 'renderswitches.load', args=[model.id, True], ajax=True, content='Getting Details...' )}}</div>
+
+    {{if model.fieldnotes:}}
+        <h5 class="ml-3">Field Notes</h5>
+        <div class="ml-5">{{=model.fieldnotes}}</div>
+    {{pass}}
+</div> 

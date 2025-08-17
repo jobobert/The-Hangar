@@ -1,0 +1,44 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('icons8-low-battery-80.png', 25)}}</span>{{=battery_count}} Batteries</h5>
+        <!--<a class="card-link th-new-link" href="{{=URL('battery','update')}}">New</a>-->
+        <a href="#" data-toggle="modal" data-target="#modal_newbattery" class="card-link th-new-link">New</a>
+    </div>
+    <div class="card-body">
+        {{=deleteform.custom.begin}}
+        {{for mt in model_batteries:}}
+
+        <div class="row border-bottom">
+            <div class="col-6">
+                <div class="tool_name"><a class="text-decoration-none" href="{{=URL('battery','index.html',args=[mt.battery])}}">{{=mt.battery.name}}</a></div>
+            </div>
+            <div class="col-2">
+                <div>{{=mt.battery.ownedcount}}</div>
+            </div>
+            <div class="col-4 mt-2">
+                <!--<a class="btn btn-primary" href="{{=URL('battery','removefrommodel',args=[model_id, mt.id])}}">{{=show_icon('icons8-waste-50.png', 16)}}</a>
+                <input class="btn btn-secondary" type="submit" value="Remove" name="{{=mt.id}}">-->
+                <button class="btn btn-secondary" type="submit" value="Remove" name="{{=mt.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+            </div>
+        </div>
+        {{pass}}
+        {{=deleteform.custom.end}}
+
+        {{=addform}}
+    </div>
+</div>
+<div class="modal fade" id="modal_newbattery" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_newbattery_title">New Battery</h5>
+            </div>
+            <div class="modal-body">
+                {{=newform}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

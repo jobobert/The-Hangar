@@ -1,0 +1,186 @@
+<div class="container">
+    <div class="row mb-3 ml-2">
+        <div class=" col-sm-12">
+            {{=LOAD('model','flowchart.load', args=[model.id], ajax=True, content='Loading Flowchart..')}}
+        </div>
+    </div> 
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="container">
+                <div class="row">
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-primary" href="{{=URL('model','index',args=model.id,extension='html')}}">Details</a>
+                        <a class="btn btn-outline-primary" href="{{=URL('model','update',args=model.id,extension='html')}}">Edit</a>
+                        {{=LOAD('model','selected.load', args=[model.id], ajax=True, content='...')}}
+                    </div>
+                </div>
+
+                
+
+                <div class="row p-2"> 
+                    <ul id="tab-list" class="nav nav-pills mt-3 border-bottom">
+                        <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabdesc" href="#tdescription">Description</a></li>
+                        <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabattr" href="#tattributes">Attributes</a></li>
+                        <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabnote" href="#tnotes">{{=options["note"]}} Notes</a></li>
+                        <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtodo" href="#ttodos">{{=options["todo"]}} Todos</a></li>
+                        {{if options["component"] > 0:}}
+                        <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabcomp" href="#tcomponents">{{=options["component"]}} Components</a></li>
+                        {{pass}}
+                        {{if options["tool"] > 0:}}
+                        <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtool" href="#ttools">{{=options["tool"]}} Tools</a></li>
+                        {{pass}}
+                        {{if options["attachment"] > 0:}}
+                        <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabatta" href="#tattachments">{{=options["attachment"]}} Attachments</a></li>
+                        {{pass}}
+                        {{if options["switch"] > 0:}}
+                        <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabswit" href="#tswitches">{{=options["switch"]}} Switches</a></li>
+                        {{pass}}
+                    </ul>
+                 
+                    <div class="col-12 tab-content m-2">
+                        <div id="tdescription" class="tab-pane">
+                            {{if model.transmitter:}}
+                            <div class="mb-3 p-1 bg-light"><b>Transmitter:</b> {{=model.transmitter.nickname or model.transmitter.name}} </div>
+                            {{pass}}
+                            {{=MARKMIN(model.notes)}}
+                        </div>
+                        <div id="tnotes" class="tab-pane active">
+                            {{=LOAD('activity','rendernotes.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Reading Notes...'))}}
+                        </div>
+                        <div id="ttodos" class="tab-pane">
+                            {{=LOAD('todo',    'rendercard.load',  args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Loading Todos...'))}}
+                        </div>
+                        <div id="tattributes" class="tab-pane attribute-list">
+                            <dl>
+                                <dt>Have Plan:</dt>
+                                <dd>{{=model.haveplans}}</dd>
+                                <dt>Have Kit:</dt>
+                                <dd>{{=model.havekit}}</dd>
+                                {{for key in sorted(model.__dict__):}}
+                                {{if key.startswith('attr_') and model[key]:}}
+                                {{c=''}}
+                            
+                                {{if key.startswith('attr_plane_') and model.modeltype != 'Airplane' :}}{{c="model_attr_light"}}
+                                {{elif key.startswith('attr_rocket_') and model.modeltype != 'Rocket':}}{{c="model_attr_light"}}
+                                {{elif key.startswith('attr_boat_') and model.modeltype != 'Boat':}}{{c="model_attr_light"}}
+                                {{elif key.startswith('attr_copter_') and (model.modeltype != 'Helicopter' and model.modeltype != 'Autogyro') :}}{{c="model_attr_light"}}
+                                {{elif key.startswith('attr_multi_') and model.modeltype != 'Multirotor' :}}{{c="model_attr_light"}}
+                                {{elif key.startswith('attr_robot_') and model.modeltype != 'Robot' :}}{{c="model_attr_light"}}
+                                {{elif key.startswith('attr_experimental_') and model.modeltype != 'Experimental' :}}{{c="model_attr_light"}}
+                                {{else:}} {{c=""}}
+                                {{pass}}
+                                <dt class="{{=c}}">{{=getattr(db.model, key).label}}</dt>
+                                <dd class="{{=c}}">{{=model[key]}}</dd>
+                                {{pass}}
+                                {{pass}}
+                            </dl>
+                        </div>
+                        {{if options["component"] > 0:}}
+                        <div id="tcomponents" class="tab-pane">
+                            {{=LOAD('component','rendercard.load', args=[model.id, 'dashboard'], ajax=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                        </div>
+                        {{pass}}
+                        {{if options["tool"] > 0:}}
+                        <div id="ttools" class="tab-pane">
+                            {{=LOAD('tool','rendercard.load', args=[model.id, 'dashboard'], ajax=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                        </div>
+                        {{pass}}
+                        {{if options["attachment"] > 0:}}
+                        <div id="tattachments" class="tab-pane">
+                            {{=LOAD('attachment','rendercard.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
+                        </div>
+                        {{pass}}
+                        {{if options["switch"] > 0:}}
+                        <div id="tswitches" class="tab-pane">
+                            {{=LOAD('switch','renderswitchtable.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
+                        </div>
+                        {{pass}}
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>  
+
+<div class="modal fade" id="modal_details" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Tools</h5>
+            </div>
+            <div class="modal-body">
+                {{=details_form}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="newnote" tabindex="-1" role="dialog" aria-labelledby="newNoteLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newNoteLabel">New Note/Activity</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{=note_form}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="newtodo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Add Todo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                XXXXX
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <div>Tab: <script>document.write(sessionStorage.getItem("clicked"))</script></div> -->
+
+<script>
+    //$(function () {
+    //    $('#list li:first-child a').tab('show')
+    //});
+
+    //var clickedId = '';
+
+    //$('#tab-list li a').click(function () {
+    //    sessionStorage.setItem("clicked", $(this).attr('id'));
+    //});
+
+    //if (sessionStorage.getItem("clicked") != null){
+    //    clickedId = sessionStorage.getItem("clicked");
+    //}
+    //else{
+    //    sessionStorage.setItem('tabdesc', $(this).attr('id'));
+    //    clickedId = 'tabdesc';
+    //}
+
+    //$(function(){
+    //    $('#'+clickedId).tab('show')
+    //});
+    
+</script>

@@ -1,0 +1,52 @@
+{{extend 'layout.html'}}
+
+{{for tool in tools:}}
+<div class="container ">
+    <div class="row">
+        <h2>{{=tool.name}} <span class="badge badge-secondary">{{=tool.tooltype}}</span></h2>
+    </div>
+
+    <div class="row">
+        <div class="mt-5 mb-5 col-sm-12">
+            {{=MARKMIN(tool.notes)}}
+        </div>
+    </div>
+
+    <div class="row">
+        {{if models:}}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Associated Models</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    {{for model in models:}}
+                    <li><a href="{{=URL('model', 'index', args=model.id)}}">{{=model.name}}</a></li>
+                    {{pass}}
+                </ul>
+            </div>
+        </div>
+        {{pass}}
+        {{if tool.attachment:}}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Attachment</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    {{(filename, file) = db.component.attachment.retrieve(tool.attachment)}}
+                    <li><a href="{{=URL('default', 'download', args=tool.attachment)}}">{{=filename}}</a></li>
+                </ul>
+            </div>
+        </div>
+        {{pass}}
+    </div>
+    <div class=" row mt-5 mb-5">
+        <a class="btn btn-primary" href="{{=URL('tool','update',args=tool.id,extension='html')}}">Edit</a>
+    </div>
+</div>
+
+
+
+
+{{pass}}

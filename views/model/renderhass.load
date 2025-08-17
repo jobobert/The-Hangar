@@ -1,0 +1,87 @@
+<style>
+    .body {
+        background-color: #e2d9a2;
+    }
+
+    .outside {
+        background-color: var(--card-background-color);
+        margin: 0;
+        padding: 0;
+        border: solid 2px red;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .header {
+        display: block;
+
+    }
+</style>
+
+<div class="outside">
+    {{if model == None:}}
+
+    <h5>Model Not Found</h5>
+
+    {{else:}}
+    <h1>Fix this to get the URL from code, not to be hardcoded!!!</h1>
+    <a href="http://192.168.10.70/TheHangar/model/index.html/{{=model.id}}" target="_blank" class="header modelstate_bg_{{=model.modelstate}}">
+        <div style="display: inline-block;">{{=model_type_icon(model, 48) }}</div>
+        <div style="display: inline-block;">
+            <h4 class="text-center" style="padding-left: 10px;">{{=model.name}}</h4>
+        </div>
+    </a>
+
+    <div class="" style="height: 200px;">
+
+        <img class="card-img-top" style="max-height: 190px; max-width: 50%; float: left; margin: 5px" src="{{=URL('default', 'download', args=model.img)}}" alt="Card image cap" />
+
+        <p class="card-text">{{=model.description}}</p>
+
+    </div>
+    <div class="card-footer card-footer-dark">
+        <div>
+            <ul class="nav nav-pills nav-fill model-summary">
+                <li class="nav-item">
+                    {{try:}}
+                    {{if model.attr_copter_size:}}
+                    s{{=model.attr_copter_size}}
+                    {{elif model.attr_plane_wingspan_mm:}}
+                    {{=model.get_wingspan0()}}mm
+                    {{elif model.attr_length:}}
+                    {{=model.get_length()}}mm
+                    {{else:}}
+                    ---
+                    {{pass}}
+                    {{except:}}---{{pass}}</li>
+                <li class="nav-item">
+                    {{try:}}
+                    {{if model.powerplant:}}
+                    {{=model_powerplant_icon(model,32)}}
+                    {{else:}}
+                    ---
+                    {{pass}}
+                    {{except:}}---{{pass}}</li>
+                <li class="nav-item">
+                    {{try:}}
+                    {{if model.controltype:}}
+                    {{=model_control_icon(model,32)}}
+                    {{else:}}
+                    ---
+                    {{pass}}
+                    {{except:}}---{{pass}}</li>
+            </ul>
+        </div>
+        <div>
+            <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.open_todos_count()}}</span><span>{{=show_icon('icons8-checklist-50.png', 25)}}</span></div>
+            <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.activity.count()}}</span><span>{{=show_icon('icons8-calendar-50.png', 25)}}</span></div>
+            <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_attachmentcount()}}</span><span>{{=show_icon('icons8-attach-50.png', 30)}}</span></div>
+            <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_batterycount()}}</span><span>{{=show_icon('icons8-low-battery-80.png', 30)}}</span></div>
+        </div>
+    </div>
+
+    {{pass}}
+</div>

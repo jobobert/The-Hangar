@@ -1,0 +1,39 @@
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarE1 = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarE1, {
+            plugins: ['dayGrid'],
+            events: {
+                url: '{{=URL('activity', 'events.json')}}',
+                method: 'POST',
+                failure: function () {
+                    alert('there was an error while fetching events!');
+                }
+            },
+            eventRender: function (info) {
+                info.el.setAttribute('title', '<b>' + info.event.extendedProps.activitytype + '</b> @ ' + info.event.extendedProps.location + '<br />' + info.event.extendedProps.notes);
+                info.el.setAttribute('data-toggle', 'tooltip');
+                info.el.setAttribute('data-placement', 'auto');
+                info.el.setAttribute('data-container', 'body');
+                info.el.setAttribute('data-html', 'true');
+            }
+        }); 
+
+        calendar.render();
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    });
+
+
+
+</script>
+
+<div class="container ">
+
+    <div id='calendar'></div>
+
+</div>

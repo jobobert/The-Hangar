@@ -1,0 +1,391 @@
+{{extend 'layout.html'}}
+
+<div class="d-inline-block">
+    <h2>{{=model.name}}</h2>
+</div>
+<div class="d-inlin-block"><img width="200px" class="export-img-sm" src="{{=URL('default', 'download', args=model.img)}}" alt="Model Image"></div>
+<table class="table export-table">
+
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.model,'modelorigin').label}}</th>
+        <td class="col export-field_value">{{=model.modelorigin}}</td>
+    </tr>
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.model,'modelstate').label}}</th>
+        <td class="col export-field_value">{{=model.modelstate.name}}</td>
+    </tr>
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.model,'modeltype').label}}</th>
+        <td class="col export-field_value">{{=model.modeltype}}</td>
+    </tr>
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.model,'controltype').label}}</th>
+        <td class="col export-field_value">{{=model.controltype}}</td>
+    </tr>
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.model,'powerplant').label}}</th>
+        <td class="col export-field_value">{{=model.powerplant}}</td>
+    </tr>
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.model,'description').label}}</th>
+        <td class="col export-field_value">{{=model.description}}</td>
+    </tr>
+    <tr class="row export-row" colspan="2">
+        <th class="col export-field_name">{{=getattr(db.model,'notes').label}}</th>
+    </tr>
+    <tr class="row export-row" colspan="2">
+        <td class="col export-field_value">
+            <div class=" export-field_notes">{{=MARKMIN(model.notes)}}</div>
+        </td>
+    </tr>
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.model,'haveplans').label}}</th>
+        <td class="col export-field_value">{{=model.haveplans}}</td>
+    </tr>
+
+    <tr class="row export-row">
+        <th class="col export-field_name">Config Backup</th>
+        <td class="col export-field_name">
+            {{if model.radio_config_backedup() == 'Yes':}}
+            Radio/Receiver Config is Backed Up
+            {{=A('Download', _href=URL('default', 'download', args=model.configbackup))}}
+            {{elif model.radio_config_backedup() == 'No':}}
+            Radio/Receiver Config is not Backed Up
+            {{pass}}
+        </td>
+    </tr>
+
+    {{for key in sorted(model.__dict__):}}
+    {{if key.startswith('attr_') and model[key]:}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.model,key).label}}</th>
+        <td class="col export-field_value">{{=model[key]}}</td>
+    </tr>
+    {{pass}}
+    {{pass}}
+
+    <tr class="row export-row">
+        <th class="col export-field_name">Attachments</th>
+        <td class="col export-field_name">
+            {{if attachments:}}
+            {{for att in attachments:}}
+            <div class="d-inline-block attachment_icon">{{=filetype_icon(att.attachment, 32) }}</div>
+            <div class="d-inline-block attachment_name">
+                {{=A(att.name + " (" + att.attachmenttype + ")", _href=URL('default', 'download', args=att.attachment))}}
+            </div>
+            {{if isimage(att.attachment):}}
+            <img class='card-img-top' src="{{=URL('default', 'download', args=att.attachment)}}" alt='Attachment'>
+            {{pass}}
+            {{pass}}
+            {{else:}}
+            <div class="export-notfound">No Attachments</div>
+            {{pass}}
+        </td>
+    </tr>
+
+</table>
+
+<h2>Transmitter Details</h2>
+{{if model.transmitter:}}
+<table class="table export-table">
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.transmitter,'name').label}}</th>
+        <td class="col export-field_value">{{=model.transmitter.name}}</td>
+    </tr>
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.transmitter,'serial').label}}</th>
+        <td class="col export-field_value">{{=model.transmitter.serial}}</td>
+    </tr>
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.transmitter,'img').label}}</th>
+        <td class="col export-field_value"><img width="200px" class="export-img-sm" src="{{=URL('default', 'download', args=model.transmitter.img)}}" alt="Card image cap"></td>
+    </tr>
+    {{if model.transmitter.attachment:}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.transmitter,'attachment').label}}</th>
+        <td class="col export-field_value">
+            <div class="d-inline-block attachment_icon">{{=filetype_icon(model.transmitter.attachment, 32) }}</div>
+            <div class="d-inline-block attachment_name">{{=A('Download', _href=URL('default', 'download', args=model.transmitter.attachment))}}</div>
+            {{if isimage(att.attachment):}}
+            <img class='card-img-top' src="{{=URL('default', 'download', args=model.transmitter.attachment)}}" alt='Attachment'>
+            {{pass}}
+        </td>
+    </tr>
+    {{pass}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.transmitter,'notes').label}}</th>
+    </tr>
+    <tr class="row export-row" colspan="2">
+        <td class="col export-field_value ">
+            <div class=" export-field_notes">{{=MARKMIN(model.transmitter.notes)}}</div>
+        </td>
+    </tr>
+</table>
+
+<h2>Switch Details</h2>
+{{=LOAD('switch', 'renderswitchtable.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Switches"))}}
+
+
+{{else:}}
+<div class="export-notfound">No Transmitter</div>
+{{pass}}
+
+<h2>Todos</h2>
+{{if todos:}}
+<table class="table export-table">
+    {{for todo in todos:}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=todo.todo}}
+            {{if todo.critical:}}
+            <span class="badge badge-danger">Critical</span>
+            {{pass}}
+        </th>
+        <td class="col export-field_value ">
+            <div class=" export-field_notes">{{=MARKMIN(todo.notes)}}</div>
+        </td>
+    </tr>
+    {{pass}}
+    {{else:}}
+    <div class="export-notfound">No Todos</div>
+    {{pass}}
+
+</table>
+
+<h2>Components</h2>
+{{if components:}}
+{{for component in components:}}
+<table class="table export-table">
+    <tr class="row export-row">
+        <th class="col export-field_name">
+            <img width="200px" class=" export-image-sm" src="{{=URL('default', 'download', args=components[component]['img'])}}" alt="Component Image">
+        </th>
+        <td class="col">
+            <table class="table export-table">
+                <tr class="row export-row">
+                    <th class="col export-field_name" colspan="2">{{=component}}</th>
+                </tr>
+                <tr class="row export-row">
+                    <th class="col export-field_name">{{=getattr(db.component,'componenttype').label}}</th>
+                    <td class="col export-field_value">{{=components[component]['type']}}</td>
+                </tr>
+                {{if components[component]['subtype']:}}
+                <tr class="row export-row">
+                    <th class="col export-field_name">{{=getattr(db.component,'componentsubtype').label}}</th>
+                    <td class="col export-field_value">{{=components[component]['subtype']}}</td>
+                </tr>
+                {{pass}}
+                {{if components[component]['significantdetail']:}}
+                <tr class="row export-row">
+                    <th class="col export-field_name">{{=getattr(db.component,'significantdetail').label}}</th>
+                    <td class="col export-field_value">{{=components[component]['significantdetail']}}</td>
+                </tr>
+                {{pass}}
+                <tr class="row export-row">
+                    <th class="col export-field_name">{{=getattr(db.component,'ownedcount').label}}</th>
+                    <td class="col export-field_value">{{=components[component]['ownedcount']}} owned</td>
+                </tr>
+                {{if components[component]['attachment']:}}
+                <tr class="row export-row">
+                    <th class="col export-field_name">{{=getattr(db.component,'attachment').label}}</th>
+                    <td class="col export-field_value">
+                        <div class="d-inline-block attachment_icon">{{=filetype_icon(components[component]['attachment'], 32) }}</div>
+                        <div class="d-inline-block attachment_name">{{=A('Download', _href=URL('default', 'download', args=components[component]['attachment']))}}<div></div>
+                            {{if isimage(att.attachment):}}
+                            <img class='card-img-top' src="{{=URL('default', 'download', args=components[component]['attachment'])}}" alt='Attachment'>
+                            {{pass}}
+                    </td>
+                </tr>
+                {{pass}}
+            </table>
+        </td>
+    </tr>
+    <tr class="row export-row">
+        <td class="col export-field_value">
+            <ul>
+                {{for u in components[component]['uses']:}}
+                <li>
+                    {{if u['purpose']:}}
+                    {{=B(u['purpose'])}}
+                    {{else:}} General Purpose
+                    {{pass}}
+                    {{if u['channel']:}}
+                    on channel
+                    {{=B(u['channel'])}}
+                    {{pass}}
+                </li>
+                {{pass}}
+            </ul>
+        </td>
+    </tr>
+    <tr class="row export-row">
+        <td class="col export-field_value ">
+            <div class=" export-field_notes">{{=MARKMIN(components[component]['notes'])}}</div>
+        </td>
+    </tr>
+</table>
+{{pass}}
+{{else:}}
+<div class="export-notfound">No Components</div>
+{{pass}}
+
+
+<h2>Tools</h2>
+{{if tools:}}
+<table class="table export-table">
+
+    {{for tool in tools:}}
+
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=tool.tool.name}}</th>
+        <th class="col export-field_name">
+            {{if tool.tool.img:}}
+            <img width="200px" class=" export-image-sm" src="{{=URL('default', 'download', args=tool.tool.img)}}" alt="Card image cap">
+            {{else:}}
+            &nbsp;
+            {{pass}}
+        </th>
+        <td class="col export-field_value">{{=tool.tool.tooltype}}</td>
+        <td class="col export-field_value">
+            {{if tool.tool.attachment:}}
+            <div class="d-inline-block attachment_icon">{{=filetype_icon(tool.tool.attachment, 32) }}</div>
+            <div class="d-inline-block attachment_name">{{=A('Download Attachment', _href=URL('default', 'download', args=tool.tool.attachment))}}</div>
+            {{if isimage(att.attachment):}}
+            <img class='card-img-top' src="{{=URL('default', 'download', args=tool.tool.attachment)}}" alt='Attachment'>
+            {{pass}}
+            {{else:}}
+            &nbsp;
+            {{pass}}
+        </td>
+        <td class="col export-field_value ">
+            <div class=" export-field_notes">{{=MARKMIN(tool.tool.notes)}}</div>
+        </td>
+    </tr>
+    {{pass}}
+</table>
+
+{{else:}}
+<div class="export-notfound">No Tools</div>
+{{pass}}
+
+<h2>Batteries</h2>
+{{if batteries:}}
+{{for battery in batteries:}}
+<table class="table export-table">
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=battery.battery.name}}</th>
+        <td class="col export-field_value">{{=battery.battery.ownedcount}} owned</td>
+    </tr>
+</table>
+{{pass}}
+{{else:}}
+<div class="export-notfound">No Batteries</div>
+{{pass}}
+
+<h2>Propellers</h2>
+{{if propellers:}}
+{{for propeller in propellers:}}
+<table class="table export-table">
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.propeller,'item').label}}</th>
+        <td class="col export-field_value">{{=propeller.item}}</td>
+    </tr>
+</table>
+{{pass}}
+{{else:}}
+<div class="export-notfound">No Propellers</div>
+{{pass}}
+
+<h2>Support Items</h2>
+{{if supportitems:}}
+{{for si in supportitems:}}
+<table class="table export-table">
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.supportitem,'item').label}}</th>
+        <td class="col export-field_value">{{=si.item}}</td>
+    </tr>
+    {{if si.notes:}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.supportitem,'notes').label}}</th>
+    </tr>
+    <tr class="row export-row"></tr>
+    <td class="col export-field_value ">
+        <div class=" export-field_notes">{{=MARKMIN(si.notes)}}</div>
+    </td>
+    </tr>
+    {{pass}}
+    {{if si.img:}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.supportitem,'img').label}}</th>
+        <td class="col export-field_value">{{=A('Download', _href=URL('default', 'download', args=si.img))}}</td>
+    </tr>
+    {{pass}}
+</table>
+{{pass}}
+{{else:}}
+<div class="export-notfound">No Support Items</div>
+{{pass}}
+
+
+<h2>Flight Times</h2>
+{{if flighttimes:}}
+<table class="table export-table">
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.component,'componenttype').label}}</th>
+        <th class="col export-field_name">Battery</th>
+        <th class="col export-field_name">{{=getattr(db.propeller,'item').label}}</th>
+        <th class="col export-field_name">{{=getattr(db.eflite_time,'amps').label}}</th>
+        <th class="col export-field_name">{{=getattr(db.eflite_time,'watts').label}}</th>
+        <th class="col export-field_name">Minutes</th>
+        <th class="col export-field_name">Watts/Pound</th>
+        <th class="col export-field_name">Is Over Rating?</th>
+    </tr>
+    {{for ft in flighttimes:}}
+    <tr class="row export-row">
+        <td class="col export-field_value">{{=ft.motor.name}}</td>
+        <td class="col export-field_value">{{=ft.battery.name}}</td>
+        <td class="col export-field_value">{{=ft.propeller}}</td>
+        <td class="col export-field_value">{{=ft.amps}}</td>
+        <td class="col export-field_value">{{=ft.watts}}</td>
+        <td class="col export-field_value">{{=ft.get_minutes()}}</td>
+        <td class="col export-field_value">{{=ft.get_wattsperpound()}}</td>
+        <td class="col export-field_value">{{=ft.is_overrating()}}</td>
+    </tr>
+    {{pass}}
+</table>
+{{else:}}
+<div class="export-notfound">No Flight Times</div>
+{{pass}}
+
+<h2>Activities</h2>
+{{if activities:}}
+<table class="table export-table">
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.activity, 'activitydate').label}}</th>
+        <th class="col export-field_name">{{=getattr(db.activity, 'activitytype').label}}</th>
+        <th class="col export-field_name">{{=getattr(db.activity, 'duration').label}}</th>
+        <th class="col export-field_name">{{=getattr(db.activity, 'activitylocation').label}}</th>
+        <th class="col export-field_name">{{=getattr(db.activity, 'img').label}}</th>
+        <th class="col export-field_name">{{=getattr(db.activity, 'notes').label}}</th>
+    </tr>
+    {{for activity in activities:}}
+    <tr class="row export-row">
+        <td class="col export-field_value">{{=activity.activitydate}}</td>
+        <td class="col export-field_value">{{=activity.activitytype}}</td>
+        <td class="col export-field_value">{{=activity.duration}}</td>
+        <td class="col export-field_value">{{=activity.activitylocation}}</td>
+        <td class="col export-field_value">
+            {{if activity.img:}}
+            <img width="200px" class=" export-image-sm" src="{{=URL('default', 'download', args=activity.img)}}" alt="Activity Image">
+            {{else:}}
+            &nbsp;
+            {{pass}}
+        </td>
+        <td class="col export-field_value">
+            <div class=" export-field_notes" style="border: none;">{{=MARKMIN(activity.notes)}}</div>
+        </td>
+    </tr>
+    {{pass}}
+</table>
+{{else:}}
+<div class="export-notfound">No Activities</div>
+{{pass}}

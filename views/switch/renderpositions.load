@@ -1,0 +1,23 @@
+<h2>Positions</h2>
+
+
+<div class="row">
+    <div class="col-3 font-weight-bold">Position</div>
+    <div class="col-6 font-weight-bold">Function</div>
+</div>
+{{=deleteform.custom.begin}}
+{{for p in positions:}}
+<div class="row">
+    <div class="col-3">{{=p.pos }}</div>
+    <div class="col-6">{{=p.func}}</div>
+    <div class="col-3"><button class="btn btn-secondary" type="submit" value="Remove" name="{{=p.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button></div>
+</div>
+{{pass}}
+{{=deleteform.custom.end}}
+{{=addform.custom.begin}}
+<div class="row">
+    <div class="col-3">{{=addform.custom.widget.pos}}</div>
+    <div class="col-6">{{=addform.custom.widget.func}}</div>
+    <div class="col-3">{{=addform.custom.submit}}</div>
+</div>
+{{=addform.custom.end}}

@@ -1,0 +1,61 @@
+{{if options == 'dashboard':}}
+<h5>Notes</h5>
+<div class="row">
+    <form action="#" enctype="multipart/form-data" method="post">
+        <div class="form-group row" id="activity_notes__row">
+            <div class="col-sm-9">
+                <input autocomplete="off" class="form-control string" type="text" name="notes" />
+            </div>
+            <div class="col-sm-3">
+                <input type="submit" class="btn btn-primary" />
+            </div>
+            <input type="hidden" name="_formname" value="noteform" />
+            <input type="hidden" name="model" value="{{=model_id}}" />
+            <input type="hidden" name="activitytype" value="Note" />
+            <input type="hidden" name="activitydate" value="{{=request.now.strftime('%Y-%m-%d')}}" />
+        </div>
+    </form>
+</div>
+{{for note in notes:}}
+<div class="row">
+    <div class="card">
+        <div class="card-header">{{=note.activitydate.strftime('%b %d, %Y')}}</div>
+        <div class="card-body">
+            <p class="card-text p-0">{{=MARKMIN(note.notes)}}</p>
+        </div>
+    </div>
+</div>
+{{pass}}
+{{else:}}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title">Notes</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <form action="#" enctype="multipart/form-data" method="post">
+                <div class="form-group row" id="activity_notes__row">
+                    <div class="col-sm-9">
+                        <input autocomplete="off" class="form-control string" type="text" name="notes" />
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="submit" class="btn btn-primary" />
+                    </div>
+                    <input type="hidden" name="_formname" value="noteform" />
+                    <input type="hidden" name="model" value="{{=model_id}}" />
+                    <input type="hidden" name="activitytype" value="Note" />
+                    <input type="hidden" name="activitydate" value="{{=request.now.strftime('%Y-%m-%d')}}" />
+                </div>
+            </form>
+        </div>
+
+        {{for note in notes:}}
+        <div class="row">
+            <div class="col-sm-3 "><a href="{{=URL('activity', 'index.html', args=[note.id])}}">{{=note.activitydate.strftime('%b %d, %Y')}}</a></div>
+            <div class="col-sm-9 ">{{=MARKMIN(note.notes)}}</div>
+        </div>
+        {{pass}}
+
+    </div>
+</div>
+{{pass}}

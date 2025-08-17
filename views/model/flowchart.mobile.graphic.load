@@ -1,0 +1,36 @@
+<script src="{{=URL('static','js/raphael.min.js')}}"></script>
+<script src="{{=URL('static','js/flowchart.min.js')}}"></script>
+
+<div id="diagram" style=""></div>
+
+<script>
+	var options = {
+		'font-size': 8
+		, 'font-color': '#d1d1d1'
+		, 'element-color': '#d1d1d1'
+		, 'line-color': '#d1d1d1'
+		, 'arrow-end': 'block'
+		, 'flowstate': {
+			'current': { 'line-color': '#000000', 'font-color': '#ffffff', 'font-weight': 'bold', 'fill': '#45ad45' }
+			, 'past': { 'line-color': '#b1b1b1', 'font-color': '#d1d1d1', 'font-weight': 'normal', 'fill': '#ffffff' }
+			, 'future': { 'line-color': '#b1b1b1', 'font-color': '#000000', 'font-weight': 'normal', 'fill': '#ffffff' }
+		}
+		, 'maxWidth': 3
+		, 'line-length': 8
+	}
+	var diagram = flowchart.parse(
+		'idea=>start: Idea{{=states['idea']}}:>{{=links['idea']}}\n' +
+		'board=>operation: Board{{=states['board']}}:>{{=links['board']}}\n' +
+		'maiden=>operation: Maiden{{=states['maiden']}}:>{{=links['maiden']}}\n' +
+		'service=>condition: Service{{=states['service']}}:>{{=links['service']}}\n' +
+		'oos=>operation: Out of Service{{=states['oos']}}:>{{=links['oos']}}\n' +
+		'repair=>operation: Repair{{=states['repair']}}:>{{=links['repair']}}\n' +
+		'retired=>end: Retired{{=states['retired']}}:>{{=links['retired']}}\n' +
+		'\n' +
+		'idea->board->maiden(bottom)->service\n' +
+		'service(no, right)->oos(bottom)->repair\n' +
+		'repair(left)->service(bottom)\n' +
+		'service(yes)->retired\n'
+	);
+	diagram.drawSVG('diagram', options);
+</script>

@@ -1,0 +1,33 @@
+{{ASSIGNJS(dataPoints=data) }}
+
+<script type="text/javascript">
+    //window.onload = function () {
+
+    var options = {
+        title: {
+            text: "By Status"
+        },
+        data: [{
+            type: "pie",
+            startAngle: 45,
+            showInLegend: "true",
+            legendText: "{label}",
+            indexLabel: "{label} ({y})",
+            yValueFormatString: "#,##0.#" % "",
+            dataPoints: [
+                {{ for c in counts: }}
+                    { label: '{{=c.model.modelstate.name }}', y: {{=c._extra['COUNT("model"."id")'] }} },
+                {{pass }}
+            ]
+        }]
+    };
+    $("#chartContainer").CanvasJSChart(options);
+
+    //}
+</script>
+
+<div class="card model-card mb-2">
+    <div  class="card-body">
+        <div id="chartContainer" style="max-width: 100%;"></div>
+    </div>
+</div>

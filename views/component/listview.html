@@ -1,0 +1,14 @@
+{{extend 'layout.html'}}
+
+{{=other}}
+
+<ul class="nav nav-tabs">
+    {{for t in types:}}
+    <li class="nav-item">
+        <a class="nav-link {{=' active ' if active == t else ''}}" href="{{= URL('component', 'listview') }}?c={{=t}}">{{=t}}</a>
+    </li>
+    {{pass}}
+</ul>
+
+<h1>{{=requestedtype}} Components</h1>
+{{=components}}

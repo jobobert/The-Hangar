@@ -1,0 +1,93 @@
+{{if model == None:}}
+<div class="card model-card mb-2">
+    <h5>Model Not Found</h5>
+</div>
+{{else:}}
+<div class="card model-card mb-2">
+    <div style="position:absolute; top: 0px; left: 0px; display: inline-block; width:48px; float:left;">
+        {{=model_type_icon(model, 48) }}
+    </div>
+    {{if model.radio_config_backedup() == 'No':}}
+    <div style="position:absolute; top: 0px; left: 270px; display: inline-block; width:48px; float:right;">
+        {{=show_icon('warning.svg', 32) }}
+    </div>
+    {{pass}}
+
+    <h4 class="card-header text-center"><a href="{{=URL('model','index',args=model.id,extension='html')}}" style="text-decoration: none; color: inherit;">{{=model.name}}</a></h4>
+    <div class="">
+        <h6 class="text-right p-1 modelstate_bg_{{=model.modelstate}}">
+            {{try:}}{{=model.modelstate.name}}{{ except:}} Unknown
+            State{{pass}}
+        </h6>
+    </div>
+    <div class="card-body">
+        <a href="{{=URL('model','index',args=model.id,extension='html')}}" style="text-decoration: none; color: inherit;">
+            <img class="card-img-top default-model-image" src="{{=URL('default', 'download', args=model.img)}}" alt="Card image cap" />
+        </a>
+        <ul class="nav nav-pills nav-fill model-summary">
+            <li class="nav-item">
+                {{try:}}
+                {{if model.attr_copter_size:}}
+                s{{=model.attr_copter_size}}
+                {{elif model.attr_plane_wingspan_mm:}}
+                {{=model.get_wingspan0()}}mm
+                {{elif model.attr_length:}}
+                {{=model.get_length()}}mm
+                {{else:}}
+                ---
+                {{pass}}
+                {{except:}}---{{pass}}</li>
+            <li class="nav-item">
+                {{try:}}
+                {{if model.powerplant:}}
+                {{=model_powerplant_icon(model,32)}}
+                {{else:}}
+                ---
+                {{pass}}
+                {{except:}}---{{pass}}</li>
+            <li class="nav-item">
+                {{try:}}
+                {{if model.controltype:}}
+                {{=model_control_icon(model,32)}}
+                {{else:}}
+                ---
+                {{pass}}
+                {{except:}}---{{pass}}</li>
+            <li class="nav-item">{{=LOAD('model','selected.load', args=[model.id,'card'], ajax=True, content='...')}}</li>
+        </ul>
+        <div class="pl-1 mt-0">
+            {{if model.haveplans:}}<span class="badge badge-info">Plans</span>{{pass}}
+            {{if model.havekit:}}<span class="badge badge-dark">Kit</span>{{pass}}
+        </div>
+        <p class="card-text">{{=model.description}}</p>
+    </div>
+    <div>
+        <div class="model_detail_row">
+            {{if model.transmitter:}}
+            {{try:}}
+            <span class="pl-1 pr-1 m-0">
+                {{=show_icon('gamepad.png', 20)}}
+                {{=model.transmitter.nickname}}
+                {{except:}}
+                {{pass}}
+            </span>
+            {{pass}}
+            {{if model.get_batterycount() > 0:}}
+            <span class="pl-1 pr-1 m-0 text-right">
+                {{=show_icon('icons8-low-battery-80.png', 20)}}
+                {{=" | ".join(model.get_battery_list())}}
+            </span>
+            {{pass}}
+        </div>
+    </div>
+    <div class="card-footer">
+        <!--<a class="btn btn-primary" href="{{=URL('model','index',args=model.id,extension='html')}}">Details</a>-->
+        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.open_todos_count()}}</span><span>{{=show_icon('icons8-checklist-50.png', 25)}}</span></div>
+        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.activity.count()}}</span><span>{{=show_icon('icons8-calendar-50.png', 25)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_attachmentcount()}}</span><span>{{=show_icon('icons8-attach-50.png', 30)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.componentcount()}}</span><span>{{=show_icon('icons8-gearbox-64.png', 25)}}</span></div>
+        <!--<div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_batterycount()}}</span><span>{{=show_icon('icons8-low-battery-80.png', 30)}}</span></div>-->
+    </div>
+
+</div>
+{{pass}}

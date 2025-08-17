@@ -1,0 +1,35 @@
+{{if options == 'dashboard':}}
+{{x = 1}}
+<div class="table-responsive">
+    <table style="width: auto;" class="table table-sm pl-2">
+        {{for c in counts:}}
+        {{if c.model.modelstate != 1:}}
+        {{if (x == 1) or (x == 4):}}
+        <tr>
+            {{pass}}
+
+            <td style="width: 5%;" class=" text-center modelstate_bg_{{=c.model.modelstate}}"><a style="color: inherit;" href="{{=URL('default','index.html', vars=dict(s=c.model.modelstate.id))}}">{{=B(c._extra['COUNT("model"."id")'] )}} {{=c.model.modelstate.name }}</a></td>
+            {{x = x + 1}}
+
+            {{if (x == 1) or (x == 4):}}
+        </tr>
+        {{pass}}
+        {{pass}}
+        {{pass}}
+    </table>
+</div>
+{{else:}}
+<div class="card model-card mb-2">
+    <h4 class="card-header text-center">By State</h4>
+    <div class="card-body">
+        <table class="table table-sm">
+            {{for c in counts:}}
+            <tr>
+                <td class="modelstate_bg_{{=c.model.modelstate}}"><a style="color: inherit;" href="{{=URL('default','index.html', vars=dict(s=c.model.modelstate.id))}}">{{=c.model.modelstate.name }}</a></td>
+                <td class="text-right">{{=c._extra['COUNT("model"."id")'] }}</td>
+            </tr>
+            {{pass}}
+        </table>
+    </div>
+</div>
+{{pass}}

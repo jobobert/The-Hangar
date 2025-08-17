@@ -1,0 +1,42 @@
+{{extend 'layout.html'}}
+
+
+<div class="container ">
+    <div class="row">
+
+        <table class="battery mb-5">
+            <tr>
+                <td colspan="3" class="battery-voltage">{{=battery.voltage}}V</td>
+            </tr>
+            <tr>
+                <td rowspan="2" class="battery-cellcount">{{=battery.cellcount}}S</td>
+                <td class="battery-chemistry">{{=battery.chemistry}}</td>
+                <td rowspan="2" class="battery-crating">{{=battery.crating}}C</td>
+            </tr>
+            <tr>
+                <td class="battery-mah">{{=battery.mah}}mah</td>
+            </tr>
+            <tr>
+                <td colspan="3" class="battery-ownedcount">{{=battery.ownedcount}} owned</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="row">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Associated Models</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    {{for model in models:}}
+                    <li><a href="{{=URL('model', 'index', args=model.id)}}">{{=model.name}}</a></li>
+                    {{pass}}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class=" row mt-5 mb-5">
+        <a class="btn btn-primary" href="{{=URL('battery','update',args=battery.id,extension='html')}}">Edit</a>
+    </div>
+</div>

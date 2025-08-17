@@ -1,0 +1,49 @@
+{{if options == 'dashboard':}}
+<ul class="list-group">
+    {{for mt in model_tools:}}
+    <li class="list-group-item">{{=mt.tool.tooltype}}: {{=B(mt.tool.name)}}</li>
+    {{pass}}
+</ul> 
+{{else:}}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('icons8-wrench-50.png', 25)}}</span>{{=tool_count}} Tools</h5>
+        <!--<a class="card-link th-new-link" href="{{=URL('tool','update')}}">New</a>-->
+        <a href="#" data-toggle="modal" data-target="#modal_newtool" class="card-link th-new-link">New</a>
+    </div>
+    <div class="card-body">
+        {{=deleteform.custom.begin}}
+        {{for mt in model_tools:}}
+
+        <div class="row border-bottom">
+            <div class="col-8">
+                <div class="tool_name"><a class="text-decoration-none" href="{{=URL('tool','index.html',args=[mt.tool])}}">{{=mt.tool.name}}</a></div>
+                <div class="tool_tooltype">{{=mt.tool.tooltype}}</div>
+            </div>
+            <div class="col-4 mt-2">
+                <!--<a class="btn btn-primary" href="{{=URL('tool','removefrommodel',args=[model_id, mt.id])}}">{{=show_icon('icons8-waste-50.png', 16)}}</a>-->
+                <button class="btn btn-secondary" type="submit" value="Remove" name="{{=mt.id}}" >{{=show_icon('icons8-waste-50.png', 16)}}</button>
+            </div>
+        </div>
+        {{pass}}
+        {{=deleteform.custom.end}}
+
+        {{=addform}}
+    </div>
+</div>
+<div class="modal fade" id="modal_newtool" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_newtool_title">New Tool</h5>
+            </div>
+            <div class="modal-body">
+                {{=newform}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div> 
+{{pass}}

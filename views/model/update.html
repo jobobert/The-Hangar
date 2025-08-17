@@ -1,0 +1,513 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+<div class="container ">
+    <div class="row">
+        {{=form.custom.submit}}
+    </div>
+    <div class="row">
+        <div class="card w-100 ">
+            <div class="card-header">
+                <h5 class="mb-0">General</h5>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="model_form_label_required">{{=form.custom.label.name}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.name}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.name}}</div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="model_form_label">{{=form.custom.label.modeltype}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.modeltype}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.modeltype}}</div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="model_form_label">{{=form.custom.label.attr_flight_timer}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.attr_flight_timer}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.attr_flight_timer}}</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="model_form_label">{{=form.custom.label.description}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.description}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.description}}</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="model_form_label">{{=form.custom.label.subjecttype}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.subjecttype}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.subjecttype}}</div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="model_form_label">{{=form.custom.label.attr_scale}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.attr_scale}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.attr_scale}}</div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="model_form_label"> &nbsp;</div>
+                                <div class="model_form_field">{{=form.custom.widget.haveplans}} Plans available?</div>
+                                <div class="model_form_comment">{{=form.custom.comment.haveplans}}</div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="model_form_label"> &nbsp;</div>
+                                <div class="model_form_field">{{=form.custom.widget.havekit}} Kit/Model available?</div>
+                                <div class="model_form_comment">{{=form.custom.comment.havekit}}</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div class="model_form_label_required">{{=form.custom.label.modelstate}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.modelstate}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.modelstate}}</div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <div class="model_form_label">{{=form.custom.label.modelorigin}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.modelorigin}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.modelorigin}}</div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="model_form_label">{{=form.custom.label.controltype}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.controltype}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.controltype}}</div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="model_form_label">{{=form.custom.label.powerplant}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.powerplant}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.powerplant}}</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="model_form_label">{{=form.custom.label.notes}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.notes}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.notes}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="model_form_label">{{=form.custom.label.img}}</div>
+                        <div class="model_form_field">{{=form.custom.widget.img}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment.img}}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="model_form_label">{{=form.custom.label.configbackup}}</div>
+                        <div class="model_form_field">{{=form.custom.widget.configbackup}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment.configbackup}}</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="model_form_label">{{=form.custom.label.transmitter}}</div>
+                        <div class="model_form_field">{{=form.custom.widget.transmitter}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment.transmitter}}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="model_form_label">{{=form.custom.label.fieldnotes}}</div>
+                        <div class="model_form_field">{{=form.custom.widget.fieldnotes}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment.fieldnotes}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="card w-100 ">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    Attributes
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_length}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_length}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_length}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">Inch</div>
+                            <div class="model_form_field"><input class="double form-control model_form_field_calc" id="length_in" type="double" onchange="inchToMm('length_in', 'model_attr_length');" autocomplete="off"></div>
+                            <div class="model_form_comment"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="model_form_label">{{=form.custom.label.attr_construction}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_construction}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_construction}}</div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_width}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_width}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_width}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">Inch</div>
+                            <div class="model_form_field"><input class="double form-control model_form_field_calc" id="width_in" type="double" onchange="inchToMm('width_in', 'model_attr_width');" autocomplete="off"></div>
+                            <div class="model_form_comment"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="model_form_label">{{=form.custom.label.attr_covering}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_covering}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_covering}}</div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_height}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_height}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_height}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">Inch</div>
+                            <div class="model_form_field"><input class="double form-control model_form_field_calc" id="height_in" type="double" onchange="inchToMm('height_in', 'model_attr_height');" autocomplete="off"></div>
+                            <div class="model_form_comment"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="model_form_label">{{=form.custom.label.attr_cog}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_cog}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_cog}}</div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_weight_oz}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_weight_oz}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_weight_oz}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">Gram</div>
+                            <div class="model_form_field"><input class="double form-control model_form_field_calc" id="weight_g" type="double" onchange="gramToOz('weight_g', 'model_attr_weight_oz');" autocomplete="off"></div>
+                            <div class="model_form_comment"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card w-100 ">
+            <div class="card-header" id="headingTwo">
+                <h5 class="mb-0">
+                    <a class=" " data-toggle="collapse" data-target="#collapse_airplane" , aria-expanded="false" aria-controls="collapse_airplane">Airplane &#8681;</a>
+                </h5>
+            </div>
+            <div class="card-body collapse" id="collapse_airplane">
+                <div class="container">
+                    <div class="row ml-1 mb-2 border-bottom border-secondary">
+                        <div class="col-sm-4">
+                            <div class="model_form_label">{{=form.custom.widget.attr_plane_rem_wings}}{{=form.custom.label.attr_plane_rem_wings}}</div>
+                            <div class="model_form_field"></div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_plane_rem_wings}}</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="model_form_label">{{=form.custom.widget.attr_plane_rem_wing_tube}}{{=form.custom.label.attr_plane_rem_wing_tube}}</div>
+                            <div class="model_form_field"></div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_plane_rem_wing_tube}}</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="model_form_label">{{=form.custom.widget.attr_plane_rem_struts}}{{=form.custom.label.attr_plane_rem_struts}}</div>
+                            <div class="model_form_field"></div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_plane_rem_struts}}</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="model_form_label">{{=form.custom.label.attr_plane_wingspan_mm}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_plane_wingspan_mm}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_plane_wingspan_mm}}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="model_form_label">Inch</div>
+                            <div class="model_form_field"><input class="double form-control model_form_field_calc" id="wingspan_in" type="number" onchange="inchToMm('wingspan_in', 'model_attr_plane_wingspan_mm');" autocomplete="off"></div>
+                            <div class="model_form_comment"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="model_form_label">{{=form.custom.label.attr_plane_wingarea}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_plane_wingarea}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_plane_wingarea}}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="model_form_label">Dm2</div>
+                            <div class="model_form_field"><input class="double form-control model_form_field_calc" id="wingarea_dm2" type="number" onchange="dm2ToSqin('wingarea_dm2', 'model_attr_plane_wingarea');" autocomplete="off"></div>
+                            <div class="model_form_comment"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="model_form_label">{{=form.custom.label.attr_plane_throw_aileron}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_plane_throw_aileron}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_plane_throw_aileron}}</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="model_form_label">{{=form.custom.label.attr_plane_throw_elevator}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_plane_throw_elevator}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_plane_throw_elevator}}</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="model_form_label">{{=form.custom.label.attr_plane_throw_rudder}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_plane_throw_rudder}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_plane_throw_rudder}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card w-100 ">
+            <div class="card-header" id="headingThree">
+                <h5 class="mb-0">
+                    <a class=" " data-toggle="collapse" data-target="#collapse_boat" , aria-expanded="false" aria-controls="collapse_boat">Boat &#8681;</a>
+                </h5>
+            </div>
+            <div class="card-body collapse" id="collapse_boat">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_boat_draft}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_boat_draft}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_boat_draft}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">Inch</div>
+                            <div class="model_form_field"><input class="double form-control model_form_field_calc" id="draft_in" type="number" onchange="inchToMm('draft_in', 'model_attr_boat_draft');" autocomplete="off"></div>
+                            <div class="model_form_comment"></div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_sub_ballast}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_sub_ballast}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_sub_ballast}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card w-100 ">
+            <div class="card-header" id="headingThree">
+                <h5 class="mb-0">
+                    <a class=" " data-toggle="collapse" data-target="#collapse_copter" , aria-expanded="false" aria-controls="collapse_copter">Copter &#8681;</a>
+                </h5>
+            </div>
+            <div class="card-body collapse" id="collapse_copter">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="model_form_label">{{=form.custom.label.attr_copter_headtype}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_copter_headtype}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_copter_headtype}}</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="model_form_label">{{=form.custom.label.attr_copter_swashplate_type}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_copter_swashplate_type}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_copter_swashplate_type}}</div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="model_form_label">{{=form.custom.label.attr_copter_size}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_copter_size}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_copter_size}}</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_multi_rotor_count}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_multi_rotor_count}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_multi_rotor_count}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_copter_blade_count}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_copter_blade_count}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_copter_blade_count}}</div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_copter_mainrotor_length}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_copter_mainrotor_length}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_copter_mainrotor_length}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">Inch</div>
+                            <div class="model_form_field"><input class="double form-control model_form_field_calc" id="main_in" type="number" onchange="inchToMm('main_in', 'attr_copter_mainrotor_length');" autocomplete="off"></div>
+                            <div class="model_form_comment"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_copter_tailrotor_drive}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_copter_tailrotor_drive}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_copter_tailrotor_drive}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_copter_tailrotor_blade_count}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_copter_tailrotor_blade_count}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_copter_tailrotor_blade_count}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">{{=form.custom.label.attr_copter_tailrotor_span}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_copter_tailrotor_span}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_copter_tailrotor_span}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="model_form_label">Inch</div>
+                            <div class="model_form_field"><input class="double form-control model_form_field_calc" id="tail_in" type="number" onchange="inchToMm('tail_in', 'model_attr_copter_tailrotor_span');" autocomplete="off"></div>
+                            <div class="model_form_comment"></div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card w-100 ">
+            <div class="card-header" id="headingThree">
+                <h5 class="mb-0">
+                    <a class=" " data-toggle="collapse" data-target="#collapse_rocket" , aria-expanded="false" aria-controls="collapse_rocket">Rocket &#8681;</a>
+                </h5>
+            </div>
+            <div class="card-body collapse" id="collapse_rocket">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="model_form_label">{{=form.custom.label.attr_rocket_parachute}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_rocket_parachute}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_rocket_parachute}}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="model_form_label">{{=form.custom.label.attr_rocket_body_tube}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_rocket_body_tube}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_rocket_body_tube}}</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="model_form_label">{{=form.custom.label.attr_rocket_motors}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_rocket_motors}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_rocket_motors}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="card w-100 ">
+            <div class="card-header" id="headingThree">
+                <h5 class="mb-0">
+                    <a class=" " data-toggle="collapse" data-target="#collapse_car" , aria-expanded="false" aria-controls="collapse_car">Car &#8681;</a>
+                </h5>
+            </div>
+            <div class="card-body collapse" id="collapse_car">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="model_form_label">{{=form.custom.label.attr_car_bodystyle}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_car_bodystyle}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_car_bodystyle}}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="model_form_label">{{=form.custom.label.attr_car_drive}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.attr_car_drive}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.attr_car_drive}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card w-100 mt-2 mb-2">
+        <div class="container p-1">
+            <div class="row">
+                <div class="col-sm-9">
+                    <div class=" model_form_label">{{=form.custom.label.final_disposition}}</div>
+                    <div class="model_form_field">{{=form.custom.widget.final_disposition}}</div>
+                    <div class="model_form_comment">{{=form.custom.comment.final_disposition}}</div>
+                </div>
+                <div class="col-sm-3">
+                    <div class=" model_form_label">{{=form.custom.label.final_value}}</div>
+                    <div class="model_form_field">{{=form.custom.widget.final_value}}</div>
+                    <div class="model_form_comment">{{=form.custom.comment.final_value}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{{=form.custom.end}}
+
+<script>
+    function inchToMm(from, to) {
+        var theForm = document.forms["modelform"];
+        var inch = document.getElementById(from).value;
+        document.getElementById(to).value = inch * 25.4;
+    }
+    function gramToOz(from, to) {
+        var theForm = document.forms["modelform"];
+        var gram = document.getElementById(from).value;
+        document.getElementById(to).value = gram / 28.35;
+    }
+    function dm2ToSqin(from, to) {
+        var theForm = document.forms["modelform"];
+        var dm2 = document.getElementById(from).value;
+        document.getElementById(to).value = dm2 * 9.29;
+    }
+
+    function typeChange() {
+        // Key = dropdown value : Value = div id 
+        var types = {
+            "Airplane": "airplane",
+            "Boat": "boat",
+            "Car": "car",
+            "Helicopter": "copter",
+            "Multirotor": "copter",
+            "Rocket": "rocket",
+            "Autogyro": "copter",
+            "Submarine": "boat"
+        }
+        var ctrl = document.getElementById("model_modeltype");
+        var type = ctrl.value;
+
+        // First we collapse them all
+        for (var index in types) {
+            $elem = document.getElementById("collapse_" + types[index]);
+            $elem.classList.remove('show');
+        }
+
+        // Then we open the one we want
+        for (var index in types) {
+            $elem = document.getElementById("collapse_" + types[index]);
+            if (index == type) {
+                $elem.classList.add('show');
+            }
+        }
+    }
+
+    document.getElementById("model_modeltype").addEventListener("change", typeChange);
+    jQuery(document).ready(typeChange);
+</script>

@@ -1,0 +1,29 @@
+{{if options == 'dashboard':}}
+<h5>Todo</h5>
+<ul class="list-group">
+    {{for todo in todos:}}
+    {{if todo.model.modelstate > 1:}}
+    <li class="list-group-item"><span class="{{='todo_critical' if todo.critical == True else ''}}"><a href="{{=URL('model','index',args=[todo.model.id],extension='html')}}"><i>[{{=todo.model.name}}]</i></a> {{=todo.todo}}</span></li>
+    {{pass}}
+    {{pass}}
+</ul>
+{{else:}}
+<table class="table table-sm">
+    <thead class="card-header">
+        <tr>
+            <td colspan="2">{{=todo_count}} Todos</td>
+        </tr>
+    </thead>
+    <tbody>
+        {{for todo in todos:}}
+        {{if todo.model.modelstate > 1:}}
+        <tr>
+            <td><span class="{{='todo_critical' if todo.critical == True else ''}}">{{=todo.todo}}</span></td>
+            <td><a href="{{=URL('model', 'index.html',args=[todo.model.id])}}">{{=todo.model.name}}</a></td>
+        </tr>
+        {{pass}}
+        {{pass}}
+    </tbody>
+
+</table>
+{{pass}}

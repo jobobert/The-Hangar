@@ -1,0 +1,41 @@
+<div id="diagram" class="">
+
+			{{if thestate == 2:}}
+				<span class="badge badge-secondary modelstate_bg_{{=thestate}}">Idea</span>
+				=>
+				<a href="{{=URL('model','updatestate', args=(model_id, 3))}}">Board</a>
+			{{elif thestate == 3:}}
+				<a href="{{=URL('model','updatestate', args=(model_id, 2))}}">Idea</a>
+				=>
+				<span class="badge badge-secondary modelstate_bg_{{=thestate}}">On the Board></span>
+				=>
+				<a href="{{=URL('model','updatestate', args=(model_id, 4))}}">Maiden</a>
+			{{elif thestate == 4:}}
+				<a href="{{=URL('model','updatestate', args=(model_id, 3))}}">Board</a>
+				=>
+				<span class="badge badge-secondary modelstate_bg_{{=thestate}}">Ready for Maiden</span>
+				=>
+				<a href="{{=URL('model','updatestate', args=(model_id, 5))}}">In Srvc</a>
+			{{elif thestate == 5:}}
+				<a href="{{=URL('model','updatestate', args=(model_id, 4))}}">Maiden</a>
+				=>
+				<span class="badge badge-secondary modelstate_bg_{{=thestate}}"><b>In Service</b></span>
+				=>
+				<a href="{{=URL('model','updatestate', args=(model_id, 6))}}">OOS</a>
+				/
+				<a href="{{=URL('model','updatestate', args=(model_id, 1))}}">Ret./Dis.</a>
+			{{elif thestate == 6:}}
+				<a href="{{=URL('model','updatestate', args=(model_id, 5))}}">In Srvc</a>
+				=>
+				<span class="badge badge-secondary modelstate_bg_{{=thestate}}">Out of Service</span>
+				=>
+				<a href="{{=URL('model','updatestate', args=(model_id, 7))}}">Repair</a>
+			{{elif thestate == 7:}}
+				<a href="{{=URL('model','updatestate', args=(model_id, 6))}}">OOS</a>
+				=>
+				<span class="badge badge-secondary modelstate_bg_{{=thestate}}">Under Repair</span>
+				=>
+				<a href="{{=URL('model','updatestate', args=(model_id, 5))}}">In Srvc</a>
+			{{pass}}
+
+</div>

@@ -1,0 +1,30 @@
+{{extend 'layout.html'}}
+{{dsp=form.custom.dspval}}
+{{inp=form.custom.inpval}}
+{{lbl=form.custom.label}}
+{{wid=form.custom.widget}}
+<table>
+    <thead>
+        <th>field</th>
+        <th>label</th>
+        <th>widget</th>
+        <th>record</th>
+        <th>dspval</th>
+        <th>inpval</th>
+    </thead>
+    <tbody>{{for f in form.fields:}}
+        <tr>
+            <td>{{=f}}</td>
+            <td>{{=lbl[f]}}</td>
+            <td>{{v=wid[f]}}{{if hasattr(v,'xml'):}}{{=v.xml()}}{{else:}}{{=v}}{{pass}}</td>
+            <td>{{if form.record:}}{{=form.record[f]}}{{pass}}</td>
+            <td>{{v=dsp[f]}}{{if hasattr(v,'xml'):}}{{=v.xml()}}{{else:}}{{=v}}{{pass}}</td>
+            <td>{{v=inp[f]}}{{if hasattr(v,'xml'):}}{{=v.xml()}}{{else:}}{{=v}}{{pass}}</td>
+        </tr>{{pass}}
+        <tr>
+            <td colspan=5><b>full form:</b>{{=dir(form)}}</td>
+        </tr>
+    </tbody>
+</table>
+<hr>
+{{=form}}

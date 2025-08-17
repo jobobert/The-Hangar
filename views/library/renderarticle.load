@@ -1,0 +1,23 @@
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('icons8-low-battery-80.png', 25)}}</span>{{=battery_count}} Batteries</h5>
+        <a class="card-link th-new-link" href="{{=URL('battery','update')}}">New</a>
+    </div>
+    <div class="card-body">
+
+        {{for mt in model_batteries:}}
+
+        <div class="row border-bottom">
+            <div class="col-8">
+                <div class="tool_name"><a class="text-decoration-none" href="{{=URL('battery','index.html',args=[mt.battery])}}">{{=mt.battery.name}}</a></div>
+            </div>
+            <div class="col-4 mt-2">
+                <a class="btn btn-primary" href="{{=URL('battery','removefrommodel',args=[model_id, mt.id])}}">{{=show_icon('icons8-waste-50.png', 16)}}</a>
+            </div>
+        </div>
+        {{pass}} 
+
+        {{=form}}
+    </div>
+ </div>

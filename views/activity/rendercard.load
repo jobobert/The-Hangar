@@ -1,0 +1,36 @@
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title"><span class="card-icon">{{=show_icon('icons8-calendar-50.png', 25)}}</span>{{=activity_count}} Activities</h5>
+    </div>
+    <div class="card-body">
+        {{if activities:}}
+        {{for activity in activities:}}
+        <div class="row">
+            <div class="col-9 d-block activitytype_{{=activity.activitytype}}" style="border-left-width: 10px;">{{=B(activity.activitydate)}}<br/>{{=activity.activitytype}}</div>
+            <div class="col-3 d-block">
+                <a class="btn btn-primary" href="{{=URL('activity','update',args=activity.id,extension='html')}}">Edit</a>
+            </div>
+        </div>
+        <div class="row mb-1 border-bottom">
+            <div class="col-12 d-xs-none d-lg-block activitytype_{{=activity.activitytype}}" style="border-left-width: 10px;">{{=MARKMIN(activity.notes)}}</div>
+        </div>
+        {{pass}}
+        {{else:}}
+        No Activities{{pass}}
+    </div>
+    <div class="card-footer">
+        <div class=" m-2 ">
+            <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_activity" role="button" aria-expanded="false" aria-controls="collapseform_activity">Add Event</a>
+        </div>
+        <div class=" m-2 collapse " id="collapseform_activity">
+            <div class="card-body">
+                <div class="mt-3">
+                    {{=form}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,40 @@
+{{extend 'layout.html'}}
+
+<div class="container">
+    <h2><a href="{{=URL('model','index',args=model_id,extension='html')}}">{{=model_name}} Activities</a></h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">{{=getattr(db.activity, 'activitydate').label}}</th>
+                <th scope="col">{{=getattr(db.activity, 'activitytype').label}}</th>
+                <th scope="col">{{=getattr(db.activity, 'duration').label}}</th>
+                <th scope="col">{{=getattr(db.activity, 'activitylocation').label}}</th>
+                <th scope="col">{{=getattr(db.activity, 'notes').label}}</th>
+                <th scope="col">Image</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{for activity in activities:}}
+            <tr>
+                <td class=" activitytype_{{=activity.activitytype}}" style="border-left-width: 10px;">{{=activity.activitydate}}</td>
+                <td>{{=activity.activitytype}}</td>
+                <td>{{=activity.duration}}</td>
+                <td>{{=activity.activitylocation}}</td>
+                <td>{{=MARKMIN(activity.notes)}}</td>
+                <td>
+                    {{if activity.img:}}
+                    <img style="max-width: 200px;" class="card-img-top" src="{{=URL('default', 'download', args=activity.img)}}" alt="Activity Image" onerror="this.src='{{=URL('static', 'icons/nopicture.png')}}'">
+                    {{else:}}
+                    &nbsp;
+                    {{pass}}
+                </td>
+                <td>
+                    <a class="btn btn-primary" href="{{=URL('activity','update',args=activity.id,extension='html')}}">Edit</a>
+                </td>
+            </tr>
+            {{pass}}
+        </tbody>
+    </table>
+</div>

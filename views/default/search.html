@@ -1,0 +1,34 @@
+{{extend 'layout.html'}}
+<div class="alert alert-secondary">
+    <p class="font-weight-light">You Searched For:</p>
+    <h3 class="m-b-3">{{=searchtext}}</h3>
+</div>
+<h1 class="m-b-3">Results:</h1>
+
+<table>
+    {{for result in finalresults:}}
+    <tr>
+        <td class="p-2" style="border-bottom: solid 1px rgb(100, 98, 98);" rowspan="3">
+
+            {{=result['img']}}
+        </td>
+        <td class="p-0">
+            {{if result['state']:}}
+            <span style="white-space: nowrap;" class="badge modelstate_bg_{{=result['state'].id}}">{{=result['state'].name}}</span>
+            {{pass}}
+            <span style="white-space: nowrap;" class="badge badge-info ">{{=result['tag']}}</span>
+        </td>
+    </tr>
+    <tr>
+
+        <td class="p-b-2">
+            <h3>{{=A(result['name'],_href=result['url'])}}</h3>
+        </td>
+    </tr>
+    <tr>
+        <td class="p-b-2" style="border-bottom: solid 1px rgb(100, 98, 98);"><span>
+                {{=result['desc']}}</span>
+        </td>
+    </tr>
+    {{pass}}
+</table>

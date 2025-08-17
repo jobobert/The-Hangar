@@ -1,0 +1,48 @@
+{{if options == 'dashboard':}}
+<ul class="list-group">
+    {{for component in components:}}
+    <li class="list-group-item">
+        {{=component.model_component.component.componenttype}}: 
+        <a class="text-decoration-none" href="{{=URL('component','index.html',args=[component.model_component.component])}}" target="_blank">
+        {{=component.model_component.component.name}}</a>
+        {{if component.model_component.purpose:}}
+        {{=B(component.model_component.purpose)}}
+        {{else:}} General Purpose
+        {{pass}}
+        {{if component.model_component.channel:}}
+        on ch
+        {{=B(component.model_component.channel)}}
+        {{pass}}
+
+    </li>
+    {{pass}}
+</ul>
+{{else:}}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('icons8-gearbox-64.png', 25)}}</span>{{=component_count}} Components</h5>
+        <!--<a class="card-link th-new-link" href="{{=URL('component','update')}}">New</a>-->
+        <a href="#" data-toggle="modal" data-target="#modal_newcomponent" class="card-link th-new-link">New</a>
+    </div>
+    <div class="card-body">
+        {{=grid}}
+    </div>
+    
+</div>
+
+<div class="modal fade" id="modal_newcomponent" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_newtool_title">New Component</h5>
+            </div>
+            <div class="modal-body">
+                {{=newform}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div> 
+{{pass}}

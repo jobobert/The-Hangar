@@ -1,0 +1,5 @@
+<ul>
+{{for img in images:}}
+    <li>{{=img}}</li>
+{{pass}}
+</ul>

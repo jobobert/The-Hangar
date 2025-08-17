@@ -1,0 +1,72 @@
+<div class="card ">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;">Flight Times</h5>
+        <!--<a href="#" data-toggle="modal" data-target="#modal_newflighttime" class="card-link th-new-link">Add</a>-->
+        {{if message:}}
+        {{=message}}
+        {{pass}}
+    </div>
+    <div class="card-body">
+        {{if flighttimes:}}
+        {{for f in flighttimes:}}
+        <div class="mb-3">
+            <table class="table table-sm mb-3">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col" colspan="2">{{=B(f.model.name)}}</th>
+                        <th scope="col">
+                            <a class="btn btn-info" href="{{=URL('model', 'updateflighttime', args=f.id)}}">Edit</a>
+                            <a class="btn btn-danger" href="{{=URL('model', 'removeflighttime', args=f.id)}}">Delete</a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="3" style="vertical-align: middle;">{{=B(f.get_minutes())}} mins.</td>
+                        <td>
+                            {{if f.motor:}}
+                            {{=B(f.motor)}}
+                            {{else:}}
+                            {{=B("No Motor")}}
+                            {{pass}}
+                        </td>
+                        <td>{{=B(f.propeller)}}</td>
+                    </tr>
+                    <tr>
+                        <td>{{=B(f.battery.name)}}</td>
+                        <td>{{=B(f.get_wattsperpound())}} W/lbs</td>
+                    </tr>
+                    <tr>
+                        <td>{{=B(f.amps)}} A</td>
+                        <td>{{=B(f.watts)}} W</td>
+                    </tr>
+                    {{if f.is_overrating():}}
+                    <tr>
+                        <td colspan="4"><span style="color: #ff0000">This is over the C Rating!!</span></td>
+                    </tr>
+                    {{pass}}
+                </tbody>
+            </table>
+        </div>
+        {{pass}}
+        {{else:}}
+        <div>None Established</div>
+        {{pass}}
+    </div>
+</div>
+
+<div class="modal fade" id="modal_newflighttime" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_newtool_title">New Flight Time</h5>
+            </div>
+            <div class="modal-body">
+                {{=newform}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

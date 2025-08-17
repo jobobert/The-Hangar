@@ -1,0 +1,50 @@
+{{extend 'layout.html'}}
+
+
+<div class="container ">
+    <div class="row m-1 p-1 bg-light"><form class="form-inline my-2 my-lg-0" action="{{=URL('library','search')}}" method="get">
+        <input style="border: none; width: 500px; height:40px; padding-right: 50px;" class="form-inline form-control mr-sm-2" name="s" type="text" autocomplete="off" placeholder="Search">
+        <button style="border: none; margin-left: -60px; height: 40px; width:50px;" class="form-inline form-control btn  my-2 my-sm-0" type="submit">Go</button>
+      </form>
+    </div>
+    <div class="row mt-5 mb-5">
+        <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
+    </div>
+    {{for article in articles:}}
+    <div class="row library-list">
+        <div class="col-sm-1">
+            <a class="library-link" href="{{=URL('library','read',args=article.id,extension='html')}}">{{=library_type_icon(article,32)}}</a>
+        </div>
+        {{if article.img:}}
+        <div class="col-sm-7">
+            {{else:}}
+            <div class="col-sm-9">
+                {{pass}}
+                <a class="library-link" href="{{=URL('library','read',args=article.id,extension='html')}}">
+                    {{=DIV(B(article.name))}}
+                    {{=DIV(I(article.summary))}}
+                </a>
+            </div>
+            <div class="col-sm-1">
+                {{if article.attachment:}}
+                <a href="{{=URL('default', 'download', args=article.attachment)}}">
+                    {{=filetype_icon(article.attachment, 32) }}
+                </a>
+                {{pass}}
+            </div>
+            {{if article.img:}}
+            <div class="col-sm-2">
+                <img class="img-thumbnail rounded" style="max-width: 150px; max-height:150px;" src="{{=URL('default', 'download', args=article.img)}}" alt="Cover Image" />
+            </div>
+            {{pass}}
+            <div class="col-sm-1">
+                <a class="btn btn-secondary" href="{{=URL('library','update',args=article.id,extension='html')}}">Edit</a>
+            </div>
+
+        </div>
+        {{pass}}
+
+        <div class="row mt-5 mb-5">
+            <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
+        </div>
+    </div>

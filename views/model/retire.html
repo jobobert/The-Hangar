@@ -1,0 +1,58 @@
+{{extend 'layout.html'}}
+
+<div class="container">
+
+    <div class="row">
+        <div class="alert alert-danger" role="alert">
+            <h2>You are about to retire the<br />{{=B(model.name)}}</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        {{=form.custom.begin}}
+        <div class="row">
+            <h3>What are the details of the retirement?</h3>
+        </div>
+        <div class="row">
+            {{=TEXTAREA(_name="reason")}}
+        </div>
+        <div class="row">
+            {{if components:}}
+            <h3>Please decide what to do with its components</h3>
+
+
+            <table class="table table-striped">
+                <thead class="thead">
+                    <tr>
+                        <!--<th scope="col">ID</th>-->
+                        <th scope="col">Component</th>
+                        <th scope="col">Purpose</th>
+                        <th scope="col">Disposition</th>
+                    </tr>
+                </thead>
+                <tbody class="tbody">
+                    {{for component in components:}}
+                    <tr>
+                        <td>
+                            {{=component.component.name}}</td>
+                        <td>{{=component.purpose}}</td>
+                        <td>
+                            {{=INPUT(_type="radio", _id=str(component.id) + "_keep", _name=str(component.id) + "_disposition", _value="keep", value=False)}} Keep
+                            {{=INPUT(_type="radio", _id=str(component.id) + "_dispose", _name=str(component.id) + "_disposition", _value="dispose", value=False)}} Dispose
+                        </td>
+                    </tr>
+                    {{pass}}
+                </tbody>
+            </table>
+
+
+            {{else:}}
+            <h3>This model has no components</h3>
+            {{pass}}
+        </div>
+        <div class="row">
+            {{=form.custom.submit}}</div>
+        {{=form.custom.end}}
+
+    </div>
+</div>

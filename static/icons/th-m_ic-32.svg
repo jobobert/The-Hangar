@@ -1,0 +1,22 @@
+<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
+
+ <g>
+  <title>background</title>
+  <rect x="-1" y="-1" width="34" height="34" id="canvas_background" fill="none"/>
+  <g id="canvasGrid" display="none">
+   <rect id="svg_1" width="100%" height="100%" x="0" y="0" stroke-width="0" fill="url(#gridpattern)"/>
+  </g>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <rect stroke="#000" fill="none" stroke-width="null" stroke-opacity="null" fill-opacity="null" x="7.625028" y="15.375051" width="17.00001" height="12.500003" id="svg_38"/>
+  <ellipse stroke="#000" fill="none" stroke-width="null" stroke-opacity="null" fill-opacity="null" cx="16.375031" cy="21.625053" id="svg_39" rx="4.000005" ry="4.000004"/>
+  <line stroke="#000" fill="none" stroke-width="null" stroke-opacity="null" fill-opacity="null" x1="12.250024" y1="11.125048" x2="20.412204" y2="11.125048" id="svg_40" stroke-linejoin="null" stroke-linecap="null"/>
+  <line stroke="#000" fill="none" stroke-width="null" stroke-opacity="null" fill-opacity="null" x1="14.250025" y1="13.375048" x2="19.000035" y2="13.375048" id="svg_41" stroke-linejoin="null" stroke-linecap="null"/>
+  <line stroke="#000" fill="none" stroke-width="null" stroke-opacity="null" fill-opacity="null" x1="10.500025" y1="9.125042" x2="21.912203" y2="9.125042" id="svg_42" stroke-linejoin="null" stroke-linecap="null"/>
+  <line stroke="#000" fill="none" stroke-width="null" stroke-opacity="null" fill-opacity="null" x1="10.250027" y1="7.12504" x2="22.162202" y2="7.12504" id="svg_43" stroke-linejoin="null" stroke-linecap="null"/>
+  <line stroke="#000" fill="none" stroke-width="null" stroke-opacity="null" fill-opacity="null" x1="10.000028" y1="4.875039" x2="21.912203" y2="4.875039" id="svg_44" stroke-linejoin="null" stroke-linecap="null"/>
+  <line stroke="#000" fill="none" stroke-width="null" stroke-opacity="null" fill-opacity="null" x1="11.750027" y1="2.125041" x2="20.412204" y2="2.125041" id="svg_46" stroke-linejoin="null" stroke-linecap="null"/>
+ </g>
+</svg>

@@ -1,0 +1,33 @@
+<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+ <desc/>
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="34" width="34" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <g stroke="null" id="Layer1">
+   <g stroke="null" id="Shape1">
+    <desc transform="translate(-17,2) translate(42.82859802246094,-0.434656023979187) scale(0.5799850821495056) translate(-42.82859802246094,0.434656023979187) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m8.818449,10.807207c6.135546,4.617493 9.809578,9.207901 13.339657,13.339657" id="shapePath1"/>
+   </g>
+   <g stroke="null" id="Shape2">
+    <desc transform="translate(-17,2) translate(42.82859802246094,-0.434656023979187) scale(0.5799850821495056) translate(-42.82859802246094,0.434656023979187) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m7.078493,9.647237c6.004296,3.64828 6.894399,7.823129 10.439731,11.019717" id="shapePath2"/>
+   </g>
+   <g stroke="null" id="Shape3">
+    <desc transform="translate(-17,2) translate(42.82859802246094,-0.434656023979187) scale(0.5799850821495056) translate(-42.82859802246094,0.434656023979187) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m17.518225,8.487266c-6.256357,4.072191 -15.027437,11.355122 -7.539806,14.499627c2.550252,-5.389047 6.61937,-10.311671 12.179687,-12.759672c-3.35649,-8.661878 -6.587587,4.133554 -11.599702,5.219866" id="shapePath3"/>
+   </g>
+   <g stroke="null" id="Shape4">
+    <desc transform="translate(-17,2) translate(42.82859802246094,-0.434656023979187) scale(0.5799850821495056) translate(-42.82859802246094,0.434656023979187) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m21.57812,18.347013c-2.02119,1.587825 -6.376008,4.794389 -1.739955,6.959821c0.930238,-1.804682 4.055894,-2.931187 5.799851,-4.639881c0.190583,-1.727892 -5.253737,-2.355435 -4.059896,-2.31994z" id="shapePath4"/>
+   </g>
+   <g stroke="null" id="Shape5">
+    <desc transform="translate(-17,2) translate(42.82859802246094,-0.434656023979187) scale(0.5799850821495056) translate(-42.82859802246094,0.434656023979187) " stroke="null"/>
+    <path stroke="#323232" stroke-miterlimit="2" stroke-linecap="round" fill-rule="evenodd" fill="#040404" d="m-51.5,127.964193z" id="shapePath5"/>
+   </g>
+  </g>
+ </g>
+</svg>
