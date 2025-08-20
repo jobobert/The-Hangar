@@ -356,6 +356,9 @@
 <div class="export-notfound">No Flight Times</div>
 {{pass}}
 
+<h2>Wiring Diagram</h2>
+{{=LOAD('diagram', 'rendermodelexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Switches"))}}
+
 <h2>Activities</h2>
 {{if activities:}}
 <table class="table export-table">

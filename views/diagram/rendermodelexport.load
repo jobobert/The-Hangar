@@ -1,0 +1,24 @@
+<script src="{{=URL('static','js/viz-global.js')}}"></script>
+
+{{if dot:}}
+
+<div id="graph-container" style=""></div>
+
+
+<script>
+    //function remove_linebreaks(str) {
+    //    return str.replace(/[\r\n]+/gm, " ");
+    //}
+
+    const dotGraph = `{{=XML(dot)}}`;
+
+    Viz.instance().then(viz => {
+        const svg = viz.renderSVGElement(dotGraph);
+
+        document.getElementById("graph-container").appendChild(svg);
+    });
+
+</script>
+{{else:}}
+No Diagram
+{{pass}}

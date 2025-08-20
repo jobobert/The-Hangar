@@ -1,0 +1,31 @@
+<script src="{{=URL('static','js/viz-global.js')}}"></script>
+
+{{if dot:}}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('icons8-gearbox-64.png', 25)}}</span>Wiring Diagram</h5>
+    </div>
+    <div class="card-body">
+        <div id="graph-container" style=""></div>
+    </div>
+
+</div>
+
+
+<script>
+    //function remove_linebreaks(str) {
+    //    return str.replace(/[\r\n]+/gm, " ");
+    //}
+
+    const dotGraph = `{{=XML(dot)}}`;
+
+    Viz.instance().then(viz => {
+        const svg = viz.renderSVGElement(dotGraph);
+
+        document.getElementById("graph-container").appendChild(svg);
+    });
+
+</script>
+{{else:}}
+No Diagram
+{{pass}}

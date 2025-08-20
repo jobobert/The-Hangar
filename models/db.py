@@ -130,8 +130,10 @@ def component_select_widget(field, value):
     return select
 
 
-markmin_comment = SPAN('More on Markmin ',   A('here', _href='http://www.web2py.com/init/static/markmin.html',
+markmin_comment = SPAN('More on Markmin ',   A('here  ', _href='http://www.web2py.com/init/static/markmin.html',
                                                _target='_blank'), 'Upload/Insert an image ', A('here', _href=URL('image', 'index'), _target='_blank'))
+
+diagram_comment = SPAN('Editor ', A('here', _href='https://viz-js.com', _target='_blank'))
 
 db.define_table('article'
                 , Field('name', type='string', label='Name', required=True, unique=True)
@@ -256,7 +258,7 @@ db.define_table('model'
                 #
                 , Field('fieldnotes', type='text', label='Field Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes))
                 #
-                , Field('diagram', type='text', label='.dot Diagram Code', comment="need .dot comment link")
+                , Field('diagram', type='text', label='Diagram Code (.dot)', comment=diagram_comment, represent=lambda id, row: XML(row.diagram))
                 #
                 , format=lambda row: row.name)
 

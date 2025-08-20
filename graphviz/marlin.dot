@@ -32,7 +32,6 @@ graph model {
     "led" [label = "LED\lplug";shape = "house";];
     "esc" [label = "ESC";shape = "rect";];
     "rudder_servo" [label = "Rudder";shape = "trapezium";];
-    "ballast" [label = "Ballast\lController";];
     "dive_plane_servo" [label = "Dive Planes";shape = "trapezium";];
     "fore_plane_servo" [label = "Fore Planes";shape = "trapezium";];
     "batt_1" [label = "3s2200";];
@@ -40,18 +39,37 @@ graph model {
     "bec" [label = "BEC";shape = "rect";];
     "receiver" [label = "<f0>Receiver | <f1>Port 1 | <f2>Port 2 | <f3>Port 3 | <f4>Port 4 | <f5>Port 5 | <f6>Port 6";shape = "record";];
     
+    subgraph cluster_ballast {
+        label = "Ballast Controller";
+        "board" [shape="record";label = "Board | <f0>Receiver In | <f1>M1 | <f2>M2 | <pos>Positive | <neg>Negative | <sen>Sensor | <ds>DS";];
+        "motor" [shape="record";label = "Motor |<pos>Positive | <neg>Negative ";];
+        "sensor" [label = "Hall Sensor";];
+        "sw_b1" [shape="record" label = "S1 Spindle | <f1>1 |<f2>2 |<f4>4";];
+        "sw_b2" [shape="record" label = "S2 Pilot Shaft | <f1>1 |<f2>2 |<f4>4";];
+
+        board:f1 -- sw_b1:f4
+        board:f2 -- sw_b2:f2
+        sw_b1:f2 -- sw_b2:f4
+        sw_b1:f1 -- motor:neg
+        sw_b2:f1 -- motor:pos
+        sw_b2:f2 -- board:neg
+        
+        sensor -- board:sen
+        //board:f0 -- receiver:f5
+    }
+    
     // Edges
     
     batt_1 -- conn_1 [color = "#2430d3"; penwidth = 4;];
     batt_2 -- conn_2 [color = "#2430d3"; penwidth = 4;];
     
-    conn_1 -- sw_1 [color = "#2430d3"; penwidth = 4;];
-    conn_2 -- sw_1 [color = "#2430d3"; penwidth = 4;];
+    conn_1:e -- sw_1 [color = "#2430d3"; penwidth = 4;];
+    conn_2:e -- sw_1 [color = "#2430d3"; penwidth = 4;];
     
-    conn_1 -- led [color = "#2430d3";];
-    conn_2 -- led [color = "#2430d3";];
+    conn_1:e -- led [color = "#2430d3";];
+    conn_2:e -- led [color = "#2430d3";];
     
-    sw_1 -- bec [color = "#2430d3";];
+    sw_1:e -- bec [color = "#2430d3";];
     
     bec -- receiver:f6 [color = "#a8700f";];
     
@@ -63,7 +81,10 @@ graph model {
     
     receiver:f4:e -- fore_plane_servo [color = "#a8700f";];
     
-    receiver:f5:e -- ballast [color = "#a8700f";];
+    receiver:f5 -- board:f0 [color = "#a8700f";];
+    
+    board:neg -- sw_1:e [color = "#2430d3"; penwidth = 4;];
+    board:pos -- sw_1:e [color = "#2430d3"; penwidth = 4;];
     
     
     // Title

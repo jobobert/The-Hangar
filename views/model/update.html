@@ -69,7 +69,7 @@ Your submitted form contains the following errors:
                                 <div class="model_form_comment">{{=form.custom.comment.havekit}}</div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mt-2">
                             <div class="col-sm-3">
                                 <div class="model_form_label_required">{{=form.custom.label.modelstate}}</div>
                                 <div class="model_form_field">{{=form.custom.widget.modelstate}}</div>
@@ -92,13 +92,19 @@ Your submitted form contains the following errors:
                                 <div class="model_form_comment">{{=form.custom.comment.powerplant}}</div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="model_form_label">{{=form.custom.label.notes}}</div>
-                                <div class="model_form_field">{{=form.custom.widget.notes}}</div>
-                                <div class="model_form_comment">{{=form.custom.comment.notes}}</div>
+                        <div class="row mt-2">
+                            <div class="col-sm-6">
+                                <div class="model_form_label">{{=form.custom.label.configbackup}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.configbackup}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.configbackup}}</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="model_form_label">{{=form.custom.label.transmitter}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.transmitter}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.transmitter}}</div>
                             </div>
                         </div>
+
                     </div>
                     <div class="col-sm-4">
                         <div class="model_form_label">{{=form.custom.label.img}}</div>
@@ -106,35 +112,55 @@ Your submitted form contains the following errors:
                         <div class="model_form_comment">{{=form.custom.comment.img}}</div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-4">
-                        <div class="model_form_label">{{=form.custom.label.configbackup}}</div>
-                        <div class="model_form_field">{{=form.custom.widget.configbackup}}</div>
-                        <div class="model_form_comment">{{=form.custom.comment.configbackup}}</div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="model_form_label">{{=form.custom.label.transmitter}}</div>
-                        <div class="model_form_field">{{=form.custom.widget.transmitter}}</div>
-                        <div class="model_form_comment">{{=form.custom.comment.transmitter}}</div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="model_form_label">{{=form.custom.label.fieldnotes}}</div>
-                        <div class="model_form_field">{{=form.custom.widget.fieldnotes}}</div>
-                        <div class="model_form_comment">{{=form.custom.comment.fieldnotes}}</div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="model_form_label_required">{{=form.custom.label.diagram}}</div>
-                        <div class="model_form_field">{{=form.custom.widget.diagram}}</div>
-                        <div class="model_form_comment">{{=form.custom.comment.diagram}}</div>
-                    </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="card w-100 ">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    {{=form.custom.label.notes}}
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <div class="col-sm-12">
+                    <div class="model_form_field">{{=form.custom.widget.notes}}</div>
+                    <div class="model_form_comment">{{=form.custom.comment.notes}}</div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="card w-100 ">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    {{=form.custom.label.fieldnotes}}
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <div class="model_form_field">{{=form.custom.widget.fieldnotes}}</div>
+                <div class="model_form_comment">{{=form.custom.comment.fieldnotes}}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="card w-100 ">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    {{=form.custom.label.diagram}}
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <div class="model_form_field">{{=form.custom.widget.diagram}}</div>
+                <div class="model_form_comment">{{=form.custom.comment.diagram}}</div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="row">
 
@@ -216,7 +242,8 @@ Your submitted form contains the following errors:
                 </div>
             </div>
         </div>
-
+    </div>
+    <div class="row">
         <div class="card w-100 ">
             <div class="card-header" id="headingTwo">
                 <h5 class="mb-0">
@@ -286,6 +313,8 @@ Your submitted form contains the following errors:
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
         <div class="card w-100 ">
             <div class="card-header" id="headingThree">
                 <h5 class="mb-0">
@@ -314,6 +343,8 @@ Your submitted form contains the following errors:
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
         <div class="card w-100 ">
             <div class="card-header" id="headingThree">
                 <h5 class="mb-0">
@@ -390,6 +421,8 @@ Your submitted form contains the following errors:
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row">
         <div class="card w-100 ">
             <div class="card-header" id="headingThree">
                 <h5 class="mb-0">
@@ -421,6 +454,8 @@ Your submitted form contains the following errors:
             </div>
 
         </div>
+    </div>
+    <div class="row">
         <div class="card w-100 ">
             <div class="card-header" id="headingThree">
                 <h5 class="mb-0">
@@ -447,24 +482,38 @@ Your submitted form contains the following errors:
         </div>
     </div>
 
-    <div class="card w-100 mt-2 mb-2">
-        <div class="container p-1">
-            <div class="row">
-                <div class="col-sm-9">
-                    <div class=" model_form_label">{{=form.custom.label.final_disposition}}</div>
-                    <div class="model_form_field">{{=form.custom.widget.final_disposition}}</div>
-                    <div class="model_form_comment">{{=form.custom.comment.final_disposition}}</div>
-                </div>
-                <div class="col-sm-3">
-                    <div class=" model_form_label">{{=form.custom.label.final_value}}</div>
-                    <div class="model_form_field">{{=form.custom.widget.final_value}}</div>
-                    <div class="model_form_comment">{{=form.custom.comment.final_value}}</div>
+
+    <div class="row mt-3 mb-2">
+
+        <div class="card w-100 ">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    Final Disposition
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <div class="container">
+                    <div class="row">
+
+
+                        <div class="col-sm-9">
+                            <div class=" model_form_label">{{=form.custom.label.final_disposition}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.final_disposition}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.final_disposition}}</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class=" model_form_label">{{=form.custom.label.final_value}}</div>
+                            <div class="model_form_field">{{=form.custom.widget.final_value}}</div>
+                            <div class="model_form_comment">{{=form.custom.comment.final_value}}</div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 
 {{=form.custom.end}}
 
@@ -486,7 +535,7 @@ Your submitted form contains the following errors:
     }
 
     function typeChange() {
-        // Key = dropdown value : Value = div id 
+        // Key = dropdown value : Value = div id
         var types = {
             "Airplane": "airplane",
             "Boat": "boat",

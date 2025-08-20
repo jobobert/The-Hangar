@@ -252,6 +252,12 @@
 </div>
 {{pass}}
 
+<div class="row mb-3 ml-2">
+    <div class="col-sm-12">
+        {{=LOAD('diagram','rendermodeldiagram.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')), "Wiring Diagram"))}}
+    </div>
+</div>
 
 <div class="row mb-3 ml-2">
     <div class="col-sm-12">
@@ -259,14 +265,6 @@
         'images/waiting.gif')), "Activities"))}}
     </div>
 </div>
-
-<div class="row mb-3 ml-2">
-    <div class="col-sm-12">
-        <h5>Wiring Diagram</h5>
-        {{=model.diagram or "No Diagram"}}
-    </div>
-</div>
-
 
 <div class="row mt-5 mb-5 ml-2">
     <a class="btn btn-primary" href="{{=URL('model','update',args=model.id,extension='html')}}">Edit</a>

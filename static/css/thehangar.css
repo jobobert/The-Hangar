@@ -1,7 +1,7 @@
 /* The Model Edit Form */
 
 .model_form_label {
-    font-style: italic;
+    /*font-style: italic;*/
 }
 
 .model_form_label_required {
@@ -9,7 +9,10 @@
 }
 
 .model_form_comment {
-    display: none;
+    display: block;
+    margin-left: 1rem;
+    color: #9b9595;
+    font-size: smaller;
 }
 
 .model_form_field_calc {

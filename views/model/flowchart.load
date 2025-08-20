@@ -1,7 +1,7 @@
 <script src="{{=URL('static','js/raphael.min.js')}}"></script>
 <script src="{{=URL('static','js/flowchart.min.js')}}"></script>
 
-<div id="diagram" style=""></div>
+<div id="flowchart" style=""></div>
 
 <script>
 	var options = {
@@ -32,6 +32,6 @@
 		'repair(top)->service\n' +
 		'service(yes)->retired\n'
 	);
-	diagram.drawSVG('diagram', options);
+	diagram.drawSVG('flowchart', options);
 
 </script>
