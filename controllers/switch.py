@@ -114,17 +114,19 @@ def renderpositions():
 
     return dict(position_count=position_count, positions=positions, addform=addform,deleteform=deleteform)
 
-def listswitches():
-    transmitter_id = request.args(0)
+def listswitches_old():
+    transmitter_id = int(request.args(0))
 
     switches = db(db.switch.model).select()
-    trans_switches = switches.exclude(lambda row: row.model.transmitter != transmitter_id)
+    trans_switches = switches.exclude(lambda row: row.model.transmitter.id == transmitter_id)
 
     x = []
 
     for switch in trans_switches:
+        
         x.append(dict(
             trans=switch.model.transmitter.name, 
+            tid = switch.model.transmitter.id,
             switch=switch.switch,
             model=switch.model.name,
             type=switch.switchtype,
@@ -132,5 +134,37 @@ def listswitches():
             )
         )
 
-    response.view = 'content.html'
-    return dict(content=x)
+    #response.view = 'content.html'
+    return dict(content=x, m=transmitter_id)
+# http://127.0.0.1:8000/init/switch/listswitches/2
+
+def listswitches():
+
+    transmitter_id = int(request.args(0))
+
+    # Get the switches excluding those not associated with the specified transmitter
+    switches = db(db.switch.model).select().exclude(lambda row: row.model.transmitter.id == transmitter_id)
+
+    # Prepare the content for the view
+    switch_names = sorted(set(s.switch for s in switches))
+    model_names = sorted(set(s.model.name for s in switches))
+
+    # Build a lookup: {(model_name, switch_name): purpose}
+    table_data = {}
+    for s in switches:
+        key = (s.model.name, s.switch)
+        table_data[key] = s.purpose
+
+    # Prepare rows for the table
+    rows = []
+    for model in model_names:
+        
+        row = [model]
+        for switch in switch_names:
+            row.append(table_data.get((model, switch), ""))
+        rows.append(row)
+    
+    # Pass headers and rows to the view
+    headers = ["Model"] + switch_names
+    
+    return dict(headers=headers, rows=rows)
