@@ -119,7 +119,7 @@ def listswitches():
     transmitter_id = int(request.args(0))
 
     # Get the switches excluding those not associated with the specified transmitter
-    switches = db(db.switch.model).select().exclude(lambda row: row.model.transmitter.id == transmitter_id)
+    switches = db(db.switch.model).select().exclude(lambda row: (row.model.transmitter.id == transmitter_id) & (row.model.modelstate.id > 1))
 
     # Prepare the content for the view
     switch_names = sorted(set(s.switch for s in switches))
@@ -138,6 +138,7 @@ def listswitches():
         row = [model]
         for switch in switch_names:
             row.append(table_data.get((model, switch), ""))
+        #row.append(A("Go", _href=URL('model', 'index', args=[model.id]), _class="btn btn-primary btn-sm"))
         rows.append(row)
     
     # Pass headers and rows to the view

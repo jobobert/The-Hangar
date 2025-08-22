@@ -24,8 +24,6 @@ def breadcrumb_show():
     else:
         return ""
 
-
-
 def model_type_icon(model, size):
     if size == 32:
         size = 32
@@ -139,7 +137,6 @@ def ispdf(attachment):
 
     return (ext == 'pdf')
         
-
 def underConstructionModels():
     models = db((db.model.modelstate == 3) | (db.model.modelstate == 6)).select(
         db.model.id, db.model.name, db.model.img, db.model.description).as_list()
@@ -210,8 +207,6 @@ def theHangarStats():
     stats['todo_list'] = critical_todos
 
     return stats
-
-
 
 def delete_file(row, uploadfield):
     # https://groups.google.com/g/web2py/c/hNYpxTsgk0E

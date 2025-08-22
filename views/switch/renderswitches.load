@@ -1,21 +1,24 @@
-
 {{if not render_card:}}
 <div class="card mb-2">
     <div class="card-header">
         <h5 class="card-title"><span class="card-icon">{{=show_icon('s-2-Position.png', 25)}}</span>{{=switch_count}} Switches</h5>
     </div>
     <div class="card-body">
-{{pass}}
+        {{pass}}
 
-{{if switch_count == 0:}}
+        {{if switch_count == 0:}}
 
         No switches defined
 
-{{else:}}
-    {{for k in switchList.keys():}}
+        {{else:}}
+        {{for k in switchList.keys():}}
         <div class="row">
-            <div class="col-4 font-weight-bold">{{=switchList[k]['switch']}}</div>
-            <div class="col-5 {{if not render_card:}}font-weight-bold{{pass}}">{{=switchList[k]['purpose']}}</div>
+
+
+            <div class="d-block font-weight-bold">{{=switchList[k]['switch']}}</div>
+            <div class="d-block ml-4 {{if not render_card:}}font-weight-bold{{pass}}">{{=switchList[k]['purpose']}}</div>
+
+
             {{if not render_card:}}
             <div class="col-3">
                 <a class="btn btn-primary" href="{{=URL('switch','update.html',args=switchList[k]['id'])}}">{{=show_icon('icons8-pencil-64.png', 16)}}</a>
@@ -37,11 +40,11 @@
             </div>
         </div>
         {{pass}}
-    {{pass}}
+        {{pass}}
 
-{{pass}}
+        {{pass}}
 
-{{if not render_card:}}
+        {{if not render_card:}}
     </div>
     <div class="card-footer">
         <div class="row">

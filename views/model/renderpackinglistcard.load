@@ -1,25 +1,45 @@
+<script src="{{=URL('static','js/qrcode.min.js')}}"></script>
+
 <div class="card model-card-pl mb-2 test">
     <h3>{{=model.name}}</h3>
-    {{if model.transmitter:}}
-    <h5 class="ml-3">Transmitter</h5>
-    <div class="ml-5">
-        {{=model.transmitter.nickname}}</div>
-    {{pass}}
+    <div class="row">
+        <div class="col-6">
+            {{if model.transmitter:}}
+            <h5 class="ml-3">Transmitter</h5>
+            <div class="ml-5">
+                {{=model.transmitter.nickname}}</div>
+            {{pass}}
 
-    <h5 class="ml-3">Batteries</h5>
-    {{if batteries:}}
-    {{for battery in batteries:}}
-    <div class="ml-5">{{=battery.battery.name}}</div>
-    {{pass}}
-    {{else:}}
-    <div class="ml-5">No Batteries</div>
-    {{pass}}
+            <h5 class="ml-3">Batteries</h5>
+            {{if batteries:}}
+            {{for battery in batteries:}}
+            <div class="ml-5">{{=battery.battery.name}}</div>
+            {{pass}}
+            {{else:}}
+            <div class="ml-5">No Batteries</div>
+            {{pass}}
 
-    <h5 class="ml-3">Switches</h5>
-    <div class="ml-5">{{=LOAD('switch', 'renderswitches.load', args=[model.id, True], ajax=True, content='Getting Details...' )}}</div>
+            <h5 class="ml-3">Switches</h5>
+            <div class="ml-5">{{=LOAD('switch', 'renderswitches.load', args=[model.id, True], ajax=True, content='Getting Details...' )}}</div>
 
-    {{if model.fieldnotes:}}
-        <h5 class="ml-3">Field Notes</h5>
-        <div class="ml-5">{{=model.fieldnotes}}</div>
-    {{pass}}
-</div> 
+            {{if model.fieldnotes:}}
+            <h5 class="ml-3">Field Notes</h5>
+            <div class="ml-5">{{=model.fieldnotes}}</div>
+            {{pass}}
+        </div>
+        <div class="col-6" id="qrcode">
+
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    new QRCode(
+        document.getElementById("qrcode"), {
+        text: "{{=URL('model', 'index.html', args = model.id)}}",
+        width: 128,
+        height: 128,
+    });
+</script>
