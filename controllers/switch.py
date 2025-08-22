@@ -114,30 +114,6 @@ def renderpositions():
 
     return dict(position_count=position_count, positions=positions, addform=addform,deleteform=deleteform)
 
-def listswitches_old():
-    transmitter_id = int(request.args(0))
-
-    switches = db(db.switch.model).select()
-    trans_switches = switches.exclude(lambda row: row.model.transmitter.id == transmitter_id)
-
-    x = []
-
-    for switch in trans_switches:
-        
-        x.append(dict(
-            trans=switch.model.transmitter.name, 
-            tid = switch.model.transmitter.id,
-            switch=switch.switch,
-            model=switch.model.name,
-            type=switch.switchtype,
-            purpose=switch.purpose
-            )
-        )
-
-    #response.view = 'content.html'
-    return dict(content=x, m=transmitter_id)
-# http://127.0.0.1:8000/init/switch/listswitches/2
-
 def listswitches():
 
     transmitter_id = int(request.args(0))

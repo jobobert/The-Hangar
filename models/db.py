@@ -280,11 +280,33 @@ db.define_table('todo', Field('todo', type='string', label='To Do'), Field('mode
 db.define_table('activity', Field('activitydate', type='date', label='Date', required=True, default=request.now), Field('model', type='reference model', label='Model'), Field('activitytype', type='string', label='Type'), Field('duration', type='double', Label='Duration (min)', comment='The duration, in minutes', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')), Field('activitylocation', type='string', label='Location'), Field('notes', type='text', label='Notes', comment='Notes about the event'), Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the activity', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), format=lambda row: 'Unknown' if row is None else row.name
                 )
 
-db.define_table('component', Field('name', type='string', label='Name'), Field('componenttype', type='string', label='Type'), Field('componentsubtype', type='string', label='Subtype', comment='The Sub Type'), Field('ownedcount', type='integer', label='Count', comment='How many are owned?', default=0, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control'))                # , args=[row.img_thumbnail])))
-                , Field('significantdetail', type='string', label='Significant Detail'), Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the component', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='More info'), format=lambda row: 'Unknown' if row is None else row.name)
+db.define_table('component', 
+                #
+                Field('name', type='string', label='Name'), 
+                # 
+                Field('componenttype', type='string', label='Type'), 
+                #
+                Field('componentsubtype', type='string', label='Subtype', comment='The Sub Type'), 
+                #
+                Field('ownedcount', type='integer', label='Count', comment='How many are owned?', default=0, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
+                #
+                Field('significantdetail', type='string', label='Significant Detail'), 
+                #
+                Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
+                #
+                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the component', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
+                #
+                Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='More info'), 
+                #
+                Field('storedat', type='string', label='Location', comment='Where is this component stored?'),
+                #
+                format=lambda row: 'Unknown' if row is None else row.name,
+                )
 db.component.componentsubtype.widget = SQLFORM.widgets.autocomplete(
     request, db.component.componentsubtype, limitby=(0, 10), min_length=2, distinct=True
 )
+db.component.storedat.widget = SQLFORM.widgets.autocomplete(
+    request, db.component.storedat, limitby=(0, 10), min_length=2, distinct=True)
 
 db.define_table('model_component'
                 , Field('model', 'reference model')

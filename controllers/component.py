@@ -87,7 +87,6 @@ def addcount():
 
     return redirect(session.ReturnHere or URL('component', 'listview'))
 
-
 def subtractcount():
 
     if request.args(0):
@@ -95,7 +94,6 @@ def subtractcount():
         if row.ownedcount > 0:
             row.update_record(ownedcount=(row.ownedcount - 1))
     return redirect(session.ReturnHere or URL('component', 'listview'))
-
 
 def update():
 
@@ -119,7 +117,6 @@ def update():
     response.view = 'content.html'
 
     return dict(content=form)
-
 
 def rendercard_grid():
     model_id = request.args[0]
@@ -218,7 +215,6 @@ def rendercard():
 
     return dict(components=components, model_id=model_id, component_count=component_count, options=request.args(1), addform=addform, newform=newform, deleteform=deleteform, newcomponentname=newcomponentname, is_mobile= is_mobile)
 
- 
 def addtomodel():
 
     response.title = 'Add Component to Model'
@@ -237,7 +233,6 @@ def addtomodel():
 
     return dict(content=form)
 
-
 def removefrommodel():
     # try to do this via ajax sometime...
     # session.forget(response)
@@ -247,7 +242,6 @@ def removefrommodel():
     db(db.model_component.id == relationship_id).delete()
 
     return redirect(URL('model', 'index.html', args=model_id))
-
 
 def updatemodelrelation():
     # session.forget(response)
@@ -268,3 +262,13 @@ def updatemodelrelation():
     response.view = 'content.html'
 
     return dict(content=form)
+
+def inventory():
+
+    response.title = 'Component Inventory'
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
+
+    components = db(db.component).select(orderby=db.component.componenttype | db.component.name)
+
+    return dict(components=components)

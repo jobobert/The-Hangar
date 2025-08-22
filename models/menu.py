@@ -37,7 +37,8 @@ response.menu = [
                  _height=icon_size), ' Transmitters'), False, URL('transmitter', 'listview')),
         (DIV(IMG(_src=URL('static', 'icons/image.png'), _width=icon_size, 
                  _height=icon_size), ' Images'), False, URL('image', 'index')),
-
+        (DIV(IMG(_src=URL('static', 'icons/003-tasks.png'), _width=icon_size, 
+                 _height=icon_size), ' Inventory'), False, URL('component', 'inventory')),
     ]),
     (T('Dash'), False, URL('default', 'setui', args=['dashboard'])),
 ]
