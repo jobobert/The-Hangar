@@ -18,7 +18,14 @@
             {{else:}}
             <div class="ml-5">No Batteries</div>
             {{pass}}
+        </div>
+        <div class="col-6" id="qrcode-{{=model.id}}">
+            <div id="qrcode"></div>
 
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
             <h5 class="ml-3">Switches</h5>
             <div class="ml-5">{{=LOAD('switch', 'renderswitches.load', args=[model.id, True], ajax=True, content='Getting Details...' )}}</div>
 
@@ -27,17 +34,15 @@
             <div class="ml-5">{{=model.fieldnotes}}</div>
             {{pass}}
         </div>
-        <div class="col-6" id="qrcode">
-
-        </div>
     </div>
 </div>
 
 
 
+
 <script type="text/javascript">
     new QRCode(
-        document.getElementById("qrcode"), {
+        document.getElementById("qrcode-{{=model.id}}"), {
         text: "{{=URL('model', 'index.html', args = model.id)}}",
         width: 128,
         height: 128,
