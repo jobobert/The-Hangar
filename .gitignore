@@ -1,6 +1,7 @@
 databases/
 sessions/
 errors/
+uploads/
 .vscode/
 private/
 __pycache__/
