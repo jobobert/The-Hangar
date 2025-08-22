@@ -1,6 +1,6 @@
 <script src="{{=URL('static','js/viz-global.js')}}"></script>
 
-{{if dot:}}
+{    {if dot:}}
 <div class="card">
     <div class="card-header">
         <h5 class="card-title" style="display: inline-block;">
@@ -18,9 +18,6 @@
 
 
 <script>
-    //function remove_linebreaks(str) {
-    //    return str.replace(/[\r\n]+/gm, " ");
-    //}
 
     const dotGraph = `{{=XML(dot)}}`;
 
@@ -31,6 +28,6 @@
     });
 
 </script>
-{{else:}}
+{     {else:}}
 No Diagram
-{{pass}}
+{    {pass}}
