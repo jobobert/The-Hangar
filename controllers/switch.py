@@ -127,10 +127,18 @@ def listswitches():
 
     # Build a lookup: {(model_name, switch_name): purpose}
     table_data = {}
+    model_data = {}
     for s in switches:
         key = (s.model.name, s.switch)
         table_data[key] = s.purpose
 
+        # add the model protocol to the end of the row
+        model_data[(s.model.name, "protocol")] = s.model.protocol.name if s.model.protocol else "No Protocol"
+        model_data[(s.model.name, "actions")] = A("Go", _href=URL('model', 'index', args=[s.model.id]), _class="btn btn-primary btn-sm")
+        # add a link to the model page for editing
+        #row.append(s.model.protocol.name if s.model.protocol else "No Protocol")
+        #row.append(A("Go", _href=URL('model', 'index', args=[model.id]), _class="btn btn-primary btn-sm"))
+    
     # Prepare rows for the table
     rows = []
     for model in model_names:
@@ -138,10 +146,12 @@ def listswitches():
         row = [model]
         for switch in switch_names:
             row.append(table_data.get((model, switch), ""))
-        #row.append(A("Go", _href=URL('model', 'index', args=[model.id]), _class="btn btn-primary btn-sm"))
+        row.append(model_data.get((model, "protocol"), "No Protocol"))
+        row.append(model_data.get((model, "actions"), ""))
+        
         rows.append(row)
     
     # Pass headers and rows to the view
-    headers = ["Model"] + switch_names
+    headers = ["Model"] + switch_names + ["Protocol"] + ["Actions"]
     
     return dict(headers=headers, rows=rows)

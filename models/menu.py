@@ -39,6 +39,8 @@ response.menu = [
                  _height=icon_size), ' Images'), False, URL('image', 'index')),
         (DIV(IMG(_src=URL('static', 'icons/003-tasks.png'), _width=icon_size, 
                  _height=icon_size), ' Inventory'), False, URL('component', 'inventory')),
+        (DIV(IMG(_src=URL('static', 'icons/003-tasks.png'), _width=icon_size, 
+                 _height=icon_size), ' Protocols'), False, URL('protocol', 'index')),
     ]),
     (T('Dash'), False, URL('default', 'setui', args=['dashboard'])),
 ]

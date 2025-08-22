@@ -35,6 +35,12 @@
     <span>{{=A(model.transmitter.nickname or model.transmitter.name, _href=URL('transmitter', 'index',
         args=model.transmitter))}}</span>
     <span> | </span>
+    {{if model.protocol:}}
+        <span>{{=model.protocol.name}}</span>
+    {{else:}}
+    <span>Unknown Protocol</span>
+    {{pass}}
+    <span> | </span>
     {{if model.radio_config_backedup() == 'Yes':}}
     <span>{{=A('Download Config', _href=URL('default', 'download', args=model.configbackup))}}</span>
     <span> | </span>

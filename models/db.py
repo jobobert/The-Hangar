@@ -260,9 +260,14 @@ db.define_table('model'
                 #
                 , Field('diagram', type='text', label='Diagram Code (.dot)', comment=diagram_comment, represent=lambda id, row: XML(row.diagram))
                 #
-                , format=lambda row: row.name)
+                , Field('protocol', type='reference protocol', label='Protocol', comment='The radio protocol used by this model')
+                #
+                , format=lambda row: row.name
+                )
 
-db.define_table('modelstate', Field('name', type='string', label='State'), format=lambda row: row.name
+db.define_table('modelstate', 
+                Field('name', type='string', label='State'), 
+                format=lambda row: row.name
                 )
 
 db.define_table('transmitter', Field('name', type='string', label='Name'), Field('nickname', type='string', label='Nickname'), 
@@ -271,9 +276,14 @@ db.define_table('transmitter', Field('name', type='string', label='Name'), Field
                 Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the transmitter', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Manual', comment='The manual, etc', default=''), 
                 Field('os', type='string', label='Operating System/Version'),
+                Field('protocol', type='list:reference protocol', label='Protocols Supported', comment='The protocols supported by this transmitter', represent=lambda v, r: ', '.join([p.name for p in db(db.protocol.id.belongs(v)).select()]) ),
                 format=lambda row: row.name
                 )
-
+db.define_table('protocol', 
+                Field('name', type='string', label='Name'), 
+                Field('description', type='text', label='Description'), 
+                format=lambda row: row.name   
+                )
 db.define_table('todo', Field('todo', type='string', label='To Do'), Field('model', type='reference model'), Field('critical', type='boolean', default=False), Field('notes', type='text', label='Notes',
                                                                                                                                                                      comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), Field('complete', type='boolean', label="Complete?", default=False), format=lambda row: 'Unknown' if row is None else row.todo)
 

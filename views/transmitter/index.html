@@ -14,14 +14,28 @@
         <div class="col-1">
             <span class="model_transmitter_label">Serial: </span>
         </div>
-        <div class="col-5">
+        <div class="col-3">
             <span class="model_transmitter_content">{{=transmitter.serial}}</span>
         </div>
         <div class="col-1">
             <span class="model_transmitter_label">OS: </span>
         </div>
-        <div class="col-5">
+        <div class="col-3">
             <span class="model_transmitter_content">{{=transmitter.os}}</span>
+        </div>
+        <div class="col-1">
+            <span class="model_transmitter_label">Protocols: </span>
+        </div>
+        <div class="col-3">
+            <ul class="list-group list-group-flush">
+                {{if transmitter.protocol:}}
+                {{for p in transmitter.protocol:}}
+                <li class="list-group-item">{{=p.name}}</li>
+                {{pass}}
+                {{else:}}
+                <li class="list-group-item">No Protocols Identified</li>
+                {{pass}}
+            </ul>
         </div>
     </div>
     <div class="row">
