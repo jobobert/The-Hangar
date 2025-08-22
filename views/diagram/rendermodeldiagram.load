@@ -3,7 +3,12 @@
 {{if dot:}}
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('icons8-gearbox-64.png', 25)}}</span>Wiring Diagram</h5>
+        <h5 class="card-title" style="display: inline-block;">
+            <span class="card-icon">{{=show_icon('icons8-gearbox-64.png', 25)}}</span>
+            Wiring Diagram
+        </h5>
+        {{=A("Edit", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="card-link th-new-link")}}
+
     </div>
     <div class="card-body">
         <div id="graph-container" style=""></div>

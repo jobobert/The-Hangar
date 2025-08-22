@@ -1,0 +1,45 @@
+{{extend 'layout.html'}}
+
+<h1>Edit Model Diagram for {{=model_name}}</h1>
+
+{{if dot:}}
+{{thedot = dot}}
+{{else:}}
+{{thedot = 'graph model A -- B'}}
+{{pass}}
+
+<div class="row">
+    <div class="col-6">
+        {{=form.custom.begin}}
+        {{=form.custom.submit}}
+        {{=form.custom.widget.diagram}}
+        {{=form.custom.end}}
+
+    </div>
+    <div class="col-6">
+        <div id="graph-container"></div>
+    </div>
+</div>
+
+
+<script src="{{=URL('static','js/viz-global.js')}}"></script>
+
+<script>
+
+    const myTextarea = document.getElementById('model_diagram');
+    myTextarea.addEventListener('input', (event) => {
+        updateGraph();
+    });
+
+    function updateGraph() {
+
+        Viz.instance().then(viz => {
+            const svg = viz.renderSVGElement(document.getElementById("model_diagram").value);
+
+            document.getElementById("graph-container").replaceChildren(svg);
+        });
+    }
+
+    updateGraph();
+
+</script>
