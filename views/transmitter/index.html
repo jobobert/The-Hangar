@@ -10,42 +10,39 @@
         <h4>{{=transmitter.nickname}}</h4>
     </div>
     {{pass}}
-    <div class="row mb-5">
-        <div class="col-1">
-            <span class="model_transmitter_label">Serial: </span>
-        </div>
-        <div class="col-3">
-            <span class="model_transmitter_content">{{=transmitter.serial}}</span>
-        </div>
-        <div class="col-1">
-            <span class="model_transmitter_label">OS: </span>
-        </div>
-        <div class="col-3">
-            <span class="model_transmitter_content">{{=transmitter.os}}</span>
-        </div>
-        <div class="col-1">
-            <span class="model_transmitter_label">Protocols: </span>
-        </div>
-        <div class="col-3">
-            <ul class="list-group list-group-flush">
-                {{if transmitter.protocol:}}
-                {{for p in transmitter.protocol:}}
-                <li class="list-group-item">{{=p.name}}</li>
-                {{pass}}
-                {{else:}}
-                <li class="list-group-item">No Protocols Identified</li>
-                {{pass}}
-            </ul>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-4">
+    
+    <div class="row mt-5">
+        <div class="col-sm-3">
             {{if transmitter.img:}}
             <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=transmitter.img)}}" alt="Card image cap">
             {{pass}}
         </div>
 
-        <div class="col-sm-4">
+        <div class="col-3">
+            <div class="card ">
+                <div class="card-header">
+                    <h5 class="card-title">Properties</h5>
+                </div>
+                <div class="card-body attribute-list">
+                    <dl>
+                        <dt class="d-block">Serial</dt>
+                        <dd class="ml-1">{{=transmitter.serial}}</dd>
+                        <dt class="d-block">Operating System</dt>
+                        <dd class="ml-1">{{=transmitter.os}}</dd>
+                        <dt class="d-block">Protocols</dt>
+                        {{if transmitter.protocol:}}
+                        {{for p in transmitter.protocol:}}
+                        <dd class="ml-1">{{=p.name}}</dd>
+                        {{pass}}
+                        {{else:}}
+                        <dd class="ml-1">No Protocols Identified</dd>
+                        {{pass}}
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-3">
             <div class="card ">
                 <div class="card-header">
                     <h5 class="card-title">Associated Models</h5>
@@ -64,7 +61,7 @@
             </div>
         </div>
 
-        <div class="col-sm-4">
+        <div class="col-3">
             <div class="card ">
                 <div class="card-header">
                     <h5 class="card-title">Attachment</h5>

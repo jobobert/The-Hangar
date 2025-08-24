@@ -134,10 +134,10 @@ def listswitches():
 
         # add the model protocol to the end of the row
         model_data[(s.model.name, "protocol")] = s.model.protocol.name if s.model.protocol else "No Protocol"
-        model_data[(s.model.name, "actions")] = A("Go", _href=URL('model', 'index', args=[s.model.id]), _class="btn btn-primary btn-sm")
         # add a link to the model page for editing
-        #row.append(s.model.protocol.name if s.model.protocol else "No Protocol")
-        #row.append(A("Go", _href=URL('model', 'index', args=[model.id]), _class="btn btn-primary btn-sm"))
+        # 
+        model_data[(s.model.name, "actions")] = A("Go", _href=URL('model', 'index', args=[s.model.id]), _class="btn btn-primary btn-sm")
+   
     
     # Prepare rows for the table
     rows = []
