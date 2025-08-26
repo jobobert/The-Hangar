@@ -3,7 +3,7 @@
 <h1>Edit Model Diagram for {{=model_name}}</h1>
 
 <div class="row">
-    <div class="col-6">
+    <div class="col-md-6">
         {{=form.custom.begin}}
         {{=form.custom.submit}}
         {{=form.custom.widget.diagram}}
@@ -12,7 +12,45 @@
 
         <button class="btn btn-secondary" onclick="setDefaultDot()">Use default dot code</button>
     </div>
+
     <div class="col-6 border-left">
+
+        <table class="table table-sm">
+            <tr>
+                <th>Action</th>
+                <th>Attributes</th>
+                <th>Dot Code</th>
+            </tr>
+            {{for k,v in attribs.items():}}
+            <tr>
+                <td><button class="btn btn-sm btn-secondary" onclick="insertText('{{=v}}')">Insert</button></td>
+                <td>{{=k}}</td>
+                <td>{{=v}}</td>
+
+            </tr>
+            {{pass}}
+        </table>
+
+
+        <table class="table table-sm">
+            <tr>
+                <th>Action</th>
+                <th>Component</th>
+                <th>Dot Code</th>
+            </tr>
+            {{for k,v in components.items():}}
+            <tr>
+                <td><button class="btn btn-sm btn-secondary" onclick="insertText('{{=v}}')">Insert</button></td>
+                <td>{{=k}}</td>
+                <td>{{=v}}</td>
+
+            </tr>
+            {{pass}}
+        </table>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-md-6 border-left">
         <div id="graph-container"></div>
     </div>
 </div>
@@ -26,6 +64,14 @@
     myTextarea.addEventListener('input', (event) => {
         updateGraph();
     });
+
+    function insertText(text) {
+        const textArea = document.getElementById("model_diagram");
+        const textToInsert = text;
+        textArea.setRangeText(textToInsert);
+        updateGraph();
+        textArea.focus(); // Keep focus on the textarea after insertion
+    }
 
     function setDefaultDot() {
         document.getElementById("model_diagram").value = `{{=XML(default_dot)}}`;
