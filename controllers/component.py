@@ -176,6 +176,7 @@ def rendercard():
     
     newcomponentname = ""
 
+
     addform = SQLFORM(db.model_component, fields=[
                       "component", "purpose", "channel"], comments=False)
     addform.vars.model = request.args(0)
@@ -185,6 +186,7 @@ def rendercard():
         response.flash = "New Component Added"
     elif addform.errors:
         response.flash = "Error Adding Component"
+
 
     newform = SQLFORM(db.component, showid=False,
                       formstyle='bootstrap4_inline')
@@ -199,6 +201,7 @@ def rendercard():
     elif newform.errors:
         response.flash = "Error Creating New Component"
 
+
     del_id = 0
     deleteform = SQLFORM.factory()
     if deleteform.process(session=None, formname='componentdeleteform').accepted:
@@ -207,7 +210,6 @@ def rendercard():
                 del_id = y
                 db(db.model_component.id == del_id).delete()
                 response.flash = "Removal Success"
-                #response.flash = str(del_id) + " Removal Success"
     elif deleteform.errors:
         response.flash = "Removal Failure"
 

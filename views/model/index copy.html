@@ -143,7 +143,7 @@
                     <dt class="{{=c}}">{{=getattr(db.model, key).label}}</dt>
                     <dd class="{{=c}}">
                         {{if getattr(db.model, key).type == 'double':}}
-                        {{=TwoDecimal(model[key])}} | {{=Model_ConvertMeasurementField( model, key)}}
+                        {{=TwoDecimal(model[key])}} {{=ConvertMeasurementField(db.model, model, key)}}
                         {{else:}}
                         {{=model[key]}}
                         {{pass}}

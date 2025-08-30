@@ -91,13 +91,13 @@ Your submitted form contains the following errors:
             </div>
             <div class="container">
                 <div class="row">
-                    <div class="col-4">
+                    <div class="col-6">
                         <div class="model_form_label">{{=form.custom.label.attr_length}}</div>
                         <div class="model_form_field">{{=form.custom.widget.attr_length}}</div>
                         <div class="model_form_comment">{{=form.custom.comment.attr_length}}</div>
                     </div>
 
-                    <div class="col-3">
+                    <div class="col-6">
                         <div class="model_form_label">Inch</div>
                         <div class="model_form_field"><input class="double form-control component_form_field_calc" id="length_in" type="double" onchange="inchToMm('length_in', 'component_attr_length');" autocomplete="off"></div>
                         <div class="model_form_comment"></div>
@@ -105,36 +105,36 @@ Your submitted form contains the following errors:
 
                 </div>
                 <div class="row">
-                    <div class="col-4">
+                    <div class="col-6">
                         <div class="model_form_label">{{=form.custom.label.attr_width}}</div>
                         <div class="model_form_field">{{=form.custom.widget.attr_width}}</div>
                         <div class="model_form_comment">{{=form.custom.comment.attr_width}}</div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-6">
                         <div class="model_form_label">Inch</div>
                         <div class="model_form_field"><input class="double form-control component_form_field_calc" id="width_in" type="double" onchange="inchToMm('width_in', 'component_attr_width');" autocomplete="off"></div>
                         <div class="model_form_comment"></div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-4">
+                    <div class="col-6">
                         <div class="model_form_label">{{=form.custom.label.attr_height}}</div>
                         <div class="model_form_field">{{=form.custom.widget.attr_height}}</div>
                         <div class="model_form_comment">{{=form.custom.comment.attr_height}}</div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-6">
                         <div class="model_form_label">Inch</div>
                         <div class="model_form_field"><input class="double form-control component_form_field_calc" id="height_in" type="double" onchange="inchToMm('height_in', 'component_attr_height');" autocomplete="off"></div>
                         <div class="model_form_comment"></div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-4">
+                    <div class="col-6">
                         <div class="model_form_label">{{=form.custom.label.attr_weight_oz}}</div>
                         <div class="model_form_field">{{=form.custom.widget.attr_weight_oz}}</div>
                         <div class="model_form_comment">{{=form.custom.comment.attr_weight_oz}}</div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-6">
                         <div class="model_form_label">Gram</div>
                         <div class="model_form_field"><input class="double form-control component_form_field_calc" id="weight_g" type="double" onchange="gramToOz('weight_g', 'component_attr_weight_oz');" autocomplete="off"></div>
                         <div class="model_form_comment"></div>
@@ -146,7 +146,7 @@ Your submitted form contains the following errors:
                 {{for key in form.custom.label:}}
                 {{if key.startswith('attr_') and key not in ['attr_length', 'attr_width', 'attr_height', 'attr_weight_oz']:}}
                 <div class="row">
-                    <div class="col-4" id="{{=key}}">
+                    <div class="col-6" id="{{=key}}">
                         <div class="model_form_label">{{=form.custom.label[key]}}</div>
                         <div class="model_form_field">{{=form.custom.widget[key]}}</div>
                         <div class="model_form_comment">{{=form.custom.comment[key]}}</div>

@@ -41,6 +41,8 @@ def export():
     flighttimes = db(db.eflite_time.model == request.args(0)).select()
     attachments = db(db.attachment.model == model_id).select()
     activities = db(db.activity.model == model_id).select()
+    wtc = models_and_wtcs(db.model.id == model_id).select().first().wtc
+    hardware = db(db.hardware.model == model_id).select()
 
     c = {}
     for comp in components:
@@ -64,7 +66,7 @@ def export():
     # breadcrumb_set(model.name)
     response.title = 'Export Model: ' + model.name
 
-    return dict(model=model, todos=todos, components=c, tools=tools, batteries=batteries, propellers=propellers, supportitems=supportitems, flighttimes=flighttimes, attachments=attachments, activities=activities)
+    return dict(model=model, todos=todos, components=c, tools=tools, batteries=batteries, propellers=propellers, supportitems=supportitems, flighttimes=flighttimes, attachments=attachments, activities=activities, wtc=wtc, hardware=hardware)
 
 def exportminimal():
 
@@ -573,3 +575,32 @@ def atthefield():
     #DIV(A("Flying", _href="", _class="btn btn-secondary"), A("Boating", _href="", _class="btn btn-secondary"))
 
     return dict(content=models, filter=filter)
+
+def renderhardware():
+    model_id = request.args(0)
+
+    fields = ['hardwaretype', 'diameter', 'length_mm', 'purpose', 'quantity']
+    addform = SQLFORM(db.hardware, fields=fields, formstyle='bootstrap4_inline', submit_button='Submit')
+    for s in addform.elements('input', _type='text'):
+        s['_autocomplete'] = 'off'
+    addform.vars.model = model_id
+    if addform.process(session=None, formname='hwform').accepted:
+        response.flash = "New Hardware Added"
+    elif addform.errors:
+        response.flash = "Error Adding New Hardware"
+
+    del_id = 0
+    deleteform = SQLFORM.factory()
+    if deleteform.process(session=None, formname='hwdeleteform').accepted:
+        for y, z in request.vars.items():
+            if z == "Remove":
+                del_id = y
+                db(db.hardware.id == del_id).delete()
+                response.flash = "Removal Success"
+                #response.flash = str(del_id) + " Removal Success"
+    elif deleteform.errors:
+        response.flash = "Removal Failure"
+
+    hardware = db(db.hardware.model == model_id).select()
+
+    return dict(hardware=hardware, addform=addform, deleteform=deleteform)

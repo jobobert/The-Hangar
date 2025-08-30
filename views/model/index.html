@@ -96,9 +96,13 @@
 </div>
 
 <div class="row mb-3 ml-2">
-    <div class="col-12">
+    <div class="col-6">
         {{=LOAD('switch', 'renderswitches.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
         'images/waiting.gif')),"Switches"))}}
+    </div>
+    <div class="col-6">
+        {{=LOAD('model', 'renderhardware.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')),"Hardware"))}}
     </div>
 </div>
 
@@ -158,7 +162,7 @@
                     <dt class="{{=c}}">{{=getattr(db.model, key).label}}</dt>
                     <dd class="{{=c}}">
                         {{if getattr(db.model, key).type == 'double':}}
-                        {{=TwoDecimal(model[key])}} | {{=Model_ConvertMeasurementField( model, key)}}
+                        {{=TwoDecimal(model[key])}} {{=ConvertMeasurementField(db.model, model, key)}}
                         {{else:}}
                         {{=model[key]}}
                         {{pass}}
@@ -184,9 +188,13 @@
 </div>
 
 <div class="row mb-3 ml-2">
-    <div class="col-sm-12">
+    <div class="col-sm-6">
         {{=LOAD('component','rendercard.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True,
         content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Components"))}}
+    </div>
+    <div class="col-sm-6">
+        {{=LOAD('wtc','rendercard.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True,
+        content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Water Tight Cylinder"))}}
     </div>
 </div>
 

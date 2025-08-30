@@ -438,21 +438,21 @@ db.model.img.default = os.path.join(
 db.model.attr_covering.widget = SQLFORM.widgets.autocomplete(
     request, db.model.attr_covering, limitby=(0, 10), min_length=2, distinct=True)
 
-def Model_ConvertMeasurementField(model, FieldName):
-    if not hasattr(db.model[FieldName], "extra"):
-        return ""
+# def Model_ConvertMeasurementField(model, FieldName):
+#     if not hasattr(db.model[FieldName], "extra"):
+#         return ""
 
-    match getattr(db.model, FieldName).extra['measurement']:
-        case 'mm':
-            return str(TwoDecimal((model[FieldName] or 0) / 25.4)) + " in"
-        case 'oz':
-            return str(TwoDecimal((model[FieldName] or 0) / 16)) + " lbs"
-        case 'dm2':
-            return str(TwoDecimal((model[FieldName] or 0) / 9.29)) + " sqin"
-        case 'sqin':
-            return str(TwoDecimal((model[FieldName] or 0) * 9.29)) + "dm2"
-        case _:
-            return ""
+#     match getattr(db.model, FieldName).extra['measurement']:
+#         case 'mm':
+#             return str(TwoDecimal((model[FieldName] or 0) / 25.4)) + " in"
+#         case 'oz':
+#             return str(TwoDecimal((model[FieldName] or 0) / 16)) + " lbs"
+#         case 'dm2':
+#             return str(TwoDecimal((model[FieldName] or 0) / 9.29)) + " sqin"
+#         case 'sqin':
+#             return str(TwoDecimal((model[FieldName] or 0) * 9.29)) + "dm2"
+#         case _:
+#             return ""
 
 
 
@@ -581,23 +581,6 @@ db.component.attr_switch_type.widget = SQLFORM.widgets.autocomplete(
 
 db.component.notes.format = lambda component: MARKMIN(component.notes)
 
-def Component_ConvertMeasurementField(component, FieldName):
-    if not hasattr(db.component[FieldName], "extra"):
-        return ""
-
-    match getattr(db.component, FieldName).extra['measurement']:
-        case 'mm':
-            return str(TwoDecimal((component[FieldName] or 0) / 25.4)) + " in"
-        case 'oz':
-            return str(TwoDecimal((component[FieldName] or 0) / 16)) + " lbs"
-        case 'dm2':
-            return str(TwoDecimal((component[FieldName] or 0) / 9.29)) + " sqin"
-        case 'sqin':
-            return str(TwoDecimal((component[FieldName] or 0) * 9.29)) + "dm2"
-        case 'cc':
-            return str(TwoDecimal((component[FieldName] or 0) / 1000)) + " liters"
-        case _:
-            return ""
 
 ###############################################
 ## MODEL COMPONENT
@@ -605,7 +588,8 @@ def Component_ConvertMeasurementField(component, FieldName):
 db.define_table('model_component'
                 , Field('model', 'reference model')
                 , Field('component', 'reference component')
-                , Field('purpose', type='string', label='Purpose', comment='Purpose of this component', represent=lambda v, r: '' if v is None else v), Field('channel', type='integer', label='Channel', comment='Channel Assignment', represent=lambda v, r: '' if v is None else v, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control'))
+                , Field('purpose', type='string', label='Purpose', comment='Purpose of this component', represent=lambda v, r: '' if v is None else v)
+                , Field('channel', type='integer', label='Channel', comment='Channel Assignment', represent=lambda v, r: '' if v is None else v, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control'))
                 )
 
 db.model_component.modelstate = Field.Virtual(
@@ -723,7 +707,8 @@ db.define_table('sailrig',
                 Field('jib_boom_material', type='string', label='Jib Boom Material', required=False), 
                 Field('jib_sail_material', type='string', label='Jib Sail Material', required=False), 
                 Field('jib_sail_area_dm2', type='double', label='Jib Sail Area (dm2)', required=False), 
-                Field('notes', type='string', label='Rig Notes', required=False)
+                Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
+                format=lambda row: 'Unknown' if row is None else row.rigname
                 )
 
 db.sailrig.mast_length_mm.extra = {'measurement': 'mm'}
@@ -731,20 +716,6 @@ db.sailrig.main_boom_length_mm.extra = {'measurement': 'mm'}
 db.sailrig.jib_boom_length_mm.extra = {'measurement': 'mm'}
 db.sailrig.main_sail_area_dm2.extra = {'measurement': 'dm2'}
 db.sailrig.jib_sail_area_dm2.extra = {'measurement': 'dm2'}
-
-def Sailrig_ConvertMeasurementField(sailrig, FieldName):
-    if not hasattr(db.sailrig[FieldName], "extra"):
-        return ""
-
-    match getattr(db.sailrig, FieldName).extra['measurement']:
-        case 'mm':
-            return str(TwoDecimal((sailrig[FieldName] or 0) / 25.4)) + " in"
-        case 'oz':
-            return str(TwoDecimal((sailrig[FieldName] or 0) / 16)) + " lbs"
-        case 'dm2':
-            return str(TwoDecimal((sailrig[FieldName] or 0) / 9.29)) + " sqin"
-        case _:
-            return ""
 
 
 ###############################################
@@ -767,29 +738,21 @@ db.eflite_time.watts.requires = IS_NOT_EMPTY()
 
 def get_min(mah, amps):
     return ((mah * .8) / (amps * 1000)) * 60
-
-
 db.eflite_time.get_minutes = Field.Method(
     lambda row: TwoDecimal(
         get_min(row.eflite_time.battery.mah, row.eflite_time.amps))
 )
-
-
 def g_wpp(row):
     if (not row.eflite_time.model.attr_weight_lbs):
         return "No Weight Set"
     return TwoDecimal(row.eflite_time.watts / row.eflite_time.model.attr_weight_lbs)
-
-
 db.eflite_time.get_wattsperpound = Field.Method(
     lambda row: g_wpp(
         row)
 )
-
 db.eflite_time.is_overrating = Field.Method(
     lambda row: (row.eflite_time.amps > row.eflite_time.battery.get_maxamps())
 )
-
 
 ###############################################
 ## SUPPORT ITEM
@@ -855,12 +818,66 @@ db.define_table('images',
 db.images.img.requires = IS_EMPTY_OR(IS_IMAGE())
 
 ###############################################
+## WTC
+
+db.define_table('wtc',
+                Field('name', type='string', label='Name', required=True, unique=True),
+                Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)),
+                Field('img', type='upload', uploadseparate=True, autodelete=True, label='Picture', comment='The picture of the WTC', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))),
+                Field('make', type='string', label='Make'),
+                Field('model', type='string', label='Model'),
+                Field('attr_length_mm', type='double', label='Length (mm)', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
+                Field('attr_outer_diameter_mm', type='double', label='Outer Diameter (mm)', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
+                Field('attr_width_mm', type='double', label='Width/Beam (mm)', comment='The width/beam', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_height_mm', type='double', label='Height (mm)', comment='The height', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_weight_oz', type='double', label='Weight (oz)', comment='The weight (oz)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                #
+                format=lambda row: 'Unknown' if row is None else row.name
+                )
+
+db.wtc.attr_length_mm.extra = {'measurement': 'mm'}
+db.wtc.attr_outer_diameter_mm.extra = {'measurement': 'mm'}
+db.wtc.attr_width_mm.extra = {'measurement': 'mm'}
+db.wtc.attr_height_mm.extra = {'measurement': 'mm'}
+db.wtc.attr_weight_oz.extra = {'measurement': 'oz'}
+
+db.wtc.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
+
+###############################################
 ## MODEL WTC
 
 db.define_table('model_wtc', 
                 Field('model', 'reference model'), 
-                Field('wtc', 'reference tool')
+                Field('wtc',   'reference wtc')    
                 )
+
+models_and_wtcs = db(
+    (db.model.id == db.model_wtc.model)
+    &
+    (db.wtc.id == db.model_wtc.wtc)
+)
+
+###############################################
+## HARDWARE
+
+db.define_table('hardware',
+                Field('model', 'reference model', label='Model', required=True),
+                Field('hardwaretype', type='string', label='Type', required=True),
+                Field('diameter', type='string', label='Size/Dimensions'),
+                Field('length_mm', type='double', label='Length (mm)', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
+                Field('purpose', type='string', label='Purpose'),
+                Field('quantity', type='integer', label='Quantity', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
+                format=lambda row: row.type + " : " + row.size
+                )
+db.hardware.length_mm.extra = {'measurement': 'mm'}
+
+db.hardware.hardwaretype.requires = IS_IN_SET(
+    ('Wood Screw, Pan Head', 'Wood Screw, Flat Head', 'Bolt, Socket Head', 'Servo Screw', 'Grub Screw'), sort=True
+)
+db.hardware.diameter.widget = SQLFORM.widgets.autocomplete(
+    request, db.hardware.diameter, limitby=(0, 10), min_length=1, distinct=True)
+db.hardware.purpose.widget = SQLFORM.widgets.autocomplete(
+    request, db.hardware.purpose, limitby=(0, 10), min_length=1, distinct=True)
 
 ###############################################
 ## SWITCH
@@ -915,6 +932,23 @@ def AttachPopup(attachment):
     else:
         return ""
 
+def ConvertMeasurementField(table, row, FieldName, seperator=" | "):
+    if not hasattr(db[table][FieldName], "extra"):
+        return ""
+
+    match getattr(db[table], FieldName).extra['measurement']:
+        case 'mm':
+            return seperator + str(TwoDecimal((row[FieldName] or 0) / 25.4)) + " in"
+        case 'oz':
+            return seperator + str(TwoDecimal((row[FieldName] or 0) / 16)) + " lbs"
+        case 'dm2':
+            return seperator + str(TwoDecimal((row[FieldName] or 0) / 9.29)) + " sqin"
+        case 'sqin':
+            return seperator + str(TwoDecimal((row[FieldName] or 0) * 9.29)) + "dm2"
+        case 'cc':
+            return seperator + str(TwoDecimal((row[FieldName] or 0) / 1000)) + " liters"
+        case _:
+            return ""
 
 ###############################################
 ## INITIAL DATABASE SETUP

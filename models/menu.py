@@ -39,8 +39,10 @@ response.menu = [
                  _height=icon_size), ' Images'), False, URL('image', 'index')),
         (DIV(IMG(_src=URL('static', 'icons/003-tasks.png'), _width=icon_size, 
                  _height=icon_size), ' Inventory'), False, URL('component', 'inventory')),
-        (DIV(IMG(_src=URL('static', 'icons/003-tasks.png'), _width=icon_size, 
+        (DIV(IMG(_src=URL('static', 'icons/protocol.png'), _width=icon_size, 
                  _height=icon_size), ' Protocols'), False, URL('protocol', 'index')),
+        (DIV(IMG(_src=URL('static', 'icons/wtc.png'), _width=icon_size, 
+                 _height=icon_size), ' WTC'), False, URL('wtc', 'listview')),
     ]),
     (T('Dash'), False, URL('default', 'setui', args=['dashboard'])),
 ]
@@ -65,7 +67,12 @@ response.menu_buttons = [
     ('New Todo', False, URL('todo', 'update'),
      IMG(_src=URL('static', 'icons/icons8-checklist-50.png'),
          _alt='New Todo', _title='New Todo', _width=icon_size, _height=icon_size)),
-    ('New Transmitter', False, URL('transmitter', 'update'), IMG(_src=URL('static', 'icons/gamepad.png'), _alt='New Transmitter', _title='New Transmitter', _width=icon_size, _height=icon_size)),
+    ('New Transmitter', False, URL('transmitter', 'update'), 
+     IMG(_src=URL('static', 'icons/gamepad.png'), 
+         _alt='New Transmitter', _title='New Transmitter', _width=icon_size, _height=icon_size)),
+    ('New WTC', False, URL('wtc', 'update'), 
+     IMG(_src=URL('static', 'icons/wtc.png'), 
+         _alt='New WTC', _title='New WTC', _width=icon_size, _height=icon_size)),
 ]
 # ----------------------------------------------------------------------------------------------------------------------
 # provide shortcuts for development. you can remove everything below in production

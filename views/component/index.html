@@ -39,7 +39,7 @@
 
                         <dt>{{=getattr(db.component, key).label}}</dt>
                         <dd>{{if getattr(db.component, key).type == 'double':}}
-                            {{=TwoDecimal(comp[key])}} | {{=Component_ConvertMeasurementField( comp, key)}}
+                            {{=TwoDecimal(comp[key])}} {{=ConvertMeasurementField(db.component, comp, key)}}
                             {{else:}}
                             {{=comp[key]}}
                             {{pass}}
