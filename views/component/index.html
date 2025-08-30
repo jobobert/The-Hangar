@@ -35,10 +35,10 @@
                         <dt>Stored at</dt>
                         <dd>{{=comp.storedat}}</dd>
                         {{for key in comp.__dict__:}}
-                        {{if key.startswith('attr_'):}}
+                        {{if key.startswith('attr_') and comp[key]:}}
+
                         <dt>{{=getattr(db.component, key).label}}</dt>
                         <dd>{{if getattr(db.component, key).type == 'double':}}
-                            {{=TwoDecimal(comp[key])}}
                             {{=TwoDecimal(comp[key])}} | {{=Component_ConvertMeasurementField( comp, key)}}
                             {{else:}}
                             {{=comp[key]}}

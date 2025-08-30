@@ -545,6 +545,7 @@ db.component.attr_length.extra = {'measurement': 'mm'}
 db.component.attr_width.extra = {'measurement': 'mm'}
 db.component.attr_height.extra = {'measurement': 'mm'}
 db.component.attr_weight_oz.extra = {'measurement': 'oz'}
+db.component.attr_displacement_cc.extra = {'measurement': 'cc'}
 
 db.component.componenttype.requires = IS_IN_SET((
     'Engine', 'Servo', 'Receiver', 'Motor', 'ESC', 'BEC', 'Regulator', 'Flight Controller', 'Gyro', 'Battery Charger', 'Flybarless Controller', 'Electrical', 'Switch', 'Winch', 'Other'), sort=True)
@@ -593,6 +594,8 @@ def Component_ConvertMeasurementField(component, FieldName):
             return str(TwoDecimal((component[FieldName] or 0) / 9.29)) + " sqin"
         case 'sqin':
             return str(TwoDecimal((component[FieldName] or 0) * 9.29)) + "dm2"
+        case 'cc':
+            return str(TwoDecimal((component[FieldName] or 0) / 1000)) + " liters"
         case _:
             return ""
 
