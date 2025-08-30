@@ -1,4 +1,5 @@
 
+import json
 
 def index():
 
@@ -114,9 +115,9 @@ def update():
     for s in inputs:
         s['_autocomplete'] = 'off'
 
-    response.view = 'content.html'
+    #response.view = 'content.html'
 
-    return dict(content=form)
+    return dict(form=form, component_attribs=json.dumps(component_attribs))
 
 def rendercard_grid():
     model_id = request.args[0]

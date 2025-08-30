@@ -34,6 +34,18 @@
                         <dd>{{=comp.get_remainingcount()}}</dd>
                         <dt>Stored at</dt>
                         <dd>{{=comp.storedat}}</dd>
+                        {{for key in comp.__dict__:}}
+                        {{if key.startswith('attr_'):}}
+                        <dt>{{=getattr(db.component, key).label}}</dt>
+                        <dd>{{if getattr(db.component, key).type == 'double':}}
+                            {{=TwoDecimal(comp[key])}}
+                            {{=TwoDecimal(comp[key])}} | {{=Component_ConvertMeasurementField( comp, key)}}
+                            {{else:}}
+                            {{=comp[key]}}
+                            {{pass}}
+                        </dd>
+                        {{pass}}
+                        {{pass}}
                     </dl>
                 </div>
             </div>
@@ -94,6 +106,7 @@
             </div>
         </div>
         {{pass}}
+
     </div>
     <div class=" row mt-5 mb-5">
         <a class="btn btn-primary" href="{{=URL('component','update',args=comp.id,extension='html')}}">Edit</a>
