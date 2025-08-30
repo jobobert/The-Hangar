@@ -1,0 +1,62 @@
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('wtc.png', 25)}}</span>Water Tight Cylinder</h5>
+        <!--<a href="#" data-toggle="modal" data-target="#modal_newwtc" class="card-link th-new-link">New</a>-->
+
+    </div>
+    <div class="card-body">
+        {{if wtcs:}}
+        {{for wtc in wtcs:}}
+        <div class="row">
+            <div class="col-3 component-item-image"><img class="component-item-image" src="{{=URL('default', 'download', args=wtc.wtc.img)}}" /></div>
+            <div class="col-7">
+                <div class="row">
+                    <div class="col-12"> {{=H4(wtc.wtc.name)}}</div>
+                </div>
+                <div class="row border-top">
+                    <div class="col-6"> {{=wtc.wtc.make}}</div>
+                    <div class="col-6"> {{=wtc.wtc.model}}</div>
+                </div>
+            </div>
+            <div class="col-2">
+                <a class="btn btn-primary" href="{{=URL('wtc','index.html',args=[wtc.wtc])}}" target="_blank">View</a>
+            </div>
+        </div>
+        {{pass}}
+        {{else:}}
+        No Water Tight Cylinder associated with this Model.
+        {{pass}}
+    </div>
+    <div class="card-footer">
+        {{if wtcs:}}
+        {{=deleteform.custom.begin}}
+        <button class="btn btn-secondary d-inline" type="submit" value="Remove" name="{{=wtc.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+        {{=deleteform.custom.end}}
+
+        {{else:}}
+        <div class="m-2">
+            <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_wtc" , role="button" aria-expanded="false" aria-contols="collapseform_wtc">Add</a>
+        </div>
+        <div class="m-2 collapse" id="collapseform_wtc">
+            {{=addform}}
+        </div>
+        {{pass}}
+    </div>
+</div>
+
+<div class="modal fade" id="modal_newwtc" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_newwtc_title">New WTC</h5>
+            </div>
+            <div class="modal-body">
+                {{=newform}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

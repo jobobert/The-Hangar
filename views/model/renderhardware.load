@@ -1,0 +1,39 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title"><span class="card-icon">{{=show_icon('icons8-support-64.png', 25)}}</span>Hardware</h5>
+    </div>
+    <div class="card-body">
+        {{=deleteform.custom.begin}}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Size</th>
+                    <th>Purpose</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ for item in hardware: }}
+                <tr>
+                    <td>{{=item.hardwaretype}}</td>
+                    <td>{{=item.diameter}}x{{=item.length_mm}}</td>
+                    <td>{{=item.purpose}}</td>
+                    <td>{{=item.quantity}}</td>
+                    <td><button class="btn btn-secondary d-inline" type="submit" value="Remove" name="{{=item.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button></td>
+                </tr>
+                {{ pass }}
+            </tbody>
+        </table>
+        {{=deleteform.custom.end}}
+    </div>
+    <div class="card-footer">
+        <div class="m-2">
+            <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_wtc" , role="button" aria-expanded="false" aria-contols="collapseform_wtc">Add</a>
+        </div>
+        <div class="m-2 collapse" id="collapseform_wtc">
+            {{=addform}}
+        </div>
+    </div>
+</div>

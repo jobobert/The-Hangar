@@ -1,0 +1,47 @@
+{{extend 'layout.html'}}
+
+<div class="container">
+    <div class="row">
+        <h2>{{=wtc.name}}</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-6">
+            {{if wtc.img:}}
+            <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=wtc.img)}}" alt="WTC image">
+            {{pass}}
+        </div>
+        <div class="col-sm-6">
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Attributes</h5>
+                </div>
+                <div class="card-body attribute-list">
+                    <dl>
+                        <dt>{{=db.wtc.make.label}}</dt>
+                        <dd>{{=wtc.make}}</dd>
+                        <dt>{{=db.wtc.model.label}}</dt>
+                        <dd>{{=wtc.model}}</dd>
+
+                        <dt>{{=db.wtc.attr_length_mm.label}}</dt>
+                        <dd>{{=TwoDecimal(wtc.attr_length_mm)}} {{=ConvertMeasurementField(db.wtc, wtc, 'attr_length_mm')}}</dd>
+                        <dt>{{=db.wtc.attr_outer_diameter_mm.label}}</dt>
+                        <dd>{{=TwoDecimal(wtc.attr_outer_diameter_mm)}} {{=ConvertMeasurementField(db.wtc, wtc, 'attr_outer_diameter_mm')}}</dd>
+                        <dt>{{=db.wtc.attr_width_mm.label}}</dt>
+                        <dd>{{=TwoDecimal(wtc.attr_width_mm)}} {{=ConvertMeasurementField(db.wtc, wtc, 'attr_width_mm')}}</dd>
+                        <dt>{{=db.wtc.attr_height_mm.label}}</dt>
+                        <dd>{{=TwoDecimal(wtc.attr_height_mm)}} {{=ConvertMeasurementField(db.wtc, wtc, 'attr_height_mm')}}</dd>
+                        <dt>{{=db.wtc.attr_weight_oz.label}}</dt>
+                        <dd>{{=TwoDecimal(wtc.attr_weight_oz)}} {{=ConvertMeasurementField(db.wtc, wtc, 'attr_weight_oz')}}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 mt-5 mb-5">
+            {{=MARKMIN(wtc.notes)}}
+        </div>
+    </div>
+</div>
