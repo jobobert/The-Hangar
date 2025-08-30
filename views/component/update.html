@@ -1,0 +1,222 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+
+<div class="container ">
+    <div class="row">
+        {{=form.custom.submit}}
+    </div>
+    <div class="row">
+        <div class="card w-100 ">
+            <div class="card-header">
+                <h5 class="mb-0">General</h5>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="model_form_label_required">{{=form.custom.label.name}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.name}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.name}}</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="model_form_label_required">{{=form.custom.label.componenttype}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.componenttype}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.componenttype}}</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="model_form_label">{{=form.custom.label.componentsubtype}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.componentsubtype}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.componentsubtype}}</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="model_form_label">{{=form.custom.label.significantdetail}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.significantdetail}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.significantdetail}}</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="model_form_label">{{=form.custom.label.ownedcount}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.ownedcount}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.ownedcount}}</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="model_form_label">{{=form.custom.label.storedat}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.storedat}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.storedat}}</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="model_form_label">{{=form.custom.label.attachment}}</div>
+                                <div class="model_form_field">{{=form.custom.widget.attachment}}</div>
+                                <div class="model_form_comment">{{=form.custom.comment.attachment}}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-4">
+                        <div class="model_form_label">{{=form.custom.label.img}}</div>
+                        <div class="model_form_field">{{=form.custom.widget.img}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment.img}}</div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="model_form_label">{{=form.custom.label.notes}}</div>
+                        <div class="model_form_field">{{=form.custom.widget.notes}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment.notes}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="card w-100 ">
+            <div class="card-header">
+                <h5 class="mb-0">Attributes</h5>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="model_form_label">{{=form.custom.label.attr_length}}</div>
+                        <div class="model_form_field">{{=form.custom.widget.attr_length}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment.attr_length}}</div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="model_form_label">Inch</div>
+                        <div class="model_form_field"><input class="double form-control component_form_field_calc" id="length_in" type="double" onchange="inchToMm('length_in', 'component_attr_length');" autocomplete="off"></div>
+                        <div class="model_form_comment"></div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <div class="model_form_label">{{=form.custom.label.attr_width}}</div>
+                        <div class="model_form_field">{{=form.custom.widget.attr_width}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment.attr_width}}</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="model_form_label">Inch</div>
+                        <div class="model_form_field"><input class="double form-control component_form_field_calc" id="width_in" type="double" onchange="inchToMm('width_in', 'component_attr_width');" autocomplete="off"></div>
+                        <div class="model_form_comment"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <div class="model_form_label">{{=form.custom.label.attr_height}}</div>
+                        <div class="model_form_field">{{=form.custom.widget.attr_height}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment.attr_height}}</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="model_form_label">Inch</div>
+                        <div class="model_form_field"><input class="double form-control component_form_field_calc" id="height_in" type="double" onchange="inchToMm('height_in', 'component_attr_height');" autocomplete="off"></div>
+                        <div class="model_form_comment"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <div class="model_form_label">{{=form.custom.label.attr_weight_oz}}</div>
+                        <div class="model_form_field">{{=form.custom.widget.attr_weight_oz}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment.attr_weight_oz}}</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="model_form_label">Gram</div>
+                        <div class="model_form_field"><input class="double form-control component_form_field_calc" id="weight_g" type="double" onchange="gramToOz('weight_g', 'component_attr_weight_oz');" autocomplete="off"></div>
+                        <div class="model_form_comment"></div>
+                    </div>
+                </div>
+
+                <br>
+
+                {{for key in form.custom.label:}}
+                {{if key.startswith('attr_') and key not in ['attr_length', 'attr_width', 'attr_height', 'attr_weight_oz']:}}
+                <div class="row">
+                    <div class="col-4" id="{{=key}}">
+                        <div class="model_form_label">{{=form.custom.label[key]}}</div>
+                        <div class="model_form_field">{{=form.custom.widget[key]}}</div>
+                        <div class="model_form_comment">{{=form.custom.comment[key]}}</div>
+                    </div>
+                </div>
+                {{pass}}
+                {{pass}}
+
+                <!--{  {for key in form.custom.label:}}
+                {  {if key in component_attribs[form.custom.dspval.componenttype]:}}
+                <div class="row">
+                    <div class="col-4">
+                        {  {=form.custom.label[key]}}
+                        {  {=form.custom.widget[key]}}
+                        {  {=form.custom.comment[key]}}
+                    </div>
+                </div>
+                {  {pass}}
+                {  {pass}}-->
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        {{=form.custom.submit}}
+    </div>
+</div>
+{{=form.custom.end}}
+
+
+<script>
+    function inchToMm(from, to) {
+        var theForm = document.forms["modelform"];
+        var inch = document.getElementById(from).value;
+        document.getElementById(to).value = inch * 25.4;
+    }
+    function gramToOz(from, to) {
+        var theForm = document.forms["modelform"];
+        var gram = document.getElementById(from).value;
+        document.getElementById(to).value = gram / 28.35;
+    }
+    function dm2ToSqin(from, to) {
+        var theForm = document.forms["modelform"];
+        var dm2 = document.getElementById(from).value;
+        document.getElementById(to).value = dm2 * 9.29;
+    }
+
+    function typeChange() {
+        // Don't process these fields
+        let type = document.getElementById("component_componenttype").value;
+        let component_attribs = JSON.parse('{{=XML(component_attribs)}}');
+        //alert(component_attribs);
+        let exclude = ['component_attr_length', 'component_attr_width', 'component_attr_height', 'component_attr_weight_oz'];
+        // Get all attribute fields
+        let attrs = document.querySelectorAll('[id^="component_attr_"]');
+        for (let i = 0; i < attrs.length; i++) {
+            if (!exclude.includes(attrs[i].id)) {
+                let attr_name = attrs[i].id.slice(10);
+                //alert(type + "\n" + attr_name + "\n" + component_attribs[type] + "\n");
+                if (component_attribs[type].includes(attr_name)) {
+                    //alert(attr_name + "  show!");
+                    document.getElementById(attr_name).style.display = 'block';
+                }
+                else {
+                    //alert(attr_name + "  hide!");
+                    document.getElementById(attr_name).style.display = 'none';
+                }
+            }
+        }
+    }
+
+    document.getElementById("component_componenttype").addEventListener("change", typeChange);
+    jQuery(document).ready(typeChange);
+</script>
