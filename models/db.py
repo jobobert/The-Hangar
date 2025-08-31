@@ -182,6 +182,12 @@ db.article.notes.format = lambda article: MARKMIN(article.notes)
 ###############################################
 ## TRANSMITTER
 
+db.define_table('protocol', 
+                Field('name', type='string', label='Name'), 
+                Field('description', type='text', label='Description'), 
+                format=lambda row: row.name   
+                )
+
 db.define_table('transmitter', 
                 Field('name', type='string', label='Name'), Field('nickname', type='string', label='Nickname'), 
                 Field('serial', type='string', label='Serial Number'), 
@@ -195,11 +201,7 @@ db.define_table('transmitter',
 
 db.transmitter.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 
-db.define_table('protocol', 
-                Field('name', type='string', label='Name'), 
-                Field('description', type='text', label='Description'), 
-                format=lambda row: row.name   
-                )
+
 
 
 ###############################################

@@ -4,28 +4,22 @@
     </div>
     <div class="card-body">
         {{=deleteform.custom.begin}}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Size</th>
-                    <th>Purpose</th>
-                    <th>Quantity</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{ for item in hardware: }}
-                <tr>
-                    <td>{{=item.hardwaretype}}</td>
-                    <td>{{=item.diameter}}x{{=item.length_mm}}</td>
-                    <td>{{=item.purpose}}</td>
-                    <td>{{=item.quantity}}</td>
-                    <td><button class="btn btn-secondary d-inline" type="submit" value="Remove" name="{{=item.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button></td>
-                </tr>
-                {{ pass }}
-            </tbody>
-        </table>
+
+        <ul class="list-group">
+            {{ for item in hardware: }}
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-8">
+                            ({{=item.quantity}}) {{=item.hardwaretype}} {{=B(item.diameter)}}x{{=B(item.length_mm)}} <div class="d-none d-md-inline-block">for {{=item.purpose}}</div>    
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-sm btn-secondary d-inline" type="submit" value="Remove" name="{{=item.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+                    </div>
+                </div>
+            </li>
+            {{pass}}
+        </ul>
+
         {{=deleteform.custom.end}}
     </div>
     <div class="card-footer">

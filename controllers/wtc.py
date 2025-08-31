@@ -89,7 +89,7 @@ def listview():
     ]
 
     wtcs = SQLFORM.grid(
-        db.wtc, orderby=db.wtc.name, editable=False, details=False, maxtextlength=255, user_signature=False, create=True, deletable=True, links=links, fields=fields, _class='itemlist-grid'
+        db.wtc, orderby=db.wtc.name, editable=False, details=False, maxtextlength=255, user_signature=False, create=True, deletable=False, links=links, fields=fields, _class='itemlist-grid'
     )
 
     response.view = 'content.html'

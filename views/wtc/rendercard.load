@@ -9,8 +9,8 @@
         {{if wtcs:}}
         {{for wtc in wtcs:}}
         <div class="row">
-            <div class="col-3 component-item-image"><img class="component-item-image" src="{{=URL('default', 'download', args=wtc.wtc.img)}}" /></div>
-            <div class="col-7">
+            <div class="col-sm-3 component-item-image"><img class="component-item-image" src="{{=URL('default', 'download', args=wtc.wtc.img)}}" /></div>
+            <div class="col-sm-7">
                 <div class="row">
                     <div class="col-12"> {{=H4(wtc.wtc.name)}}</div>
                 </div>
@@ -19,7 +19,7 @@
                     <div class="col-6"> {{=wtc.wtc.model}}</div>
                 </div>
             </div>
-            <div class="col-2">
+            <div class="col-sm-2">
                 <a class="btn btn-primary" href="{{=URL('wtc','index.html',args=[wtc.wtc])}}" target="_blank">View</a>
             </div>
         </div>

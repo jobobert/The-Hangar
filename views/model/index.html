@@ -96,11 +96,11 @@
 </div>
 
 <div class="row mb-3 ml-2">
-    <div class="col-6">
+    <div class="col-sm-6">
         {{=LOAD('switch', 'renderswitches.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
         'images/waiting.gif')),"Switches"))}}
     </div>
-    <div class="col-6">
+    <div class="col-sm-6">
         {{=LOAD('model', 'renderhardware.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
         'images/waiting.gif')),"Hardware"))}}
     </div>

@@ -7,7 +7,7 @@
     </div>
 
     <div class="row">
-        <div class="col-6">
+        <div class="col-sm-6">
             <table>
                 <tr>
                     <td><strong>{{=getattr(db.activity, 'activitydate').label}}</strong></td>
@@ -34,7 +34,7 @@
                 </tr>
             </table>
         </div>
-        <div class="col-6">
+        <div class="col-sm-6">
             {{if activity.img:}}
             <img style="max-width: 400px;" class="card-img-top" src="{{=URL('default', 'download', args=activity.img)}}" alt="Activity Image">
             {{else:}}

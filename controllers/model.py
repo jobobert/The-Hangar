@@ -576,8 +576,14 @@ def atthefield():
 
     return dict(content=models, filter=filter)
 
+#@mobilize
 def renderhardware():
     model_id = request.args(0)
+
+    #if len(request.args) == 2:
+    #    is_mobile = request.args[1]
+    #else:
+    #    is_mobile = False 
 
     fields = ['hardwaretype', 'diameter', 'length_mm', 'purpose', 'quantity']
     addform = SQLFORM(db.hardware, fields=fields, formstyle='bootstrap4_inline', submit_button='Submit')
