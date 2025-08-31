@@ -30,9 +30,9 @@
     </div>
     <div class="card-footer">
         <div class="m-2">
-            <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_wtc" , role="button" aria-expanded="false" aria-contols="collapseform_wtc">Add</a>
+            <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_hw" , role="button" aria-expanded="false" aria-contols="collapseform_hw">Add</a>
         </div>
-        <div class="m-2 collapse" id="collapseform_wtc">
+        <div class="m-2 collapse" id="collapseform_hw">
             {{=addform}}
         </div>
     </div>

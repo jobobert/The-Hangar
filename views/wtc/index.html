@@ -6,12 +6,12 @@
     </div>
 
     <div class="row">
-        <div class="col-6">
+        <div class="col-4">
             {{if wtc.img:}}
             <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=wtc.img)}}" alt="WTC image">
             {{pass}}
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
 
             <div class="card">
                 <div class="card-header">
@@ -35,6 +35,26 @@
                         <dt>{{=db.wtc.attr_weight_oz.label}}</dt>
                         <dd>{{=TwoDecimal(wtc.attr_weight_oz)}} {{=ConvertMeasurementField(db.wtc, wtc, 'attr_weight_oz')}}</dd>
                     </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Models</h5>
+                </div>
+                <div class="card-body">
+                    {{if models:}}
+                    <dl>
+                        {{for model in models:}}
+                        <dt><a href="{{=URL('model','index.html',args=[model.model.id])}}" target="_blank">{{=model.model.name}}</a></dt>
+                        <dd>{{=model.notes}}</dd>
+                        {{pass}}
+                    </dl>
+                    {{else:}}
+                    No Models associated with this WTC.
+                    {{pass}}
                 </div>
             </div>
         </div>

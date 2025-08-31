@@ -848,7 +848,9 @@ db.wtc.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 
 db.define_table('model_wtc', 
                 Field('model', 'reference model'), 
-                Field('wtc',   'reference wtc')    
+                Field('wtc',   'reference wtc'),
+                Field('notes', type='string', label='Notes', comment='Notes about this installation', represent=lambda id, row: '' if row.notes is None else row.notes),
+                format=lambda row: 'Unknown' if row is None else row.model.name + " : " + row.wtc.name
                 )
 
 models_and_wtcs = db(

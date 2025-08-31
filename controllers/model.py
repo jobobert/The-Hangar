@@ -41,7 +41,7 @@ def export():
     flighttimes = db(db.eflite_time.model == request.args(0)).select()
     attachments = db(db.attachment.model == model_id).select()
     activities = db(db.activity.model == model_id).select()
-    wtc = models_and_wtcs(db.model.id == model_id).select().first().wtc
+    wtcs = models_and_wtcs(db.model.id == model_id).select()
     hardware = db(db.hardware.model == model_id).select()
 
     c = {}
@@ -66,7 +66,7 @@ def export():
     # breadcrumb_set(model.name)
     response.title = 'Export Model: ' + model.name
 
-    return dict(model=model, todos=todos, components=c, tools=tools, batteries=batteries, propellers=propellers, supportitems=supportitems, flighttimes=flighttimes, attachments=attachments, activities=activities, wtc=wtc, hardware=hardware)
+    return dict(model=model, todos=todos, components=c, tools=tools, batteries=batteries, propellers=propellers, supportitems=supportitems, flighttimes=flighttimes, attachments=attachments, activities=activities, wtcs=wtcs, hardware=hardware)
 
 def exportminimal():
 

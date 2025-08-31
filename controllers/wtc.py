@@ -1,13 +1,16 @@
 import urllib.parse
 
 def index():
+
+    response.title = "Water Tight Cylinder Details"
     
     wtc_id = request.args(0, cast=int) or redirect(URL('default', 'index'))
     wtc = db.wtc(wtc_id) or redirect(URL('default', 'index'))
+    models = db(db.model_wtc.wtc == wtc_id).select()
     
     # Fetch associated WTCs
     
-    return dict(wtc=wtc)
+    return dict(wtc=wtc, models=models)
 
 def rendercard():
     """
@@ -20,12 +23,12 @@ def rendercard():
 
     model_id = request.args(0, cast=int) or redirect(URL('default', 'index'))
     
-    addform = SQLFORM(db.model_wtc, fields=["wtc"], comments=False)
+    addform = SQLFORM(db.model_wtc, fields=["wtc", "notes"], comments=False)
     addform.vars.model = request.args(0) #model_id
     if addform.process(session=None, formname='addwtc').accepted:
         response.flash = "WTC Added"
     elif addform.errors:
-        response.flash = "Error Adding WTC : " + str(request.args(0)) + " : " + str(addform.vars)
+        response.flash = "Error Adding WTC"
 
 
     newform = SQLFORM(db.wtc, showid=False,
