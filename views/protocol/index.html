@@ -1,0 +1,17 @@
+{{extend 'layout.html'}}
+
+<div class="container">
+    <div class="row">
+        <h2>{{=protocol.name}}</h2>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            {{=MARKMIN(protocol.description)}}
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-12">
+            <a class="btn btn-primary" href="{{=URL('protocol', 'update', args=(protocol.id))}}">Edit</a>
+        </div>
+    </div>
+</div>
