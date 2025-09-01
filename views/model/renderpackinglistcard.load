@@ -1,7 +1,11 @@
 <script src="{{=URL('static','js/qrcode.min.js')}}"></script>
 
 <div class="card model-card-pl mb-2 test">
-    <h3>{{=model.name}}</h3>
+    <div class="row">
+        <div class="col-12">
+            <h3>{{=model.name}}</h3>
+        </div>
+    </div>
     <div class="row">
         <div class="col-6">
             {{if model.transmitter:}}
@@ -28,13 +32,28 @@
         <div class="col-12">
             <h5 class="ml-3">Switches</h5>
             <div class="ml-5">{{=LOAD('switch', 'renderswitches.load', args=[model.id, True], ajax=True, content='Getting Details...' )}}</div>
-
-            {{if model.fieldnotes:}}
-            <h5 class="ml-3">Field Notes</h5>
-            <div class="ml-5">{{=model.fieldnotes}}</div>
+        </div>
+    </div>
+    {{if hardware:}}
+    <div class="row">
+        <div class="12">
+            <h5 class="ml-3">Hardware</h5>
+            {{for hw in hardware:}}
+            <div class="ml-5">
+                <div>
+                    ({{=hw.quantity}}) {{=hw.hardwaretype}} {{=B(hw.diameter)}}x{{=B(hw.length_mm)}} <div class="d-none d-md-inline-block">for {{=hw.purpose}}</div>
+                </div>
+            </div>
             {{pass}}
         </div>
     </div>
+    {{pass}}
+    {{if model.fieldnotes:}}
+    <div class="row">
+        <h5 class="ml-3">Field Notes</h5>
+        <div class="ml-5">{{=model.fieldnotes}}</div>
+    </div>
+    {{pass}}
 </div>
 
 

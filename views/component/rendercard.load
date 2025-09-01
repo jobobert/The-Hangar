@@ -1,4 +1,4 @@
-{{if options == 'dashboard':}} 
+{{if options == 'dashboard':}}
 <ul class="list-group">
     {{for component in components:}}
     <li class="list-group-item">
@@ -33,45 +33,45 @@
         {{=deleteform.custom.begin}}
         {{for component in components:}}
         <div class="row component-item">
-            <div class="col-2 component-item-image"><img class="component-item-image" src="{{=URL('default', 'download', args=component.model_component.component.img)}}" /></div>
-            <div class="col-10 col-sm-8">
+            <div class="col-sm-2 component-item-image"><img class="component-item-image" src="{{=URL('default', 'download', args=component.model_component.component.img)}}" /></div>
+            <div class="col-sm-8">
                 <div class="row">
                     <div class="col-12 component-item-name d-inline">
                         <a class="text-decoration-none" href="{{=URL('component','index.html',args=[component.model_component.component])}}">
                             {{=component.model_component.component.name}}</a>
-                        <span class="badge badge-pill badge-primary">{{=component.model_component.component.componenttype}}</span>
+                        <span class="badge badge-pill badge-primary d-none d-md-inline">{{=component.model_component.component.componenttype}}</span>
                         {{if component.model_component.component.componentsubtype:}}
-                        <span class="badge badge-pill badge-info">{{=component.model_component.component.componentsubtype}}</span>
+                        <span class="badge badge-pill badge-info d-none d-md-inline">{{=component.model_component.component.componentsubtype}}</span>
                         {{pass}}
                     </div>
                 </div>
                 {{if component.model_component.component.significantdetail:}}
-                    <div class="row col-12 d-none d-md-inline component-item-significantdetail">{{=component.model_component.component.significantdetail}}</div>
+                <div class="row col-12 d-none d-md-inline component-item-significantdetail">{{=component.model_component.component.significantdetail}}</div>
                 {{pass}}
                 <div class="row">
                     <div class="col-12 col-md-4 component-item-channel">
                         {{if component.model_component.channel:}}
-                        <span class="component-item-channel_label d-inline ">Channel:</span> 
+                        <span class="component-item-channel_label d-inline ">Channel:</span>
                         <span class="component-item-channel_value d-inline">{{=component.model_component.channel}}</span>
                         {{pass}}
                     </div>
-                    <div class="col-12 col-md-8 component-item-purpose">
+                    <div class="col-12 col-md-8 d-none d-md-inline component-item-purpose">
                         {{if component.model_component.purpose:}}
                         <span class="component-item-purpose_label">Purpose:</span> <span class="component-item-purpose_value">{{=component.model_component.purpose}}</span>
                         {{pass}}
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-2 component-item-buttons">
+            <div class="col-sm-2 component-item-buttons">
                 <!--<a class="btn btn-primary" href="{{=URL('component','removefrommodel',args=[model_id, component.model_component.id])}}">{{=show_icon('icons8-waste-50.png', 16)}}</a>-->
-                <a class="btn btn-primary d-inline" href="{{=URL('component','updatemodelrelation',args=component.model_component.id)}}">{{=show_icon('icons8-pencil-64.png', 16)}}</a>
-                <button class="btn btn-secondary d-inline" type="submit" value="Remove" name="{{=component.model_component.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+                <a class="btn btn-primary d-inline-block" href="{{=URL('component','updatemodelrelation',args=component.model_component.id)}}">{{=show_icon('icons8-pencil-64.png', 16)}}</a>
+                <button class="btn btn-secondary d-inline-block" type="submit" value="Remove" name="{{=component.model_component.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
                 {{if component.model_component.component.attachment:}}
                 <a class="d-inline-block d-none d-md-inline order-last order-sm-0 "
-                    href="{{=URL('default', 'download', args=component.model_component.component.attachment)}}">
+                   href="{{=URL('default', 'download', args=component.model_component.component.attachment)}}">
                     {{=filetype_icon(component.model_component.component.attachment, 32) }}
                 </a>
-                
+
                 <div class="d-inline-block">{{=component.model_component.component.showAttachmentPopup()}}</div>
                 {{pass}}
             </div>
@@ -87,16 +87,16 @@
             <div class="card-body">
                 <div class="mt-3">
                     <script>
-                        function searchSelect(searchForID, searchInID){
+                        function searchSelect(searchForID, searchInID) {
                             var input = document.getElementById(searchForID).value.toLowerCase();
                             var output = document.getElementById(searchInID).options
 
-                            for (var i = 0; i < output.length; i++){
-                                if (output[i].text.toLowerCase().indexOf(input) < 0){
+                            for (var i = 0; i < output.length; i++) {
+                                if (output[i].text.toLowerCase().indexOf(input) < 0) {
                                     output[i].style.display = "none";
                                     output[i].setAttribute('style', 'display:none');
                                 }
-                                else{
+                                else {
                                     output[i].style.display = "";
                                     output[i].setAttribute('style', 'display:');
                                 }
@@ -107,31 +107,31 @@
                     {{=addform.custom.begin}}
                     <table>
                         <tbody>
-                    <tr>
-                        <td class="w2p_fl">Search:</td>
-                        <td class="w2p_fw" colspan="2"><input type="text" class="string form-control" ID="searchFor" onkeyup="searchSelect(this.id, 'model_component_component')"></td>
-                    </tr>
-                    <tr>
-                        <td class="w2p_fl"></td>
-                        <td class="w2p_fw"></td>
-                    </tr>
-                    <tr>
-                        <td class="w2p_fl"><label for="model_component_component">{{=addform.custom.label.component}}:</label></td>
-                        <td class="w2p_fw">{{=addform.custom.widget.component}}</td>
-                    </tr>
-                    <tr>
-                        <td class="w2p_fl"><label for="model_component_purpose">{{=addform.custom.label.purpose}}:</label></td>
-                        <td class="w2p_fw">{{=addform.custom.widget.purpose}}</td>
-                    </tr>
-                    <tr>
-                        <td class="w2p_fl"><label for="model_component_channel">{{=addform.custom.label.channel}}:</label></td>
-                        <td class="w2p_fw">{{=addform.custom.widget.channel}}</td>
-                    </tr>
-                    <tr>
-                        <td class="w2p_fl"></td>
-                        <td class="w2p_fw">{{=addform.custom.submit}}</td>
-                    </tr>
-                    </tbody>
+                            <tr>
+                                <td class="w2p_fl">Search:</td>
+                                <td class="w2p_fw" colspan="2"><input type="text" class="string form-control" ID="searchFor" onkeyup="searchSelect(this.id, 'model_component_component')"></td>
+                            </tr>
+                            <tr>
+                                <td class="w2p_fl"></td>
+                                <td class="w2p_fw"></td>
+                            </tr>
+                            <tr>
+                                <td class="w2p_fl"><label for="model_component_component">{{=addform.custom.label.component}}:</label></td>
+                                <td class="w2p_fw">{{=addform.custom.widget.component}}</td>
+                            </tr>
+                            <tr>
+                                <td class="w2p_fl"><label for="model_component_purpose">{{=addform.custom.label.purpose}}:</label></td>
+                                <td class="w2p_fw">{{=addform.custom.widget.purpose}}</td>
+                            </tr>
+                            <tr>
+                                <td class="w2p_fl"><label for="model_component_channel">{{=addform.custom.label.channel}}:</label></td>
+                                <td class="w2p_fw">{{=addform.custom.widget.channel}}</td>
+                            </tr>
+                            <tr>
+                                <td class="w2p_fl"></td>
+                                <td class="w2p_fw">{{=addform.custom.submit}}</td>
+                            </tr>
+                        </tbody>
                     </table>
                     {{=addform.custom.end}}
                 </div>
@@ -141,7 +141,7 @@
         <!--<a class="btn btn-primary" href="{{=URL('component','addtomodel.html',args=[model_id])}}">Add</a>-->
     </div>
 </div>
- 
+
 <div class="modal fade" id="modal_newcomponent" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
     <div class="modal-dialog" role="document" style="max-width: none;">
         <div class="modal-content">

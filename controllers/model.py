@@ -113,8 +113,9 @@ def rendercard():
 def renderpackinglistcard():
     model = db.model(request.args(0)) or None
     batteries = db(db.model_battery.model == request.args(0)).select()
+    hardware = db(db.hardware.model == request.args(0)).select()
 
-    return dict(model=model, batteries=batteries)
+    return dict(model=model, batteries=batteries, hardware=hardware)
 
 
 def renderhass():

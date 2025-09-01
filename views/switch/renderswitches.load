@@ -1,11 +1,22 @@
-{{if not render_card:}}
+{{if render_card:}}
+{{if switch_count == 0:}}
+
+No switches defined
+
+{{else:}}
+{{for k in switchList.keys():}}
+<div class="col d-block">
+    <p class="col-3 d-inline font-weight-bold ">{{=switchList[k]['switch']}}</p>
+    <p class="col   d-inline ">{{=switchList[k]['purpose']}}</p>
+</div>
+{{pass}}
+{{pass}}
+{{else:}}
 <div class="card mb-2">
     <div class="card-header">
         <h5 class="card-title"><span class="card-icon">{{=show_icon('s-2-Position.png', 25)}}</span>{{=switch_count}} Switches</h5>
     </div>
     <div class="card-body">
-        {{pass}}
-
         {{if switch_count == 0:}}
 
         No switches defined
@@ -14,22 +25,20 @@
         {{for k in switchList.keys():}}
         <div class="row">
 
+            <div class="col-3 d-block font-weight-bold">{{=switchList[k]['switch']}}</div>
+            <div class="col d-block ml-4 ">{{=switchList[k]['purpose']}}</div>
 
-            <div class="d-block font-weight-bold">{{=switchList[k]['switch']}}</div>
-            <div class="d-block ml-4 {{if not render_card:}}font-weight-bold{{pass}}">{{=switchList[k]['purpose']}}</div>
 
-
-            {{if not render_card:}}
             <div class="col-3">
                 <a class="btn btn-primary" href="{{=URL('switch','update.html',args=switchList[k]['id'])}}">{{=show_icon('icons8-pencil-64.png', 16)}}</a>
             </div>
-            {{pass}}
+
         </div>
-        {{if not render_card:}}
+
         <div class="row border-bottom ">
             <!--<div class="col-4">{{=switchList[k]['type']}}</div>-->
-            <div class="col-4 d-none d-md-inline">{{=show_icon('s-' + switchList[k]['type'] + '.png', 32)}}</div>
-            <div class="col-8 d-none d-md-inline">
+            <div class="col-3 d-none d-md-inline">{{=show_icon('s-' + switchList[k]['type'] + '.png', 32)}}</div>
+            <div class="col-9 d-none d-md-inline">
                 {{for p in switchList[k]['positions'].keys():}}
                 <div class="row border-bottom">
                     <!--<div class="col-6">{{=p}}</div>-->
@@ -39,12 +48,12 @@
                 {{pass}}
             </div>
         </div>
-        {{pass}}
-        {{pass}}
 
         {{pass}}
 
-        {{if not render_card:}}
+        {{pass}}
+
+
     </div>
     <div class="card-footer">
         <div class="row">
