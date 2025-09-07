@@ -1,7 +1,6 @@
 
 
 def index():
-    # breadcrumb_set('Tools')
     response.title = 'Tools'
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
@@ -17,7 +16,6 @@ def index():
 
 
 def listview():
-    #breadcrumb_set('Tool List')
     response.title = 'Tool List'
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)

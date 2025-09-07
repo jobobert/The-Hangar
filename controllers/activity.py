@@ -92,8 +92,7 @@ def addactivity():
     form.fields = fields
     if form.process().accepted:
         session.flash = "New Activity Added"
-        # breadcrumb_back()
-        #redirect(URL('default', 'breadcrumb_back'))
+
         redirect(session.ReturnHere or URL('model', 'index', args=model_id))
     elif form.errors:
         response.flash = "Error Adding New Activity"
@@ -106,7 +105,7 @@ def addactivity():
 
 
 def listview():
-    #breadcrumb_set('Activity List')
+
     response.title = 'Activity List'
 
     fields = (db.activity.activitydate, db.activity.model, db.activity.activitytype, db.activity.duration, db.activity.activitylocation
@@ -148,7 +147,7 @@ def update():
 
 
 def modelactivities():
-    #breadcrumb_set("Model Activities")
+
     response.title = "Model Activities"
 
     model_id = request.args[0]

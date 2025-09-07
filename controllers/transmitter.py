@@ -16,7 +16,6 @@ def index():
 
 
 def listview():
-    #breadcrumb_set('Transmitter List')
     response.title = 'Transmitter List'
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)

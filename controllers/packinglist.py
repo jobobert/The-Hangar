@@ -184,7 +184,7 @@ def thelist():
 
 
 def allitems():
-    # breadcrumb_set('Packing Items')
+
     response.title = 'Packing Items'
 
     links = [

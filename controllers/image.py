@@ -1,12 +1,7 @@
 def index():
-    #breadcrumb_set('Images')
+
     response.title = 'Images'
-    #session.ReturnHere = URL(
-    #    args=request.args, vars=request.get_vars, host=True)
-
-
-    #widget = SQLFORM.widgets.autocomplete(request, db.images.tags, limitby=(0, 10), min_length=2, distinct=True, at_beginning=False)
-
+    
     fields = []
     fields.append(Field('text', labels={'text':''}))#, widget=widget))
 
@@ -33,7 +28,6 @@ def index():
 
 def update():
 
-    #breadcrumb_set('Add/Update Image')
     response.title = 'Add/Update Image'
 
     form = SQLFORM(db.images, request.args(0), upload=URL('default', 'download'), _id='imageform')

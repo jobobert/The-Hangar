@@ -42,7 +42,6 @@ def update():
 
 
 def read():
-    #breadcrumb_set('Read Article')
     response.title = 'Read Article'
 
     article = db.article(request.args(0)) or redirect(URL('library', 'index'))

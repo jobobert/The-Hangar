@@ -17,7 +17,6 @@ def index():
         response.flash = "Error Adding New Model"
 
 
-    # breadcrumb_set(model.name)
     response.title = 'Model: ' + model.name
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
@@ -63,7 +62,6 @@ def export():
             }
             #c[comp.component.name] = {'type':'type', 'subtype': 'sub'}
 
-    # breadcrumb_set(model.name)
     response.title = 'Export Model: ' + model.name
 
     return dict(model=model, todos=todos, components=c, tools=tools, batteries=batteries, propellers=propellers, supportitems=supportitems, flighttimes=flighttimes, attachments=attachments, activities=activities, wtcs=wtcs, hardware=hardware)
@@ -98,7 +96,6 @@ def exportminimal():
             }
             #c[comp.component.name] = {'type':'type', 'subtype': 'sub'}
 
-    # breadcrumb_set(model.name)
     response.title = 'Export Model (minimal): ' + model.name
 
     return dict(model=model, todos=todos, components=c, tools=tools, batteries=batteries, propellers=propellers, supportitems=supportitems, flighttimes=flighttimes, attachments=attachments)
@@ -216,7 +213,6 @@ def renderdashboard():
 
 
 def listview():
-    #breadcrumb_set('Model List')
     response.title = 'Model List'
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
@@ -252,7 +248,6 @@ def listview():
  
 def update():
 
-    #breadcrumb_set('Add/Update Model')
     response.title = 'Add/Update Model'
 
     form = SQLFORM(db.model, request.args(0), upload=URL(

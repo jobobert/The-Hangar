@@ -3,7 +3,6 @@ def index():
     battery = db(db.battery.id == battery_id).select(
     ).first() or redirect(URL('battery', 'listview'))
 
-    # breadcrumb_set(battery.name)
     response.title = "Battery: " + battery.name
 
     models = models_and_batteries(
@@ -13,7 +12,7 @@ def index():
 
 
 def listview():
-    #breadcrumb_set('Battery List')
+
     response.title = 'Battery List'
 
     fields = (db.battery.chemistry, db.battery.cellcount, db.battery.mah, db.battery.crating, db.battery.voltage, db.battery.ownedcount

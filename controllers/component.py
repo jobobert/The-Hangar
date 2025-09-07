@@ -22,7 +22,6 @@ def index():
     for m in models:
         modelIDs[m.name] = m.id
 
-    # breadcrumb_set(component[0].name)
     response.title = "Component: " + component[0].name
 
     return dict(component=component, flitetimes=flitetimes, modelCount=modelCount, modelIDs=modelIDs)

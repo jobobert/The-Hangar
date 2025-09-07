@@ -40,7 +40,7 @@ response.menu = [
         (DIV(IMG(_src=URL('static', 'icons/003-tasks.png'), _width=icon_size, 
                  _height=icon_size), ' Inventory'), False, URL('component', 'inventory')),
         (DIV(IMG(_src=URL('static', 'icons/protocol.png'), _width=icon_size, 
-                 _height=icon_size), ' Protocols'), False, URL('protocol', 'index')),
+                 _height=icon_size), ' Protocols'), False, URL('protocol', 'listview')),
         (DIV(IMG(_src=URL('static', 'icons/wtc.png'), _width=icon_size, 
                  _height=icon_size), ' WTC'), False, URL('wtc', 'listview')),
     ]),
