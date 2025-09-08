@@ -26,17 +26,8 @@
         </a>
         <ul class="nav nav-pills nav-fill model-summary">
             <li class="nav-item">
-                {{try:}}
-                {{if model.attr_copter_size:}}
-                s{{=model.attr_copter_size}}
-                {{elif model.attr_plane_wingspan_mm:}}
-                {{=model.get_wingspan0()}}mm
-                {{elif model.attr_length:}}
-                {{=model.get_length()}}mm
-                {{else:}}
-                ---
-                {{pass}}
-                {{except:}}---{{pass}}</li>
+                {{=model.get_major_dimension()}}
+                </li>
             <li class="nav-item">
                 {{try:}}
                 {{if model.powerplant:}}

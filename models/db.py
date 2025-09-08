@@ -234,6 +234,7 @@ db.define_table('model'
                 , Field('attr_plane_throw_aileron', type='string', label='Aileron Throw', comment='The aileron throws')
                 , Field('attr_plane_throw_elevator', type='string', label='Elevator Throw', comment='The elevator throws')
                 , Field('attr_plane_throw_rudder', type='string', label='Rudder Throw', comment='The rudder throws')
+                , Field('attr_plane_throw_flap', type='string', label='Flap Throw', comment='The flap throw')
                 #
                 , Field('attr_rocket_parachute', type='string', label='Parachute', comment='What is the size of the parachute?')
                 , Field('attr_rocket_body_tube', type='string', label='Body Tube', comment='What is the size of the body tube?')
@@ -283,6 +284,42 @@ db.model.get_wingspan0 = Field.Method(
 )
 db.model.get_length = Field.Method(
     lambda row: ZeroDecimal(row.model.attr_length)
+)
+def get_greatest_length(model):
+    return max(model.attr_length or 0, model.attr_width or 0, model.attr_height or 0)
+def get_major_dimension(model_id):
+    model = db(db.model.id == model_id).select().first()
+
+    if model.attr_scale:
+        return 's ' + str(model.attr_scale)
+    
+    if model.modeltype == 'Helicopter' and model.attr_copter_size:
+        return str(model.attr_copter_size) + " sz"
+
+    dim = 0
+    match model.modeltype:
+        case 'Airplane': dim = TwoDecimal(model.attr_plane_wingspan_mm) or '---'
+        case 'Rocket': dim = TwoDecimal(model.attr_length) or '---'
+        case 'Boat': dim = TwoDecimal(model.attr_length) or '---'
+        case 'Helicopter' | 'Multirotor': 
+            if model.attr_copter_size:
+                dim = TwoDecimal(model.attr_copter_size)
+            elif model.attr_copter_mainrotor_length:
+                dim = TwoDecimal(model.attr_copter_mainrotor_length)
+            else:
+                dim = '---'
+        case 'Robot' | 'Experimental': dim = get_greatest_length(model) or '---'
+        case 'Car': dim = TwoDecimal(model.attr_length) or '---'
+        case 'Autogyro': dim = TwoDecimal(model.attr_copter_mainrotor_length) or '---'
+        case 'Submarine': dim = TwoDecimal(model.attr_length) or '---'
+        case _: dim = get_greatest_length(model) or '---'
+
+    if dim != '---':
+        return str(dim) + 'mm'
+    
+    return dim
+db.model.get_major_dimension = Field.Method(
+    lambda row: get_major_dimension(row.model.id)
 )
 db.model.search = Field.Method(
     lambda row: row.name
