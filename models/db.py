@@ -931,7 +931,7 @@ db.define_table('switch'
                 , format=lambda row: row.model.name + " : " + row.purpose)
 
 db.switch.switchtype.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('3-Position', '2-Position', '6-Position', 'Momentary', 'Rotary', 'Slider', 'Gimbal-Left-Horizontal','Gimbal-Left-Vertical','Gimbal-Right-Horizontal','Gimbal-Right-Vertical','Trim_Horizontal','Trim-Vertical'), sort=True
+    ('3-Position', '2-Position', '6-Position', 'Momentary', 'Rotary', 'Slider', 'Gimbal-Left-Horizontal','Gimbal-Left-Vertical','Gimbal-Right-Horizontal','Gimbal-Right-Vertical','Trim_Horizontal','Trim-Vertical', 'Latching'), sort=True
 ))
 
 db.define_table('switch_position'
@@ -941,7 +941,7 @@ db.define_table('switch_position'
                 )
 
 db.switch_position.pos.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Back', 'Middle', 'Forward', 'Up', 'Down', 'Left', 'Right'), sort=True
+    ('Back', 'Middle', 'Forward', 'Up', 'Down', 'Left', 'Right', 'Position 1', 'Position 2'), sort=True
 ))
 
 switches_and_positions = db(

@@ -4,8 +4,10 @@ def add():
 
     if not model_id:
         redirect(session.ReturnHere or URL('default','index'))
+
+    fields = ['switch', 'switchtype', 'purpose']
     
-    form = SQLFORM(db.switch, showid=False, deletable=True)
+    form = SQLFORM(db.switch, fields=fields, showid=False, deletable=True)
     form.vars.model = model_id
     if form.process().accepted:
         session.flash = "Switch Added"
