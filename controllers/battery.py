@@ -19,8 +19,10 @@ def listview():
               )
 
     links = [
-        lambda row: A('Details', _href=URL('battery', 'index', args=[row.id]), _class='btn btn-primary'), lambda row: A('Edit', _href=URL('battery', 'update', args=[row.id]), _class='btn btn-secondary'), lambda row: A(
-            '+', _href=URL('battery', 'addcount', args=[row.id]), _class='btn btn-success'), lambda row: A('-', _href=URL('battery', 'subtractcount', args=[row.id]), _class='btn btn-danger')
+        lambda row: viewButton('battery', 'index', [row.id]),
+        lambda row: editButton('battery', 'update', [row.id]),
+        lambda row: plusButton('battery', 'addcount', [row.id]),
+        lambda row: minusButton('battery', 'subtractcount', [row.id]),
     ]
 
     batteries = SQLFORM.grid(
@@ -29,7 +31,7 @@ def listview():
 
     response.view = 'content.html'
 
-    return dict(content=batteries)
+    return dict(content=batteries, header=response.title)
 
 
 def addcount():

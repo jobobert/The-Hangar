@@ -87,8 +87,8 @@ def listview():
     )
 
     links = [
-        lambda row: A('Complete', _href=URL('todo', 'complete', args=[None, row.id]), _class='btn btn-primary'), lambda row: A(
-            'Edit', _href=URL('todo', 'update', args=[row.id]), _class='btn btn-primary')
+        lambda row: completeButton('todo', 'complete', [None, row.id]),
+        lambda row: editButton('todo', 'update', [row.id]),
     ]
     todos = SQLFORM.grid(
         todo_query, user_signature=False, editable=False, deletable=False, details=False, create=False, fields=fields, links=links, maxtextlength=255
@@ -96,7 +96,7 @@ def listview():
 
     response.view = 'content.html'
 
-    return dict(content=todos)
+    return dict(content=todos, header=response.title)
 
 
 def update():

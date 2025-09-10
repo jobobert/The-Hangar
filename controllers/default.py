@@ -337,7 +337,7 @@ def final():
               db.model.final_disposition, db.model.final_value)
 
     links = [
-        lambda row: A('Details', _href=URL('model', 'export',
+        lambda row: A('Print Details', _href=URL('model', 'export',
                       args=[row.id]), _class='btn btn-secondary'),
         lambda row: A('Mark Gone', _href=URL('model', 'retire',
                       args=[row.id]), _class='btn btn-primary')

@@ -56,8 +56,12 @@ def listview():
                   db.component.significantdetail, db.component.ownedcount)
 
         links = [
-            dict(header='In Use', body=lambda row: DIV(row.get_usedcount(), _class='text-center')), dict(header='Remaining', body=lambda row: DIV(B(row.get_remainingcount()), _class='text-center')), lambda row: A(show_icon('binoculars.png', 24), _href=URL('component', 'index', args=[row.id]), _class='btn btn-primary'), lambda row: A(
-                show_icon('edit.png', 24), _href=URL('component', 'update', args=[row.id]), _class='btn btn-primary'), lambda row: A('+', _href=URL('component', 'addcount', args=[row.id]), _class='btn btn-secondary'), lambda row: A('-', _href=URL('component', 'subtractcount', args=[row.id]), _class='btn btn-secondary')
+            dict(header='In Use', body=lambda row: DIV(row.get_usedcount(), _class='text-center')), 
+            dict(header='Remaining', body=lambda row: DIV(B(row.get_remainingcount()), _class='text-center')), 
+            lambda row: viewButton('component', 'index', [row.id]),
+            lambda row: editButton('component', 'update', [row.id]),
+            lambda row: plusButton('component', 'addcount', [row.id]),
+            lambda row: minusButton('component', 'subtractcount', [row.id]),
         ]
 
         comp = db(db.component.componenttype == request.vars['c'])

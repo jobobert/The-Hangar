@@ -1,5 +1,15 @@
 {{extend 'layout.html'}}
 
+{{if 'header' in globals():}}
+<div class="row mb-3">
+    <div class="col-md-12">
+
+        {{=H2(header)}}
+
+    </div>
+
+</div>
+{{pass}}
 
 <div class="row">
     <div class="col-md-12">

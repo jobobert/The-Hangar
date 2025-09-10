@@ -686,7 +686,8 @@ models_and_tools = db(
 db.define_table('battery', 
                 Field('cellcount', type='integer', label='Cell Count', required=True, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
                 Field('mah', type='integer', label='mAh', required=True, widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _class='generic-widget form-control')), 
-                Field('chemistry', required=True), Field('crating', type='integer', label='C Rating', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
+                Field('chemistry', required=True), 
+                Field('crating', type='integer', label='C Rating', required=True, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
                 Field('ownedcount', type='integer', label='How many are owned?', default=1, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
                 format=lambda row: row.chemistry + ': ' + str(row.cellcount) + 's' + str(row.mah) + ' (' + str(row.crating) + ') '
                 )
@@ -701,11 +702,11 @@ db.battery.get_maxamps = Field.Method(
 )
 
 db.battery.chemistry.requires = IS_IN_SET(
-    ('LiPo', 'LiFE', 'NiMH', 'NiCad'), sort=True)
+    ('LiPo', 'LiFE', 'NiMH', 'NiCad', 'Li-Ion', 'Alkaline'), sort=True)
 db.battery.crating.requires = IS_NOT_EMPTY()
 
 # This dict must contain the same keys as the IS_IN_SET of the chemistry .requires
-chem_volt = {'LiPo': 3.7, 'LiFE': 3.3, 'NiMH': 1.2, 'NiCad': 1.2}
+chem_volt = {'LiPo': 3.7, 'LiFE': 3.3, 'NiMH': 1.2, 'NiCad': 1.2, 'Li-Ion': 3.7, 'Alkaline': 1.5}
 db.battery.voltage = Field.Virtual(
     lambda row: row.battery.cellcount*chem_volt[row.battery.chemistry])
 db.battery.voltage.label = 'Voltage'

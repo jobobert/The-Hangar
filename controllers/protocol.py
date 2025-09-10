@@ -16,15 +16,15 @@ def listview():
         args=request.args, vars=request.get_vars, host=True)
     
     links = [
-        lambda row: A('Details', _href=URL('protocol', 'index', args=[row.id]), _class='btn btn-primary'),
-        lambda row: A('Edit', _href=URL('protocol', 'update', args=[row.id]), _class='btn btn-secondary'), 
+        lambda row: viewButton('protocol', 'index', [row.id]),
+        lambda row: editButton('protocol', 'update', [row.id]),
     ]
 
     grid = SQLFORM.grid(db.protocol, links=links, create=True, editable=False, deletable=False, details=False, csv=False, user_signature=False)
     
     response.view = 'content.html'
     
-    return dict(content=grid)
+    return dict(content=grid, header=response.title)
 
 def update():
     response.title = 'Add/Update Protocol'

@@ -24,8 +24,8 @@ def listview():
               )
 
     links = [
-        lambda row: A('Details', _href=URL('transmitter', 'index', args=[row.id]), _class='btn btn-primary'), lambda row: A(
-            'Edit', _href=URL('transmitter', 'update', args=[row.id]), _class='btn btn-primary')
+        lambda row: viewButton('transmitter', 'index', [row.id]),
+        lambda row: editButton('transmitter', 'update', [row.id]),
     ]
 
     transmitters = SQLFORM.grid(
@@ -34,7 +34,7 @@ def listview():
 
     response.view = 'content.html'
 
-    return dict(content=transmitters)
+    return dict(content=transmitters, header=response.title)
 
 
 def update():

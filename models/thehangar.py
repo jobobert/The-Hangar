@@ -1,6 +1,9 @@
 from collections import deque
 import os
 
+########################################
+## ICON HANDLING
+
 def model_type_icon(model, size):
     if size not in [32, 48]: size = 32
 
@@ -58,7 +61,6 @@ def filetype_icon(attachment, size):
 
     return show_icon(ext + '.png', size, ext)
 
-
 def show_icon(iconname, size=0, alt="icon"):
     thename = 'icons/' + iconname
 
@@ -70,6 +72,8 @@ def show_icon(iconname, size=0, alt="icon"):
     
     return IMG(_src=URL('static', thename), _alt=alt)
     
+############################################
+## UTILITIES
 
 def isimage(attachment):
     try:
@@ -175,6 +179,28 @@ def delete_file(row, uploadfield):
         upf = os.path.join(request.folder, 'uploads')
     os.remove(os.path.join(upf, '%s.%s' % (table, field), subfolder, file))
     row.update_record(**{uploadfield: None})
+
+
+#################################################
+## BUTTON CREATION
+
+def _makeButton(label, controller, action, args, classes = ''):
+    return A(label, _href=URL(controller, action, args=args), _class=classes)
+
+def editButton(controller, action, args):
+    return _makeButton(show_icon('edit.png', 24), controller, action, args, 'btn btn-warning')
+
+def viewButton(controller, action, args):
+    return _makeButton(show_icon('binoculars.png', 24), controller, action, args, 'btn btn-info')
+
+def plusButton(controller, action, args):
+    return _makeButton(show_icon('add.png', 24), controller, action, args, 'btn btn-success')
+
+def minusButton(controller, action, args):
+    return _makeButton(show_icon('subtracting-button.png', 24), controller, action, args, 'btn btn-danger')
+
+def completeButton(controller, action, args):
+    return _makeButton(show_icon('checked.png', 24), controller, action, args, 'btn btn-success')
 
 
 # def markmin_syntax():

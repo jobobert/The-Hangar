@@ -25,8 +25,8 @@ def listview():
               )
 
     links = [
-        lambda row: A('Details', _href=URL('tool', 'index', args=[row.id]), _class='btn btn-primary'), lambda row: A(
-            'Edit', _href=URL('tool', 'update', args=[row.id]), _class='btn btn-primary')
+        lambda row: viewButton('tool', 'index', [row.id]),
+        lambda row: editButton('tool', 'update', [row.id]),
     ]
 
     tools = SQLFORM.grid(
@@ -35,7 +35,7 @@ def listview():
 
     response.view = 'content.html'
 
-    return dict(content=tools)
+    return dict(content=tools, header=response.title)
 
 
 def update():

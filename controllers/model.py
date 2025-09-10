@@ -232,9 +232,10 @@ def listview():
               # , db.model.havekit
               )
 
-    links = [
-        lambda row: A('Details', _href=URL('model', 'index', args=[row.id]), _class='btn btn-primary'), lambda row: A('Edit', _href=URL(
-            'model', 'update', args=[row.id]), _class='btn btn-primary'), lambda row: LOAD('model', 'selected.load', args=[row.id], ajax=True, content='...')
+    links = [ 
+        lambda row: viewButton('model', 'index', [row.id]),
+        lambda row: editButton('model', 'update', [row.id]),
+        lambda row: LOAD('model', 'selected.load', args=[row.id], ajax=True, content='...')
     ]
 
     models = SQLFORM.grid(
@@ -537,12 +538,9 @@ def atthefield():
 
     links = [
         dict(header='Count', body=lambda row: row.activity_flightcount()),
-        lambda row: A('+1', _href=URL('activity', 'addflight',
-                      args=[row.id]), _class='btn btn-primary'),
-        lambda row: A(show_icon('crash.png', 20), _href=URL('activity', 'addcrash',
-                                                            args=[row.id]), _class='btn btn-primary'),
-        lambda row: A('>>', _href=URL('model', 'index', args=[
-                      row.id]), _class="btn btn-secondary")
+        lambda row: A('+1', _href=URL('activity', 'addflight', args=[row.id]), _class='btn btn-primary'),
+        lambda row: A(show_icon('crash.png', 20), _href=URL('activity', 'addcrash', args=[row.id]), _class='btn btn-primary'),
+        lambda row: A('>>', _href=URL('model', 'index', args=[ row.id]), _class="btn btn-secondary")
     ]
 
     models = SQLFORM.grid(

@@ -84,8 +84,8 @@ def listview():
     fields = (db.wtc.name, db.wtc.make, db.wtc.model)
 
     links = [
-        lambda row: A('Details', _href=URL('wtc', 'index', args=row.id, extension='html'), _class='btn btn-primary btn-sm'),
-        lambda row: A('Edit', _href=URL('wtc', 'update', args=row.id), _class='btn btn-secondary btn-sm')   
+        lambda row: viewButton('wtc', 'index', [row.id]),
+        lambda row: editButton('wtc', 'update', [row.id]),
     ]
 
     wtcs = SQLFORM.grid(
@@ -94,4 +94,4 @@ def listview():
 
     response.view = 'content.html'
 
-    return dict(content=wtcs)
+    return dict(content=wtcs, header=response.title)

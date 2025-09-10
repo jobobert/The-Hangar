@@ -1,5 +1,11 @@
 {{extend 'layout.html'}}
 
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>Models</h2>
+    </div>
+</div>
+
 <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
         <a class="nav-link {{=' active ' if active=='' else ''}}" href="{{=URL('model', 'listview')}}">All</a>
@@ -12,6 +18,7 @@
     </li>
 </ul>
 
+
+
 {{=content}}
 
-URL('model', 'listview')

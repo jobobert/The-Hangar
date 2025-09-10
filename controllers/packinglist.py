@@ -188,8 +188,7 @@ def allitems():
     response.title = 'Packing Items'
 
     links = [
-        lambda row: A('Edit', _href=URL('packinglist', 'updateitem',
-                                        args=[row.id]), _class='btn btn-primary')
+        lambda row: editButton('packinglist', 'updateitem', [row.id])
     ]
 
     form = SQLFORM.grid(
@@ -197,7 +196,7 @@ def allitems():
 
     response.view = 'content.html'
 
-    return dict(content=form)
+    return dict(content=form, header=response.title)
 
 
 def updateitem():

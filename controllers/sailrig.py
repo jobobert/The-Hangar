@@ -18,10 +18,8 @@ def listview():
               db.sailrig.notes, db.sailrig.model)
 
     links = [
-        lambda row: A('Details', _href=URL('sailrig', 'index',
-                      args=[row.id]), _class="btn btn-primary"),
-        lambda row: A('Edit', _href=URL('sailrig', 'update',
-                      args=[row.id]), _class="btn btn-secondary")
+        lambda row: viewButton('sailrig', 'index', [row.id]),
+        lambda row: editButton('sailrig', 'update', [row.id]),
     ]
 
     sailrigs = SQLFORM.grid(
@@ -30,7 +28,7 @@ def listview():
 
     response.view = 'content.html'
 
-    return dict(content=sailrigs)
+    return dict(content=sailrigs, header=response.title)
 
 
 def update():
