@@ -8,33 +8,96 @@ def rendermodelexport():
 
     return dict(dot=model.diagram)
 
+
+components = {
+    'Servo': '"servo" [label="Servo"; shape="trapezium"];',
+    'Receiver': '"receiver" [label = "<f0>Receiver | <f1>Port 1 | <f2>Port 2 | <f3>Port 3 | <f4>Port 4";shape = "record";];',
+    'Connection': '"connector" [label="Connector"; shape="house";]',
+    'Battery': '"batt" [label = "3s2200";];',
+    'Motor': '"motor" [label="Motor"; shape="circle"];',
+    'ESC': '"esc" [label="ESC"; shape="box3d"];',   
+    'Switch': '"switch" [label="Switch"; shape="diamond"];',
+}
+
+attribs = {
+    '5v Servo': '[color = "#a8700f";]',
+    '5v Signal': '[color = "#a8700f"; style = dashed;]',
+    '12v 12gauge': '[color = "#2430d3"; penwidth = 4;]',
+    '12v20gauge': '[color = "#2430d3"; penwidth = 2;]',
+}
+
+def creatediagramfromcomponents(model_id):
+    model_components = db(db.model_component.model == model_id).select()
+    model_battery = db(db.model_battery.model == model_id).select()
+
+    id = 0
+    nodes = []
+    edges = []
+    escid = 0
+
+    for row in sorted(model_components, key=lambda type: type.component.componenttype):
+        id += 1
+        comp = row.component
+        match comp.componenttype:
+            
+            case 'Servo': 
+                nodes.append(f'"servo{id}" [label="{row.purpose} Servo"; shape="trapezium"];')
+                if row.channel:
+                    edges.append(f"receiver:f{row.channel} -- servo{id} {attribs['5v Servo']};")
+
+            case 'Switch': 
+                nodes.append(f'"switch{id}" [label="{row.purpose} Switch"; shape="diamond"];')
+                if row.channel:
+                    edges.append(f"receiver:f{row.channel} -- switch{id} {attribs['5v Servo']};")
+
+            case 'ESC': 
+                nodes.append(f'"esc{id}" [label="{row.component.name}"; shape="box3d"];')
+                if row.channel:
+                    edges.append(f"receiver:f{row.channel} -- esc{id} {attribs['5v Servo']};")
+                escid = id
+
+            case 'Motor':
+                nodes.append(f'"motor{id}" [label="{row.component.name}"; shape="circle"];')
+                if escid != "":
+                    edges.append(f"esc{escid} -- motor{id} {attribs['12v 12gauge']};")
+             
+            case 'Receiver':
+                count = 4 
+                if comp.attr_channel_count:
+                    count = comp.attr_channel_count
+                recvr = '"receiver" [label = "<f0>Receiver'
+                for x in range(1, count + 1):
+                    recvr += f'| <f{x}>Port {x} '
+                recvr += '";shape = "record";];'
+                nodes.append(recvr)
+
+            case _: 
+                nodes.append(f'"other{id}" [label="{row.purpose} {row.component.name}"; shape="rect"];')
+                if row.channel:
+                    edges.append(f"receiver:f{row.channel} -- other{id} {attribs['5v Servo']};")
+
+    for row in model_battery.render():
+        id += 1
+
+        nodes.append(f'"batt{id}" [label = "{row.battery}";];')
+        if escid != 0:
+            edges.append(f"esc{escid} -- batt{id} {attribs['12v 12gauge']};")
+
+    ret = '\n// Nodes\n'
+    ret += "\n".join(nodes)
+    ret += '\n\n// Edges\n'
+    ret += "\n".join(edges)
+    
+    return ret
+
+
 def editmodeldiagram():
     model = db.model(request.args(0)) 
 
     details_form = SQLFORM(db.model, model.id, fields=[
                            'diagram'], showid=False, formstyle='divs')
     
-    components = {
-        'Servo': '"servo" [label="Servo"; shape="trapezium"];',
-        'Receiver': '"receiver" [label = "<f0>Receiver | <f1>Port 1 | <f2>Port 2 | <f3>Port 3 | <f4>Port 4";shape = "record";];',
-        'Connection': '"connector" [label="Connector"; shape="house";]',
-        'Battery': '"batt" [label = "3s2200";];',
-        'Motor': '"motor" [label="Motor"; shape="circle"];',
-        'ESC': '"esc" [label="ESC"; shape="box3d"];',   
-        'Switch': '"switch" [label="Switch"; shape="diamond"];',
-    }
-
-    attribs = {
-        '5v Servo': '[color = "#a8700f";]',
-        '5v Signal': '[color = "#a8700f"; style = dashed;]',
-        '12v 12gauge': '[color = "#2430d3"; penwidth = 4;]',
-        '12v20gauge': '[color = "#2430d3"; penwidth = 2;]',
-    }
-    
-    default_dot = f"""
-graph model {{
-rankdir = LR;
-
+    legend = f"""
 // Legend
 subgraph cluster_legend {{
     label = "Legend";
@@ -56,6 +119,19 @@ subgraph cluster_legend {{
     key:i3:e -- key2:i3:w {attribs['12v 12gauge']};
     key:i4:e -- key2:i4:w {attribs['12v20gauge']};
 }}
+    """
+
+    title = f"""
+// Title
+fontsize = 30;
+label = "{model.name} Wiring Diagram";
+labelloc = "t";
+    """
+
+    default_dot = f"""
+graph model {{
+rankdir = LR;
+{legend}
 
 // Nodes
 {components['Receiver']}
@@ -64,13 +140,20 @@ subgraph cluster_legend {{
 // Edges
 receiver:f1 -- servo {attribs['5v Servo']};
 
-// Title
-fontsize = 30;
-label = "{model.name} Wiring Diagram";
-labelloc = "t";
+{title}
 }}
+    """
 
-        
+    model_components_dot = f"""
+
+graph model {{
+rankdir = LR;
+{legend}
+
+{creatediagramfromcomponents(model.id)}
+
+{title}
+}}
     """
 
     if details_form.process().accepted:
@@ -79,4 +162,4 @@ labelloc = "t";
     elif details_form.errors:
         response.flash = "Error Adding New Model"
 
-    return dict(dot=model.diagram, model_name=model.name, form=details_form, default_dot=default_dot, attribs=attribs, components=components)
+    return dict(dot=model.diagram, model_name=model.name, form=details_form, default_dot=default_dot, attribs=attribs, components=components, model_components_dot=model_components_dot)

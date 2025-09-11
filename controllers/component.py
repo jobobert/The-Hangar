@@ -118,8 +118,6 @@ def update():
     for s in inputs:
         s['_autocomplete'] = 'off'
 
-    #response.view = 'content.html'
-
     return dict(form=form, component_attribs=json.dumps(component_attribs))
 
 def rendercard_grid():
@@ -250,11 +248,14 @@ def removefrommodel():
     return redirect(URL('model', 'index.html', args=model_id))
 
 def updatemodelrelation():
-    # session.forget(response)
 
     relationship_id = request.args[0]
 
-    form = SQLFORM(db.model_component, relationship_id)
+    rel = db(db.model_component.model == relationship_id).select().first()
+
+    fields = ['purpose', 'channel']
+
+    form = SQLFORM(db.model_component, relationship_id, fields=fields, showid=False)
 
     for s in form.elements('input', _type='text'):
         s['_autocomplete'] = 'off'
@@ -267,7 +268,11 @@ def updatemodelrelation():
 
     response.view = 'content.html'
 
-    return dict(content=form)
+    header = ''
+    if rel:
+        header = rel.component.name + ' on ' + rel.model.name
+
+    return dict(content=form, header=header)
 
 def inventory():
 

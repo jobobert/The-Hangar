@@ -1,5 +1,9 @@
 {{extend 'layout.html'}}
 
+<!--<div>
+    {{=model_components_dot}}
+</div>-->
+
 <h1>Edit Model Diagram for {{=model_name}}</h1>
 
 <div class="row">
@@ -11,6 +15,7 @@
         {{=form.custom.end}}
 
         <button class="btn btn-secondary" onclick="setDefaultDot()">Use default dot code</button>
+        <button class="btn btn-secondary" onclick="setComponentDot()">Use component dot code</button>
     </div>
 
     <div class="col-6 border-left">
@@ -75,6 +80,11 @@
 
     function setDefaultDot() {
         document.getElementById("model_diagram").value = `{{=XML(default_dot)}}`;
+        updateGraph();
+    }
+
+    function setComponentDot() {
+        document.getElementById("model_diagram").value = `{{=XML(model_components_dot)}}`;
         updateGraph();
     }
 
