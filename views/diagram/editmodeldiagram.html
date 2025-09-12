@@ -14,44 +14,40 @@
         <div class="model_form_comment">{{=form.custom.comment.diagram}}</div>
         {{=form.custom.end}}
 
-        <button class="btn btn-secondary" onclick="setDefaultDot()">Use default dot code</button>
-        <button class="btn btn-secondary" onclick="setComponentDot()">Use component dot code</button>
+
     </div>
 
     <div class="col-6 border-left">
-
-        <table class="table table-sm">
-            <tr>
-                <th>Action</th>
-                <th>Attributes</th>
-                <th>Dot Code</th>
-            </tr>
-            {{for k,v in attribs.items():}}
-            <tr>
-                <td><button class="btn btn-sm btn-secondary" onclick="insertText('{{=v}}')">Insert</button></td>
-                <td>{{=k}}</td>
-                <td>{{=v}}</td>
-
-            </tr>
+        <div class="row mb-3">
+            <div class="col">
+                <button class="btn btn-secondary" onclick="setDefaultDot()">Use default dot code</button>
+                <button class="btn btn-secondary" onclick="setComponentDot()">Use component dot code</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h5 class="col d-block">Attributes</h5>
+            </div>
+        </div>
+        <div class="row">
+            {{for k,v in edge_attribs.items():}}
+            <div class="d-inline-block m-1">
+                <div class="d-inline"><button class="btn btn-sm btn-secondary" onclick="insertText('{{=v}}')">{{=k}}</button></div>
+            </div>
             {{pass}}
-        </table>
-
-
-        <table class="table table-sm">
-            <tr>
-                <th>Action</th>
-                <th>Component</th>
-                <th>Dot Code</th>
-            </tr>
-            {{for k,v in components.items():}}
-            <tr>
-                <td><button class="btn btn-sm btn-secondary" onclick="insertText('{{=v}}')">Insert</button></td>
-                <td>{{=k}}</td>
-                <td>{{=v}}</td>
-
-            </tr>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h5>Components</h5>
+            </div>
+        </div>
+        <div class="row">
+            {{for comp in components:}}
+            <div class="d-inline-block m-1">
+                <div class="d-inline"><button class="btn btn-sm btn-secondary" onclick="insertText('{{=comp[1]}}')">{{=comp[0]}}</button></div>
+            </div>
             {{pass}}
-        </table>
+        </div>
     </div>
 </div>
 <div class="row mt-3">

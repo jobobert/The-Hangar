@@ -552,6 +552,8 @@ db.define_table('component',
                 Field('attr_weight_oz', type='double', label='Weight (oz)', comment='The weight (oz)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),               
                 #
                 Field('attr_channel_count', type='integer', label='Channel Count', comment='Number of channels', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
+                Field('attr_telemetry_port', type='boolean', label='Telemetry Port', comment='This component has a telemetry port'),
+                Field('attr_sbus_port', type='boolean', label='SBUS Port', comment='This component has an SBUS port'),
                 Field('attr_gear_type', type='string', label='Gear Type', comment='The material the gears are made of'),
                 Field('attr_amps', type='string', label='Rated Amps', comment='The rated amps'),
                 Field('attr_torque', type='string', label="Rated Torque", comment='The rated torque'),
@@ -559,6 +561,7 @@ db.define_table('component',
                 Field('attr_displacement_cc', type='double', label='Displacement (cc)', comment='The engine displacement', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
                 Field('attr_motor_kv', type='string', label='Motor KV', comment='The motor KV rating'),              
                 Field('attr_max_voltage', type='string', label='Max Voltage', comment='The maximum voltage'),
+
                 #
                 format=lambda row: 'Unknown' if row is None else row.name
                 )
@@ -587,12 +590,12 @@ db.component.attr_weight_oz.extra = {'measurement': 'oz'}
 db.component.attr_displacement_cc.extra = {'measurement': 'cc'}
 
 db.component.componenttype.requires = IS_IN_SET((
-    'Engine', 'Servo', 'Receiver', 'Motor', 'ESC', 'BEC', 'Regulator', 'Flight Controller', 'Gyro', 'Battery Charger', 'Flybarless Controller', 'Electrical', 'Switch', 'Winch', 'Other'), sort=True)
+    'Engine', 'Servo', 'Receiver', 'Motor', 'ESC', 'BEC', 'Regulator', 'Flight Controller', 'Gyro', 'Battery Charger', 'Flybarless Controller', 'Electrical', 'Switch', 'Winch', 'Other', 'Retracts'), sort=True)
 
 component_attribs = {
     'Engine': ['attr_displacement_cc'], 
     'Servo': ['attr_gear_type', 'attr_torque'], 
-    'Receiver': ['attr_channel_count'], 
+    'Receiver': ['attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port'], 
     'Motor': ['attr_motor_kv', 'attr_amps','attr_max_voltage'], 
     'ESC': ['attr_amps','attr_max_voltage'], 
     'BEC': ['attr_amps','attr_max_voltage'], 
@@ -604,7 +607,8 @@ component_attribs = {
     'Electrical': ['attr_max_voltage'], 
     'Switch': ['attr_switch_type','attr_max_voltage'], 
     'Winch': ['attr_max_voltage'], 
-    'Other': ['attr_max_voltage']
+    'Other': ['attr_max_voltage'],
+    'Retracts': ['attr_max_voltage'],
 }
 
 db.component.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
