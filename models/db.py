@@ -538,6 +538,7 @@ db.activity.notes.format = lambda model: MARKMIN(model.notes)
 
 db.define_table('component', 
                 Field('name', type='string', label='Name', required=True, unique=True), 
+                Field('diagramname', type='string', label='Diagram Name', required=False, unique=False),
                 Field('componenttype', type='string', label='Type', required=True), 
                 Field('componentsubtype', type='string', label='Subtype', comment='The Sub Type'), 
                 Field('ownedcount', type='integer', label='Count', comment='How many are owned?', default=0, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 

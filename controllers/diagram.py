@@ -35,15 +35,15 @@ components = {
     , 'Flybarless Controller': 
         {'id': 'fblcont', 'shape': 'tripleoctagon', 'attribs': 'style="filled"; fillcolor="#9900cc"', 'edgeattrib': '5v Servo'}
     , 'Electrical':            
-        {'id': 'elec', 'shape': 'utr', 'attribs': 'style="filled"; fillcolor="#efefef"', 'edgeattrib': 'default'}
+        {'id': 'elec', 'shape': 'cds', 'attribs': 'style="filled"; fillcolor="#efefef"', 'edgeattrib': 'default'}
     , 'Switch':                
         {'id': 'sw', 'shape': 'septagon', 'attribs': 'style="filled"; fillcolor="#efefef"', 'edgeattrib': '5v Servo'}
     , 'Winch':                 
-        {'id': 'winch', 'shape': 'terminator', 'attribs': 'style="filled"; fillcolor="#efefef"', 'edgeattrib': '5v Servo'}
+        {'id': 'winch', 'shape': 'component', 'attribs': 'style="filled"; fillcolor="#efefef"', 'edgeattrib': '5v Servo'}
     , 'Other':                 
         {'id': 'other', 'shape': 'component', 'attribs': 'style="filled"; fillcolor="#efefef"', 'edgeattrib': 'default'}
     , 'Retracts':              
-        {'id': 'retract', 'shape': 'primersite', 'attribs': 'style="filled"; fillcolor="#666699"', 'edgeattrib': '5v Servo'}
+        {'id': 'retract', 'shape': 'parallelogram', 'attribs': 'style="filled"; fillcolor="#666699"', 'edgeattrib': '5v Servo'}
     
     , 'Battery': 
         {'id': 'batt', 'shape': 'circle', 'attribs': 'style="filled"; fillcolor="#ffcc00"', 'edgeattrib': '12v 12gauge'}
@@ -106,22 +106,23 @@ def creatediagramfromcomponents(model_id):
     for row in sorted(model_components, key=lambda type: type.component.componenttype):
         id += 1
         comptype = row.component.componenttype
+        compname = row.component.diagramname if row.component.diagramname else row.component.name
         
         match comptype:
             
             case 'ESC': 
-                nodes.append(f'"{components[comptype]["id"]}{id}" [label="{row.component.name}\n{row.purpose}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
+                nodes.append(f'"{components[comptype]["id"]}{id}" [label="{compname}\n{row.purpose}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
                 edges.append(f'{"receiver:f" + str(row.channel) if row.channel else "default"} -- {components[comptype]["id"]}{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
                 escid = id
             case 'Motor':
-                nodes.append(f'"{components[comptype]["id"]}{id}" [label="{row.component.name}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
+                nodes.append(f'"{components[comptype]["id"]}{id}" [label="{compname}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
                 edges.append(f'{"esc" + str(escid) if escid != "" else "default"} -- motor{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
             case 'Receiver':
                 count = 4 
                 ports = []
                 if row.component.attr_channel_count:
                     count = row.component.attr_channel_count
-                ports.append(f'"receiver" [label = "<f0>{row.component.name}')
+                ports.append(f'"receiver" [label = "<f0>{compname}')
                 for x in range(1, count + 1):
                     ports.append(f'| <f{x}>Port {x} ')
                 if row.component.attr_telemetry_port:
@@ -135,7 +136,7 @@ def creatediagramfromcomponents(model_id):
             case 'Battery': 
                 pass
             case _: 
-                nodes.append(f'"{components[comptype]["id"]}{id}" [label="{row.component.name}\n{row.purpose if row.purpose else ""}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
+                nodes.append(f'"{components[comptype]["id"]}{id}" [label="{compname}\n{row.purpose if row.purpose else ""}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
                 edges.append(f'{"receiver:f" + str(row.channel) if row.channel else "default"} -- {components[comptype]["id"]}{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
 
     for row in model_battery.render():
