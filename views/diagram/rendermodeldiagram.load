@@ -1,30 +1,37 @@
 <script src="{{=URL('static','js/viz-global.js')}}"></script>
 
+{{if options == 'dashboard':}}
 
-<div class="card">
-    <div class="card-header">
-        <h5 class="card-title" style="display: inline-block;">
-            <span class="card-icon">{{=show_icon('icons8-gearbox-64.png', 25)}}</span>
-            Wiring Diagram
-        </h5>
-        {{=A("Edit", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="card-link th-new-link")}}
+<div>
+    {{=A("Edit", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="btn btn-primary")}}
+    {{else:}}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title" style="display: inline-block;">
+                <span class="card-icon">{{=show_icon('icons8-gearbox-64.png', 25)}}</span>
+                Wiring Diagram
+            </h5>
+            {{=A("Edit", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="card-link th-new-link")}}
+
+        </div>
+        {{pass}}
+
+
+        <div class="card-body">
+            <div id="graph-container" style=""></div>
+        </div>
 
     </div>
-    <div class="card-body">
-        <div id="graph-container" style=""></div>
-    </div>
-
-</div>
 
 
-<script>
+    <script>
 
-    const dotGraph = `{{=XML(dot)}}`;
+        const dotGraph = `{{=XML(dot)}}`;
 
-    Viz.instance().then(viz => {
-        const svg = viz.renderSVGElement(dotGraph);
+        Viz.instance().then(viz => {
+            const svg = viz.renderSVGElement(dotGraph);
 
-        document.getElementById("graph-container").appendChild(svg);
-    });
+            document.getElementById("graph-container").appendChild(svg);
+        });
 
-</script>
+    </script>

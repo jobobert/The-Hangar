@@ -3,8 +3,8 @@
         <div class=" col-sm-12">
             {{=LOAD('model','flowchart.load', args=[model.id], ajax=True, content='Loading Flowchart..')}}
         </div>
-    </div> 
-    
+    </div>
+
     <div class="row">
         <div class="col-12">
             <div class="container">
@@ -16,9 +16,9 @@
                     </div>
                 </div>
 
-                
 
-                <div class="row p-2"> 
+
+                <div class="row p-2">
                     <ul id="tab-list" class="nav nav-pills mt-3 border-bottom">
                         <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabdesc" href="#tdescription">Description</a></li>
                         <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabattr" href="#tattributes">Attributes</a></li>
@@ -36,12 +36,20 @@
                         {{if options["switch"] > 0:}}
                         <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabswit" href="#tswitches">{{=options["switch"]}} Switches</a></li>
                         {{pass}}
+                        {{if model.diagram:}}
+                        <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabdiag" href="#tdiagram">Diagram</a></li>
+                        {{pass}}
                     </ul>
-                 
+
                     <div class="col-12 tab-content m-2">
                         <div id="tdescription" class="tab-pane">
                             {{if model.transmitter:}}
-                            <div class="mb-3 p-1 bg-light"><b>Transmitter:</b> {{=model.transmitter.nickname or model.transmitter.name}} </div>
+                            <div class="mb-3 p-1 bg-light">
+                                <b>Transmitter:</b> {{=model.transmitter.nickname or model.transmitter.name}} 
+                                {{if model.protocol:}}
+                                <b> / </b> {{=model.protocol.name}}
+                                {{pass}}
+                            </div>
                             {{pass}}
                             {{=MARKMIN(model.notes)}}
                         </div>
@@ -49,7 +57,7 @@
                             {{=LOAD('activity','rendernotes.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Reading Notes...'))}}
                         </div>
                         <div id="ttodos" class="tab-pane">
-                            {{=LOAD('todo',    'rendercard.load',  args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Loading Todos...'))}}
+                            {{=LOAD('todo', 'rendercard.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Loading Todos...'))}}
                         </div>
                         <div id="tattributes" class="tab-pane attribute-list">
                             <dl>
@@ -60,7 +68,7 @@
                                 {{for key in sorted(model.__dict__):}}
                                 {{if key.startswith('attr_') and model[key]:}}
                                 {{c=''}}
-                            
+
                                 {{if key.startswith('attr_plane_') and model.modeltype != 'Airplane' :}}{{c="model_attr_light"}}
                                 {{elif key.startswith('attr_rocket_') and model.modeltype != 'Rocket':}}{{c="model_attr_light"}}
                                 {{elif key.startswith('attr_boat_') and model.modeltype != 'Boat':}}{{c="model_attr_light"}}
@@ -96,13 +104,19 @@
                             {{=LOAD('switch','renderswitchtable.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
                         </div>
                         {{pass}}
+                        {{if model.diagram:}}
+                        <div id="tdiagram" class="tab-pane">
+                            {{=LOAD('diagram','rendermodeldiagram.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+                            'images/waiting.gif')), "Wiring Diagram"))}}
+                        </div>
+                        {{pass}}
                     </div>
                 </div>
-                
+
             </div>
         </div>
     </div>
-</div>  
+</div>
 
 <div class="modal fade" id="modal_details" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
     <div class="modal-dialog" role="document" style="max-width: none;">
@@ -182,5 +196,5 @@
     //$(function(){
     //    $('#'+clickedId).tab('show')
     //});
-    
+
 </script>

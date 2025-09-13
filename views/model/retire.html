@@ -3,7 +3,7 @@
 <div class="container">
 
     <div class="row">
-        <div class="alert alert-danger" role="alert">
+        <div class="col alert alert-danger" role="alert">
             <h2>You are about to retire the<br />{{=B(model.name)}}</h2>
         </div>
     </div>
@@ -11,13 +11,20 @@
     <div class="row">
         {{=form.custom.begin}}
         <div class="row">
-            <h3>What are the details of the retirement?</h3>
+            <div class="col">
+                <h3>What are the details of the retirement?</h3>
+            </div>
         </div>
-        <div class="row">
+    </div>
+    <div class="row">
+        <div class="col">
             {{=TEXTAREA(_name="reason")}}
         </div>
-        <div class="row">
+    </div>
+    <div class="row">
+        <div class="col">
             {{if components:}}
+
             <h3>Please decide what to do with its components</h3>
 
 
@@ -44,15 +51,14 @@
                     {{pass}}
                 </tbody>
             </table>
-
-
             {{else:}}
             <h3>This model has no components</h3>
             {{pass}}
         </div>
-        <div class="row bg-light fixed-bottom pl-5 p-2">
-            {{=form.custom.submit}}</div>
-        {{=form.custom.end}}
-
     </div>
+    <div class="row bg-light fixed-bottom pl-5 p-2">
+        {{=form.custom.submit}}
+    </div>
+    {{=form.custom.end}}
+
 </div>

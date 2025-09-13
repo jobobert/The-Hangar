@@ -1,7 +1,7 @@
 def rendermodeldiagram():
     model = db.model(request.args(0)) 
 
-    return dict(dot=model.diagram, model_id=model.id)
+    return dict(dot=model.diagram, model_id=model.id,options=request.args(1))
 
 def rendermodelexport():
     model = db.model(request.args(0)) 
@@ -128,6 +128,8 @@ def creatediagramfromcomponents(model_id):
                     ports.append(' | <t1>Telemetry ')
                 if row.component.attr_sbus_port:
                     ports.append(' | <t2>SBUS ')
+                if row.component.attr_pwr_port:
+                    ports.append(' | <t3>Power ')
                 ports.append('";shape = "record";];')
                 nodes.append(''.join(ports))
             case 'Battery': 
