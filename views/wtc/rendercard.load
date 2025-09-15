@@ -1,7 +1,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('wtc.png', 25)}}</span>Water Tight Cylinder</h5>
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('wtc', 25)}}</span>Water Tight Cylinder</h5>
         <!--<a href="#" data-toggle="modal" data-target="#modal_newwtc" class="card-link th-new-link">New</a>-->
 
     </div>
@@ -20,7 +20,7 @@
                 </div>
             </div>
             <div class="col-sm-2">
-                <a class="btn btn-primary" href="{{=URL('wtc','index.html',args=[wtc.wtc])}}" target="_blank">View</a>
+                <a class="btn btn-primary" href="{{=URL('wtc','index.html',args=[wtc.wtc])}}" target="_blank">{{=action_icon('details', 16)}}</a>
             </div>
         </div>
         <div class="row">
@@ -34,7 +34,7 @@
     <div class="card-footer">
         {{if wtcs:}}
         {{=deleteform.custom.begin}}
-        <button class="btn btn-secondary d-inline" type="submit" value="Remove" name="{{=wtc.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+        <button class="btn btn-danger d-inline" type="submit" value="Remove" name="{{=wtc.id}}">{{=action_icon('delete', 16)}}</button>
         {{=deleteform.custom.end}}
 
         {{else:}}

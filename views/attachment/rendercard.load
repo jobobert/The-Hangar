@@ -12,7 +12,7 @@
 {{else:}}
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title"><span class="card-icon">{{=show_icon('icons8-attach-50.png', 25)}}</span>{{=attachment_count}} Attachments</h5>
+        <h5 class="card-title"><span class="card-icon">{{=controller_icon('attachment', 25)}}</span>{{=attachment_count}} Attachments</h5>
     </div>
     <div class="card-body">
         {{=deleteform.custom.begin}}
@@ -26,10 +26,10 @@
             </div>
             <div class="col-4">
                 {{if isimage(attachment):}}
-                <a class="btn btn-primary" data-toggle="modal" data-target="#mainModal" data-whatever="<img class='card-img-top' src='{{=URL('default', 'download', args=attachment.attachment)}}'' alt='Attachment'>">{{=show_icon('OpenTab.png', 16)}}</a>
+                <a class="btn btn-primary" data-toggle="modal" data-target="#mainModal" data-whatever="<img class='card-img-top' src='{{=URL('default', 'download', args=attachment.attachment)}}'' alt='Attachment'>">{{=action_icon('OpenTab', 16)}}</a>
                 {{pass}}
                 <!--<a class="btn btn-primary" href="{{=URL('attachment','remove',args=[model_id,attachment.id])}}">{{=show_icon('icons8-waste-50.png', 16)}}</a>-->
-                <button class="btn btn-secondary" type="submit" value="Remove" name="{{=attachment.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+                <button class="btn btn-danger" type="submit" value="Remove" name="{{=attachment.id}}">{{=action_icon('delete', 16)}}</button>
             </div>
 
         </div>

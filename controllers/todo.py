@@ -1,7 +1,7 @@
 
 
 def renderlist():
-    # session.forget(response)
+    
     activemodels = db(db.model.modelstate > 1)._select(db.model._id)
 
     if request.args(0) == 'dashboard':
@@ -21,7 +21,7 @@ def renderlist():
 
 
 def rendercard():
-    # session.forget(response)
+    
     if request.args:
         model_id = request.args[0]
         todo_query = db((db.todo.model == model_id) &

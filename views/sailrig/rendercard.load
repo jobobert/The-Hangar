@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('boat-48.svg', 25)}}</span>{{=rig_count}} Rigs</h5>
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('sailrig', 25)}}</span>{{=rig_count}} Rigs</h5>
     </div>
     <div class="card-body">
         {{=deleteform.custom.begin}}
@@ -11,7 +11,7 @@
                 <div class="tool_name"><a class="text-decoration-none" href="{{=URL('sailrig','index.html',args=[mr.id])}}">{{=mr.rigname}}</a></div>
             </div>
             <div class="col-4 mt-2">
-                <button class="btn btn-secondary" type="submit" value="Remove" name="{{=mr.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+                <button class="btn btn-warning" type="submit" value="Remove" name="{{=mr.id}}">{{=action_icon('delete', 16)}}</button>
             </div>
         </div>
         <div class="row boarder-bottom">

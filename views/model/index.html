@@ -31,7 +31,7 @@
 
 {{if model.transmitter:}}
 <div class="row mb-2 ml-2 model_transmitter">
-    <span>{{=show_icon('gamepad.png', 20)}}</span>
+    <span>{{=controller_icon('transmitter', 20)}}</span>
     <span>{{=A(model.transmitter.nickname or model.transmitter.name, _href=URL('transmitter', 'index',
         args=model.transmitter))}}</span>
     <span> | </span>
@@ -226,7 +226,7 @@
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title" style="display: inline-block;">
-                    <span class="card-icon">{{=show_icon('th-wt_heli-32.svg', 25)}}</span>
+                    <span class="card-icon">{{=attribute_icon('rotor', 25)}}</span>
                     Rotors
                 </h5>
             </div>

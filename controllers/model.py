@@ -539,7 +539,7 @@ def atthefield():
     links = [
         dict(header='Count', body=lambda row: row.activity_flightcount()),
         lambda row: A('+1', _href=URL('activity', 'addflight', args=[row.id]), _class='btn btn-primary'),
-        lambda row: A(show_icon('crash.png', 20), _href=URL('activity', 'addcrash', args=[row.id]), _class='btn btn-primary'),
+        lambda row: A(activity_icon('crash', 20), _href=URL('activity', 'addcrash', args=[row.id]), _class='btn btn-primary'),
         lambda row: A('>>', _href=URL('model', 'index', args=[ row.id]), _class="btn btn-secondary")
     ]
 

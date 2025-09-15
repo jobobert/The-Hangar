@@ -76,10 +76,10 @@
             </ul>
         </div>
         <div>
-            <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.open_todos_count()}}</span><span>{{=show_icon('icons8-checklist-50.png', 25)}}</span></div>
-            <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.activity.count()}}</span><span>{{=show_icon('icons8-calendar-50.png', 25)}}</span></div>
-            <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_attachmentcount()}}</span><span>{{=show_icon('icons8-attach-50.png', 30)}}</span></div>
-            <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_batterycount()}}</span><span>{{=show_icon('icons8-low-battery-80.png', 30)}}</span></div>
+            <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.open_todos_count()}}</span><span>{{=controller_icon('todo', 25)}}</span></div>
+            <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.activity.count()}}</span><span>{{=controller_icon('activity', 25)}}</span></div>
+            <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_attachmentcount()}}</span><span>{{=controller_icon('attachment', 30)}}</span></div>
+            <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_batterycount()}}</span><span>{{=controller_icon('batter', 30)}}</span></div>
         </div>
     </div>
 

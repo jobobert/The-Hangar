@@ -1,7 +1,6 @@
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=show_icon('icons8-low-battery-80.png', 25)}}</span>{{=battery_count}} Batteries</h5>
-        <!--<a class="card-link th-new-link" href="{{=URL('battery','update')}}">New</a>-->
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('battery', 25)}}</span>{{=battery_count}} Batteries</h5>
         <a href="#" data-toggle="modal" data-target="#modal_newbattery" class="card-link th-new-link">New</a>
     </div>
     <div class="card-body">
@@ -16,9 +15,7 @@
                 <div>{{=mt.battery.ownedcount}}</div>
             </div>
             <div class="col-4 mt-2">
-                <!--<a class="btn btn-primary" href="{{=URL('battery','removefrommodel',args=[model_id, mt.id])}}">{{=show_icon('icons8-waste-50.png', 16)}}</a>
-                <input class="btn btn-secondary" type="submit" value="Remove" name="{{=mt.id}}">-->
-                <button class="btn btn-secondary" type="submit" value="Remove" name="{{=mt.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+                <button class="btn btn-danger" type="submit" value="Remove" name="{{=mt.id}}">{{=action_icon('delete', 16)}}</button>
             </div>
         </div>
         {{pass}}

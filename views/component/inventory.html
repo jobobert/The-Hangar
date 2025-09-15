@@ -30,8 +30,8 @@
             <td>{{if comp.storedat:}}{{=comp.storedat}}{{else:}}Unknown{{pass}}</td>
             <td>{{=comp.get_remainingcount()}}</td>
             <td class="d-print-none">
-                {{=A("-", _href=URL('component', 'subractcount', args=comp.id), _class="btn btn-danger btn-sm")}}
-                {{=A("+", _href=URL('component', 'addcount', args=comp.id), _class="btn btn-success btn-sm ")}}
+                {{=plusButton('component', 'addcount', comp.id)}}
+                {{=minusButton('component', 'subractcount', comp.id)}}
             </td>
             <td><input type="text" class="form-control" name="actual_{{=comp.id}}"></td>
         </tr>

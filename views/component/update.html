@@ -150,7 +150,7 @@ Your submitted form contains the following errors:
                 <div class="row mb-2">
                     {{for key in form.custom.label:}}
                     {{if key.startswith('attr_') and key not in ['attr_length', 'attr_width', 'attr_height', 'attr_weight_oz']:}}
-                    <div class="col-sm-6" id="{{=key}}">
+                    <div class="col-sm-6 mb-2" id="{{=key}}">
                         <div class="component_form_label{{='_boolean' if db.component[key].type == 'boolean' else ''}}">{{=form.custom.label[key]}}</div>
                         <div class="component_form_field{{='_boolean' if db.component[key].type == 'boolean' else ''}}">{{=form.custom.widget[key]}}</div>
                         <div class="component_form_comment{{='_boolean' if db.component[key].type == 'boolean' else ''}}">{{=form.custom.comment[key]}}</div>

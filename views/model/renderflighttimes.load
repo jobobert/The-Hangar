@@ -15,8 +15,8 @@
                     <tr>
                         <th scope="col" colspan="2">{{=B(f.model.name)}}</th>
                         <th scope="col">
-                            <a class="btn btn-info" href="{{=URL('model', 'updateflighttime', args=f.id)}}">Edit</a>
-                            <a class="btn btn-danger" href="{{=URL('model', 'removeflighttime', args=f.id)}}">Delete</a>
+                            {{=editButton(  'model', 'updateflighttime', f.id) }}
+                            {{=deleteButton('model', 'removeflighttime', f.id) }}
                         </th>
                     </tr>
                 </thead>

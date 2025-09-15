@@ -1,7 +1,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title"><span class="card-icon">{{=show_icon('icons8-calendar-50.png', 25)}}</span>{{=activity_count}} Activities</h5>
+        <h5 class="card-title"><span class="card-icon">{{=controller_icon('activity', 25)}}</span>{{=activity_count}} Activities</h5>
     </div>
     <div class="card-body">
         {{for activity in activities:}}

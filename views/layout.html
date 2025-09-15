@@ -73,6 +73,7 @@
 
   <nav class="sticky-top navbar navbar-light navbar-expand-md bg-faded bg-dark navbar-dark  ">
     <!-- fixed-top -->
+
     <a href="{{=URL('default','index')}}" class="navbar-brand d-flex w-50 mr-auto">The Hangar</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -80,7 +81,8 @@
     <div class="navbar-collapse collapse w-100" id="navbarNavDropdown">
       <ul class="navbar-nav w-100 ">
         {{for _item in response.menu or []:}}
-        {{if len(_item)<4 or not _item[3]:}} <li class="nav-item {{if _item[1]:}}active{{pass}}">
+        {{if len(_item) < 4 or not _item[3]:}}
+          <li class="nav-item {{if _item[1]:}}active{{pass}}">
           <a class="nav-link" href="{{=_item[2]}}">{{=_item[0]}}</a>
           </li>
           {{else:}}
@@ -130,15 +132,13 @@
       {{pass}}
     </div>
   </nav>
-  <nav class=" navbar navbar-light bg-faded bg-light justify-content-start">
-    <div class="navbar-brand">New:</div>
-    {{for _item in response.menu_buttons or []:}}
+  <!--<nav class=" navbar navbar-light navbar-expand-md bg-faded " style="top:0px;">
+        <div class="d-block w-100">
 
-    <a class=" navbar-nav btn" href="{{=_item[2]}}">{{=_item[3]}}</a>
-
-    {{pass}}
-
-  </nav>
+          Put buttons here, make fixed
+          <button>COmplete</button>
+        </div>
+  </nav>-->
 
   <!-- Masthead ===================================== -->
   {{block header}}

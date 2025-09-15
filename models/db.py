@@ -556,6 +556,7 @@ db.define_table('component',
                 Field('attr_telemetry_port', type='boolean', label='Telemetry Port', comment='This component has a telemetry port'),
                 Field('attr_sbus_port', type='boolean', label='SBUS Port', comment='This component has an SBUS port'),
                 Field('attr_pwr_port', type='boolean', label='Power Port', comment='This component has an power port'),
+                Field('attr_protocol', type='reference protocol', label='Protocol', comment='The radio protocol used by this model'),
                 Field('attr_gear_type', type='string', label='Gear Type', comment='The material the gears are made of'),
                 Field('attr_amps', type='string', label='Rated Amps', comment='The rated amps'),
                 Field('attr_torque', type='string', label="Rated Torque", comment='The rated torque'),
@@ -563,7 +564,7 @@ db.define_table('component',
                 Field('attr_displacement_cc', type='double', label='Displacement (cc)', comment='The engine displacement', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
                 Field('attr_motor_kv', type='string', label='Motor KV', comment='The motor KV rating'),              
                 Field('attr_max_voltage', type='string', label='Max Voltage', comment='The maximum voltage'),
-
+                Field('attr_num_turns', type='integer', label='Number of Turns', comment='The number of rotations'),
                 #
                 format=lambda row: 'Unknown' if row is None else row.name
                 )
@@ -596,20 +597,20 @@ db.component.componenttype.requires = IS_IN_SET((
 
 component_attribs = {
     'Engine': ['attr_displacement_cc'], 
-    'Servo': ['attr_gear_type', 'attr_torque'], 
-    'Receiver': ['attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port','attr_pwr_port'], 
+    'Servo': ['attr_max_voltage','attr_gear_type', 'attr_torque'], 
+    'Receiver': ['attr_max_voltage','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol'], 
     'Motor': ['attr_motor_kv', 'attr_amps','attr_max_voltage'], 
     'ESC': ['attr_amps','attr_max_voltage'], 
     'BEC': ['attr_amps','attr_max_voltage'], 
     'Regulator': ['attr_amps','attr_max_voltage'], 
-    'Flight Controller': ['attr_max_voltage'], 
+    'Flight Controller': ['attr_max_voltage','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol'], 
     'Gyro': ['attr_max_voltage'], 
     'Battery Charger': ['attr_channel_count','attr_amps','attr_max_voltage'], 
-    'Flybarless Controller': ['attr_max_voltage'], 
-    'Electrical': ['attr_max_voltage'], 
+    'Flybarless Controller': ['attr_max_voltage','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol' ], 
+    'Electrical': ['attr_max_voltage', 'attr_amps'], 
     'Switch': ['attr_switch_type','attr_max_voltage'], 
-    'Winch': ['attr_max_voltage'], 
-    'Other': ['attr_max_voltage'],
+    'Winch': ['attr_max_voltage', 'attr_num_turns'], 
+    'Other': ['attr_max_voltage', 'attr_amps'],
     'Retracts': ['attr_max_voltage'],
 }
 

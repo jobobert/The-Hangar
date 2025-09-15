@@ -36,7 +36,7 @@ No Todos
 {{else:}}
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title"><span class="card-icon">{{=show_icon('icons8-checklist-50.png', 25)}}</span>{{=todo_count}} Todos</h5>
+        <h5 class="card-title"><span class="card-icon">{{=controller_icon('todo', 25)}}</span>{{=todo_count}} Todos</h5>
     </div>
     <div class="card-body">
         {{=completeform.custom.begin}}
@@ -47,7 +47,7 @@ No Todos
             <div class="col-sm-9"><a href="{{=URL('todo', 'update.html', args=[todo.id])}}"><span class="{{='todo_critical' if todo.critical == True else ''}}">{{=todo.todo}}</span></a></div>
             <div class="col-sm-3">
                 <!--<a class="btn btn-primary" href="{{=URL('todo','complete',args=[model_id,todo.id])}}">Done</a>-->
-                <button class="btn btn-secondary" type="submit" value="Remove" name="{{=todo.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+                <button class="btn btn-danger" type="submit" value="Remove" name="{{=todo.id}}">{{=action_icon('delete', 16)}}</button>
             </div>
         </div>
         {{pass}}

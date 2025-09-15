@@ -9,7 +9,7 @@
     </div>
     {{if model.radio_config_backedup() == 'No':}}
     <div style="position:absolute; top: 0px; left: 270px; display: inline-block; width:48px; float:right;">
-        {{=show_icon('warning.svg', 32) }}
+        {{=show_icon('action\warning.svg', 32) }}
     </div>
     {{pass}}
 
@@ -27,7 +27,7 @@
         <ul class="nav nav-pills nav-fill model-summary">
             <li class="nav-item">
                 {{=model.get_major_dimension()}}
-                </li>
+            </li>
             <li class="nav-item">
                 {{try:}}
                 {{if model.powerplant:}}
@@ -50,34 +50,32 @@
             {{if model.haveplans:}}<span class="badge badge-info">Plans</span>{{pass}}
             {{if model.havekit:}}<span class="badge badge-dark">Kit</span>{{pass}}
         </div>
-        <p class="card-text">{{=model.description}}</p>
+        <p class="card-text">{{=model.description or ''}}</p>
     </div>
     <div>
         <div class="model_detail_row">
             {{if model.transmitter:}}
             {{try:}}
             <span class="pl-1 pr-1 m-0">
-                {{=show_icon('gamepad.png', 20)}}
-                {{=model.transmitter.nickname}}
+                {{=controller_icon('transmitter', 20)}}
+                {{=model.transmitter.nickname or model.transmitter.name}}
                 {{except:}}
                 {{pass}}
             </span>
             {{pass}}
             {{if model.get_batterycount() > 0:}}
             <span class="pl-1 pr-1 m-0 text-right">
-                {{=show_icon('icons8-low-battery-80.png', 20)}}
+                {{=controller_icon('battery', 20)}}
                 {{=" | ".join(model.get_battery_list())}}
             </span>
             {{pass}}
         </div>
     </div>
     <div class="card-footer">
-        <!--<a class="btn btn-primary" href="{{=URL('model','index',args=model.id,extension='html')}}">Details</a>-->
-        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.open_todos_count()}}</span><span>{{=show_icon('icons8-checklist-50.png', 25)}}</span></div>
-        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.activity.count()}}</span><span>{{=show_icon('icons8-calendar-50.png', 25)}}</span></div>
-        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_attachmentcount()}}</span><span>{{=show_icon('icons8-attach-50.png', 30)}}</span></div>
-        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.componentcount()}}</span><span>{{=show_icon('icons8-gearbox-64.png', 25)}}</span></div>
-        <!--<div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_batterycount()}}</span><span>{{=show_icon('icons8-low-battery-80.png', 30)}}</span></div>-->
+        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.open_todos_count()}}</span><span>{{=controller_icon('todo', 20)}}</span></div>
+        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.activity.count()}}</span><span>{{=controller_icon('activity', 20)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_attachmentcount()}}</span><span>{{=controller_icon('attachment', 20)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.componentcount()}}</span><span>{{=controller_icon('component', 20)}}</span></div>
     </div>
 
 </div>

@@ -2,9 +2,9 @@
     {{=form.custom.begin}}
     <button class="btn button-model-select" type="submit">
         {{if model[0].selected:}}
-        {{=show_icon('checkmark-filled.png', 30)}}
+        {{=action_icon('checked', 30)}}
         {{else:}}
-        {{=show_icon('checkmark-unfilled.png', 30)}}
+        {{=action_icon('unchecked', 30)}}
         {{pass}}
     </button>
     {{=form.custom.end}}

@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title"><span class="card-icon">{{=show_icon('icons8-support-64.png', 25)}}</span>Hardware</h5>
+        <h5 class="card-title"><span class="card-icon">{{=controller_icon('hardware', 25)}}</span>Hardware</h5>
     </div>
     <div class="card-body">
         {{=deleteform.custom.begin}}
@@ -10,10 +10,10 @@
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-8">
-                            ({{=item.quantity}}) {{=item.hardwaretype}} {{=B(item.diameter)}}x{{=B(item.length_mm)}} <div class="d-none d-md-inline-block">for {{=item.purpose}}</div>    
+                        ({{=item.quantity}}) {{=item.hardwaretype}} {{=B(item.diameter)}}x{{=B(item.length_mm)}} <div class="d-none d-md-inline-block">for {{=item.purpose}}</div>
                     </div>
                     <div class="col">
-                        <button class="btn btn-sm btn-secondary d-inline" type="submit" value="Remove" name="{{=item.id}}">{{=show_icon('icons8-waste-50.png', 16)}}</button>
+                        <button class="btn btn-sm btn-danger d-inline" type="submit" value="Remove" name="{{=item.id}}">{{=action_icon('delete', 16)}}</button>
                     </div>
                 </div>
             </li>
