@@ -10,7 +10,7 @@
         <h4>{{=transmitter.nickname}}</h4>
     </div>
     {{pass}}
-    
+
     <div class="row mt-5">
         <div class="col-sm-3">
             {{if transmitter.img:}}
@@ -48,15 +48,17 @@
                     <h5 class="card-title">Associated Models</h5>
                 </div>
                 <div class="card-body">
-                    <ul>
-                        {{if models:}}
+
+                    {{if models:}}
+                    <ul class="list-group">
                         {{for model in models:}}
-                        <li><a href="{{=URL('model', 'index', args=model.id)}}">{{=model.name}}</a></li>
-                        {{pass}}
-                        {{else:}}
-                        No Models
+                        {{=modelListItem(model, img=True)}}
                         {{pass}}
                     </ul>
+                    {{else:}}
+                    No models use this protocol
+                    {{pass}}
+                    
                 </div>
             </div>
         </div>

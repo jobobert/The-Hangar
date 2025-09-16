@@ -129,7 +129,8 @@ def update():
 
     response.title = "Update/Add Activity"
 
-    form = SQLFORM(db.activity, request.args(0), deletable=True, showid=False)
+    form = SQLFORM(db.activity, request.args(0), upload=URL(
+        'default', 'download'), deletable=True, showid=False)
     if form.process().accepted:
         session.flash = "Activity Updated"
         redirect(session.ReturnHere or URL('model', 'index', args=model_id))

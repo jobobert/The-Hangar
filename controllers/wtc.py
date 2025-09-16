@@ -65,7 +65,8 @@ def rendercard():
 def update():
     response.title = 'Add/Update WTC'
 
-    form = SQLFORM(db.wtc, request.args(0), deletable=True, showid=False).process(
+    form = SQLFORM(db.wtc, request.args(0), upload=URL(
+        'default', 'download'), deletable=True, showid=False).process(
         message_onsuccess='WTC %s' % ('updated' if request.args else 'added'))
 
     if form.accepted:

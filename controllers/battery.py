@@ -6,7 +6,7 @@ def index():
     response.title = "Battery: " + battery.name
 
     models = models_and_batteries(
-        db.battery.id == battery_id).select(db.model.id, db.model.name)
+        db.battery.id == battery_id).select(db.model.id, db.model.name, db.model.img)
 
     return dict(battery=battery, models=models)
 
@@ -60,7 +60,8 @@ def update():
 
     response.title = "Add/Update Battery"
 
-    form = SQLFORM(db.battery, request.args(0), deletable=True, showid=False, submit_button='Add').process(
+    form = SQLFORM(db.battery, request.args(0), upload=URL(
+        'default', 'download'), deletable=True, showid=False, submit_button='Add').process(
         message_onsuccess='Document %s' % (
             'updated' if request.args else 'added'),
         next=(URL('battery', 'index', args=request.vars.id, extension="html")))

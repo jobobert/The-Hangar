@@ -34,7 +34,8 @@ def listview():
 def update():
     response.title = "Add/Update Sail Rig"
 
-    form = SQLFORM(db.sailrig, request.args(0), deletable=True, showid=False).process(
+    form = SQLFORM(db.sailrig, request.args(0), upload=URL(
+        'default', 'download'), deletable=True, showid=False).process(
         message_onsuccess='Rig %s' % ('updated' if request.args else 'added'),
         next=(URL('sailrig', 'index', args=request.vars.id, extension='html'))
     )

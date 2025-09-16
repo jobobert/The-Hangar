@@ -78,7 +78,8 @@ def update():
 
     fields = ['model','switch','switchtype','purpose']
 
-    form = SQLFORM(db.switch, switch_id, fields=fields,showid=False, deletable=True)
+    form = SQLFORM(db.switch, switch_id, upload=URL(
+        'default', 'download'), fields=fields,showid=False, deletable=True)
     if form.process().accepted:
         session.flash = "Switch Updated"
     elif form.errors:

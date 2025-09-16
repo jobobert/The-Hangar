@@ -9,7 +9,7 @@ def index():
     component = db(db.component.id == request.args(
         0)).select() or redirect(URL('component', 'listview'))
     models = models_and_components(
-        db.component.id == request.args[0]).select(db.model.id, db.model.name)
+        db.component.id == request.args[0]).select(db.model.id, db.model.name, db.model.img)
     flitetimes = db(db.eflite_time.motor == request.args(0)).select()
 
     modelCount = dict()
@@ -107,8 +107,9 @@ def update():
     #    message_onsuccess='Document %s' % (
     #        'updated' if request.args else 'added'), next=(URL('component', 'index', args=request.vars.id, extension="html")))
 
-    form = SQLFORM(db.component, request.args(0), deletable=True, showid=False).process(
-        message_onsuccess='Document %s' % ('updated' if request.args else 'added'))
+    form = SQLFORM(db.component, request.args(0), upload=URL(
+        'default', 'download'), deletable=True, showid=False).process(
+        message_onsuccess='Document %s' % ('updated' if request.args else 'added')) 
 
     if form.accepted:
         redirect(URL('component', 'index', args=form.vars.id,

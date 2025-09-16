@@ -65,10 +65,15 @@
                 <h5 class="card-title">Associated Models</h5>
             </div>
             <div class="card-body">
-                <ul>
-                    {{for model in modelCount:}}
-                    <li><a href="{{=URL('model', 'index', args=modelIDs[model])}}">{{=model}} ({{=modelCount[model]}})</a></li>
+                <ul class="list-group">
 
+                    {{if modelCount:}}
+                    {{for model in modelCount:}}
+                    {{=modelListItem(modelCount[model], img=False, label=f'{model} ({modelCount[model]})', idOverride=modelIDs[model])}}
+                    {{pass}}
+                    
+                    {{else:}}
+                    No models use this protocol
                     {{pass}}
                 </ul>
             </div>

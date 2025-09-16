@@ -41,7 +41,8 @@ def update():
 
     response.title = 'Add/Update Transmitter'
 
-    form = SQLFORM(db.transmitter, request.args(0), deletable=True, showid=False).process(
+    form = SQLFORM(db.transmitter, request.args(0), upload=URL(
+        'default', 'download'), deletable=True, showid=False).process(
         message_onsuccess='Transmitter %s' % (
             'updated' if request.args else 'added'))
 

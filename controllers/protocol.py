@@ -6,9 +6,11 @@ def index():
     
     protocol = db.protocol(request.args(0)) or redirect(URL('default', 'index'))
 
+    models = db(db.model.protocol == request.args(0)).select()
+
     #response.view = 'content.html'
     
-    return dict(protocol=protocol)
+    return dict(protocol=protocol, models=models)
 
 def listview():
     response.title = 'Protocols'

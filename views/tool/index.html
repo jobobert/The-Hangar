@@ -19,11 +19,15 @@
                 <h5 class="card-title">Associated Models</h5>
             </div>
             <div class="card-body">
-                <ul>
+                {{if models:}}
+                <ul class="list-group">
                     {{for model in models:}}
-                    <li><a href="{{=URL('model', 'index', args=model.id)}}">{{=model.name}}</a></li>
+                    {{=modelListItem(model, img=True)}}
                     {{pass}}
                 </ul>
+                {{else:}}
+                No models use this protocol
+                {{pass}}
             </div>
         </div>
         {{pass}}

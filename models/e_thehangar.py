@@ -263,6 +263,29 @@ def completeButton(controller, action, args, size=24):
 def deleteButton(controller, action, args, size=24 ):
     return _makeButton(action_icon('delete', size), controller, action ,args, 'btn btn-danger')
 
+######################################################
+## LIST ITEM CREATION
+def _makeListItem(controller:str, action:str, args, img:str, label:str=''):
+    parts = []
+    imgsize = '48px'
+
+    if img:
+        parts.append(IMG(_src=URL('default', 'download', args=img), _width=imgsize, _height=imgsize) if img else '')
+    parts.append(' ' + label)
+
+    return LI(A(DIV(parts), _href=URL(controller, action, args=args)), _class='list-group-item')
+
+def modelListItem(model, img:bool, label:str = None, idOverride:int = None):
+    if idOverride:
+        modelID = idOverride
+    else:
+        modelID = model.id
+        
+    if img and model.img:
+        return _makeListItem('model', 'index', modelID, model.img, label or model.name)
+
+    return _makeListItem('model', 'index', modelID, None, label or model.name)
+
 # def markmin_syntax():
 #     html = DIV(
 #         TABLE(

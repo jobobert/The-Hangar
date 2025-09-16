@@ -103,7 +103,8 @@ def update():
 
     response.title = 'Add/Update Todo'
 
-    form = SQLFORM(db.todo, request.args(0), deletable=True, showid=False).process(
+    form = SQLFORM(db.todo, request.args(0), upload=URL(
+        'default', 'download'), deletable=True, showid=False).process(
         message_onsuccess='Document %s' % (
             'updated' if request.args else 'added'),
         next=(URL('todo', 'listview', args=request.vars.id, extension="html"))

@@ -10,7 +10,7 @@ def index():
     ) or redirect(URL('tool', 'listview'))
 
     models = models_and_tools(
-        db.tool.id == tool_id).select(db.model.id, db.model.name)
+        db.tool.id == tool_id).select(db.model.id, db.model.name, db.model.img)
 
     return dict(tools=tools, models=models)
 
@@ -42,7 +42,8 @@ def update():
 
     response.title = 'Add/Update Tool'
 
-    form = SQLFORM(db.tool, request.args(0), deletable=True, showid=False).process(
+    form = SQLFORM(db.tool, request.args(0), upload=URL(
+        'default', 'download'), deletable=True, showid=False).process(
         message_onsuccess='Tool %s' % (
             'updated' if request.args else 'added'))
 

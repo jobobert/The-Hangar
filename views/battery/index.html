@@ -28,9 +28,14 @@
                 <h5 class="card-title">Associated Models</h5>
             </div>
             <div class="card-body">
-                <ul>
+                <ul class="list-group">
+                    {{if models:}}
                     {{for model in models:}}
-                    <li><a href="{{=URL('model', 'index', args=model.id)}}">{{=model.name}}</a></li>
+                    {{=modelListItem(model, img=True)}}
+                    {{pass}}
+
+                    {{else:}}
+                    No models use this protocol
                     {{pass}}
                 </ul>
             </div>

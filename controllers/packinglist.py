@@ -202,7 +202,8 @@ def allitems():
 def updateitem():
     response.title = 'Update Packing Item'
 
-    form = SQLFORM(db.packingitems, request.args(0), deletable=True, showid=False).process(
+    form = SQLFORM(db.packingitems, request.args(0), upload=URL(
+        'default', 'download'), deletable=True, showid=False).process(
         message_onsuccess='Item %s' % (
             'updated' if request.args else 'added'))
 

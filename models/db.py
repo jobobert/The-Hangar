@@ -592,6 +592,9 @@ db.component.attr_height.extra = {'measurement': 'mm'}
 db.component.attr_weight_oz.extra = {'measurement': 'oz'}
 db.component.attr_displacement_cc.extra = {'measurement': 'cc'}
 
+db.component.img.default = os.path.join(
+    request.folder, 'static', 'images', 'defaultUpload.png')
+
 db.component.componenttype.requires = IS_IN_SET((
     'Engine', 'Servo', 'Receiver', 'Motor', 'ESC', 'BEC', 'Regulator', 'Flight Controller', 'Gyro', 'Battery Charger', 'Flybarless Controller', 'Electrical', 'Switch', 'Winch', 'Other', 'Retracts'), sort=True)
 
@@ -710,7 +713,6 @@ db.battery.get_maxamps = Field.Method(
 
 db.battery.chemistry.requires = IS_IN_SET(
     ('LiPo', 'LiFE', 'NiMH', 'NiCad', 'Li-Ion', 'Alkaline'), sort=True)
-db.battery.crating.requires = IS_NOT_EMPTY()
 
 # This dict must contain the same keys as the IS_IN_SET of the chemistry .requires
 chem_volt = {'LiPo': 3.7, 'LiFE': 3.3, 'NiMH': 1.2, 'NiCad': 1.2, 'Li-Ion': 3.7, 'Alkaline': 1.5}

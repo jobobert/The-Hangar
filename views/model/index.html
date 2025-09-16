@@ -36,7 +36,7 @@
         args=model.transmitter))}}</span>
     <span> | </span>
     {{if model.protocol:}}
-    <span>{{=model.protocol.name}}</span>
+    <span>{{=A(model.protocol.name, _href=URL('protocol', 'index', args=model.protocol))}}</span>
     {{else:}}
     <span>Unknown Protocol</span>
     {{pass}}
