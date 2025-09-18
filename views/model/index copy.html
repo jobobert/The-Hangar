@@ -1,0 +1,344 @@
+{{extend 'layout.html'}}
+
+<div class="row ml-2">
+    <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group mb-1 mr-2" role="group">
+            <a class="btn btn-outline-primary" href="{{=URL('model','update',args=model.id,extension='html')}}">Edit</a>
+            {{=LOAD('model','selected.load', args=[model.id], ajax=True, content='...')}}
+        </div>
+        <div class="btn-group mb-1 mr-2" role="group">
+            <a class=" btn btn-outline-secondary" href="{{=URL('activity','modelactivities', args=model.id)}}">Show
+                Events</a>
+            <a class="btn btn-outline-secondary" href="{{=URL('activity', 'addactivity', args=[model.id])}}">Add
+                Event</a>
+        </div>
+        <div class="btn-group mb-1 mr-2" role="group">
+            <a class="btn btn-outline-secondary" href="{{=URL('model', 'addflighttime', args=[model.id])}}">Add Flight
+                Time</a>
+        </div>
+        <div><a class="btn btn-outline-primary" href="{{=URL('model', 'retire', args=[model.id])}}">Retire</a></div>
+        <div><a class="btn btn-outline-primary" href="{{=URL('model', 'export', args=[model.id])}}">Export</a></div>
+        <div><a class="btn btn-outline-primary" href="{{=URL('model', 'exportminimal', args=[model.id])}}">Ex.Min</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3 ml-2 no-print">
+    <div class=" col-sm-12">
+        {{=LOAD('model','flowchart.load', args=[model.id], ajax=True, content='Loading Flowchart..')}}
+    </div>
+</div>
+
+{{if model.transmitter:}}
+<div class="row mb-2 ml-2 model_transmitter">
+    <span>{{=controller_icon('transmitter', 20)}}</span>
+    <span>{{=A(model.transmitter.nickname or model.transmitter.name, _href=URL('transmitter', 'index',
+        args=model.transmitter))}}</span>
+    <span> | </span>
+    {{if model.protocol:}}
+    <span>{{=A(model.protocol.name, _href=URL('protocol', 'index', args=model.protocol))}}</span>
+    {{else:}}
+    <span>Unknown Protocol</span>
+    {{pass}}
+    <span> | </span>
+    {{if model.radio_config_backedup() == 'Yes':}}
+    <span>{{=A('Download Config', _href=URL('default', 'download', args=model.configbackup))}}</span>
+    <span> | </span>
+    <span>{{=A('Delete Config', _class='delete', data={'confirm': 'Are you sure to delete this item?'},
+        _href=URL('model','deleteconfig', args=model.id))}}</span>
+
+    {{else:}}
+    <span>No Save!</span>
+    {{pass}}
+</div>
+{{pass}}
+
+<div class="row mb-0 ml-2">
+    <div class="modelstate_bg_{{=model.modelstate}} col-sm-4">
+        {{try:}}{{=model.modelstate.name}}{{ except:}} Unknown{{pass}}
+    </div>
+    <div class="col-sm-6">
+        {{if model.subjecttype:}}
+        <span class="badge badge-pill badge-secondary">{{=model.subjecttype}}</span>
+        {{pass}}
+        <span class="badge badge-pill badge-info">{{try:}}{{=model.modeltype}}{{ except:}} Unknown Type
+            {{pass}}</span>
+        <span class="badge badge-pill badge-secondary">{{try:}}{{=model.controltype}}{{ except:}} Unknown Control
+            {{pass}}</span>
+        <span class="badge badge-pill badge-info">{{try:}}{{=model.modelorigin}}{{ except:}} Unknown Type
+            {{pass}}</span>
+        {{if model.haveplans:}}
+        <span class="badge badge-pill badge-danger">Plans Available</span>
+        {{pass}}
+    </div>
+</div>
+<div class="row mb-3 ml-2">
+    <div class="col-12 col-md-7">
+        <h1 class="display-4">{{=model.name}}</h1>
+        <p class="lead">{{=model.description}}</p>
+    </div>
+
+    <div class="col-12 col-md-5">
+        <img class="card-img-top" src="{{=URL('default', 'download', args=model.img)}}" alt="Card image cap">
+    </div>
+</div>
+
+<div class="row mb-3 ml-2">
+
+    <div class=" col-sm-6">
+        {{=LOAD('activity','rendernotes.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')),"Notes"))}}
+    </div>
+    <div class=" col-sm-6">
+        {{=LOAD('todo', 'rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')),"Todos"))}}
+    </div>
+</div>
+
+<div class="row mb-3 ml-2">
+    <div class="col-sm-6">
+        {{=LOAD('switch', 'renderswitches.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')),"Switches"))}}
+    </div>
+    <div class="col-sm-6">
+        {{=LOAD('model', 'renderhardware.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')),"Hardware"))}}
+    </div>
+</div>
+
+<div class="row mb-3 ml-2">
+    <div class=" col-sm-8">
+        <div class="card shadow  mb-3  rounded">
+            <div class="card-header">
+                <h5 class="card-title" style="display: inline-block;">Details</h5>
+                <a href="#" data-toggle="modal" data-target="#modal_details" class="card-link th-new-link">Edit</a>
+            </div>
+            <div class="card-body content hideContent" id="model-details">
+                {{=MARKMIN(model.notes)}}
+            </div>
+            <div class="show-more">
+                <a href="" onclick="return false;">Show More</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Attributes</h5>
+            </div>
+            <div class="card-body attribute-list">
+                <dl>
+                    <dt>Have Plan:</dt>
+                    <dd>{{=model.haveplans}}</dd>
+                    <dt>Have Kit/Model:</dt>
+                    <dd>{{=model.havekit}}</dd>
+                    {{for key in sorted(model.__dict__):}}
+                    {{if key.startswith('attr_') and model[key] and not key.startswith('attr_boat_rig_'):}}
+                    {{c=''}}
+
+                    {{if key.startswith('attr_plane_') and model.modeltype != 'Airplane' :}}
+                    {{c="model_attr_light"}}
+                    {{elif key.startswith('attr_rocket_') and model.modeltype != 'Rocket':}}
+                    {{c="model_attr_light"}}
+                    {{elif key.startswith('attr_boat_') and model.modeltype != 'Boat':}}
+                    {{if model.modeltype != 'Submarine':}}
+                    {{c="model_attr_light"}}
+                    {{pass}}
+                    {{elif key.startswith('attr_sub_') and model.modeltype != 'Submarine':}}
+                    {{=c="model_attr_light"}}
+                    {{elif key.startswith('attr_copter_') and model.modeltype != 'Helicopter':}}
+                    {{if model.modeltype != 'Autogyro' :}}
+                    {{c="model_attr_light"}}
+                    {{pass}}
+                    {{elif key.startswith('attr_multi_') and model.modeltype != 'Multirotor' :}}
+                    {{c="model_attr_light"}}
+                    {{elif key.startswith('attr_robot_') and model.modeltype != 'Robot' :}}
+                    {{c="model_attr_light"}}
+                    {{elif key.startswith('attr_experimental_') and model.modeltype != 'Experimental' :}}
+                    {{c="model_attr_light"}}
+                    {{else:}}
+                    {{c=''}}
+                    {{pass}}
+                    <dt class="{{=c}}">{{=getattr(db.model, key).label}}</dt>
+                    <dd class="{{=c}}">
+                        {{if getattr(db.model, key).type == 'double':}}
+                        {{=TwoDecimal(model[key])}} {{=ConvertMeasurementField(db.model, model, key)}}
+                        {{else:}}
+                        {{=model[key]}}
+                        {{pass}}
+                    </dd>
+                    {{pass}}
+                    {{pass}}
+                </dl>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row mb-3 ml-2">
+    <div class=" col-sm-6">
+        {{=LOAD('model','renderflighttimes.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')),"Flight Times"))}}
+    </div>
+    <div class=" col-sm-6">
+        {{=LOAD('attachment','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')),"Attachments"))}}
+    </div>
+</div>
+
+<div class="row mb-3 ml-2">
+    <div class="col-sm-6">
+        {{=LOAD('component','rendercard.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True,
+        content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Components"))}}
+    </div>
+    <div class="col-sm-6">
+        {{=LOAD('wtc','rendercard.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True,
+        content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Water Tight Cylinder"))}}
+    </div>
+</div>
+
+<div class="row mb-3 ml-2">
+    <div class=" col-sm-6">
+        {{=LOAD('tool','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')),"Tools"))}}
+    </div>
+
+    <div class=" col-sm-6">
+        {{=LOAD('supportitem','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')),"Support Items"))}}
+    </div>
+</div>
+<div class="row mb-3 ml-2">
+
+    <div class=" col-sm-6">
+        {{=LOAD('battery','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')), "Batteries"))}}
+    </div>
+    <div class=" col-sm-6">
+        {{=LOAD('propeller','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')),"Propellers"))}}
+    </div>
+</div>
+
+<div class="row mb-3 ml-2">
+    <div class=" col-sm-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title" style="display: inline-block;">
+                    <span class="card-icon">{{=attribute_icon('rotor', 25)}}</span>
+                    Rotors
+                </h5>
+            </div>
+            <div class="card-body">
+                {{if model.attr_multi_rotor_count and model.attr_multi_rotor_count > 0:}}
+                <b>{{=model.attr_multi_rotor_count}}</b> Main Rotor(s) with <b>{{=model.attr_copter_blade_count}}</b>
+                blade(s) of <b>{{=model.attr_copter_mainrotor_length}}</b>mm length<br />
+                <b>1</b> Tail Rotor with <b>{{=model.attr_copter_tailrotor_blade_count}}</b> blade(s) of
+                <b>{{=model.attr_copter_tailrotor_span}}</b>mm length
+                {{else:}}
+                No rotors on this model
+                {{pass}}
+            </div>
+        </div>
+    </div>
+
+    <div class=" col-sm-6">
+        {{=LOAD('sailrig','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')), "Sail Rigs"))}}
+    </div>
+
+</div>
+
+{{if model.fieldnotes:}}
+<div class="row mb-3 ml-2">
+    <div class="col-12">
+        <div class="card shadow mb-3 rounded">
+            <div class="card-header">
+                <h5 class="card-title" style="display:inline-block">Field Notes</h5>
+            </div>
+            <div class="card-body">
+                {{=MARKMIN(model.fieldnotes)}}
+            </div>
+        </div>
+
+    </div>
+</div>
+{{pass}}
+
+<div class="row mb-3 ml-2">
+    <div class="col-sm-12">
+        {{=LOAD('diagram','rendermodeldiagram.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')), "Wiring Diagram"))}}
+    </div>
+</div>
+
+<div class="row mb-3 ml-2">
+    <div class="col-sm-12">
+        {{=LOAD('activity', 'rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+        'images/waiting.gif')), "Activities"))}}
+    </div>
+</div>
+
+<div class="row mt-5 mb-5 ml-2">
+    <a class="btn btn-primary" href="{{=URL('model','update',args=model.id,extension='html')}}">Edit</a>
+</div>
+
+<div class="modal fade" id="modal_details" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_details_title">Details</h5>
+            </div>
+            <div class="modal-body">
+                {{=details_form}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- https://stackoverflow.com/questions/12307666/how-to-create-a-show-more-button-and-specify-how-many-lines-of-text-can-be-ini-->
+<script type="text/javascript">
+    $(".show-more a").on("click", function () {
+        var $this = $(this);
+        var $content = $this.parent().prev("div.content");
+        var linkText = $this.text().toUpperCase();
+
+        if (linkText === "SHOW MORE") {
+            linkText = "Show less";
+            //$content.switchClass("hideContent", "showContent", 400);
+            $content.addClass("showContent")
+            $content.removeClass("hideContent");
+        } else {
+            linkText = "Show more";
+            //$content.switchClass("showContent", "hideContent", 400);
+            $content.removeClass("showContent")
+            $content.addClass("hideContent");
+        };
+
+        $this.text(linkText);
+    })
+
+    const container = document.querySelector("#model-details");
+    var detailLinks = container.querySelectorAll("a");
+    for (var i = 0; i < detailLinks.length; i++) {
+        detailLinks[i].target = "_blank";
+    }
+
+    var deleteLinks = document.querySelectorAll('.delete');
+    for (var i = 0; i < deleteLinks.length; i++) {
+        deleteLinks[i].addEventListener('click', function (event) {
+            event.preventDefault();
+
+            var choice = confirm(this.getAttribute('data-confirm'));
+
+            if (choice) {
+                window.location.href = this.getAttribute('href');
+            }
+        });
+    }
+</script>
