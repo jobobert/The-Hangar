@@ -992,7 +992,10 @@ def ConvertMeasurementField(table, row, FieldName, seperator=" | "):
         case 'mm':
             return seperator + str(TwoDecimal((row[FieldName] or 0) / 25.4)) + " in"
         case 'oz':
-            return seperator + str(TwoDecimal((row[FieldName] or 0) / 16)) + " lbs"
+            if row[FieldName] >= 16:
+                return seperator + str(TwoDecimal((row[FieldName] or 0) / 16)) + " lbs"
+            else:
+                return seperator + str(TwoDecimal((row[FieldName] or 0) * 23.85)) + " g"
         case 'dm2':
             return seperator + str(TwoDecimal((row[FieldName] or 0) / 9.29)) + " sqin"
         case 'sqin':
