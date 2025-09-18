@@ -92,6 +92,9 @@ def rendercard():
         s['_autocomplete'] = 'off'
     if newform.process(session=None, formname='newbattery').accepted:
         db.model_battery.insert(model=model_id, battery=newform.vars.id)
+        redirect(request.env.http_web2py_component_location, client_side=True)
+    elif newform.errors:
+        response.flash = "Error Creating New Battery"
 
     del_id = 0
     deleteform = SQLFORM.factory()

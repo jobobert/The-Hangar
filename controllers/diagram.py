@@ -1,7 +1,12 @@
 def rendermodeldiagram():
+    if len(request.args) == 2:
+        is_mobile = request.args[1]
+    else:
+        is_mobile = False 
+
     model = db.model(request.args(0)) 
 
-    return dict(dot=model.diagram, model_id=model.id,options=request.args(1))
+    return dict(dot=model.diagram, model_id=model.id,options=request.args(1),is_mobile=is_mobile)
 
 def rendermodelexport():
     model = db.model(request.args(0)) 

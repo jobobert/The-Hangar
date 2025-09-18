@@ -8,7 +8,7 @@
             <div class="row  border-top mt-1 mb-1 pt-1">
                 <div class="col-sm-9"><a href="{{=URL('supportitem', 'index.html', args=[item.id])}}">{{=item.item}}</a></div>
                 <div class="col-sm-3">
-                    <button class="btn btn-warning" type="submit" value="Remove" name="{{=item.id}}" >{{=action_icon('delete', 16)}}</button>
+                    <button class="btn btn-danger" type="submit" value="Remove" name="{{=item.id}}" >{{=action_icon('delete', 16)}}</button>
                 </div>
             </div>
         {{pass}}

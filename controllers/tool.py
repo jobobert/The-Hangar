@@ -80,6 +80,9 @@ def rendercard():
     if newform.process(session=None, formname='newtool').accepted:
         # add to model_tool
         db.model_tool.insert(model=model_id, tool=newform.vars.id)
+        redirect(request.env.http_web2py_component_location, client_side=True)
+    elif newform.errors:
+        response.flash = "Error Creating New Tool"
 
     del_id = 0
     deleteform = SQLFORM.factory()

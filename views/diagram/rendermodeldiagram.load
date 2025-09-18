@@ -18,7 +18,9 @@
 
 
         <div class="card-body">
-            <div id="graph-container" style=""></div>
+            {{if not is_mobile:}}
+            <div id="graph-container" class="col"></div>
+            {{pass}}
         </div>
 
     </div>
