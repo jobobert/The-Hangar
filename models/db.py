@@ -729,7 +729,8 @@ db.battery.name.label = 'Name'
 
 db.define_table('model_battery', 
                 Field('model', 'reference model'), 
-                Field('battery', 'reference battery')
+                Field('battery', 'reference battery'),
+                Field('quantity', type='integer', label='Num required', default=1)
                 )
 db.model_battery.battery.requires = IS_IN_DB(
     db, 'battery.id', label=db.battery._format, sort=True)

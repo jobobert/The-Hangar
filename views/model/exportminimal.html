@@ -113,16 +113,12 @@
 <h2>Components</h2>
 {{if components:}}
 {{for component in components:}}
-<table class="table export-table">
+<table class="table export-table border-left">
     <tr class="row export-row">
-        <th class="col export-field_name">
-            <img width="200px" class=" export-image-sm"
-                src="{{=URL('default', 'download', args=components[component]['img'])}}" alt="Component Image">
-        </th>
         <td class="col">
             <table class="table export-table">
                 <tr class="row export-row">
-                    <th class="col export-field_name" colspan="2">{{=component}}</th>
+                    <th class="col export-field_name" colspan="2">{{=H4(component)}}</th>
                 </tr>
                 <tr class="row export-row">
                     <th class="col export-field_name">{{=getattr(db.component,'componenttype').label}}</th>
@@ -133,7 +129,7 @@
     </tr>
     <tr class="row export-row">
         <td class="col export-field_value">
-            <ul>
+            <ul class="ml-3">
                 {{for u in components[component]['uses']:}}
                 <li>
                     {{if u['purpose']:}}
@@ -164,14 +160,6 @@
 
     <tr class="row export-row">
         <th class="col export-field_name">{{=tool.tool.name}}</th>
-        <th class="col export-field_name">
-            {{if tool.tool.img:}}
-            <img width="200px" class=" export-image-sm" src="{{=URL('default', 'download', args=tool.tool.img)}}"
-                alt="Card image cap">
-            {{else:}}
-            &nbsp;
-            {{pass}}
-        </th>
         <td class="col export-field_value">{{=tool.tool.tooltype}}</td>
         <td class="col export-field_value">
             {{if tool.tool.attachment:}}
@@ -196,7 +184,7 @@
 {{for battery in batteries:}}
 <table class="table export-table">
     <tr class="row export-row">
-        <th class="col export-field_name">{{=battery.battery.name}}</th>
+        <th class="col export-field_name">{{=battery.quantity}} of {{=battery.battery.name}}</th>
     </tr>
 </table>
 {{pass}}

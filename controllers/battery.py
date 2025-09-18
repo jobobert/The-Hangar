@@ -78,7 +78,7 @@ def rendercard():
     # session.forget(response)
     model_id = request.args[0]
 
-    fields = ['battery']
+    fields = ['battery', 'quantity']
     addform = SQLFORM(db.model_battery, fields=fields,
                       formstyle='bootstrap4_inline', submit_button='Add')
     addform.vars.model = model_id
