@@ -15,13 +15,21 @@
                 <div>{{=mt.quantity or 0}} / {{=mt.battery.ownedcount}}</div>
             </div>
             <div class="col mt-2">
+                {{=editButton('model', 'updatemodelbattery.html', mt.id)}}
                 <button class="btn btn-danger" type="submit" value="Remove" name="{{=mt.id}}">{{=action_icon('delete', 16)}}</button>
             </div>
         </div>
         {{pass}}
         {{=deleteform.custom.end}}
 
-        {{=addform}}
+        {{=addform.custom.begin}}
+
+        <div class="row">
+            <div class="col-5">{{=addform.custom.widget.battery}}</div>
+            <div class="col-2">{{=addform.custom.widget.quantity}}</div>
+            <div class="col-3">{{=addform.custom.submit}}</div>
+        </div>
+        {{=addform.custom.end}}
     </div>
 </div>
 <div class="modal fade" id="modal_newbattery" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">

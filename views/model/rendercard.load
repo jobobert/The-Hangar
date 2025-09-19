@@ -9,7 +9,7 @@
     </div>
     {{if model.radio_config_backedup() == 'No':}}
     <div style="position:absolute; top: 0px; left: 270px; display: inline-block; width:48px; float:right;">
-        {{=show_icon('action\warning.svg', 32) }}
+        {{=action_icon('warning', 32) }}
     </div>
     {{pass}}
 

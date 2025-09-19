@@ -604,3 +604,19 @@ def renderhardware():
     hardware = db(db.hardware.model == model_id).select()
 
     return dict(hardware=hardware, addform=addform, deleteform=deleteform)
+
+
+def updatemodelbattery():
+    response.title = "Update Model/Battery"
+
+    model_battery_id = request.args(0)
+
+    form = SQLFORM(db.model_battery, model_battery_id, formstyle='bootstrap4_inline', showid=False, submit_button='Submit')
+
+    if form.process(session=None).accepted:
+        session.flash = "Model/Battery Updated"
+        redirect(session.ReturnHere or URL('default', 'index'))
+
+    response.view = 'content.html'
+
+    return dict(content=form, header=response.title)
