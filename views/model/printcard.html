@@ -1,0 +1,3 @@
+{{extend 'layout.html'}}
+
+{{=LOAD('model','renderpackinglistcard.load', args=model_id, ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif'))))}}
