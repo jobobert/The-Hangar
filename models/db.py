@@ -477,23 +477,18 @@ db.model.img.default = os.path.join(
 db.model.attr_covering.widget = SQLFORM.widgets.autocomplete(
     request, db.model.attr_covering, limitby=(0, 10), min_length=2, distinct=True)
 
-# def Model_ConvertMeasurementField(model, FieldName):
-#     if not hasattr(db.model[FieldName], "extra"):
-#         return ""
-
-#     match getattr(db.model, FieldName).extra['measurement']:
-#         case 'mm':
-#             return str(TwoDecimal((model[FieldName] or 0) / 25.4)) + " in"
-#         case 'oz':
-#             return str(TwoDecimal((model[FieldName] or 0) / 16)) + " lbs"
-#         case 'dm2':
-#             return str(TwoDecimal((model[FieldName] or 0) / 9.29)) + " sqin"
-#         case 'sqin':
-#             return str(TwoDecimal((model[FieldName] or 0) * 9.29)) + "dm2"
-#         case _:
-#             return ""
-
-
+modeltype_controller_mapping = {
+    'Airplane' : ['propeller'] ,
+    'Rocket' : [], 
+    'Boat' : ['propeller', 'sailrig'], 
+    'Helicopter' : ['rotor'], 
+    'Multirotor' : ['rotor'], 
+    'Robot' : [], 
+    'Experimental' : ['propller', 'rotor', 'wtc', 'sailrig'], 
+    'Car' : [], 
+    'Autogyro' : ['propller', 'rotor'] ,
+    'Submarine' : ['propeller', 'wtc']
+}
 
 ###############################################
 ## TODO

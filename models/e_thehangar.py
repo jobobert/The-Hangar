@@ -4,31 +4,6 @@ from typing import Literal
 
 ########################################
 ## ICON HANDLING
-# app_table_metadata = {
-#     'model': {'icon': 'plane.png', 'title': 'Model', 
-#         'listaction': 'listview', 'newaction': 'update', 'updateaction': 'update'},
-#     'component': {'icon': 'icons8-gearbox-64.png', 'title': 'Component', 
-#         'listaction': 'listview', 'newaction': 'update', 'updateaction': 'update'}
-        
-#         }
-# metatypes = Literal['iconname', 'title', 'icon', 'listurl', 'newurl', 'updateurl']
-# def get_table_meta(tablename: str, meta: metatypes, size: int =0) -> str:
-#     if meta not in metatypes: return None
-#     if tablename not in app_table_metadata: return None
-#     if meta not in app_table_metadata[tablename]: return None
-#     if meta == 'icon' and size == 0: return None
-    
-#     size = str(size) + 'px'
-#     info = app_table_meta[tablename]
-    
-#     if meta.endswith('url'):
-#         return URL(tablename, info[meta])
-
-#     match meta:
-#         case 'iconname' | 'title':
-#             return info[meta]
-#         case 'icon':
-#             return IMG(_src=URL('static', f'icons/{info["icon"]}'), _width=size, _height=size)
 
 def controller_icon(controller:str, size: int):
     folder = 'controller/'

@@ -106,13 +106,22 @@ def rendercard():
 
     return dict(model=model)
 
+def printcard():
+    model_id = request.args(0)
+
+    return dict(model_id=model_id)
 
 def renderpackinglistcard():
-    model = db.model(request.args(0)) or None
-    batteries = db(db.model_battery.model == request.args(0)).select()
-    hardware = db(db.hardware.model == request.args(0)).select()
+    model_id = request.args(0)
+    model = db.model(model_id) or None
+    batteries = db(db.model_battery.model == model_id).select()
+    hardware = db(db.hardware.model == model_id).select()
+    tools = db(db.model_tool.model == model_id).select()
+    support_items = db(db.supportitem.model == model_id).select()
+    propellers = db(db.propeller.model == model_id).select()
+    rigs = model.get_sailrig_list()
 
-    return dict(model=model, batteries=batteries, hardware=hardware)
+    return dict(model=model, batteries=batteries, hardware=hardware, tools=tools, support_items=support_items, propellers=propellers, rigs=rigs)
 
 
 def renderhass():

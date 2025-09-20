@@ -1,59 +1,138 @@
 <script src="{{=URL('static','js/qrcode.min.js')}}"></script>
 
 <div class="card model-card-pl mb-2 test">
-    <div class="row">
+    <div class="row mb-2">
         <div class="col-12">
             <h3>{{=model.name}}</h3>
         </div>
     </div>
-    <div class="row">
-        <div class="col-6">
+
+    <div class="row  mb-2">
+        <div class="col-4 ">
             {{if model.transmitter:}}
-            <h5 class="ml-3">Transmitter</h5>
-            <div class="ml-5">
-                {{=model.transmitter.nickname}}</div>
+            <h5 class="">Transmitter</h5>
+            <div class="ml-2">
+                {{=model.transmitter.nickname}}
+            </div>
             {{pass}}
 
-            <h5 class="ml-3">Batteries</h5>
+            <h5 class="">Batteries</h5>
             {{if batteries:}}
             {{for battery in batteries:}}
-            <div class="ml-5">{{=battery.battery.name}}</div>
+            <div class="ml-2">({{=battery.quantity}}) {{=battery.battery.name}}</div>
             {{pass}}
             {{else:}}
-            <div class="ml-5">No Batteries</div>
+            <div class="ml-2">No Batteries</div>
             {{pass}}
         </div>
-        <div class="col-6" id="qrcode-{{=model.id}}">
-            <div id="qrcode"></div>
-
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <h5 class="ml-3">Switches</h5>
-            <div class="ml-5">{{=LOAD('switch', 'renderswitches.load', args=[model.id, True], ajax=True, content='Getting Details...' )}}</div>
-        </div>
-    </div>
-    {{if hardware:}}
-    <div class="row">
-        <div class="12">
-            <h5 class="ml-3">Hardware</h5>
-            {{for hw in hardware:}}
-            <div class="ml-5">
-                <div>
-                    ({{=hw.quantity}}) {{=hw.hardwaretype}} {{=B(hw.diameter)}}x{{=B(hw.length_mm)}} <div class="d-none d-md-inline-block">for {{=hw.purpose}}</div>
-                </div>
+        <div class="col-6 ">
+            {{if model.fieldnotes:}}
+            <div class="row">
+                <h5 class="ml-3">Field Notes</h5>
+            </div>
+            <div class="row">
+                <div class="ml-5">{{=model.fieldnotes}}</div>
             </div>
             {{pass}}
         </div>
+        <div class="col-2 " id="qrcode-{{=model.id}}">
+            <div id="qrcode" class=""></div>
+        </div>
     </div>
-    {{pass}}
-    {{if model.fieldnotes:}}
-    <div class="row">
-        <h5 class="ml-3">Field Notes</h5>
-        <div class="ml-5">{{=model.fieldnotes}}</div>
+
+    <div class="row  mb-2">
+        <div class="col-5 ">
+            <h5 class="">Switches</h5>
+            <div class="ml-2">{{=LOAD('switch', 'renderswitches.load', args=[model.id, True], ajax=True, content='Getting Details...' )}}</div>
+        </div>
+
+        <div class="col-7 ">
+            <div class="row mb-2">
+                {{if hardware:}}
+                <div class="col-8">
+                    <h5 class="">Hardware</h5>
+                    {{for hw in hardware:}}
+                    <div class="ml-2">
+                        <div>
+                            ({{=hw.quantity}}) {{=B(hw.diameter)}}x{{=B(hw.length_mm)}} {{=hw.hardwaretype}}
+                            <div class="d-none d-md-inline-block">for {{=hw.purpose}}</div>
+                        </div>
+                    </div>
+                    {{pass}}
+                </div>
+                {{pass}}
+
+                {{if propellers:}}
+                <div class="col-4">
+                    <h5 class="">Propellers</h5>
+                    {{for item in propellers:}}
+                    <div class="ml-2">
+                        <div>
+                            {{=item.item}}
+                        </div>
+                    </div>
+                    {{pass}}
+                </div>
+                {{pass}}
+
+
+                {{if model.attr_multi_rotor_count and model.attr_multi_rotor_count > 0:}}
+                <div class="col-4">
+                    <h5 class="">Rotors</h5>
+                    <div class="ml-2">
+                    <div><b>({{=model.attr_multi_rotor_count * model.attr_copter_blade_count}})</b> {{=model.attr_copter_mainrotor_length}}mm main rotors</div>
+                    <div><b>({{=model.attr_copter_tailrotor_blade_count}}) </b> {{=model.attr_copter_tailrotor_span}}</b>mm tail rotors</div>
+                
+                </div>
+            </div>
+                {{pass}}
+
+                {{if rigs:}}
+                <div class="col-4">
+                    <h5 class="">Sail Rigs</h5>
+                    {{for rig in rigs:}}
+                    <div class="ml-2">
+                        <div>
+                            {{=rig}}
+                        </div>
+                    </div>
+                    {{pass}}
+                </div>
+                {{pass}}
+
+            </div>
+            <div class="row mb-2">
+                {{if tools:}}
+                <div class="col-4">
+                    <h5 class="">Tools</h5>
+                    {{for tool in tools:}}
+                    <div class="ml-2">
+                        <div>
+                            {{=tool.tool.name}}
+                        </div>
+                    </div>
+                    {{pass}}
+                </div>
+                {{pass}}
+
+                {{if support_items:}}
+                <div class="col-4">
+                    <h5 class="">Support Items</h5>
+                    {{for item in support_items:}}
+                    <div class="ml-2">
+                        <div>
+                            {{=item.item}}
+                        </div>
+                    </div>
+                    {{pass}}
+                </div>
+                {{pass}}
+
+
+            </div>
+        </div>
     </div>
-    {{pass}}
+
 </div>
 
 
