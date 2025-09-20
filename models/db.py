@@ -975,7 +975,7 @@ def AttachPopup(attachment):
             '_data-target': '#mainModal',
             '_data-whatever': '<img class="card-img-top" src=' + URL("default", "download", args=attachment) + '>'
         }
-        return A(show_icon("OpenTab.png", 16), **attributes)
+        return A(action_icon("OpenTab", 16), **attributes)
     else:
         return ""
 
