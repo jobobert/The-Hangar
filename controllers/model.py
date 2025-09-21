@@ -100,7 +100,6 @@ def exportminimal():
 
     return dict(model=model, todos=todos, components=c, tools=tools, batteries=batteries, propellers=propellers, supportitems=supportitems, flighttimes=flighttimes, attachments=attachments)
 
-
 def rendercard():
     model = db.model(request.args(0)) or None
 
@@ -122,7 +121,6 @@ def renderpackinglistcard():
     rigs = model.get_sailrig_list()
 
     return dict(model=model, batteries=batteries, hardware=hardware, tools=tools, support_items=support_items, propellers=propellers, rigs=rigs)
-
 
 def renderhass():
     model = db.model(request.args(0)) or None
@@ -167,7 +165,6 @@ def renderhass():
 
     # return dict(model=model)
 
-
 def renderstatecounts():
     # (response)
 
@@ -175,7 +172,6 @@ def renderstatecounts():
                                  db.model.id.count(), groupby=db.model.modelstate)
 
     return dict(counts=counts, options=request.args(0))
-
 
 def renderdashboard():
 
@@ -220,7 +216,6 @@ def renderdashboard():
 
     return dict(model=model, details_form=details_form, note_form=note_form, options=opts)
 
-
 def listview():
     response.title = 'Model List'
     session.ReturnHere = URL(
@@ -255,7 +250,6 @@ def listview():
     #response.view = 'content.html'
     return dict(content=models, active=active)
 
- 
 def update():
 
     response.title = 'Add/Update Model'
@@ -284,7 +278,6 @@ def update():
 
     return dict(form=form)
 
-
 def addnote():
     # Add the note and return. Use GET for the text
     pass
@@ -298,7 +291,6 @@ def deleteconfig():
     delete_file(row, 'configbackup')
 
     return redirect(session.ReturnHere or URL('model', 'index.html', args=model_id))
-
 
 def updatestate():
     # session.forget(response)
@@ -322,7 +314,6 @@ def updatestate():
     )
 
     return redirect(session.ReturnHere or URL('model', 'index.html', args=model_id))
-
 
 @mobilize
 def flowchart():

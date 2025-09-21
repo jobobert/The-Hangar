@@ -6,6 +6,13 @@ def index():
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
+    addform = SQLFORM(db.model_component, fields=["model", "purpose", "channel"], showid=False, comments=False)
+    addform.vars.component = request.args[0]
+    if addform.process(session=None, formname="addtomodel").accepted:
+        response.flash = "Added to Model"
+    elif addform.errors:
+        response.flash = "Error Adding to Model"
+
     component = db(db.component.id == request.args(
         0)).select() or redirect(URL('component', 'listview'))
     models = models_and_components(
@@ -22,10 +29,11 @@ def index():
     for m in models:
         modelIDs[m.name] = m.id
 
+    
+
     response.title = "Component: " + component[0].name
 
-    return dict(component=component, flitetimes=flitetimes, modelCount=modelCount, modelIDs=modelIDs)
-
+    return dict(component=component, flitetimes=flitetimes, modelCount=modelCount, modelIDs=modelIDs, addform=addform)
 
 def listview():
     
@@ -52,8 +60,13 @@ def listview():
     if request.vars['c'] in types:
         requestedtype = request.vars['c']
         active = request.vars['c']
-        fields = (db.component.img, db.component.name,
-                  db.component.significantdetail, db.component.ownedcount)
+        fields = [db.component.img, db.component.name,
+                  db.component.significantdetail]
+
+        for attrib in component_attribs[requestedtype]:
+            fields.append(db.component[attrib])
+
+        fields.append(db.component.ownedcount)
 
         links = [
             dict(header='In Use', body=lambda row: DIV(row.get_usedcount(), _class='text-center')), 

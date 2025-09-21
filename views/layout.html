@@ -148,7 +148,7 @@
 
   <div class="container-fluid">
 
-    <div class="breakcrumb">
+    <div class="breakcrumb d-print-none">
       {{if session.ReturnHere != URL(args=request.args, vars=request.get_vars, host=True):}}
       <a href="{{=session.ReturnHere}}">&lt;- Go Back</a>
       {{pass}}

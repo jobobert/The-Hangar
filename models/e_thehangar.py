@@ -97,7 +97,7 @@ def show_icon(iconname:str, size:int=0, alt:str="icon"):
     thename = 'icons/' + iconname
 
     if not os.path.exists(os.path.join(request.folder, 'static', thename)):
-        thename = 'icons/default.png'
+        thename = 'icons/nopicture.png'
         return iconname
 
     if size > 0:
