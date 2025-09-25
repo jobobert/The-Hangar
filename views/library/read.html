@@ -17,6 +17,12 @@
         <div class="col-sm-6 ">{{=B("Source:")}} {{=article.articlesource}}</div>
     </div>
 
+    {{if article.tags:}}
+    <div class="row library-header pl-2">
+        {{=makeTagList(article.tags, "pl-2")}}
+    </div>
+    {{pass}}
+
     {{if article.attachment:}}
     <div class="row library-header p-2">
         <div class="col-sm-12">
@@ -24,9 +30,9 @@
                 <a href="{{=URL('default', 'download', args=article.attachment)}}">
                     {{try:}}
                     {{=filetype_icon(article.attachment, 32) }}
-                    
+
                     {{(filename, file) = db.article.attachment.retrieve(article.attachment)}}
-                    
+
                     {{=filename}}
                     {{except Exception as e:}}
                     Error getting the attachment
@@ -45,30 +51,30 @@
         </div>
     </div>
     {{pass}}
-    
+
     <div class="row pt-5">
         <div class="col-sm-12">
             {{if article.notes:}}
-                {{=MARKMIN(article.notes)}}
+            {{=MARKMIN(article.notes)}}
             {{else:}}
-                <h2>No content found, edit now</h2>
+            <h2>No content found, edit now</h2>
             {{pass}}
         </div>
     </div>
 
     <div class="row">
-        
+
         {{if isimage(article.attachment):}}
-        <img class="img-thumbnail rounded" 
-            src="{{=URL('default', 'download', args=article.attachment)}}" alt="Attachment" />
+        <img class="img-thumbnail rounded"
+             src="{{=URL('default', 'download', args=article.attachment)}}" alt="Attachment" />
         {{elif ispdf(article.attachment):}}
         <iframe src="http://docs.google.com/gview?url={{=URL('default', 'download', args=article.attachment, scheme=True, host=True)}}&embedded=true" frameborder="0"></iframe>
         {{pass}}
         http://docs.google.com/gview?url={{=URL('default', 'download', args=article.attachment, scheme=True, host=True)}}&embedded=true
     </div>
-    
-    <div class="row mt-5 mb-5">
-        <a class="btn btn-secondary" href="{{=URL('library','update',args=article.id,extension='html')}}">Edit</a>
+
+    <div class="row pl-5 p-2 fixed-bottom">
+        {{=editButton('library', 'update', article.id)}}
         <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
     </div>
 </div>

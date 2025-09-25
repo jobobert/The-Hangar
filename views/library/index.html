@@ -2,12 +2,18 @@
 
 
 <div class="container ">
-    <div class="row m-1 p-1 bg-light"><form class="form-inline my-2 my-lg-0" action="{{=URL('library','search')}}" method="get">
-        <input style="border: none; width: 500px; height:40px; padding-right: 50px;" class="form-inline form-control mr-sm-2" name="s" type="text" autocomplete="off" placeholder="Search">
-        <button style="border: none; margin-left: -60px; height: 40px; width:50px;" class="form-inline form-control btn  my-2 my-sm-0" type="submit">Go</button>
-      </form>
+    <div class="row m-1 p-1 bg-light">
+        <form class="form-inline my-2 my-lg-0" action="{{=URL('library','search')}}" method="get">
+            <input style="border: none; width: 500px; height:40px; padding-right: 50px;" class="form-inline form-control mr-sm-2" name="s" type="text" autocomplete="off" placeholder="Search">
+            <button style="border: none; margin-left: -60px; height: 40px; width:50px;" class="form-inline form-control btn  my-2 my-sm-0" type="submit">Go</button>
+        </form>
+        <a class="btn btn-info ml-2" href="{{=URL('library', 'index')}}">All</a>
+        {{for tag in tags:}}
+        <a class="btn {{='btn-secondary' if tag.name == tagname else 'btn-outline-dark'}} ml-2" href="{{=URL('library', 'index', vars=dict(t=tag.id))}}">{{=tag.name}}</a>
+        {{pass}}
     </div>
-    <div class="row mt-5 mb-5">
+
+    <div class="row  pl-5 p-2 fixed-bottom">
         <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
     </div>
     {{for article in articles:}}
@@ -38,13 +44,13 @@
             </div>
             {{pass}}
             <div class="col-sm-1">
-                <a class="btn btn-secondary" href="{{=URL('library','update',args=article.id,extension='html')}}">Edit</a>
+                {{=editButton('library', 'update', article.id)}}
             </div>
 
         </div>
         {{pass}}
 
-        <div class="row mt-5 mb-5">
+        <!--<div class="row mt-5 mb-5">
             <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
-        </div>
+        </div>-->
     </div>

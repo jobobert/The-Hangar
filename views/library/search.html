@@ -9,15 +9,15 @@
     {{for result in finalresults:}}
     <tr>
         <td class="p-2" style="border-bottom: solid 1px rgb(100, 98, 98);" rowspan="3">
-
             {{=result['img']}}
         </td>
         <td class="p-0">
             {{if result['state']:}}
             <span style="white-space: nowrap;"
-                class="badge modelstate_bg_{{=result['state'].id}}">{{=result['state'].name}}</span>
+                  class="badge modelstate_bg_{{=result['state'].id}}">{{=result['state'].name}}</span>
             {{pass}}
-            <span style="white-space: nowrap;" class="badge badge-info ">{{=result['tag']}}</span>
+            <span style="white-space: nowrap;" class="badge badge-info ">{{=result['type']}}</span>
+            {{=makeTagList(result['tags'], "d-inline-block")}}
         </td>
     </tr>
     <tr>

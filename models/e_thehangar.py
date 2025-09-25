@@ -109,11 +109,19 @@ def show_icon(iconname:str, size:int=0, alt:str="icon"):
 ## UTILITIES
 
 def isimage(attachment):
-    try:
+
+    # try:
+    #     ext = attachment.attachment.split('.')[-1]
+    # except:
+    #     ext = attachment.split('.')[-1]
+
+    if hasattr(attachment, "attachment"):
         ext = attachment.attachment.split('.')[-1]
-    except:
+    elif hasattr(attachment, "split"):
         ext = attachment.split('.')[-1]
-        
+    else:
+        return False
+
     imageExtensions = {
         'jpeg': True,
         'jpg': True,
@@ -123,10 +131,17 @@ def isimage(attachment):
     return imageExtensions.get(ext, False)
 
 def ispdf(attachment):
-    try:
+    # try:
+    #     ext = attachment.attachment.split('.')[-1]
+    # except:
+    #     ext = attachment.split('.')[-1]
+
+    if hasattr(attachment, "attachment"):
         ext = attachment.attachment.split('.')[-1]
-    except:
+    elif hasattr(attachment, "split"):
         ext = attachment.split('.')[-1]
+    else:
+        return False
 
     return (ext == 'pdf')
         
@@ -213,6 +228,12 @@ def delete_file(row, uploadfield):
     os.remove(os.path.join(upf, '%s.%s' % (table, field), subfolder, file))
     row.update_record(**{uploadfield: None})
 
+def makeTagList(tags, divClass=""): 
+    if not tags:
+        return ""
+    return DIV([SPAN(t.name, _class="ml-2 badge badge-primary") for t in tags], _class=divClass)
+    
+        
 
 #################################################
 ## ACTION BUTTON CREATION

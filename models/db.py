@@ -146,6 +146,14 @@ db.define_table('modelstate',
                 format=lambda row: row.name
                 )
 
+
+##############################################
+## TAG
+
+db.define_table('tag',
+                Field('name', type='string', label='Tag'),
+                format='%(name)s')
+
 ###############################################
 ## ARTICLE
 
@@ -165,6 +173,8 @@ db.define_table('article'
                 , Field('articlesource', type='string', label='Source', comment='Where did it come from?')
                 #
                 , Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='More info')
+                #
+                , Field('tags', type='list:reference tag')
                 )
 
 db.article.showAttachmentPopup = Field.Method(
@@ -1011,6 +1021,11 @@ if db(db.modelstate.id > 0).count() == 0:
     db.modelstate.insert('In Service')  # 5
     db.modelstate.insert('Out of Service')  # 6
     db.modelstate.insert('Under Repair')  # 7
+
+if db(db.tag.id > 0).count() == 0:
+    db.tag.insert(name='Modeling')
+    db.tag.insert(name='Electronics')
+    db.tag.insert(name='Scale')
 # -------------------------------------------------------------------------
 # after defining tables, uncomment below to enable auditing
 # -------------------------------------------------------------------------

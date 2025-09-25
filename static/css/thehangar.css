@@ -840,6 +840,7 @@ div.export-field_value img.export-image-sm {
 
 .library-header {
     background-color: #efefef;
+    overflow-wrap: break-word;
 }
 
 a.library-link {

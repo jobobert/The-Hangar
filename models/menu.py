@@ -30,6 +30,7 @@ response.menu = [
         (DIV(controller_icon('component',   icon_size), ' Inventory'   ), False, URL('component', 'inventory')),
         (DIV(controller_icon('protocol',    icon_size), ' Protocol'    ), False, URL('protocol', 'listview')),
         (DIV(controller_icon('wtc',         icon_size), ' WTC'         ), False, URL('wtc', 'listview')),
+        (DIV(controller_icon('tag',         icon_size), ' Tags'         ), False, URL('tag', 'listview')),
     ]),
     (T('New'), False, '#', [
         (DIV(controller_icon('model',       icon_size), ' Model'       ), False, URL('model', 'update')),
