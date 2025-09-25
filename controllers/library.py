@@ -1,6 +1,5 @@
 def index():
 
-
     response.title = 'Library'
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)

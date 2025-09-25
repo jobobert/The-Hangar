@@ -2,7 +2,7 @@
 
 
 <div class="container ">
-    <div class="row m-1 p-1 bg-light">
+    <div class="row mb-3 bg-light">
         <form class="form-inline my-2 my-lg-0" action="{{=URL('library','search')}}" method="get">
             <input style="border: none; width: 500px; height:40px; padding-right: 50px;" class="form-inline form-control mr-sm-2" name="s" type="text" autocomplete="off" placeholder="Search">
             <button style="border: none; margin-left: -60px; height: 40px; width:50px;" class="form-inline form-control btn  my-2 my-sm-0" type="submit">Go</button>
@@ -27,6 +27,7 @@
             <div class="col-sm-9">
                 {{pass}}
                 <a class="library-link" href="{{=URL('library','read',args=article.id,extension='html')}}">
+                    {{=makeTagList(article.tags)}}
                     {{=DIV(B(article.name))}}
                     {{=DIV(I(article.summary))}}
                 </a>
