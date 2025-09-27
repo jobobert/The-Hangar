@@ -78,40 +78,12 @@ def index():
 
     return dict(articles=sorted(results, key=lambda x: x['name']), tags=tags, tagname=tagname)
 
-
-def index_old():
-
-    response.title = 'Library'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
-    query = db.article
-    tagname = ""
-    if request.vars.t:
-         query = (db.article.tags.contains(request.vars.t))
-         tagname = db(db.tag.id == request.vars.t).select().first().name
-
-    articles = db(query).iterselect(db.article.id, db.article.name, db.article.articletype, db.article.img, db.article.summary, db.article.attachment,orderby=db.article.name)
-    tags = db(db.tag).select(orderby=db.tag.name)
-    
-    componentsWithPDFs = db(db.component.hasPDFAttachment == True).select(orderby=db.component.name)
-
-    temp_db = DAL('sqlite://:memory:')
-    temp_db.define_table('compTable', Field('name'), Field('articletype'), Field('img', type='upload'), Field('summary'), Field('attachment', type='upload'), migrate=True)
-    for ca in componentsWithPDFs:
-        temp_db.compTable.insert(name=ca.name, articletype='Component', img=ca.img, summary=ca.componenttype, attachment=ca.attachment)
-
-    compTable = temp_db(temp_db.compTable).select()
-    union = articles.union(compTable)
-
-    return dict(articles=union, tags=tags, tagname=tagname)
-
-
 def update():
 
     response.title = 'Add/Update Article'
 
-    buttons=[DIV(INPUT(_type='submit', _value='Submit'), _class='pl-5 p-2 fixed-bottom')]
+    #buttons=[INPUT(_type='submit', _value='Submit', _class='btn btn-primary pl-5 p-2 fixed-bottom')]
+    buttons=[BUTTON('Submit', _type='submit', _value='Submit', _class="btn btn-primary pl-5 p-2 fixed-bottom")]
 
     form = SQLFORM(db.article, request.args(0), upload=URL(
         'default', 'download'), deletable=True, showid=False, buttons=buttons, _id='articleform')
@@ -129,7 +101,7 @@ def update():
     else:
         pass  # response.flash = "somethign happened"
 
-    print(form.errors)
+    #print(form.errors)
 
     response.view = 'content.html'
 
