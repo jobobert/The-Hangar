@@ -15,7 +15,7 @@
         </div>
         </form>
         <div class="row">
-            <a class="col-auto btn btn-sm btn-info" href="{{=URL('library', 'index')}}">All</a>
+            <a class="col-auto btn btn-sm {{='btn-secondary' if 'all' == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index')}}">All</a>
             <a class="col-auto btn btn-sm {{='btn-secondary' if 'book' == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index', vars=dict(b=1))}}">Books</a>
             {{for tag in tags:}}
             <a class="col-auto btn btn-sm {{='btn-secondary' if tag.name == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index', vars=dict(t=tag.id))}}">{{=tag.name}}</a>

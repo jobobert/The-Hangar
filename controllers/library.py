@@ -6,7 +6,7 @@ def index():
 
     includeComponents = True
     query = db.article
-    tagname = ""
+    tagname = "all"
     if request.vars.t:
          query = (db.article.tags.contains(request.vars.t))
          tagname = db(db.tag.id == request.vars.t).select().first().name
