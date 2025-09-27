@@ -73,13 +73,19 @@ def library_type_icon(article, size):
     folder = 'library_type/'
     size = 32
 
+    test = ""
+    if type(article) == str:
+        test = article
+    if hasattr(article, 'articletype'):
+        test = article.articletype
+
     iconname = ''
-    match article.articletype:
+    match test:
         case 'Article': iconname = 'scroll.png'
         case 'Book': iconname = 'books.png'
         case 'Idea': iconname = 'light-bulb.png'
 
-    return show_icon(folder + iconname, size=32, alt=article.articletype)
+    return show_icon(folder + iconname, size=32, alt=test)
 
 def model_flowchart(model):
     return DIV('flowchart')
@@ -131,14 +137,13 @@ def isimage(attachment):
     return imageExtensions.get(ext, False)
 
 def ispdf(attachment):
-    # try:
-    #     ext = attachment.attachment.split('.')[-1]
-    # except:
-    #     ext = attachment.split('.')[-1]
-
+    #print(attachment)
+    
     if hasattr(attachment, "attachment"):
         ext = attachment.attachment.split('.')[-1]
     elif hasattr(attachment, "split"):
+        ext = attachment.split('.')[-1]
+    elif type(attachment) == 'str':
         ext = attachment.split('.')[-1]
     else:
         return False

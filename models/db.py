@@ -455,7 +455,7 @@ db.model.attr_copter_mainrotor_length.extra = {'measurement': 'mm'}
 db.model.attr_copter_tailrotor_span.extra = {'measurement': 'mm'}
 
 db.model.modeltype.requires = IS_IN_SET(
-    ('Airplane', 'Rocket', 'Boat', 'Helicopter', 'Multirotor', 'Robot', 'Experimental', 'Car', 'Autogyro', 'Submarine'), sort=True)
+    ('Airplane', 'Rocket', 'Boat', 'Helicopter', 'Multirotor', 'Robot', 'Experimental', 'Car', 'Autogyro', 'Submarine', 'Non-Model'), sort=True)
 db.model.modelorigin.requires = IS_EMPTY_OR(IS_IN_SET(
     ('Plan', 'Kit', 'ARF', 'RTF', 'Unknown'), sort=True))
 db.model.controltype.requires = IS_EMPTY_OR(IS_IN_SET(
@@ -563,13 +563,17 @@ db.define_table('component',
                 Field('attr_pwr_port', type='boolean', label='Power Port', comment='This component has an power port'),
                 Field('attr_protocol', type='reference protocol', label='Protocol', comment='The radio protocol used by this model'),
                 Field('attr_gear_type', type='string', label='Gear Type', comment='The material the gears are made of'),
-                Field('attr_amps', type='string', label='Rated Amps', comment='The rated amps'),
+                Field('attr_amps_in', type='integer', label='Rated Amps In', comment='The rated input amps'),
+                Field('attr_amps_out', type='integer', label='Rated Amps Out', comment='The rated output amps'),
                 Field('attr_torque', type='string', label="Rated Torque", comment='The rated torque'),
                 Field('attr_switch_type', type='string', label='Switch Type', comment='The type of switch'),
                 Field('attr_displacement_cc', type='double', label='Displacement (cc)', comment='The engine displacement', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
                 Field('attr_motor_kv', type='string', label='Motor KV', comment='The motor KV rating'),              
-                Field('attr_max_voltage', type='string', label='Max Voltage', comment='The maximum voltage'),
+                Field('attr_voltage_in', type='integer', label='Max Voltage In', comment='The maximum voltage in'),
+                Field('attr_voltage_out', type='integer', label='Max Voltage Out', comment='The maximum voltage out'),
                 Field('attr_num_turns', type='integer', label='Number of Turns', comment='The number of rotations'),
+                Field('attr_watts_in', type='integer', label='Max Watts In', comment='The maximum watts in'),
+                Field('attr_watts_out', type='integer', label='Max Watts Out', comment='The maximum watts out'),
                 #
                 format=lambda row: 'Unknown' if row is None else row.name
                 )
@@ -605,21 +609,21 @@ db.component.componenttype.requires = IS_IN_SET((
 
 component_attribs = {
     'Engine': ['attr_displacement_cc'], 
-    'Servo': ['attr_max_voltage','attr_gear_type', 'attr_torque'], 
-    'Receiver': ['attr_max_voltage','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol'], 
-    'Motor': ['attr_motor_kv', 'attr_amps','attr_max_voltage'], 
-    'ESC': ['attr_amps','attr_max_voltage'], 
-    'BEC': ['attr_amps','attr_max_voltage'], 
-    'Regulator': ['attr_amps','attr_max_voltage'], 
-    'Flight Controller': ['attr_max_voltage','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol'], 
-    'Gyro': ['attr_max_voltage'], 
-    'Battery Charger': ['attr_channel_count','attr_amps','attr_max_voltage'], 
-    'Flybarless Controller': ['attr_max_voltage','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol' ], 
-    'Electrical': ['attr_max_voltage', 'attr_amps'], 
-    'Switch': ['attr_switch_type','attr_max_voltage'], 
-    'Winch': ['attr_max_voltage', 'attr_num_turns'], 
-    'Other': ['attr_max_voltage', 'attr_amps'],
-    'Retracts': ['attr_max_voltage'],
+    'Servo': ['attr_voltage_in','attr_gear_type', 'attr_torque'], 
+    'Receiver': ['attr_voltage_in','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol'], 
+    'Motor': ['attr_motor_kv', 'attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'], 
+    'ESC': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'], 
+    'BEC': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'], 
+    'Regulator': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'], 
+    'Flight Controller': ['attr_amps_in', 'attr_voltage_in','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol'], 
+    'Gyro': ['attr_voltage_in'], 
+    'Battery Charger': ['attr_channel_count','attr_amps_in','attr_voltage_in', 'attr_watts_in','attr_amps_out','attr_voltage_out', 'attr_watts_out'], 
+    'Flybarless Controller': ['attr_voltage_in','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol' ], 
+    'Electrical': ['attr_amps_in','attr_voltage_in','attr_amps_out','attr_voltage_out'], 
+    'Switch': ['attr_switch_type','attr_voltage_in'], 
+    'Winch': ['attr_voltage_in', 'attr_num_turns'], 
+    'Other': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'],
+    'Retracts': ['attr_voltage_in'],
 }
 
 db.component.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
@@ -668,7 +672,7 @@ db.define_table('tool',
                 Field('tooltype', type='string', label='Type'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
                 Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the tool', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
-                Field('attachment', type='upload', autodelete=True, label='Attachment', comment='Manual'), format=lambda row: 'Unknown' if row is None else row.tooltype + ': ' + row.name
+                Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='Manual'), format=lambda row: 'Unknown' if row is None else row.tooltype + ': ' + row.name
                 )
 
 db.tool.tooltype.requires = IS_IN_SET(

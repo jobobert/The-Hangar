@@ -74,7 +74,9 @@
     </div>
 
     <div class="row pl-5 p-2 fixed-bottom">
-        {{=editButton('library', 'update', article.id)}}
-        <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
+        <div class="col">
+            {{=editButton('library', 'update', article.id)}}
+            <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
+        </div> 
     </div>
 </div>

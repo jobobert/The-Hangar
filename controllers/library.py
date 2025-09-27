@@ -4,19 +4,107 @@ def index():
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
+    includeComponents = True
+    query = db.article
+    tagname = ""
+    if request.vars.t:
+         query = (db.article.tags.contains(request.vars.t))
+         tagname = db(db.tag.id == request.vars.t).select().first().name
+         includeComponents = False
+    if request.vars.b:
+        query = (db.article.articletype == 'Book')
+        tagname = 'book'
+        includeComponents = False
+    
+    results = []
+
+    #articles = db(query).iterselect(db.article.id, db.article.name, db.article.articletype, db.article.img, db.article.summary, db.article.attachment,orderby=db.article.name)
+    articles = db(query).iterselect(orderby=db.article.name)
+    for a in articles:
+        results.append({
+            "id" : a.id,
+            "name" : a.name,
+            "articletype" : a.articletype,
+            "img" : a.img,
+            "summary" : a.summary,
+            "attachment" : a.attachment,
+            "tags": a.tags,
+            "controller": "library"
+        })
+    
+    if includeComponents:
+        components = db(db.component).select(orderby=db.component.name)
+        for ca in components:
+            if ispdf(ca.attachment):
+                results.append({
+                    "id" : ca.id,
+                    "name" : ca.name,
+                    "articletype" : 'attachment',
+                    "img" : ca.img,
+                    "summary" : ca.componenttype,
+                    "attachment" : ca.attachment,
+                    "tags": [],
+                    "controller": "component"
+                })
+        transmitters = db(db.transmitter).select(orderby=db.transmitter.name)
+        for ca in transmitters:
+            if ispdf(ca.attachment):
+                results.append({
+                    "id" : ca.id,
+                    "name" : ca.name,
+                    "articletype" : 'attachment',
+                    "img" : ca.img,
+                    "summary" : "",
+                    "attachment" : ca.attachment,
+                    "tags": [],
+                    "controller": "transmitter"
+                })
+
+        tools = db(db.tool).select(orderby=db.tool.name)
+        for ca in tools:
+            if ispdf(ca.attachment):
+                results.append({
+                    "id" : ca.id,
+                    "name" : ca.name,
+                    "articletype" : 'attachment',
+                    "img" : ca.img,
+                    "summary" : ca.tooltype,
+                    "attachment" : ca.attachment,
+                    "tags": [],
+                    "controller": "tool"
+                })
+            
+    tags = db(db.tag).select(orderby=db.tag.name)
+
+    return dict(articles=sorted(results, key=lambda x: x['name']), tags=tags, tagname=tagname)
+
+
+def index_old():
+
+    response.title = 'Library'
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
+
     query = db.article
     tagname = ""
     if request.vars.t:
          query = (db.article.tags.contains(request.vars.t))
          tagname = db(db.tag.id == request.vars.t).select().first().name
 
-    #fields = []
-    #fields.append(Field('tags', label=db.model.modeltype.label, requires=IS_EMPTY_OR(db.model.modeltype.requires), required=False))
-
-    articles = db(query).iterselect(orderby=db.article.name)
+    articles = db(query).iterselect(db.article.id, db.article.name, db.article.articletype, db.article.img, db.article.summary, db.article.attachment,orderby=db.article.name)
     tags = db(db.tag).select(orderby=db.tag.name)
+    
+    componentsWithPDFs = db(db.component.hasPDFAttachment == True).select(orderby=db.component.name)
 
-    return dict(articles=articles, tags=tags, tagname=tagname)
+    temp_db = DAL('sqlite://:memory:')
+    temp_db.define_table('compTable', Field('name'), Field('articletype'), Field('img', type='upload'), Field('summary'), Field('attachment', type='upload'), migrate=True)
+    for ca in componentsWithPDFs:
+        temp_db.compTable.insert(name=ca.name, articletype='Component', img=ca.img, summary=ca.componenttype, attachment=ca.attachment)
+
+    compTable = temp_db(temp_db.compTable).select()
+    union = articles.union(compTable)
+
+    return dict(articles=union, tags=tags, tagname=tagname)
 
 
 def update():

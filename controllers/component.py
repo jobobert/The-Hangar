@@ -115,6 +115,8 @@ def subtractcount():
 def update():
 
     response.title = 'Add/Update Component'
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
 
     # form = SQLFORM(db.component, request.args(0), deletable=True, showid=False).process(
     #    message_onsuccess='Document %s' % (
