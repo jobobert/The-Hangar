@@ -101,8 +101,6 @@ def update():
     else:
         pass  # response.flash = "somethign happened"
 
-    #print(form.errors)
-
     response.view = 'content.html'
 
     return dict(content=form)

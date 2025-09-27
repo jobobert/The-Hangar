@@ -3,20 +3,29 @@
 
 <div class="container ">
     <div class="row px-2 mb-3 bg-light">
-        <div class="col p-1">
-            <form class="form-inline my-2 pb-1 d-block" action="{{=URL('library','search')}}" method="get">
-                <input style="height:40px; padding-right: 50px;" class="form-inline form-control mr-sm-2" name="s" type="text" autocomplete="off" placeholder="Search">
-                <button style="border: none; margin-left: -65px; height: 35px; width:50px;" class="form-inline form-control btn  my-2 my-sm-0" type="submit">Go</button>
-            </form>
-            <div class="btn-group d-block" role="group" aria-label="Tag Select">
-                <a class="btn btn-sm btn-info" href="{{=URL('library', 'index')}}">All</a>
-                <a class="btn btn-sm {{='btn-secondary' if 'book' == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index', vars=dict(b=1))}}">Books</a>
-                {{for tag in tags:}}
-                <a class="btn btn-sm {{='btn-secondary' if tag.name == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index', vars=dict(t=tag.id))}}">{{=tag.name}}</a>
-                {{pass}}
+
+
+        <form action="{{=URL('library','search')}}" method="get">
+            <div class="form-row mb-2">
+                <div class="col">
+                    <input class="form-control form-control-sm" name="s" type="text" autocomplete="off" placeholder="Search">
+                </div>
+                <div class="col-3">
+                    <button class="form-control form-control-sm btn-sm" type="submit">Go</button>
+                </div>
             </div>
+        </form>
+
+        <div class="btn-group d-block" role="group" aria-label="Tag Select">
+            <a class="btn btn-sm btn-info" href="{{=URL('library', 'index')}}">All</a>
+            <a class="btn btn-sm {{='btn-secondary' if 'book' == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index', vars=dict(b=1))}}">Books</a>
+            {{for tag in tags:}}
+            <a class="btn btn-sm {{='btn-secondary' if tag.name == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index', vars=dict(t=tag.id))}}">{{=tag.name}}</a>
+            {{pass}}
         </div>
     </div>
+
+
 
     <div class="row  pl-5 p-2 fixed-bottom">
         <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
