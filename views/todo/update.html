@@ -1,0 +1,54 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=form.custom.submit}}
+</div>
+<div class="update-page">
+    <div class="row">
+        <h2 class="">{{=controller_icon('todo', 48)}} Todo</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-5">
+            <div class="th_form_label_required">{{=form.custom.label.todo}}</div>
+            <div class="th_form_field">{{=form.custom.widget.todo}}</div>
+            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.todo}}</div>
+        </div>
+        <div class="col-2">
+            <div class="th_form_label">{{=form.custom.label.critical}}</div>
+            <div class="th_form_field">{{=form.custom.widget.critical}}</div>
+            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.critical}}</div>
+        </div>
+        <div class="col-5">
+            <div class="th_form_label">{{=form.custom.label.model}}</div>
+            <div class="th_form_field">{{=form.custom.widget.model}}</div>
+            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.model}}</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="th_form_label">{{=form.custom.label.notes}}</div>
+            <div class="th_form_field">{{=form.custom.widget.notes}}</div>
+            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.notes}}</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="th_form_label">{{=form.custom.label.complete}}</div>
+            <div class="th_form_field">{{=form.custom.widget.complete}}</div>
+            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.complete}}</div>
+        </div>
+    </div>
+</div>
+{{=form.custom.end}}

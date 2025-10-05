@@ -1,0 +1,160 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=form.custom.submit}}
+</div>
+<div class="update-page">
+    <div class="row">
+        <h2 class="">{{=controller_icon('sailrig', 48)}} Sail Rig</h2>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col-8">
+            <div class="row">
+                <div class="col-6">
+                    <div class="th_form_label_required">{{=form.custom.label.rigname}}</div>
+                    <div class="th_form_field">{{=form.custom.widget.rigname}}</div>
+                    <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.rigname}}</div>
+                </div>
+                <div class="col-6">
+                    <div class="th_form_label_required">{{=form.custom.label.model}}</div>
+                    <div class="th_form_field">{{=form.custom.widget.model}}</div>
+                    <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.model}}</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="th_form_label">{{=form.custom.label.notes}}</div>
+                    <div class="th_form_field">{{=form.custom.widget.notes}}</div>
+                    <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.notes}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-4">
+            <div class="th_form_label">{{=form.custom.label.img}}</div>
+            <div class="th_form_field">{{=form.custom.widget.img}}</div>
+            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.img}}</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="th_form_label_required">{{=form.custom.label.mast_material}}</div>
+                            <div class="th_form_field">{{=form.custom.widget.mast_material}}</div>
+                            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.mast_material}}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="th_form_label_required">{{=form.custom.label.mast_length_mm}}</div>
+                            <div class="th_form_field">{{=form.custom.widget.mast_length_mm}}</div>
+                            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.mast_length_mm}}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="th_form_label">Inch</div>
+                            <div class="th_form_field"><input class="double form-control th_form_field_calc" id="c_mast_length_mm" type="double" onchange="inchToMm('c_mast_length_mm', 'sailrig_mast_length_mm');" autocomplete="off"></div>
+                            <div class="th_form_comment d-none d-sm-block"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="th_form_label_required">{{=form.custom.label.main_boom_material}}</div>
+                            <div class="th_form_field">{{=form.custom.widget.main_boom_material}}</div>
+                            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.main_boom_material}}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="th_form_label_required">{{=form.custom.label.main_boom_length_mm}}</div>
+                            <div class="th_form_field">{{=form.custom.widget.main_boom_length_mm}}</div>
+                            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.main_boom_length_mm}}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="th_form_label">Inch</div>
+                            <div class="th_form_field"><input class="double form-control th_form_field_calc" id="c_main_boom_length_mm" type="double" onchange="inchToMm('c_main_boom_length_mm', 'sailrig_main_boom_length_mm');" autocomplete="off"></div>
+                            <div class="th_form_comment d-none d-sm-block"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="th_form_label_required">{{=form.custom.label.jib_boom_material}}</div>
+                            <div class="th_form_field">{{=form.custom.widget.jib_boom_material}}</div>
+                            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.jib_boom_material}}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="th_form_label_required">{{=form.custom.label.jib_boom_length_mm}}</div>
+                            <div class="th_form_field">{{=form.custom.widget.jib_boom_length_mm}}</div>
+                            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.jib_boom_length_mm}}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="th_form_label">Inch</div>
+                            <div class="th_form_field"><input class="double form-control th_form_field_calc" id="c_jib_boom_length_mm" type="double" onchange="inchToMm('c_jib_boom_length_mm', 'sailrig_jib_boom_length_mm');" autocomplete="off"></div>
+                            <div class="th_form_comment d-none d-sm-block"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="th_form_label_required">{{=form.custom.label.main_sail_material}}</div>
+                            <div class="th_form_field">{{=form.custom.widget.main_sail_material}}</div>
+                            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.main_sail_material}}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="th_form_label_required">{{=form.custom.label.main_sail_area_dm2}}</div>
+                            <div class="th_form_field">{{=form.custom.widget.main_sail_area_dm2}}</div>
+                            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.main_sail_area_dm2}}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="th_form_label">Inch</div>
+                            <div class="th_form_field"><input class="double form-control th_form_field_calc" id="c_main_sail_area_dm2" type="double" onchange="dm2ToSqin('c_main_sail_area_dm2', 'sailrig_main_sail_area_dm2');" autocomplete="off"></div>
+                            <div class="th_form_comment d-none d-sm-block"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="th_form_label_required">{{=form.custom.label.jib_sail_material}}</div>
+                            <div class="th_form_field">{{=form.custom.widget.jib_sail_material}}</div>
+                            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.jib_sail_material}}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="th_form_label_required">{{=form.custom.label.jib_sail_area_dm2}}</div>
+                            <div class="th_form_field">{{=form.custom.widget.jib_sail_area_dm2}}</div>
+                            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.jib_sail_area_dm2}}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="th_form_label">Inch</div>
+                            <div class="th_form_field"><input class="double form-control th_form_field_calc" id="c_jib_sail_area_dm2" type="double" onchange="dm2ToSqin('c_jib_sail_area_dm2', 'sailrig_jib_sail_area_dm2');" autocomplete="off"></div>
+                            <div class="th_form_comment d-none d-sm-block"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{=form.custom.end}}
