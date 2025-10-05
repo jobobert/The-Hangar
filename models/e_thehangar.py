@@ -1,6 +1,143 @@
 from collections import deque
-import os
+import os, random, math
 from typing import Literal
+from enum import Enum
+
+class FormFieldType(Enum):
+    COLUMNS = 1
+    ROWS = 2
+
+def class_isrequired(form, fieldname:str):
+    table = form.table
+    
+    field = db[table][fieldname]
+
+    if (field.required or field.requires and 'IS_NOT_EMPTY' in str(field.requires)):
+        return "font-weight-bold"
+    else:
+        return ""
+
+def splitColumn(size:int):
+    if size % 2 == 0:
+        half = size // 2
+        return (int(half), int(half))
+    else:
+        half = size // 2
+        return (half + 1, half)
+
+def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0, fieldid:str = "", divClass:str = ""):
+    table = form.table
+    field = db[table][fieldname]
+    isCheckbox = False
+    theLabel = None
+    theInput = None
+    theComment = None
+    hasConverter = False
+    theConverterLabel = None
+    theConverterInput = None
+    theConverterComment = None
+    originalText = ""
+    conversionText = ""
+    labelClass = ""
+    inputID = f'{table}_{fieldname}'
+
+    if columns < 0:
+        columns = 0
+    if columns > 12:
+        columns = 12
+    
+    if (field.required or field.requires and 'IS_NOT_EMPTY' in str(field.requires)):
+        labelClass = "font-weight-bold"
+
+    #print(field.type)
+    if field.type == 'boolean':
+        isCheckbox = True
+
+    if hasattr(field, 'extra'):
+        hasConverter = True
+        func = None # the func javascript function must be declared in layout.html!!
+        match field.extra['measurement']:
+            case 'mm':
+                func = 'inchToMm'
+                originalText = 'mm'
+                conversionText = 'Inch'
+            case 'dm2':
+                func = 'dm2ToSqin'
+                originalText = 'dm2'
+                conversionText = 'sqin'
+            case 'oz':
+                func = 'gramToOz'
+                originalText = "oz"
+                conversionText = 'Gram'
+            case 'sqin':
+                func = None
+                originalText = 'sqin'
+            case 'cc':
+                func = None
+                originalText = 'cc'
+            case _:
+                hasConverter = False
+
+        if hasConverter and func == None:
+            theConverterInput = f"No Converter Available '{field.extra['measurement']}'"
+        elif hasConverter:
+            theConverterInput = INPUT(
+                    _class = 'double form-control th_form_field_calc',
+                    _type = 'number',
+                    _step = '0.01',
+                    _autocomplete = "off",
+                    _id = f'c_{fieldname}',
+                    _onchange = f'{func}("c_{fieldname}", "{inputID}");'
+                )
+            theConverterLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""}" for="c_{fieldname}">{field.label or field.name} ({conversionText})</label>') 
+            theConverterComment = XML(f'<small class="form-text text-muted d-none d-sm-block">Convert from {conversionText}</small>')
+    
+    
+    col1 = col2 = columns
+    if hasConverter:
+        col1, col2 = splitColumn(columns)
+
+    theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">{field.label or field.name} {"(" + originalText + ")" if originalText else ""}</label>')
+    theInput = form.custom.widget[fieldname]
+    theComment = XML(f'<small class="form-text text-muted d-none d-sm-block">{field.comment or ""}</small>')
+
+    output = None
+
+    if fieldType == FormFieldType.COLUMNS:
+        output = DIV(
+            theComment if isCheckbox else theLabel,
+            theInput,
+            theLabel if isCheckbox else theComment,
+            _class=f'{"col" if col1 == 0 else f"col-sm-{col1}"} {divClass}'
+        ) + (DIV(
+            theConverterLabel if theConverterLabel else "",
+            theConverterInput,
+            theConverterComment if theConverterComment else "",
+            _class=f'{"col" if col2 == 0 else f"col-sm-{col2}"} {divClass}'
+        ) if hasConverter else "")
+
+    if fieldType == FormFieldType.ROWS:
+        output = DIV(
+            theLabel, 
+            DIV(
+                theInput,
+                theComment,
+                _class='col-sm-10'),
+            _class=f'{divClass} form-group row'
+        ) + (DIV(
+            theConverterLabel,
+            DIV(
+                theConverterInput,
+                theConverterComment,
+                _class=f'col-sm-10'),
+            _class=f'{divClass} form-group row'
+            ) if hasConverter else ""
+        )
+
+    if fieldid:
+        output = DIV(output, _id=fieldid, _class=f'col-sm-{columns}')
+
+    return output
 
 ########################################
 ## ICON HANDLING
@@ -24,7 +161,7 @@ def action_icon(action: str, size:int):
 def activity_icon(activity:str, size:int):
     folder = 'activity/'
     
-    return show_icon(folder + activity.lower() + '-' + str(size) + '.svg', size, activity)
+    return show_icon(folder + activity.lower() + '.png', size, activity)
 
 def attribute_icon(attribute:str, size:int):
     folder = 'attribute/'
@@ -104,7 +241,7 @@ def show_icon(iconname:str, size:int=0, alt:str="icon"):
 
     if not os.path.exists(os.path.join(request.folder, 'static', thename)):
         thename = 'icons/nopicture.png'
-        return iconname
+        #return iconname
 
     if size > 0:
         return IMG(_src=URL('static', thename), _alt=alt, _width=str(size) + 'px', _height=str(size) + 'px')
@@ -114,19 +251,79 @@ def show_icon(iconname:str, size:int=0, alt:str="icon"):
 ############################################
 ## UTILITIES
 
-def isimage(attachment):
+def TwoDecimal(number):
+    if number is None:
+        return 0.00
+    return "{:.2f}".format(number)
 
-    # try:
-    #     ext = attachment.attachment.split('.')[-1]
-    # except:
-    #     ext = attachment.split('.')[-1]
+
+def ZeroDecimal(number):
+    if number is None:
+        return 0
+    return "{:.0f}".format(number)
+
+def AttachPopup2(attachment):
+    # This doesn't work, it doesn't start with the dialog hidden
+    rnd = random.randint(0, 100)
+    
+    if isimage(attachment):
+        attach = attachment
+        if hasattr(attachment, "attachment"):
+            attach = attachment.attachment
+        x = XML(f'<button popovertarget="img_{rnd}">{action_icon("OpenTab", 16)}</button><dialog id="img_{rnd}" popover="manual"><button popovertarget="img_{rnd}" popovertargetaction="hide">X</button><img class="" src="{URL("default", "download", args=attach)}"/></dialog>')
+    else:
+        return ""
+
+    return x
+
+def AttachPopup(attachment, useicon = False):
+    if isimage(attachment):
+        attach = attachment
+        if hasattr(attachment, "attachment"):
+            attach = attachment.attachment
+        attributes = {
+            '_data-toggle': 'modal',
+            '_data-target': '#mainModal',
+            '_data-whatever': '<img class="card-img-top" src=' + URL("default", "download", args=attach) + '>',
+            '_class': 'btn'
+        }
+        if useicon:
+            return A(filetype_icon(attach, 32), **attributes)
+        else:    
+            return A(action_icon("OpenTab", 16), **attributes)
+    else:
+        return ""
+
+def ConvertMeasurementField(table, row, FieldName, seperator=" | "):
+    if not hasattr(db[table][FieldName], "extra"):
+        return ""
+
+    match getattr(db[table], FieldName).extra['measurement']:
+        case 'mm':
+            return seperator + str(TwoDecimal((row[FieldName] or 0) / 25.4)) + " in"
+        case 'oz':
+            if (row[FieldName] or 0) >= 16:
+                return seperator + str(TwoDecimal((row[FieldName] or 0) / 16)) + " lbs"
+            else:
+                return seperator + str(TwoDecimal((row[FieldName] or 0) * 28.35)) + " g"
+        case 'dm2':
+            return seperator + str(TwoDecimal((row[FieldName] or 0) * 15.5)) + " sqin"
+        case 'sqin':
+            return seperator + str(TwoDecimal((row[FieldName] or 0) / 15.5)) + "dm2"
+        case 'cc':
+            return seperator + str(TwoDecimal((row[FieldName] or 0) / 1000)) + " liters"
+        case _:
+            return ""
+
+def isimage(attachment):
 
     if hasattr(attachment, "attachment"):
         ext = attachment.attachment.split('.')[-1]
     elif hasattr(attachment, "split"):
         ext = attachment.split('.')[-1]
-    else:
-        return False
+    elif isinstance(attachment, str):
+        ext = attachment.split('.')[-1]
+    else:        return False
 
     imageExtensions = {
         'jpeg': True,
@@ -134,10 +331,10 @@ def isimage(attachment):
         'gif': True,
         'png': True
     }
+    
     return imageExtensions.get(ext, False)
 
 def ispdf(attachment):
-    #print(attachment)
     
     if hasattr(attachment, "attachment"):
         ext = attachment.attachment.split('.')[-1]
@@ -266,26 +463,51 @@ def deleteButton(controller, action, args, size=24 ):
 
 ######################################################
 ## LIST ITEM CREATION
-def _makeListItem(controller:str, action:str, args, img:str, label:str=''):
+def _makeListItem(controller:str, action:str, args, img:str=None, icon:str=None, label:str='', detail:str=None):
     parts = []
     imgsize = '48px'
 
     if img:
         parts.append(IMG(_src=URL('default', 'download', args=img), _width=imgsize, _height=imgsize) if img else '')
+    if icon:
+        parts.append(icon)
+    if detail:
+        parts.append(DIV(XML(f'<small class="text-muted">{detail}</small>')))
     parts.append(' ' + label)
 
     return LI(A(DIV(parts), _href=URL(controller, action, args=args)), _class='list-group-item')
 
-def modelListItem(model, img:bool, label:str = None, idOverride:int = None):
+def modelListItem(model, img:bool, label:str = None, idOverride:int = None, detail:str = None):
+
+    if isinstance(model, int):
+        model = db(db.model.id == model).select(db.model.id, db.model.img, db.model.name).first()
+       
+    #print(model)
+    modelID = model.id
+
     if idOverride:
         modelID = idOverride
-    else:
-        modelID = model.id
-        
-    if img and model.img:
-        return _makeListItem('model', 'index', modelID, model.img, label or model.name)
 
-    return _makeListItem('model', 'index', modelID, None, label or model.name)
+    if img and model.img:
+        return _makeListItem('model', 'index', modelID, model.img, label or model.name, detail=detail)
+
+    return _makeListItem('model', 'index', modelID, None, label or model.name, detail=detail)
+
+def transmitterListItem(transmitter, img:bool, label:str = None, idOverride:int = None):
+    if idOverride:
+        transID = idOverride
+    else:
+        transID = transmitter.id
+        
+    if img and transmitter.img:
+        return _makeListItem('transmitter', 'index', transID, transmitter.img, label or transmitter.name)
+
+    return _makeListItem('transmitter', 'index', transID, None, label or transmitter.name)
+
+def attachmentListItem(attachment, img:bool, label:str):
+    #print(filetype_icon(attachment, 32))
+
+    return _makeListItem('default', 'download', attachment, icon=filetype_icon(attachment, 32), label=label)
 
 # def markmin_syntax():
 #     html = DIV(

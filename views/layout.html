@@ -173,18 +173,17 @@
           <a href="https://smashicons.com/" title="Smashicons" target="_blank">Smashicons</a>, <a href="https://www.flaticon.com/" title="Flaticon" target="_blank">Flaticon</a> (<a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0</a>) ,
           <a href="http://www.onlinewebfonts.com/icon">Icon Fonts</a> (CC BY 3.0)
         </div>
+        <div class="">{{=A(' (XXX)', _href=URL('default', 'final'), _class='')}}</div>
       </div>
     </div>
     <div class="row">
       <div class="col mt-3">{{=response.toolbar() if response.show_toolbar else ''}}</div>
     </div>
-    <div class="row">
-      <div class="col mt-3">{{=A('XXX', _href=URL('default', 'final'), _class='')}}</div>
-    </div>
+    <div style="padding-bottom: 60px;">&nbsp;</div>
   </footer>
   {{end}}
 
-
+  <!-- The javascript =============================== -->
   <script type="text/javascript">
     $('#mainModal').on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget)
@@ -196,7 +195,25 @@
     })
   </script>
 
-  <!-- The javascript =============================== -->
+  <script type="text/javascript">
+    function inchToMm(from, to) {
+      //var theForm = document.forms[form];
+      var inch = document.getElementById(from).value;
+      document.getElementById(to).value = inch * 25.4;
+    }
+    function gramToOz(from, to) {
+      //var theForm = document.forms[form];
+      var gram = document.getElementById(from).value;
+      document.getElementById(to).value = gram / 28.35;
+    }
+    function dm2ToSqin(from, to) {
+      //var theForm = document.forms[form];
+      var dm2 = document.getElementById(from).value;
+      document.getElementById(to).value = dm2 * 15.5;
+    }
+  </script>
+
+
   <script src="{{=URL('static','js/bootstrap.bundle.min.js')}}"></script>
   <script src="{{=URL('static','js/web2py-bootstrap4.js')}}"></script>
   <script src="{{=URL('static','js/modernizr-2.8.3.min.js')}}"></script>

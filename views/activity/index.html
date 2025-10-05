@@ -1,14 +1,12 @@
 {{extend 'layout.html'}}
 
-<div class="container">
+<div class=" index-page">
     <div class="row">
         <p>This needs to be a calendar</p>
-
     </div>
 
     <div class="row">
-        <h3>Activity</h3>
-    
+        <h2>{{=controller_icon('activity', 48)}} Activity</h2>
     </div>
 
     <div class="row">
@@ -50,7 +48,7 @@
     </div>
 
 
-    <div class="row mt-5 mb-5">
+    <div class=" row bg-light fixed-bottom pl-5 p-2">
         <a class="btn btn-primary" href="{{=URL('activity','update',args=activity.id,extension='html')}}">Edit</a>
     </div>
 </div>

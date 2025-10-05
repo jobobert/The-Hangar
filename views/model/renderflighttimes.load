@@ -14,9 +14,9 @@
                 <thead class="thead-light">
                     <tr>
                         <th scope="col" colspan="2">{{=B(f.model.name)}}</th>
-                        <th scope="col">
-                            {{=editButton(  'model', 'updateflighttime', f.id) }}
-                            {{=deleteButton('model', 'removeflighttime', f.id) }}
+                        <th scope="col" class="text-right">
+                            {{=editButton(  'model', 'updateflighttime', f.id, 16) }}
+                            {{=deleteButton('model', 'removeflighttime', f.id, 16) }}
                         </th>
                     </tr>
                 </thead>

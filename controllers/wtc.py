@@ -65,13 +65,12 @@ def rendercard():
 def update():
     response.title = 'Add/Update WTC'
 
-    form = SQLFORM(db.wtc, request.args(0), upload=URL(
-        'default', 'download'), deletable=True, showid=False).process(
-        message_onsuccess='WTC %s' % ('updated' if request.args else 'added'))
+    form = SQLFORM(db.wtc, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False).process(
+        message_onsuccess='WTC %s' % ('updated' if request.args else 'added')
+    )
 
     if form.accepted:
-        redirect(URL('wtc', 'index', args=form.vars.id,
-                 extension="html") or session.ReturnHere)
+        redirect(URL('wtc', 'index', args=form.vars.id, extension="html") or session.ReturnHere)
 
     inputs = form.elements('input', _type='text')
     for s in inputs:

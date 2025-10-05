@@ -9,10 +9,10 @@
             {{ for item in hardware: }}
             <li class="list-group-item">
                 <div class="row">
-                    <div class="col-8">
+                    <div class="col">
                         ({{=item.quantity}}) {{=item.hardwaretype}} {{=B(item.diameter)}}x{{=B(item.length_mm)}} <div class="d-none d-md-inline-block">for {{=item.purpose}}</div>
                     </div>
-                    <div class="col">
+                    <div class="col-2">
                         <button class="btn btn-sm btn-danger d-inline" type="submit" value="Remove" name="{{=item.id}}">{{=action_icon('delete', 16)}}</button>
                     </div>
                 </div>

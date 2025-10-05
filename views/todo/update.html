@@ -20,35 +20,16 @@ Your submitted form contains the following errors:
     </div>
 
     <div class="row">
-        <div class="col-5">
-            <div class="th_form_label_required">{{=form.custom.label.todo}}</div>
-            <div class="th_form_field">{{=form.custom.widget.todo}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.todo}}</div>
-        </div>
-        <div class="col-2">
-            <div class="th_form_label">{{=form.custom.label.critical}}</div>
-            <div class="th_form_field">{{=form.custom.widget.critical}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.critical}}</div>
-        </div>
-        <div class="col-5">
-            <div class="th_form_label">{{=form.custom.label.model}}</div>
-            <div class="th_form_field">{{=form.custom.widget.model}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.model}}</div>
-        </div>
+        {{=makeFormField(form, 'todo', FormFieldType.COLUMNS, columns=5)}}
+        {{=makeFormField(form, 'critical', FormFieldType.COLUMNS, columns=2)}}
+        {{=makeFormField(form, 'model', FormFieldType.COLUMNS, columns=5)}}
     </div>
     <div class="row">
-        <div class="col-12">
-            <div class="th_form_label">{{=form.custom.label.notes}}</div>
-            <div class="th_form_field">{{=form.custom.widget.notes}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.notes}}</div>
-        </div>
+        {{=makeFormField(form, 'notes', FormFieldType.COLUMNS)}}
     </div>
     <div class="row">
-        <div class="col-12">
-            <div class="th_form_label">{{=form.custom.label.complete}}</div>
-            <div class="th_form_field">{{=form.custom.widget.complete}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.complete}}</div>
-        </div>
+        {{=makeFormField(form, 'complete', FormFieldType.COLUMNS)}}
     </div>
+
 </div>
 {{=form.custom.end}}

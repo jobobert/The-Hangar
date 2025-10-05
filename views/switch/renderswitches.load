@@ -25,9 +25,9 @@ No switches defined
         {{for k in switchList.keys():}}
         <div class="row">
 
-            <div class="col-3 d-block font-weight-bold">{{=switchList[k]['switch']}}</div>
+            <div class="col-2 d-block font-weight-bold">{{=switchList[k]['switch']}}</div>
             <div class="col d-block ml-4 ">{{=switchList[k]['purpose']}}</div>
-            <div class="col-3">
+            <div class="col-2">
                 {{=editButton('switch', 'update.html',switchList[k]['id'])}}
             </div>
 

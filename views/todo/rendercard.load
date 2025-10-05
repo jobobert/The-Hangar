@@ -44,14 +44,16 @@ No Todos
         <div class="row  border-top mt-1 mb-1 pt-1">
             <!-- The text needs to link to the details (same card, popover?) 
                 The complete button just needs to complete it and reload the list -->
-            <div class="col-sm-9"><a href="{{=URL('todo', 'update.html', args=[todo.id])}}"><span class="{{='todo_critical' if todo.critical == True else ''}}">{{=todo.todo}}</span></a></div>
-            <div class="col-sm-3">
+            <div class="col"><a href="{{=URL('todo', 'update.html', args=[todo.id])}}"><span class="{{='todo_critical' if todo.critical == True else ''}}">{{=todo.todo}}</span></a></div>
+            <div class="col-2">
                 <!--<a class="btn btn-primary" href="{{=URL('todo','complete',args=[model_id,todo.id])}}">Done</a>-->
-                <button class="btn btn-danger" type="submit" value="Remove" name="{{=todo.id}}">{{=action_icon('delete', 16)}}</button>
+                <button class="btn btn-light" type="submit" value="Remove" name="{{=todo.id}}">{{=action_icon('checked', 16)}}</button>
             </div>
         </div>
         {{pass}}
         {{=completeform.custom.end}}
+    </div>
+    <div class="card-footer">
         <form action="#" enctype="multipart/form-data" method="post">
             <div class="form-group row" id="todo_todo__row">
                 <div class="col-sm-7">
@@ -70,8 +72,7 @@ No Todos
                 <input type="hidden" name="model" value="{{=model_id}}" />
             </div>
         </form>
-
-
     </div>
+
 </div>
 {{pass}}

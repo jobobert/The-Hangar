@@ -20,37 +20,19 @@ Your submitted form contains the following errors:
     </div>
 
     <div class="row">
-        <div class="col-4">
-            <div class="th_form_label_required">{{=form.custom.label.name}}</div>
-            <div class="th_form_field">{{=form.custom.widget.name}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.name}}</div>
-        </div>
-        <div class="col-4">
-            <div class="th_form_label_required">{{=form.custom.label.tooltype}}</div>
-            <div class="th_form_field">{{=form.custom.widget.tooltype}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.tooltype}}</div>
-        </div>
+        {{=makeFormField(form, "name", FormFieldType.COLUMNS)}}
+        {{=makeFormField(form, "tooltype", FormFieldType.COLUMNS)}}
+
     </div>
     <div class="row">
-        <div class="col">
-            <div class="th_form_label">{{=form.custom.label.notes}}</div>
-            <div class="th_form_field">{{=form.custom.widget.notes}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.notes}}</div>
-        </div>
+        {{=makeFormField(form, "notes", FormFieldType.COLUMNS)}}
+
     </div>
 
     <div class="row">
-        <div class="col">
-            <div class="th_form_label">{{=form.custom.label.img}}</div>
-            <div class="th_form_field">{{=form.custom.widget.img}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.img}}</div>
-        </div>
+        {{=makeFormField(form, "img", FormFieldType.COLUMNS)}}
+        {{=makeFormField(form, "attachment", FormFieldType.COLUMNS)}}
 
-        <div class="col">
-            <div class="th_form_label">{{=form.custom.label.attachment}}</div>
-            <div class="th_form_field">{{=form.custom.widget.attachment}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.attachment}}</div>
-        </div>
     </div>
 </div>
 

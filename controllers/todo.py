@@ -100,13 +100,11 @@ def listview():
 
 
 def update():
-
+ 
     response.title = 'Add/Update Todo'
 
-    form = SQLFORM(db.todo, request.args(0), upload=URL(
-        'default', 'download'), deletable=True, showid=False).process(
-        message_onsuccess='Document %s' % (
-            'updated' if request.args else 'added'),
+    form = SQLFORM(db.todo, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False).process(
+        message_onsuccess='Document %s' % ('updated' if request.args else 'added'),
         next=(URL('todo', 'listview', args=request.vars.id, extension="html"))
     )
 
@@ -114,10 +112,7 @@ def update():
     for s in inputs:
         s['_autocomplete'] = 'off'
 
-    response.view = 'content.html'
-
-    return dict(content=form)
-
+    return dict(form=form)
 
 def newmodal():
     # This is the controller to create a new todo in a modal...

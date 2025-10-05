@@ -1,7 +1,9 @@
 def index():
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
+
     battery_id = request.args(0)
-    battery = db(db.battery.id == battery_id).select(
-    ).first() or redirect(URL('battery', 'listview'))
+    battery = db(db.battery.id == battery_id).select().first() or redirect(URL('battery', 'listview'))
 
     response.title = "Battery: " + battery.name
 
@@ -12,6 +14,8 @@ def index():
 
 
 def listview():
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
 
     response.title = 'Battery List'
 
@@ -57,21 +61,21 @@ def subtractcount():
 
 
 def update():
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
 
     response.title = "Add/Update Battery"
 
-    form = SQLFORM(db.battery, request.args(0), upload=URL(
-        'default', 'download'), deletable=True, showid=False, submit_button='Add').process(
-        message_onsuccess='Document %s' % (
-            'updated' if request.args else 'added'),
-        next=(URL('battery', 'index', args=request.vars.id, extension="html")))
+    form = SQLFORM(db.battery, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False, submit_button='Submit').process(
+        message_onsuccess='Document %s' % ('updated' if request.args else 'added'),
+        next=(URL('battery', 'index', args=request.vars.id, extension="html"))
+    )
+    
     inputs = form.elements('input', _type='text')
     for s in inputs:
         s['_autocomplete'] = 'off'
 
-    response.view = 'content.html'
-
-    return dict(content=form)
+    return dict(form=form)
 
 
 def rendercard():
@@ -113,7 +117,13 @@ def rendercard():
     model_batteries = battery_query.select()
 
     return dict(model_batteries=model_batteries, model_id=model_id, addform=addform, newform=newform, deleteform=deleteform, battery_count=battery_count)
+ 
+def delete():
+    battery_id = request.args[0]
 
+    db(db.battery.id == battery_id).delete()
+    response.flash = "Deleted"
+    return redirect(session.ReturnHere or URL('battery', 'listview'))
 
 def removefrommodel():
     # try to do this via ajax sometime...

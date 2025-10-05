@@ -55,10 +55,9 @@ def update():
     for s in inputs:
         s['_autocomplete'] = 'off'
 
-    response.view = 'content.html'
-
-    return dict(content=form)
-
+    #response.view = 'content.html'
+    #return dict(content=form)
+    return dict(form=form)
 
 def rendercard():
     # session.forget(response)

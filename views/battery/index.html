@@ -1,47 +1,57 @@
 {{extend 'layout.html'}}
 
 
-<div class="container ">
-    <div class="row">
+<div class=" index-page">
 
-        <table class="battery mb-5">
-            <tr>
-                <td colspan="3" class="battery-voltage">{{=battery.voltage}}V</td>
-            </tr>
-            <tr>
-                <td rowspan="2" class="battery-cellcount">{{=battery.cellcount}}S</td>
-                <td class="battery-chemistry">{{=battery.chemistry}}</td>
-                <td rowspan="2" class="battery-crating">{{=battery.crating}}C</td>
-            </tr>
-            <tr>
-                <td class="battery-mah">{{=battery.mah}}mah</td>
-            </tr>
-            <tr>
-                <td colspan="3" class="battery-ownedcount">{{=battery.ownedcount}} owned</td>
-            </tr>
-        </table>
+    <div class="row">
+        <h2>{{=controller_icon('battery', 48)}} {{=battery.name}}</h2>
     </div>
 
-    <div class="row">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Associated Models</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-group">
-                    {{if models:}}
-                    {{for model in models:}}
-                    {{=modelListItem(model, img=True)}}
-                    {{pass}}
 
-                    {{else:}}
-                    No models use this protocol
-                    {{pass}}
-                </ul>
+    <div class="row">
+        <div class="col">
+
+            <table class="battery mb-5">
+                <tr>
+                    <td colspan="3" class="battery-voltage">{{=battery.voltage}}V</td>
+                </tr>
+                <tr>
+                    <td rowspan="2" class="battery-cellcount">{{=battery.cellcount}}S</td>
+                    <td class="battery-chemistry">{{=battery.chemistry}}</td>
+                    <td rowspan="2" class="battery-crating">{{=battery.crating}}C</td>
+                </tr>
+                <tr>
+                    <td class="battery-mah">{{=battery.mah}}mah</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="battery-ownedcount">{{=battery.ownedcount}} owned</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col">
+            <div class="card assoc-card">
+                <div class="card-header">
+                    <h5 class="card-title">Associated Models</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {{if models:}}
+                        {{for model in models:}}
+                        {{=modelListItem(model, img=True)}}
+                        {{pass}}
+
+                        {{else:}}
+                        No models use this protocol
+                        {{pass}}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-    <div class=" row mt-5 mb-5">
-        <a class="btn btn-primary" href="{{=URL('battery','update',args=battery.id,extension='html')}}">Edit</a>
+
+    <div class=" row bg-light fixed-bottom pl-5 p-2">
+        {{=editButton('battery', 'update', battery.id)}}
+        {{=deleteButton('battery', 'delete', battery.id)}}
     </div>
 </div>

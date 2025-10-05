@@ -1,3 +1,64 @@
 {{extend 'layout.html'}}
 
-{{=form}}
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=form.custom.submit}}
+</div>
+<div class="update-page">
+    <div class="row">
+        <h2 class="">{{=controller_icon('wtc', 48)}} Water Tight Cylinder</h2>
+    </div>
+
+    <div class="row">
+        {{=makeFormField(form, "name", FormFieldType.COLUMNS)}}
+        {{=makeFormField(form, "make", FormFieldType.COLUMNS)}}
+        {{=makeFormField(form, "model", FormFieldType.COLUMNS)}}
+
+    </div>
+    <div class="row">
+        {{=makeFormField(form, "notes", FormFieldType.COLUMNS)}}
+
+    </div>
+    <div class="row">
+        {{=makeFormField(form, "img", FormFieldType.COLUMNS)}}
+    </div>
+
+    <fieldset>
+        <legend>Attributes</legend>
+        <div class="row">
+            {{=makeFormField(form, "attr_length_mm", FormFieldType.COLUMNS)}}
+
+        </div>
+
+        <div class="row">
+            {{=makeFormField(form, "attr_outer_diameter_mm", FormFieldType.COLUMNS)}}
+
+        </div>
+
+        <div class="row">
+            {{=makeFormField(form, "attr_width_mm", FormFieldType.COLUMNS)}}
+
+        </div>
+
+        <div class="row">
+            {{=makeFormField(form, "attr_height_mm", FormFieldType.COLUMNS)}}
+
+        </div>
+
+        <div class="row">
+            {{=makeFormField(form, "attr_weight_oz", FormFieldType.COLUMNS)}}
+        </div>
+    </fieldset>
+</div>
+
+{{=form.custom.end}}

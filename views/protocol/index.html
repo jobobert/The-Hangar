@@ -1,36 +1,52 @@
 {{extend 'layout.html'}}
 
-<div class="container">
+<div class="index-page">
     <div class="row">
-        <h2>{{=protocol.name}}</h2>
+        <h2> {{=controller_icon('protocol', 48)}} {{=protocol.name}}</h2>
     </div>
     <div class="row">
         <div class="col-12">
             {{=MARKMIN(protocol.description)}}
         </div>
     </div>
-    <div class="row mb-2">
-        <div class="col-12">
+
+    <div class="row">
+        <div class="card-deck">
+            <div class="card assoc-card">
+                <div class="card-header">
+                    <h5 class="card-title">Models</h5>
+                </div>
+                <div class="card-body">
+                    {{if models:}}
+                    <ul class="list-group">
+                        {{for model in models:}}
+                        {{=modelListItem(model, img=True)}}
+                        {{pass}}
+                    </ul>
+                    {{else:}}
+                    No models use this protocol
+                    {{pass}}
+                </div>
+            </div>
+            <div class="card assoc-card">
+                <div class="card-header">
+                    <h5 class="card-title">Transmitters</h5>
+                </div>
+                <div class="card-body">
+                    {{if transmitters:}}
+                    <ul class="list-group">
+                        {{for transmitter in transmitters:}}
+                        {{=transmitterListItem(transmitter, img=True)}}
+                        {{pass}}
+                    </ul>
+                    {{else:}}
+                    No transmitters use this protocol
+                    {{pass}}
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class=" row bg-light fixed-bottom pl-5 p-2">
             <a class="btn btn-primary" href="{{=URL('protocol', 'update', args=(protocol.id))}}">Edit</a>
         </div>
     </div>
-    <div class="row">
-
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Models</h5>
-            </div>
-            <div class="card-body">
-                {{if models:}}
-                <ul class="list-group">
-                    {{for model in models:}}
-                    {{=modelListItem(model, img=True)}}
-                    {{pass}}
-                </ul>
-                {{else:}}
-                No models use this protocol
-                {{pass}}
-            </div>
-        </div>
-    </div>
-</div>

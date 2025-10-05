@@ -7,13 +7,13 @@ def rendercard():
     si_count = si_query.count()
 
     fields = ['item']
-    form = SQLFORM(db.supportitem, fields=fields, formstyle='bootstrap4_inline', submit_button='Add')
-    for s in form.elements('input', _type='text'):
+    addform = SQLFORM(db.supportitem, fields=fields, formstyle='bootstrap4_inline', submit_button='Add')
+    for s in addform.elements('input', _type='text'):
         s['_autocomplete'] = 'off'
-    form.vars.model = model_id
-    if form.process(session=None, formname='siform').accepted:
+    addform.vars.model = model_id
+    if addform.process(session=None, formname='siform').accepted:
         response.flash = "New Support Item Added"
-    elif form.errors:
+    elif addform.errors:
         response.flash = "Error Adding New Support Item"
 
     del_id = 0
@@ -30,7 +30,7 @@ def rendercard():
 
     items = si_query.select()
 
-    return dict(items=items, model_id=model_id, item_count=si_count, form=form, deleteform=deleteform)
+    return dict(items=items, model_id=model_id, item_count=si_count, addform=addform, deleteform=deleteform)
 
 def remove():
     #session.forget(response)

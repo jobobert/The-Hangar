@@ -1,9 +1,9 @@
 {{extend 'layout.html'}}
 
 {{for transmitter in transmitters:}}
-<div class="container">
+<div class="index-page">
     <div class="row">
-        <h2>{{=transmitter.name}}</h2>
+        <h2>{{=controller_icon('transmitter', 48)}} {{=transmitter.name}}</h2>
     </div>
     {{if transmitter.nickname:}}
     <div class="row">
@@ -18,8 +18,13 @@
             {{pass}}
         </div>
 
-        <div class="col-sm-3">
-            <div class="card ">
+        <div class="col-9">
+            {{=MARKMIN(transmitter.notes)}}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="card-deck">
+            <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Properties</h5>
                 </div>
@@ -40,10 +45,8 @@
                     </dl>
                 </div>
             </div>
-        </div>
 
-        <div class="col-sm-3">
-            <div class="card ">
+            <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Associated Models</h5>
                 </div>
@@ -58,21 +61,20 @@
                     {{else:}}
                     No models use this protocol
                     {{pass}}
-                    
+
                 </div>
             </div>
-        </div>
 
-        <div class="col-sm-3">
-            <div class="card ">
+            <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Attachment</h5>
                 </div>
                 <div class="card-body">
                     {{if transmitter.attachment:}}
-                    <ul>
-                        {{(filename, file) = db.transmitter.attachment.retrieve(transmitter.attachment)}}
-                        <li><a href="{{=URL('default', 'download', args=transmitter.attachment)}}">{{=filename}}</a></li>
+                    {{(filename, file) = db.transmitter.attachment.retrieve(transmitter.attachment)}}
+
+                    <ul class="list-group">
+                        {{=attachmentListItem(transmitter.attachment, True, filename)}}
                     </ul>
                     {{else:}}
                     No Attachments
@@ -81,13 +83,9 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-sm-12">
-            {{=MARKMIN(transmitter.notes)}}
-        </div>
-    </div>
 
-    <div class=" row mt-5 mb-5">
+
+    <div class=" row bg-light fixed-bottom pl-5 p-2">
         <a class="btn btn-primary" href="{{=URL('transmitter','update',args=transmitter.id,extension='html')}}">Edit</a>
     </div>
 </div>

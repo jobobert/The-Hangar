@@ -34,8 +34,8 @@ def listview():
 def update():
     response.title = "Add/Update Sail Rig"
 
-    form = SQLFORM(db.sailrig, request.args(0), upload=URL(
-        'default', 'download'), deletable=True, showid=False).process(
+    form = SQLFORM(db.sailrig, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False).process(
+        formname='updateform',
         message_onsuccess='Rig %s' % ('updated' if request.args else 'added'),
         next=(URL('sailrig', 'index', args=request.vars.id, extension='html'))
     )
@@ -43,9 +43,15 @@ def update():
     for s in inputs:
         s['_autocomplete'] = 'off'
 
-    response.view = 'content.html'
+    return dict(form=form)
 
-    return dict(content=form)
+
+def delete():
+    sailrig_id = request.args[0]
+
+    db(db.sailrig.id == sailrig_id).delete()
+    response.flash = "Deleted"
+    return redirect(session.ReturnHere or URL('sailrig', 'listview'))
 
 
 def rendercard():

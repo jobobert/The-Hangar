@@ -1,9 +1,9 @@
 {{extend 'layout.html'}}
 
 {{for tool in tools:}}
-<div class="container ">
+<div class="index-page ">
     <div class="row">
-        <h2>{{=tool.name}} <span class="badge badge-secondary">{{=tool.tooltype}}</span></h2>
+        <h2>{{=controller_icon('tool', 48)}} {{=tool.name}} <span class="badge badge-secondary">{{=tool.tooltype}}</span></h2>
     </div>
 
     <div class="row">
@@ -13,44 +13,43 @@
     </div>
 
     <div class="row">
-        {{if models:}}
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Associated Models</h5>
-            </div>
-            <div class="card-body">
-                {{if models:}}
-                <ul class="list-group">
-                    {{for model in models:}}
-                    {{=modelListItem(model, img=True)}}
+        <div class="card-deck">
+            {{if models:}}
+            <div class="card assoc-card">
+                <div class="card-header">
+                    <h5 class="card-title">Associated Models</h5>
+                </div>
+                <div class="card-body">
+                    {{if models:}}
+                    <ul class="list-group">
+                        {{for model in models:}}
+                        {{=modelListItem(model, img=True)}}
+                        {{pass}}
+                    </ul>
+                    {{else:}}
+                    No models use this tool
                     {{pass}}
-                </ul>
-                {{else:}}
-                No models use this protocol
-                {{pass}}
+                </div>
             </div>
-        </div>
-        {{pass}}
-        {{if tool.attachment:}}
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Attachment</h5>
-            </div>
-            <div class="card-body">
-                <ul>
+            {{pass}}
+            {{if tool.attachment:}}
+            <div class="card assoc-card">
+                <div class="card-header">
+                    <h5 class="card-title">Attachment</h5>
+                </div>
+                <div class="card-body">
                     {{(filename, file) = db.component.attachment.retrieve(tool.attachment)}}
-                    <li><a href="{{=URL('default', 'download', args=tool.attachment)}}">{{=filename}}</a></li>
-                </ul>
+                    <ul class="list-group">
+                        {{=attachmentListItem(tool.attachment, True, filename)}}
+                    </ul>
+                </div>
             </div>
+            {{pass}}
         </div>
-        {{pass}}
     </div>
-    <div class=" row mt-5 mb-5">
+    <div class=" row bg-light fixed-bottom pl-5 p-2">
         <a class="btn btn-primary" href="{{=URL('tool','update',args=tool.id,extension='html')}}">Edit</a>
     </div>
 </div>
-
-
-
 
 {{pass}}

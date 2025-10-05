@@ -1,27 +1,32 @@
 {{extend 'layout.html'}}
 
 
-<div class="container ">
+<div class="index-page ">
+    <div class="row">
+        <h2>{{=controller_icon('library', 48)}} Library</h2>
+    </div>
+
     <div class="btn-toolbar bg-light">
 
         <form action="{{=URL('library','search')}}" method="get">
-        <div class=" form-row">
-            <div class="col-auto">
-                <input class="form-control form-control-sm" name="s" type="text" autocomplete="off" placeholder="Search">
+            <div class=" form-row">
+                <div class="col-auto">
+                    <input class="form-control form-control-sm" name="s" type="text" autocomplete="off" placeholder="Search">
+                </div>
+                <div class="col-auto">
+                    <button class="form-control form-control-sm btn btn-sm" type="submit">Go</button>
+                </div>
             </div>
-            <div class="col-auto">
-                <button class="form-control form-control-sm btn btn-sm" type="submit">Go</button>
-            </div>
-        </div>
         </form>
-        <div class="row">
-            <a class="col-auto btn btn-sm {{='btn-secondary' if 'all' == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index')}}">All</a>
-            <a class="col-auto btn btn-sm {{='btn-secondary' if 'book' == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index', vars=dict(b=1))}}">Books</a>
-            {{for tag in tags:}}
-            <a class="col-auto btn btn-sm {{='btn-secondary' if tag.name == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index', vars=dict(t=tag.id))}}">{{=tag.name}}</a>
-            {{pass}}
-        </div>
     </div>
+    <div class="btn-toolbar bg-light">
+        <a class="col-auto btn btn-sm {{='btn-secondary' if 'all' == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index')}}">All</a>
+        <a class="col-auto btn btn-sm {{='btn-secondary' if 'book' == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index', vars=dict(b=1))}}">Books</a>
+        {{for tag in tags:}}
+        <a class="col-auto btn btn-sm {{='btn-secondary' if tag.name == tagname else 'btn-outline-dark'}}" href="{{=URL('library', 'index', vars=dict(t=tag.id))}}">{{=tag.name}}</a>
+        {{pass}}
+    </div>
+
 
     <div class="row  pl-5 p-2 fixed-bottom">
         <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
@@ -45,37 +50,38 @@
                 {{pass}}
             </a>
         </div>
-        {{if article['img']:}}
-        <div class="col-sm-7">
-            {{else:}}
-            <div class="col-sm-9">
-                {{pass}}
-                <a class="library-link" href="{{=readlink}}">
-                    {{=makeTagList(article['tags'])}}
-                    {{=DIV(B(article['name']))}}
-                    {{=DIV(I(article['summary']))}}
-                </a>
-            </div>
-            <div class="col-sm-1">
-                {{if article['attachment']:}}
-                <a href="{{=URL('default', 'download', args=article['attachment'])}}">
-                    {{=filetype_icon(article['attachment'], 32) }}
-                </a>
-                {{pass}}
-            </div>
-            {{if article['img']:}}
-            <div class="col-sm-2">
-                <img class="img-thumbnail rounded" style="max-width: 150px; max-height:150px;" src="{{=URL('default', 'download', args=article['img'])}}" alt="Image" />
-            </div>
-            {{pass}}
-            <div class="col-sm-1">
-                {{=editButton(controller, 'update', article['id'])}}
-            </div>
 
+        <!--<div class="{{= 'col-sm-6' if article['img'] else 'col-sm-8'}}">-->
+        <div class="col">
+            <a class="library-link" href="{{=readlink}}">
+                {{=makeTagList(article['tags'])}}
+                {{=DIV(B(article['name']))}}
+                {{=DIV(I(article['summary']))}}
+            </a>
+        </div>
+        {{if article['img']:}}
+        <div class="col-sm-2">
+            <img class="img-thumbnail rounded" style="max-width: 150px; max-height:150px;" src="{{=URL('default', 'download', args=article['img'])}}" alt="Image" />
         </div>
         {{pass}}
+        <div class="col-sm-1">
+            {{if article['attachment']:}}
+            {{if isimage(article['attachment']):}}
+            {{=AttachPopup(article['attachment'], True)}}
+            {{else:}}
+            <a class="d-inline-block" href="{{=URL('default', 'download', args=article['attachment'])}}">{{=filetype_icon(article['attachment'], 32) }}</a>
+            {{pass}}
+            {{pass}}
+        </div>
 
-        <!--<div class="row mt-5 mb-5">
+        <div class="col-sm-1">
+            {{=editButton(controller, 'update', article['id'])}}
+        </div>
+
+    </div>
+    {{pass}}
+
+    <!--<div class="row mt-5 mb-5">
             <a class="btn btn-primary" href="{{=URL('library','update',extension='html')}}">Add Item</a>
         </div>-->
-    </div>
+</div>

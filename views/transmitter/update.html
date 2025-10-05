@@ -18,57 +18,23 @@ Your submitted form contains the following errors:
     <div class="row">
         <h2 class="">{{=controller_icon('transmitter', 48)}} Transmitter</h2>
     </div>
-
     <div class="row">
-
-        <div class="col-12">
-            <div class="th_form_label_required">{{=form.custom.label.name}}</div>
-            <div class="th_form_field">{{=form.custom.widget.name}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.name}}</div>
-        </div>
+        {{=makeFormField(form, "name", FormFieldType.COLUMNS)}}
     </div>
     <div class="row">
-        <div class="col-6">
-            <div class="th_form_label">{{=form.custom.label.nickname}}</div>
-            <div class="th_form_field">{{=form.custom.widget.nickname}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.nickname}}</div>
-        </div>
-        <div class="col-6">
-            <div class="th_form_label">{{=form.custom.label.serial}}</div>
-            <div class="th_form_field">{{=form.custom.widget.serial}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.serial}}</div>
-        </div>
+        {{=makeFormField(form, "nickname", FormFieldType.COLUMNS, columns=6)}}
+        {{=makeFormField(form, "serial", FormFieldType.COLUMNS, columns=6)}}
     </div>
     <div class="row">
-        <div class="col-6">
-            <div class="th_form_label">{{=form.custom.label.os}}</div>
-            <div class="th_form_field">{{=form.custom.widget.os}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.os}}</div>
-        </div>
-        <div class="col-6">
-            <div class="th_form_label">{{=form.custom.label.protocol}}</div>
-            <div class="th_form_field">{{=form.custom.widget.protocol}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.protocol}}</div>
-        </div>
+        {{=makeFormField(form, "os", FormFieldType.COLUMNS, columns=6)}}
+        {{=makeFormField(form, "protocol", FormFieldType.COLUMNS, columns=6)}}
     </div>
     <div class="row">
-        <div class="col-6">
-            <div class="th_form_label">{{=form.custom.label.img}}</div>
-            <div class="th_form_field">{{=form.custom.widget.img}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.img}}</div>
-        </div>
-        <div class="col-6">
-            <div class="th_form_label">{{=form.custom.label.attachment}}</div>
-            <div class="th_form_field">{{=form.custom.widget.attachment}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.attachment}}</div>
-        </div>
+        {{=makeFormField(form, "img", FormFieldType.COLUMNS, columns=6)}}
+        {{=makeFormField(form, "attachment", columns=6)}}
     </div>
     <div class="row">
-        <div class="col-12">
-            <div class="th_form_label">{{=form.custom.label.notes}}</div>
-            <div class="th_form_field">{{=form.custom.widget.notes}}</div>
-            <div class="th_form_comment d-none d-sm-block">{{=form.custom.comment.notes}}</div>
-        </div>
+        {{=makeFormField(form, "notes", FormFieldType.COLUMNS)}}
     </div>
 </div>
 

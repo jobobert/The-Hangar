@@ -63,14 +63,15 @@
     </div>
 
     <div class="row">
-
+        
         {{if isimage(article.attachment):}}
         <img class="img-thumbnail rounded"
              src="{{=URL('default', 'download', args=article.attachment)}}" alt="Attachment" />
         {{elif ispdf(article.attachment):}}
         <iframe src="http://docs.google.com/gview?url={{=URL('default', 'download', args=article.attachment, scheme=True, host=True)}}&embedded=true" frameborder="0"></iframe>
         {{pass}}
-        http://docs.google.com/gview?url={{=URL('default', 'download', args=article.attachment, scheme=True, host=True)}}&embedded=true
+        
+        
     </div>
 
     <div class="row pl-5 p-2 fixed-bottom">

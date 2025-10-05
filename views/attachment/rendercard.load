@@ -20,14 +20,14 @@
         <!-- The text needs to link to the details (same card, popover?) 
                     The complete button just needs to complete it and reload the list -->
         <div class="row border-bottom mt-1 mb-1 pt-1">
-            <div class="col-8">
+            <div class="col">
                 <div class="d-inline-block attachment_icon">{{=filetype_icon(attachment, 32) }}</div>
                 <div class="d-inline-block attachment_name"><a href="{{=URL('default', 'download.html', args=attachment.attachment)}}" target="_blank">{{=attachment.name}}</a></div>
-            </div>
-            <div class="col-4">
                 {{if isimage(attachment):}}
-                <a class="btn btn-primary" data-toggle="modal" data-target="#mainModal" data-whatever="<img class='card-img-top' src='{{=URL('default', 'download', args=attachment.attachment)}}'' alt='Attachment'>">{{=action_icon('OpenTab', 16)}}</a>
+                {{=AttachPopup(attachment)}}
                 {{pass}}
+            </div>
+            <div class="col-2">
                 <button class="btn btn-danger" type="submit" value="Remove" name="{{=attachment.id}}">{{=action_icon('delete', 16)}}</button>
             </div>
 

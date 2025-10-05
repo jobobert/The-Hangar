@@ -4,13 +4,13 @@
     /*font-style: italic;*/
 }
 
-.component_form_label_required,
+.th_form_label_required,
 .model_form_label_required {
     font-weight: bold;
 }
 
-.component_form_comment,
-.component_form_comment_boolean,
+.th_form_comment,
+.th_form_comment_boolean,
 .model_form_comment {
     display: block;
     margin-left: 1rem;
@@ -18,15 +18,15 @@
     font-size: smaller;
 }
 
-.component_form_label_boolean {
+.th_form_label_boolean {
     display: inherit;
 }
 
-.component_form_field_boolean {
+.th_form_field_boolean {
     margin-left: 1rem;
 }
 
-.component_form_field_calc {
+.th_form_field_calc {
     background-color: #ece9e9;
 }
 
@@ -199,6 +199,7 @@ div.pie-card {
     box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
 }
 
+div.assoc-card,
 div.model-card {
     max-width: 310px;
     min-width: 310px;
@@ -863,4 +864,33 @@ div.breadcrumb {
     Padding-left: 1em;
     font-weight: bold;
 
+}
+
+.web2py_checkboxeswidget label{
+    margin-left: 0.5rem;
+}
+
+div.update-page,
+div.index-page{
+    /*margin-bottom: 1rem;*/
+    padding-bottom: 60px;
+}
+
+div.update-page h2,
+div.index-page h2 {
+    color: rgb(37, 36, 36);
+    border-bottom: 3px solid #630556;
+    padding-bottom: 3px;
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+div.update-page h3,
+div.index-page h3 {
+    font-size: 20pt;
+    color: rgb(37, 36, 36);
+    border-bottom: 3px solid #630556;
+    padding-bottom: 3px;
+    width: 100%;
+    margin-bottom: 2rem;
 }

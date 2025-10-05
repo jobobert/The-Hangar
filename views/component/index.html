@@ -1,12 +1,11 @@
 {{extend 'layout.html'}}
 
 {{for comp in component:}}
-<div class="container ">
+<div class=" index-page">
     <div class="row">
-        <h2>{{=comp.name}}</h2>
-
+        <h2>{{=controller_icon('component', 48)}} {{=comp.name}}</h2>
     </div>
- 
+
 
     <div class="row">
         {{if comp.img:}}
@@ -20,103 +19,99 @@
     </div>
 
     <div class="row">
-
-        <div class="card ml-3">
-            <div class="card-header">
-                <h5 class="card-title">Attributes</h5>
-            </div>
-            <div class="card-body attribute-list">
-                <dl>
-                    <dt>Type</dt>
-                    <dd>{{=comp.componenttype}}</dd>
+        <div class="card-deck">
+            <div class="card assoc-card ml-3">
+                <div class="card-header">
+                    <h5 class="card-title">Attributes</h5>
+                </div>
+                <div class="card-body attribute-list">
+                    <dl>
+                        <dt>Type</dt>
+                        <dd>{{=comp.componenttype}}</dd>
                         {{if comp.componentsubtype:}}
                         <dt>Subtype</dt>
                         <dd>{{=comp.componentsubtype}}</dd>
                         {{pass}}
-                    </dd>
-                    <dt>Owned</dt>
-                    <dd>{{=comp.ownedcount}}</dd>
-                    <dt>Remaining</dt>
-                    <dd>{{=comp.get_remainingcount()}}</dd>
-                    <dt>Stored at</dt>
-                    <dd>{{=comp.storedat}}</dd>
-                    {{for key in comp.__dict__:}}
-                    {{if key.startswith('attr_') and comp[key]:}}
-
-                    <dt>{{=getattr(db.component, key).label}}</dt>
-                    <dd>{{if getattr(db.component, key).type == 'double':}}
-                        {{=TwoDecimal(comp[key])}} {{=ConvertMeasurementField(db.component, comp, key)}}
-                        {{else:}}
-                        {{=comp[key]}}
+                        <dt>Owned</dt>
+                        <dd>{{=comp.ownedcount}}</dd>
+                        <dt>Remaining</dt>
+                        <dd>{{=comp.get_remainingcount()}}</dd>
+                        <dt>Stored at</dt>
+                        <dd>{{=comp.storedat}}</dd>
+                        {{for key in comp.__dict__:}}
+                        {{if key.startswith('attr_') and comp[key]:}}
+                        <dt>{{=getattr(db.component, key).label}}</dt>
+                        <dd>{{if getattr(db.component, key).type == 'double':}}
+                            {{=TwoDecimal(comp[key])}} {{=ConvertMeasurementField(db.component, comp, key)}}
+                            {{else:}}
+                            {{=comp[key]}}
+                            {{pass}}
+                        </dd>
                         {{pass}}
-                    </dd>
-                    {{pass}}
-                    {{pass}}
-                </dl>
-            </div>
-        </div>
-
-        {{if comp.attachment:}}
-        <div class="card ml-3">
-            <div class="card-header">
-                <h5 class="card-title">Attachment</h5>
-            </div>
-            <div class="card-body">
-                <ul>
-        
-                    {{(filename, file) = db.component.attachment.retrieve(comp.attachment)}}
-                    <li>
-                        <div class="d-inline-block attachment_icon">{{=filetype_icon(comp.attachment, 32) }}</div>
-                        <div class="d-inline-block attachment_name"><a href="{{=URL('default', 'download', args=comp.attachment)}}">{{=filename}}</a> </div>
-                        <div class="d-inline-block">{{=comp.showAttachmentPopup()}}</div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        {{pass}}
-
-        <div class="card  ml-3">
-            <div class="card-header">
-                <h5 class="card-title">Associated Models</h5>
-            </div>
-            <div class="card-body">
-                <ul class="list-group">
-
-                    {{if modelCount:}}
-                    {{for model in modelCount:}}
-                    {{=modelListItem(modelCount[model], img=False, label=f'{model} ({modelCount[model]})', idOverride=modelIDs[model])}}
-                    {{pass}}
-
-                    {{else:}}
-                    No models use this protocol
-                    {{pass}}
-                </ul>
-            </div>
-            <div class="card-footer">
-                <div class=" m-2 ">
-                    <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_component" role="button" aria-expanded="false" aria-controls="collapseform_component">Add</a>
+                        {{pass}}
+                    </dl>
                 </div>
-                <div class=" m-2 collapse " id="collapseform_component">
-                    {{=addform}}
+            </div> {{if comp.attachment:}}
+            <div class="card assoc-card ml-3">
+                <div class="card-header">
+                    <h5 class="card-title">Attachment</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+
+                        {{(filename, file) = db.component.attachment.retrieve(comp.attachment)}}
+                        <li>
+                            <div class="d-inline-block attachment_icon">{{=filetype_icon(comp.attachment, 32) }}</div>
+                            <div class="d-inline-block attachment_name"><a href="{{=URL('default', 'download', args=comp.attachment)}}">{{=filename}}</a> </div>
+                            <div class="d-inline-block">{{=comp.showAttachmentPopup()}}</div>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
+            {{pass}}
 
-        {{if flitetimes:}}
-        <div class="card ml-3">
-            <div class="card-header">
-                <h5 class="card-title">Flight Times</h5>
-            </div>
-            <div class="card-body">
-                <ul>
-                    {{for f in flitetimes:}}
-                    <li>{{=f.model.name}} flying for {{=f.get_minutes()}} minutes</li>
-                    {{pass}}
-                </ul>
-            </div>
-        </div>
-        {{pass}}
+            <div class="card assoc-card ml-3">
+                <div class="card-header">
+                    <h5 class="card-title">Associated Models</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
 
+                        {{if modelCount:}}
+                        {{for model in modelCount:}}
+                        {{=modelListItem(modelIDs[model], img=True, label=f'{model} ({modelCount[model]})')}}
+                        {{pass}}
+
+                        {{else:}}
+                        No models use this protocol
+                        {{pass}}
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <div class=" m-2 ">
+                        <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_component" role="button" aria-expanded="false" aria-controls="collapseform_component">Add</a>
+                    </div>
+                    <div class=" m-2 collapse " id="collapseform_component">
+                        {{=addform}}
+                    </div>
+                </div>
+            </div>
+
+            {{if flitetimes:}}
+            <div class="card assoc-card ml-3">
+                <div class="card-header">
+                    <h5 class="card-title">Flight Times</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        {{for f in flitetimes:}}
+                        <li>{{=f.model.name}} flying for {{=f.get_minutes()}} minutes</li>
+                        {{pass}}
+                    </ul>
+                </div>
+            </div>
+            {{pass}}
+        </div>
     </div>
     <div class=" row bg-light fixed-bottom pl-5 p-2">
         <a class="btn btn-primary" href="{{=URL('component','update',args=comp.id,extension='html')}}">Edit</a>

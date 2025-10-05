@@ -1,8 +1,8 @@
 {{extend 'layout.html'}}
 
-<div class="container">
+<div class="index-page">
     <div class="row">
-        <h2>{{=wtc.name}}</h2>
+        <h2>{{=controller_icon('wtc', 48)}} {{=wtc.name}}</h2>
     </div>
 
     <div class="row">
@@ -11,9 +11,15 @@
             <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=wtc.img)}}" alt="WTC image">
             {{pass}}
         </div>
-        <div class="col-sm-4">
+        <div class="col-8">
+            {{=MARKMIN(wtc.notes)}}
+        </div>
 
-            <div class="card">
+    </div>
+    <div class="row">
+        <div class="card-deck">
+
+            <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Attributes</h5>
                 </div>
@@ -37,21 +43,18 @@
                     </dl>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-4">
 
-            <div class="card">
+            <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Models</h5>
                 </div>
                 <div class="card-body">
                     {{if models:}}
-                    <dl>
+                    <ul class="list-group">
                         {{for model in models:}}
-                        <dt><a href="{{=URL('model','index.html',args=[model.model.id])}}" target="_blank">{{=model.model.name}}</a></dt>
-                        <dd>{{=model.notes}}</dd>
+                        {{=modelListItem(model.model, img=True, detail=model.notes)}}
                         {{pass}}
-                    </dl>
+                    </ul>
                     {{else:}}
                     No Models associated with this WTC.
                     {{pass}}
@@ -59,15 +62,9 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-12 mt-5 mb-5">
-            {{=MARKMIN(wtc.notes)}}
-        </div>
-    </div>
+  
 
-    <div class="row mb-2">
-        <div class="col-12">
-            <a class="btn btn-primary" href="{{=URL('wtc', 'update', args=wtc.id)}}">Edit</a>
-        </div>
+    <div class=" row bg-light fixed-bottom pl-5 p-2">
+        <a class="btn btn-primary" href="{{=URL('wtc', 'update', args=wtc.id)}}">Edit</a>
     </div>
 </div>

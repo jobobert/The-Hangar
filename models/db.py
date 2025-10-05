@@ -199,13 +199,16 @@ db.define_table('protocol',
                 )
 
 db.define_table('transmitter', 
-                Field('name', type='string', label='Name'), Field('nickname', type='string', label='Nickname'), 
+                Field('name', type='string', label='Name', required=True), 
+                Field('nickname', type='string', label='Nickname'), 
                 Field('serial', type='string', label='Serial Number'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
                 Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the transmitter', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Manual', comment='The manual, etc', default=''), 
                 Field('os', type='string', label='Operating System/Version'),
-                Field('protocol', type='list:reference protocol', label='Protocols Supported', comment='The protocols supported by this transmitter', represent=lambda v, r: ', '.join([p.name for p in db(db.protocol.id.belongs(v)).select()]) ),
+                Field('protocol', type='list:reference protocol', label='Protocols Supported', comment='The protocols supported by this transmitter',
+                widget=SQLFORM.widgets.checkboxes.widget, 
+                represent=lambda v, r: ', '.join([p.name for p in db(db.protocol.id.belongs(v)).select()]) ),
                 format=lambda row: row.name
                 )
 
@@ -230,17 +233,17 @@ db.define_table('model'
                 , Field('attr_flight_timer', type='double', label='Flight Timer', comment='The length of the flight timer', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 , Field('attr_construction', type='string', label='Construction')
                 , Field('attr_cog', type='string', label='CoG', comment='The COG')
-                , Field('attr_length', type='double', label='Length (mm)', comment='The length', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
-                , Field('attr_width', type='double', label='Width/Beam (mm)', comment='The width/beam', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
-                , Field('attr_height', type='double', label='Height (mm)', comment='The height', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
-                , Field('attr_weight_oz', type='double', label='Weight (oz)', comment='The weight (oz)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))                
+                , Field('attr_length', type='double', label='Length', comment='The length', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_width', type='double', label='Width/Beam', comment='The width/beam', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_height', type='double', label='Height', comment='The height', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_weight_oz', type='double', label='Weight', comment='The weight', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))                
                 , Field('attr_covering', type='string', label='Covering', comment='The covering type')
                 #
                 , Field('attr_plane_rem_wings', type='boolean', label='Removable Wings?', comment='Does it have removable wings?')
                 , Field('attr_plane_rem_wing_tube', type='boolean', label='Removable Wing Tube?', comment='Does it have a removable wing tube?')
                 , Field('attr_plane_rem_struts', type='boolean', label='Removable Struts?', comment='Does it have removable struts?')
-                , Field('attr_plane_wingspan_mm', type='double', label='Wingspan (mm)', comment='The wingspan (in mm)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
-                , Field('attr_plane_wingarea', type='double', label='Wingarea (sqin)', comment='The wing area (in sqin)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_plane_wingspan_mm', type='double', label='Wingspan', comment='The wingspan (in mm)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_plane_wingarea', type='double', label='Wingarea', comment='The wing area (in sqin)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 , Field('attr_plane_throw_aileron', type='string', label='Aileron Throw', comment='The aileron throws')
                 , Field('attr_plane_throw_elevator', type='string', label='Elevator Throw', comment='The elevator throws')
                 , Field('attr_plane_throw_rudder', type='string', label='Rudder Throw', comment='The rudder throws')
@@ -250,13 +253,13 @@ db.define_table('model'
                 , Field('attr_rocket_body_tube', type='string', label='Body Tube', comment='What is the size of the body tube?')
                 , Field('attr_rocket_motors', type='list:string', label='Motors', comments='Motors, seperated by "|"')
                 #
-                , Field('attr_boat_draft', type='double', label='Draft (mm)', comment='The draft in mm', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))                
+                , Field('attr_boat_draft', type='double', label='Draft', comment='The draft in mm', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))                
                 # 
                 , Field('attr_sub_ballast', type='string', label='Ballast Type', comment='The ballast type')
                 #
                 , Field('attr_copter_headtype', type='string', label='Head Type', comment='The type of rotor head')
-                , Field('attr_copter_mainrotor_length', type='double', label='Main Rotor Length (mm)', comment='The length of the main rotor blades', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
-                , Field('attr_copter_tailrotor_span', type='double', label='Tail Rotor Length (mm)', comment='The length of the tail rotor blades', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_copter_mainrotor_length', type='double', label='Main Rotor Length', comment='The length of the main rotor blades', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_copter_tailrotor_span', type='double', label='Tail Rotor Length', comment='The length of the tail rotor blades', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 , Field('attr_copter_tailrotor_drive', type='string', label='Tail Rotor Drive', comment='What drives the tail rotor?')
                 , Field('attr_copter_swashplate_type', type='string', label='Swashplate Type', comment="What type of swashplate does it use?")
                 , Field('attr_copter_size', type='integer', label='The "Size" of the Heli', comment='What is the common size designation of the heli?', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control'))
@@ -497,16 +500,17 @@ modeltype_controller_mapping = {
     'Experimental' : ['propller', 'rotor', 'wtc', 'sailrig'], 
     'Car' : [], 
     'Autogyro' : ['propller', 'rotor'] ,
-    'Submarine' : ['propeller', 'wtc']
+    'Submarine' : ['propeller', 'wtc'],
+    'Non-Model' : [],
 }
 
 ###############################################
 ## TODO
 
 db.define_table('todo', 
-                Field('todo', type='string', label='To Do'), 
+                Field('todo', type='string', label='To Do', required=True), 
                 Field('model', type='reference model'), 
-                Field('critical', type='boolean', default=False), 
+                Field('critical', type='boolean', default=False, comment='Does this prevent the model from operating?'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
                 Field('complete', type='boolean', label="Complete?", default=False), 
                 format=lambda row: 'Unknown' if row is None else row.todo)
@@ -552,10 +556,10 @@ db.define_table('component',
                 Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the component', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='More info'), 
                 Field('storedat', type='string', label='Location', comment='Where is this component stored?'),
-                Field('attr_length', type='double', label='Length (mm)', comment='The length', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
-                Field('attr_width', type='double', label='Width/Beam (mm)', comment='The width/beam', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
-                Field('attr_height', type='double', label='Height (mm)', comment='The height', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
-                Field('attr_weight_oz', type='double', label='Weight (oz)', comment='The weight (oz)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),               
+                Field('attr_length', type='double', label='Length', comment='The length', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_width', type='double', label='Width/Beam', comment='The width/beam', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_height', type='double', label='Height', comment='The height', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_weight_oz', type='double', label='Weight', comment='The weight', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),               
                 #
                 Field('attr_channel_count', type='integer', label='Channel Count', comment='Number of channels', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
                 Field('attr_telemetry_port', type='boolean', label='Telemetry Port', comment='This component has a telemetry port'),
@@ -703,11 +707,11 @@ models_and_tools = db(
 ## BATTERY
 
 db.define_table('battery', 
-                Field('cellcount', type='integer', label='Cell Count', required=True, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
+                Field('cellcount', type='integer', label='Cell Count', comment="Number of cells in the pack", required=True, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
                 Field('mah', type='integer', label='mAh', required=True, widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _class='generic-widget form-control')), 
                 Field('chemistry', required=True), 
                 Field('crating', type='integer', label='C Rating', required=True, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
-                Field('ownedcount', type='integer', label='How many are owned?', default=1, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
+                Field('ownedcount', type='integer', label='Number Owned', comment='How many are owned?', required=True, default=1, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
                 format=lambda row: row.chemistry + ': ' + str(row.cellcount) + 's' + str(row.mah) + ' (' + str(row.crating) + ') '
                 )
 
@@ -755,17 +759,18 @@ models_and_batteries = db(
 
 db.define_table('sailrig', 
                 Field('rigname', type='string', label='Designation (A, B, C)', required=True, unique=False), 
-                Field('model', 'reference model'), Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the sail rig', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
-                Field('mast_length_mm', type='integer', label='Mast Length (mm)', required=False), 
+                Field('model', 'reference model'), 
+                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the sail rig', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
+                Field('mast_length_mm', type='integer', label='Mast Length', required=False), 
                 Field('mast_material', type='string', label='Mast Material', required=False), 
-                Field('main_boom_length_mm', type='integer', label='Main Boom Length (mm)', required=False), 
+                Field('main_boom_length_mm', type='integer', label='Main Boom Length', required=False), 
                 Field('main_boom_material', type='string', label='Main Boom Material', required=False), 
                 Field('main_sail_material', type='string', label='Main Sail Material', required=False), 
-                Field('main_sail_area_dm2', type='double', label='Main Sail Area (dm2)', required=False), 
-                Field('jib_boom_length_mm', type='integer', label='Jib Boom Length (mm)', required=False), 
+                Field('main_sail_area_dm2', type='double', label='Main Sail Area', required=False), 
+                Field('jib_boom_length_mm', type='integer', label='Jib Boom Length', required=False), 
                 Field('jib_boom_material', type='string', label='Jib Boom Material', required=False), 
                 Field('jib_sail_material', type='string', label='Jib Sail Material', required=False), 
-                Field('jib_sail_area_dm2', type='double', label='Jib Sail Area (dm2)', required=False), 
+                Field('jib_sail_area_dm2', type='double', label='Jib Sail Area', required=False), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
                 format=lambda row: 'Unknown' if row is None else row.rigname
                 )
@@ -858,8 +863,8 @@ db.attachment.attachmenttype.requires = IS_IN_SET(
 ## PACKING ITEMS
 
 db.define_table('packingitems', 
-                Field('name', type='string', label='Name'), 
-                Field('itemtype', type='string', label='Type')
+                Field('name', type='string', label='Name', required=True), 
+                Field('itemtype', type='string', label='Type', required=True)
                 )
 
 db.packingitems.itemtype.requires = IS_IN_SET(
@@ -885,11 +890,11 @@ db.define_table('wtc',
                 Field('img', type='upload', uploadseparate=True, autodelete=True, label='Picture', comment='The picture of the WTC', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))),
                 Field('make', type='string', label='Make'),
                 Field('model', type='string', label='Model'),
-                Field('attr_length_mm', type='double', label='Length (mm)', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
-                Field('attr_outer_diameter_mm', type='double', label='Outer Diameter (mm)', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
-                Field('attr_width_mm', type='double', label='Width/Beam (mm)', comment='The width/beam', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
-                Field('attr_height_mm', type='double', label='Height (mm)', comment='The height', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
-                Field('attr_weight_oz', type='double', label='Weight (oz)', comment='The weight (oz)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_length_mm', type='double', label='Length', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
+                Field('attr_outer_diameter_mm', type='double', label='Outer Diameter', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
+                Field('attr_width_mm', type='double', label='Width/Beam', comment='The width/beam', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_height_mm', type='double', label='Height', comment='The height', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_weight_oz', type='double', label='Weight', comment='The weight', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
                 #
                 format=lambda row: 'Unknown' if row is None else row.name
                 )
@@ -925,7 +930,7 @@ db.define_table('hardware',
                 Field('model', 'reference model', label='Model', required=True),
                 Field('hardwaretype', type='string', label='Type', required=True),
                 Field('diameter', type='string', label='Size/Dimensions'),
-                Field('length_mm', type='double', label='Length (mm)', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
+                Field('length_mm', type='double', label='Length', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
                 Field('purpose', type='string', label='Purpose'),
                 Field('quantity', type='integer', label='Quantity', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
                 format=lambda row: row.type + " : " + row.size
@@ -968,51 +973,7 @@ switches_and_positions = db(
     (db.switch.id == db.switch_position.switch)
 )
 
-###############################################
-## UTILITIES
 
-def TwoDecimal(number):
-    if number is None:
-        return 0.00
-    return "{:.2f}".format(number)
-
-
-def ZeroDecimal(number):
-    if number is None:
-        return 0
-    return "{:.0f}".format(number)
-
-def AttachPopup(attachment):
-    if isimage(attachment):
-        attributes = {
-            '_data-toggle': 'modal',
-            '_data-target': '#mainModal',
-            '_data-whatever': '<img class="card-img-top" src=' + URL("default", "download", args=attachment) + '>'
-        }
-        return A(action_icon("OpenTab", 16), **attributes)
-    else:
-        return ""
-
-def ConvertMeasurementField(table, row, FieldName, seperator=" | "):
-    if not hasattr(db[table][FieldName], "extra"):
-        return ""
-
-    match getattr(db[table], FieldName).extra['measurement']:
-        case 'mm':
-            return seperator + str(TwoDecimal((row[FieldName] or 0) / 25.4)) + " in"
-        case 'oz':
-            if row[FieldName] >= 16:
-                return seperator + str(TwoDecimal((row[FieldName] or 0) / 16)) + " lbs"
-            else:
-                return seperator + str(TwoDecimal((row[FieldName] or 0) * 23.85)) + " g"
-        case 'dm2':
-            return seperator + str(TwoDecimal((row[FieldName] or 0) / 9.29)) + " sqin"
-        case 'sqin':
-            return seperator + str(TwoDecimal((row[FieldName] or 0) * 9.29)) + "dm2"
-        case 'cc':
-            return seperator + str(TwoDecimal((row[FieldName] or 0) / 1000)) + " liters"
-        case _:
-            return ""
 
 ###############################################
 ## INITIAL DATABASE SETUP

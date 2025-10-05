@@ -11,43 +11,20 @@ Your submitted form contains the following errors:
 {{pass}}
 
 {{=form.custom.begin}}
-<div class="row bg-light fixed-bottom pl-5 p-2">
-    {{=form.custom.submit}}
-</div>
+
 <div class="update-page">
     <div class="row">
-        <h2 class="">Battery</h2>
+        <h2 class="">{{=controller_icon('battery', 48)}} Battery</h2>
     </div>
 
-    <div class="row">
+    {{=makeFormField(form, 'cellcount', FormFieldType.ROWS)}}
+    {{=makeFormField(form, 'mah', FormFieldType.ROWS)}}
+    {{=makeFormField(form, 'chemistry', FormFieldType.ROWS)}}
+    {{=makeFormField(form, 'crating', FormFieldType.ROWS)}}
+    {{=makeFormField(form, 'ownedcount', FormFieldType.ROWS)}}
 
-        <div class="col-4">
-            <div class="th_form_label_required">{{=form.custom.label.cellcount}}</div>
-            <div class="th_form_field">{{=form.custom.widget.cellcount}}</div>
-            <div class="th_form_comment">{{=form.custom.comment.cellcount}}</div>
-        </div>
-
-        <div class="col-4">
-            <div class="th_form_label">{{=form.custom.label.mah}}</div>
-            <div class="th_form_field">{{=form.custom.widget.mah}}</div>
-            <div class="th_form_comment">{{=form.custom.comment.mah}}</div>
-        </div>
-        <div class="col-4">
-            <div class="th_form_label">{{=form.custom.label.chemistry}}</div>
-            <div class="th_form_field">{{=form.custom.widget.chemistry}}</div>
-            <div class="th_form_comment">{{=form.custom.comment.chemistry}}</div>
-        </div>
-        <div class="col-4">
-            <div class="th_form_label">{{=form.custom.label.crating}}</div>
-            <div class="th_form_field">{{=form.custom.widget.crating}}</div>
-            <div class="th_form_comment">{{=form.custom.comment.crating}}</div>
-        </div>
-        <div class="col-4">
-            <div class="th_form_label">{{=form.custom.label.ownedcount}}</div>
-            <div class="th_form_field">{{=form.custom.widget.ownedcount}}</div>
-            <div class="th_form_comment">{{=form.custom.comment.ownedcount}}</div>
-        </div>
-    </div>
-
+</div>
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=form.custom.submit}}
 </div>
 {{=form.custom.end}}
