@@ -68,7 +68,7 @@ def update():
 
     form = SQLFORM(db.battery, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False, submit_button='Submit').process(
         message_onsuccess='Document %s' % ('updated' if request.args else 'added'),
-        next=(URL('paint', 'index', args=request.vars.id, extension="html"))
+        next=(URL('battery', 'index', args=form.vars.id, extension="html"))
     )
     
     inputs = form.elements('input', _type='text')
@@ -120,6 +120,10 @@ def rendercard():
  
 def delete():
     battery_id = request.args[0]
+
+    if db(db.model_battery.battery == battery_id).count() > 0:
+        response.flash = "Cannot delete: battery is assigned to models!"
+        redirect(session.ReturnHere or URL('battery', 'listview'))
 
     db(db.battery.id == battery_id).delete()
     response.flash = "Deleted"
