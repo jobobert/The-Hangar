@@ -1,0 +1,66 @@
+{{extend 'layout.html'}}
+
+<div class=" index-page">
+
+    <div class="row">
+        <h2>{{=controller_icon('paint', 48)}} {{=paint.get_name()}}</h2>
+    </div>
+
+
+    <div class="row mt-5">
+
+        <div class="col-sm-3">
+            {{if paint.img:}}
+            <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=paint.img)}}" alt="Card image cap">
+            {{pass}}
+
+            {{if paint.colorhex:}}
+            <div style="width: 100px; height:100px; background-color:{{=paint.colorhex}}">{{=paint.colorhex}}</div>
+            {{pass}}
+        </div>
+        <div class="col">
+            <dl>
+                <dt class="d-block">Manufacturer</dt>
+                <dd class="ml-1">{{=paint.manufacturer}}</dd>
+                <dt class="d-block">Brand</dt>
+                <dd class="ml-1">{{=paint.brand}}</dd>
+                <dt class="d-block">Color</dt>
+                <dd class="ml-1">{{=paint.color}}</dd>
+                <dt class="d-block">Color ID</dt>
+                <dd class="ml-1">{{=paint.colorid}}</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-9">
+            {{=MARKMIN(paint.notes)}}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="card assoc-card">
+                <div class="card-header">
+                    <h5 class="card-title">Associated Models</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {{if models:}}
+                        {{for model in models:}}
+                        {{=modelListItem(model, img=True)}}
+                        {{pass}}
+
+                        {{else:}}
+                        No models use this protocol
+                        {{pass}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class=" row bg-light fixed-bottom pl-5 p-2">
+        {{=editButton('paint', 'update', paint.id)}}
+        {{=deleteButton('paint', 'delete', paint.id)}}
+    </div>
+</div>

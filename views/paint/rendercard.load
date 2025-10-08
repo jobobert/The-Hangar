@@ -1,0 +1,56 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card=title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('paint', 25)}}</span>{{=paint_count}} Paints</h5>
+        <a href="#" data-toggle="modal" data-target="#modal_newpaint" class="card-link th-new-link">New</a>
+    </div>
+
+    <div class="card-body">
+        {{=deleteform.custom.begin}}
+
+        {{for mt in model_paints:}}
+        <div class="row border-bottom py-1">
+            <div class="col">
+                <div class="tool_name">
+                    {{if mt.paint.colorhex:}}
+                    <div class="d-inline-block" style="width: 20px; height:20px; background-color:{{=mt.paint.colorhex}}">&nbsp;</div>
+                    {{pass}}
+                    <a class="d-inline-block text-decoration-none" href="{{=URL('paint', 'index.html', args=mt.paint)}}">{{=mt.paint.get_name()}}</a>
+                    <span>used for {{=mt.purpose}}</span>
+                </div>
+            </div>
+            <div class="col-3">
+                {{=editButton('model', 'updatemodelpaint.html', mt.id, 16)}}
+                <button class="btn btn-danger" type="submit" value="Remove" name="{{=mt.id}}">{{=action_icon('delete', 16)}}</button>
+            </div>
+
+        </div>
+        {{pass}}
+
+        {{=deleteform.custom.end}}
+    </div>
+    <div class="card-footer">
+        {{=addform.custom.begin}}
+        <div class="row">
+            <div class="col">{{=addform.custom.widget.paint}}</div>
+            <div class="col">{{=addform.custom.widget.purpose}}</div>
+            <div class="col-2">{{=addform.custom.submit}}</div>
+        </div>
+        {{=addform.custom.end}}
+    </div>
+</div>
+
+<div class="modal fade" id="modal_newpaint" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_newpaint_title">New Paint</h5>
+            </div>
+            <div class="modal-body">
+                {{=newform}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

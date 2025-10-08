@@ -1,0 +1,30 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('paint', 48)}} Paints</h2>
+    </div>
+</div>
+
+{{for paint in paints:}}
+<div class="row border-bottom my-2">
+    <div class="col-auto">
+        <div style="width:50px; height:90%; background-color:{{=paint.colorhex}}">&nbsp;</div>
+    </div>
+    <div class="col-auto">
+        <img src="{{=URL('default', 'download', args=paint.img)}}" width="48px">
+    </div>
+
+
+    <div class="col-sm-7">
+
+        <div class="text-nowrap text-truncate">{{=paint.get_name()}}</div>
+    </div>
+
+
+    <div class="col-sm-3">
+        {{=viewButton('paint', 'index', [paint.id])}}
+        {{=editButton('paint', 'update', [paint.id])}}
+    </div>
+</div>
+{{pass}}
