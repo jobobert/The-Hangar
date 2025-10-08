@@ -2,7 +2,7 @@
 
 {{=other}}
 
-<ul class="nav nav-tabs">
+<ul class="nav nav-tabs mb-2">
     {{for t in types:}}
     <li class="nav-item">
         <a class="nav-link {{=' active ' if active == t else ''}}" href="{{= URL('component', 'listview') }}?c={{=t}}">{{=t}}</a>
@@ -10,5 +10,5 @@
     {{pass}}
 </ul>
 
-<h1>{{=requestedtype}} Components</h1>
+<h2>{{=controller_icon('component', 48)}} {{=requestedtype}} Components</h2>
 {{=components}}

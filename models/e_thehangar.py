@@ -39,6 +39,7 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
     originalText = ""
     conversionText = ""
     labelClass = ""
+    inputType = None
     inputID = f'{table}_{fieldname}'
 
     if columns < 0:
@@ -46,7 +47,14 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
     if columns > 12:
         columns = 12
     
-    if (field.required or field.requires and 'IS_NOT_EMPTY' in str(field.requires)):
+    print(f'{fieldname} @ {field.required} or {field.requires}')
+
+    if (field.required or
+        (field.requires and (
+            ('IS_NOT_EMPTY' in str(field.requires)) 
+            or 
+            ('IS_EMPTY_OR' not in str(field.requires)))
+        )):
         labelClass = "font-weight-bold"
 
     #print(field.type)
@@ -54,44 +62,50 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
         isCheckbox = True
 
     if hasattr(field, 'extra'):
-        hasConverter = True
-        func = None # the func javascript function must be declared in layout.html!!
-        match field.extra['measurement']:
-            case 'mm':
-                func = 'inchToMm'
-                originalText = 'mm'
-                conversionText = 'Inch'
-            case 'dm2':
-                func = 'dm2ToSqin'
-                originalText = 'dm2'
-                conversionText = 'sqin'
-            case 'oz':
-                func = 'gramToOz'
-                originalText = "oz"
-                conversionText = 'Gram'
-            case 'sqin':
-                func = None
-                originalText = 'sqin'
-            case 'cc':
-                func = None
-                originalText = 'cc'
-            case _:
-                hasConverter = False
+        if 'measurement' in field.extra:
+            hasConverter = True
+            func = None # the func javascript function must be declared in layout.html!!
+            match field.extra['measurement']:
+                case 'mm':
+                    func = 'inchToMm'
+                    originalText = 'mm'
+                    conversionText = 'Inch'
+                case 'dm2':
+                    func = 'dm2ToSqin'
+                    originalText = 'dm2'
+                    conversionText = 'sqin'
+                case 'oz':
+                    func = 'gramToOz'
+                    originalText = "oz"
+                    conversionText = 'Gram'
+                case 'sqin':
+                    func = None
+                    originalText = 'sqin'
+                case 'cc':
+                    func = None
+                    originalText = 'cc'
+                case _:
+                    hasConverter = False
 
-        if hasConverter and func == None:
-            theConverterInput = f"No Converter Available '{field.extra['measurement']}'"
-        elif hasConverter:
-            theConverterInput = INPUT(
-                    _class = 'double form-control th_form_field_calc',
-                    _type = 'number',
-                    _step = '0.01',
-                    _autocomplete = "off",
-                    _id = f'c_{fieldname}',
-                    _onchange = f'{func}("c_{fieldname}", "{inputID}");'
-                )
-            theConverterLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""}" for="c_{fieldname}">{field.label or field.name} ({conversionText})</label>') 
-            theConverterComment = XML(f'<small class="form-text text-muted d-none d-sm-block">Convert from {conversionText}</small>')
-    
+            if hasConverter and func == None:
+                theConverterInput = f"No Converter Available '{field.extra['measurement']}'"
+            elif hasConverter:
+                theConverterInput = INPUT(
+                        _placeholder = conversionText,
+                        _class = 'double form-control th_form_field_calc',
+                        _type = 'number',
+                        _step = '0.01',
+                        _autocomplete = "off",
+                        _id = f'c_{fieldname}',
+                        _onchange = f'{func}("c_{fieldname}", "{inputID}");'
+                    )
+                theConverterLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""}" for="c_{fieldname}">{field.label or field.name} ({conversionText})</label>') 
+                theConverterComment = XML(f'<small class="form-text text-muted d-none d-sm-block">Convert from {conversionText}</small>')
+        if 'input' in field.extra:
+            #print(field.extra['input'])
+            match field.extra['input']:
+                case 'color':
+                    inputType = 'color'
     
     col1 = col2 = columns
     if hasConverter:
@@ -101,6 +115,15 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
     theInput = form.custom.widget[fieldname]
     theComment = XML(f'<small class="form-text text-muted d-none d-sm-block">{field.comment or ""}</small>')
 
+    if inputType:
+        theInput.attributes['_type'] = inputType
+    
+    if '_type' in theInput.attributes:
+        #print(theInput.attributes['_type'] )
+
+        if theInput.attributes['_type'] == 'text':
+            theInput.attributes['_placeholder'] = field.label or field.name
+    
     output = None
 
     if fieldType == FormFieldType.COLUMNS:

@@ -10,6 +10,7 @@ icon_size = 24
 response.menu = [
     # (T('Home'), False, URL('default', 'index'), []),
     (T('ATF'), False, URL('model', 'atthefield'), []),
+    (T('Wishlist'), False, URL('model', 'wishlist'), []),
     (T('Dash'), False, URL('default', 'setui', args=['dashboard'])),
     (T('Calendar'), False, URL('activity', 'calendar'), []),
     (T('Library'), False, URL('library', 'index'), []),
@@ -27,6 +28,7 @@ response.menu = [
         (DIV(controller_icon('sailrig',     icon_size), ' Sailing Rigs'), False, URL('sailrig', 'listview')),
         (DIV(controller_icon('tool',        icon_size), ' Tool'        ), False, URL('tool', 'listview')),
         (DIV(controller_icon('transmitter', icon_size), ' Transmitter' ), False, URL('transmitter', 'listview')),
+        (DIV(controller_icon('paint',       icon_size), ' Paint'       ), False, URL('paint', 'listview')),
         
         (DIV(_class='dropdown-divider'), False, '#'),
         (DIV(controller_icon('packingitem', icon_size), ' Packing Item'), False, URL('packinglist', 'allitems')),
@@ -45,6 +47,7 @@ response.menu = [
         (DIV(controller_icon('battery',     icon_size), ' Battery'     ), False, URL('battery', 'update')),
         (DIV(controller_icon('tool',        icon_size), ' Tool'        ), False, URL('tool', 'update')),
         (DIV(controller_icon('transmitter', icon_size), ' Transmitter' ), False, URL('transmitter', 'update')),
+        (DIV(controller_icon('paint',       icon_size), ' Paint'       ), False, URL('paint', 'update')),
 
         (DIV(_class='dropdown-divider'), False, '#'),
         (DIV(controller_icon('activity',    icon_size), ' Activity'    ), False, URL('activity', 'update')),

@@ -36,14 +36,27 @@
         {{=deleteform.custom.end}}
     </div>
     <div class="card-footer">
-        <div class=" m-2 ">
+        <div class="">
             <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_attachment" role="button" aria-expanded="false" aria-controls="collapseform_attachment">Add</a>
         </div>
-        <div class=" m-2 collapse " id="collapseform_attachment">
+        <div class=" collapse " id="collapseform_attachment">
             <div class="card-body">
-                <div class="mt-3">
-                    {{=form}}
+
+                {{=form.custom.begin}}
+                <div class="row">
+                    {{=makeFormField(form, 'name', FormFieldType.COLUMNS, columns=6)}}
+                    {{=makeFormField(form, 'attachmenttype', FormFieldType.COLUMNS, columns=6)}}
                 </div>
+                <div class="row mb-2">
+                    {{=makeFormField(form, 'attachment', FormFieldType.COLUMNS, columns=0)}}
+
+                </div>
+                <div class="row">
+                    {{=form.custom.submit}}
+                </div>
+
+                {{=form.custom.end}}
+
             </div>
         </div>
     </div>

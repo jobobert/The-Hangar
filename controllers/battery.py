@@ -49,7 +49,7 @@ def addcount():
 
     return redirect(session.ReturnHere or URL('battery', 'listview'))
 
-
+ 
 def subtractcount():
 
     if request.args(0):
@@ -68,7 +68,7 @@ def update():
 
     form = SQLFORM(db.battery, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False, submit_button='Submit').process(
         message_onsuccess='Document %s' % ('updated' if request.args else 'added'),
-        next=(URL('battery', 'index', args=request.vars.id, extension="html"))
+        next=(URL('paint', 'index', args=request.vars.id, extension="html"))
     )
     
     inputs = form.elements('input', _type='text')

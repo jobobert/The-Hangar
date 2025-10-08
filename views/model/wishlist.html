@@ -18,11 +18,13 @@
                     <span class="">{{=item.item }}</span>
                 </div>
                 <div class="col-3">
+                    {{if item.notes:}}
                     <a class="btn btn-primary" data-toggle="collapse" href="#notes{{=item.id}}" role="button" aria-expanded="false" aria-controls="collapseExample">
                         Notes
                     </a>
-                    <button class="btn btn-success" type="submit" value="found" name="{{=item.id}}">{{=action_icon('select', 16)}}</button>
-                    <button class="btn btn-danger" type="submit" value="remove" name="{{=item.id}}">{{=action_icon('delete', 16)}}</button>
+                    {{pass}}
+                    <button class="btn btn-success" type="submit" value="found" name="{{=item.id}}" title="Create Model">{{=controller_icon('model', 16)}}</button>
+                    <button class="btn btn-danger" type="submit" value="remove" name="{{=item.id}}" title="Delete Item">{{=action_icon('delete', 16)}}</button>
                 </div>
             </div>
             <div class="row collapse" id="notes{{=item.id}}">

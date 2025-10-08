@@ -31,7 +31,7 @@
         {{=addform.custom.end}}
     </div>
 </div>
-
+ 
 <div class="modal fade" id="modal_newbattery" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
     <div class="modal-dialog" role="document" style="max-width: none;">
         <div class="modal-content">

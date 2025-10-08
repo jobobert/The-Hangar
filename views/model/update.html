@@ -34,8 +34,14 @@ Your submitted form contains the following errors:
                         <div class="row">
                             {{=makeFormField(form, "subjecttype", FormFieldType.COLUMNS, columns=3)}}
                             {{=makeFormField(form, "attr_scale", FormFieldType.COLUMNS, columns=3)}}
-                            {{=makeFormField(form, "haveplans", FormFieldType.COLUMNS, columns=3)}}
-                            {{=makeFormField(form, "havekit", FormFieldType.COLUMNS, columns=3)}}
+                            <div class="col-3">
+                                <div class="row">
+                                    {{=makeFormField(form, "haveplans", FormFieldType.COLUMNS, columns=0)}}
+                                </div>
+                                <div class="row">
+                                    {{=makeFormField(form, "havekit", FormFieldType.COLUMNS, columns=0)}}
+                                </div>
+                            </div>
                         </div>
                         <div class="row mt-2">
                             {{=makeFormField(form, "modelstate", FormFieldType.COLUMNS, columns=3)}}

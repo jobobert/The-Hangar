@@ -2,7 +2,7 @@
 
 <div class="row mb-3">
     <div class="col-md-12">
-        <h2>Models</h2>
+        <h2>{{=controller_icon('model', 48)}} Models</h2>
     </div>
 </div>
 
@@ -18,7 +18,43 @@
     </li>
 </ul>
 
+{{for model in models:}}
+<div class="row border-bottom my-2">
+    <div class="col-sm-2">
+        <img src="{{=URL('default', 'download', args=model.img)}}" height="48px">
+    </div>
+    <div class="col">
+        <div class="row">
+            <div class="col-sm-4 ">
+                <small class="text-muted">{{=db.model.name.label}}</small>
+                <div class="text-nowrap text-truncate">{{=model.name}}</div>
+            </div>
+            <div class="col-sm-4 ">
+                <small class="text-muted">{{=db.model.modeltype.label}}</small>
+                <div class="text-nowrap text-truncate">{{=model.modeltype}}</div>
+            </div>
+            <div class="col-sm-4 ">
+                <small class="text-muted">{{=db.model.modelstate.label}}</small>
+                <div class="text-nowrap text-truncate pl-2 {{='modelstate_border-left_' + str(model.modelstate.id)}}">{{=model.modelstate.name}}</div>
+            </div>
+        </div>
+        <div class="row">
 
+            <div class="col-sm-6 ">
+                <small class="text-muted">{{=db.model.controltype.label}}</small>
+                <div class="text-nowrap text-truncate">{{=model.controltype}}</div>
+            </div>
+            <div class="col-sm-6 ">
+                <small class="text-muted">Dimension</small>
+                <div class="text-nowrap text-truncate">{{=model.get_major_dimension()}}</div>
+            </div>
 
-{{=content}}
-
+        </div>
+    </div>
+    <div class="col-sm-3">
+        {{=viewButton('model', 'index', [model.id])}}
+        {{=editButton('model', 'update', [model.id])}}
+        {{=LOAD('model', 'selected.load', args=[model.id], ajax=True, content='...')}}
+    </div>
+</div>
+{{pass}}

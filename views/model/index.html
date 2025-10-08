@@ -240,6 +240,11 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col mb-3">
+                {{=LOAD('paint','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Attachments"))}}
+            </div>
+        </div>
     </div>
 </div>
 <div class="row">

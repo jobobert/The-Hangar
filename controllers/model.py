@@ -5,7 +5,7 @@ from gluon.contrib.user_agent_parser import mobilize
 
 def index(): 
 
-    model = db.model(request.args(0))  # or redirect(URL('model', 'listview'))
+    model = db.model(request.args(0))  or redirect(URL('model', 'listview'))
 
     details_form = SQLFORM(db.model, model.id, fields=[
                            'notes'], showid=False, formstyle='divs')
@@ -24,6 +24,36 @@ def index():
     session.index = "index ready"
     return dict(model=model, details_form=details_form)
 
+def wishlist():
+    
+    addform = SQLFORM(db.wishlist, formstyle='bootstrap4_inline', submit_button='Add')
+    if addform.process(session=None, formname='wishlistadd').accepted:
+        response.flash = "Added"
+    elif addform.errors:
+        response.flash = "Failed to add"
+
+    convertform = SQLFORM.factory()
+    if convertform.process(session=None, formname='convertform').accepted:
+        for y, z in request.vars.items():
+            if z == 'found':
+                item = db(db.wishlist.id == y).select().first()
+                # create a model
+                new_id = db.model.insert(name=item.item, modeltype='Airplane', havekit=True)
+                print(f"Create a model '{item.item}'")
+                # remove the item
+                db(db.wishlist.id == item.id).delete()
+
+                redirect(URL('model', 'update', args=new_id))
+            if z == 'remove':
+                del_id = y
+                db(db.wishlist.id == del_id).delete()
+                response.flash = "Item Deleted"
+    elif convertform.errors:
+        response.flash = "An error occurred"
+
+    list = db(db.wishlist).select()
+
+    return dict(list=list, addform=addform, convertform=convertform)
 
 def export():
 
@@ -225,30 +255,31 @@ def listview():
     active = ''
     if request.args:
         if request.args[0] == 'plans':
-            query = db(db.model.haveplans == True)
+            query = db.model.haveplans == True
             active = 'plans'
         elif request.args[0] == 'kits':
-            query = db(db.model.havekit == True)
+            query = db.model.havekit == True
             active = 'kits'
 
-    fields = (db.model.img, db.model.name, db.model.modeltype, db.model.modelstate, db.model.controltype, db.model.attr_plane_wingspan_mm
+    fields = (db.model.img, db.model.name, db.model.modeltype, db.model.modelstate, db.model.controltype
               # , db.model.haveplans
               # , db.model.havekit
               )
 
     links = [ 
+        dict(header='Major Dim', body=lambda row: row.get_major_dimension()),
         lambda row: viewButton('model', 'index', [row.id]),
         lambda row: editButton('model', 'update', [row.id]),
         lambda row: LOAD('model', 'selected.load', args=[row.id], ajax=True, content='...')
     ]
 
-    models = SQLFORM.grid(
-        query  # db.model  # , groupby=db.component.componenttype
-        , args=request.args[:1], orderby=db.model.name, editable=False, deletable=False, details=False, maxtextlength=255, create=False, fields=fields, links=links, _class='itemlist-grid', user_signature=False
-    )
+    # model = SQLFORM.grid(
+    #     query  # db.model  # , groupby=db.component.componenttype
+    #     , args=request.args[:1], orderby=db.model.name, editable=False, deletable=False, details=False, maxtextlength=255, create=False, fields=fields, links=links, _class='itemlist-grid', user_signature=False
+    # )
+    models = db(query).select(db.model.id, db.model.name, db.model.img, db.model.modeltype, db.model.modelstate, db.model.controltype, orderby=db.model.name)
 
-    #response.view = 'content.html'
-    return dict(content=models, active=active)
+    return dict(models=models, active=active)
 
 def update():
 
@@ -539,8 +570,8 @@ def atthefield():
     links = [
         dict(header='Count', body=lambda row: row.activity_flightcount()),
         lambda row: A('+1', _href=URL('activity', 'addflight', args=[row.id]), _class='btn btn-primary'),
-        lambda row: A(activity_icon('crash', 20), _href=URL('activity', 'addcrash', args=[row.id]), _class='btn btn-primary'),
-        lambda row: A('>>', _href=URL('model', 'index', args=[ row.id]), _class="btn btn-secondary")
+        lambda row: A(activity_icon('crash', 20), _href=URL('activity', 'addcrash', args=[row.id]), _class='btn btn-outline-danger'),
+        lambda row: A(controller_icon('model', 20), _href=URL('model', 'index', args=[ row.id]), _class="btn btn-outline-secondary")
     ]
 
     models = SQLFORM.grid(
@@ -615,6 +646,21 @@ def updatemodelbattery():
 
     if form.process(session=None).accepted:
         session.flash = "Model/Battery Updated"
+        redirect(session.ReturnHere or URL('default', 'index'))
+
+    response.view = 'content.html'
+
+    return dict(content=form, header=response.title)
+
+def updatemodelpaint():
+    response.title = "Update Model/Paint"
+
+    model_paint_id = request.args(0)
+
+    form = SQLFORM(db.model_paint, model_paint_id, formstyle='bootstrap4_inline', showid=False, submit_button='Submit')
+
+    if form.process(session=None).accepted:
+        session.flash = "Model/Paint Updated"
         redirect(session.ReturnHere or URL('default', 'index'))
 
     response.view = 'content.html'

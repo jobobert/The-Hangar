@@ -304,10 +304,10 @@ def get_major_dimension(model_id):
     model = db(db.model.id == model_id).select().first()
 
     if model.attr_scale:
-        return 's ' + str(model.attr_scale)
+        return 'scale ' + str(model.attr_scale)
     
     if model.modeltype == 'Helicopter' and model.attr_copter_size:
-        return str(model.attr_copter_size) + " sz"
+        return str(model.attr_copter_size) + " size"
 
     dim = 0
     match model.modeltype:
@@ -913,7 +913,7 @@ db.wtc.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 db.define_table('model_wtc', 
                 Field('model', 'reference model'), 
                 Field('wtc',   'reference wtc'),
-                Field('notes', type='string', label='Notes', comment='Notes about this installation', represent=lambda id, row: '' if row.notes is None else row.notes),
+                Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)),
                 format=lambda row: 'Unknown' if row is None else row.model.name + " : " + row.wtc.name
                 )
 
@@ -946,6 +946,50 @@ db.hardware.purpose.widget = SQLFORM.widgets.autocomplete(
     request, db.hardware.purpose, limitby=(0, 10), min_length=1, distinct=True)
 
 ###############################################
+## PAINT
+
+db.define_table('paint',
+                Field('manufacturer', type='string', label='Manufacturer', required=True),
+                Field('brand', type='string', label='Brand'),
+                Field('color', type='string', label='Color', required=True),
+                Field('colorid', type='string', label='Color ID'),
+                Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)),
+                Field('colorhex', type='string', label='The HTML/hex code that matches the color'),
+                Field('img', type='upload', uploadseparate=True, autodelete=True, label='Image', comment='The image of the paint color', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))),
+                format=lambda row: row.manufacturer + ' ' + row.brand + ' ' + row.color 
+                )
+
+db.paint.get_name = Field.Method(
+    lambda row: row.paint.manufacturer + ' ' + row.paint.brand + ' ' + row.paint.color
+)
+
+db.paint.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(500, 500)))
+
+db.paint.manufacturer.widget = SQLFORM.widgets.autocomplete(
+    request, db.paint.manufacturer, limitby=(0, 10), min_length=1, distinct=True)
+db.paint.brand.widget = SQLFORM.widgets.autocomplete(
+    request, db.paint.brand, limitby=(0, 10), min_length=1, distinct=True)
+
+db.paint.colorhex.extra = {'input': 'color'}
+
+###############################################
+## MODEL PAINT
+
+db.define_table('model_paint', 
+                Field('model', 'reference model', required=True), 
+                Field('paint', 'reference paint', required=True),
+                Field('purpose', type='string', label='On what part was the paint used?', required=True)
+                )
+db.model_paint.paint.requires = IS_IN_DB(
+    db, 'paint.id', label=db.paint._format, sort=True)
+
+models_and_paints = db(
+    (db.model.id == db.model_paint.model)
+    &
+    (db.paint.id == db.model_paint.paint)
+)
+
+###############################################
 ## SWITCH
 
 db.define_table('switch'
@@ -973,7 +1017,13 @@ switches_and_positions = db(
     (db.switch.id == db.switch_position.switch)
 )
 
+###############################################
+## WISH LIST
 
+db.define_table('wishlist'
+                , Field('item', type='string', label='Item', required=True)
+                , Field('notes', type='string', label='Notes')
+                )
 
 ###############################################
 ## INITIAL DATABASE SETUP

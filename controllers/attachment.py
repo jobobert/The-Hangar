@@ -1,11 +1,11 @@
 
-
- 
 def rendercard():
-    #session.forget(response)
+    
     model_id = request.args[0]
 
-    form = SQLFORM(db.attachment, model=model_id,fields=["name","attachmenttype","attachment"],comments=False)
+    fields = ["name", "attachmenttype", "attachment"]
+
+    form = SQLFORM(db.attachment, model=model_id, fields=fields, comments=False)
     inputs = form.elements('input', _type='text')
     for s in inputs:
         s['_autocomplete'] = 'off'
