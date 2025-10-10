@@ -194,8 +194,12 @@ def attribute_icon(attribute:str, size:int):
 def model_type_icon(model, size:int):
     folder = 'model_type/'
     if size not in [32, 48]: size = 32
-    
-    return show_icon(folder + model.modeltype.lower() + '-' + str(size) + '.svg', size, model.modeltype)
+
+    #print(f'{model.name} and {model.modeltype}')
+    if model.modeltype:
+        return show_icon(folder + model.modeltype.lower() + '-' + str(size) + '.svg', size, model.modeltype)
+    else:
+        return f"unknown modeltype for {model.name}"
 
 def model_powerplant_icon(model, size:int):
     folder = 'model_powerplant/'

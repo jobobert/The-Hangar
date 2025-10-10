@@ -41,11 +41,12 @@ def wishlist():
         for y, z in request.vars.items():
             if z == 'found':
                 item = db(db.wishlist.id == y).select().first()
-                
+
                 # create a model
                 new_id = db.model.insert(
                     name=item.item, 
-                    modeltype='Airplane', 
+                    modeltype='Other', 
+                    modelcategory=item.modelcategory,
                     havekit=True
                 )
                 

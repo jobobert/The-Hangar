@@ -224,7 +224,7 @@ db.define_table('model'
                 , Field('name', type='string', label='Name', comment='The name of the model', required=True, unique=True)
                 , Field('modelorigin', type='string', label='Origin', comment='The origin of the model')
                 , Field('modelstate', type='reference modelstate', label='State', comment='The state of the model', required=True, default=2)
-                , Field('modeltype', type='string', label='Type', comment='The type of model')
+                , Field('modeltype', type='string', label='Type', comment='The genere of the model')
                 , Field('controltype', type='string', label='Control', comment='The type of control')
                 , Field('powerplant', type='string', label='Power Plant', comment='What type of power?')
                 , Field('description', type='string', label='Description', comment='Details of the model')
@@ -233,6 +233,7 @@ db.define_table('model'
                 , Field('manufacturer', type='string', label='Manufacturer', comment='Who made the model?')
                 , Field('kitnumber', type='string', label='Kit Number', comment="Manufacturer's kit number")
                 , Field('kitlocation', type='string', label='Kit/Plan Location', comment='Where the kit/plan is stored')
+                , Field('modelcategory', type='string', label='Category', comment='Model category', required=True)
                 #
                 , Field('attr_flight_timer', type='double', label='Flight Timer', comment='The length of the flight timer', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 , Field('attr_construction', type='string', label='Construction')
@@ -461,8 +462,10 @@ db.model.attr_boat_draft.extra = {'measurement': 'mm'}
 db.model.attr_copter_mainrotor_length.extra = {'measurement': 'mm'}
 db.model.attr_copter_tailrotor_span.extra = {'measurement': 'mm'}
 
+db.model.modelcategory.requires = IS_IN_SET(
+    ('Remote Control', 'Static', 'Miniature', 'Non-Model'), sort=True)
 db.model.modeltype.requires = IS_IN_SET(
-    ('Airplane', 'Rocket', 'Boat', 'Helicopter', 'Multirotor', 'Robot', 'Experimental', 'Car', 'Autogyro', 'Submarine', 'Non-Model'), sort=True)
+    ('Airplane', 'Rocket', 'Boat', 'Helicopter', 'Multirotor', 'Robot', 'Experimental', 'Car', 'Autogyro', 'Submarine', 'Non-Model', 'Miniature', 'Other'), sort=True)
 db.model.modelorigin.requires = IS_EMPTY_OR(IS_IN_SET(
     ('Plan', 'Kit', 'ARF', 'RTF', 'Unknown'), sort=True))
 db.model.controltype.requires = IS_EMPTY_OR(IS_IN_SET(
@@ -509,6 +512,15 @@ modeltype_controller_mapping = {
     'Autogyro' : ['propller', 'rotor'] ,
     'Submarine' : ['propeller', 'wtc'],
     'Non-Model' : [],
+    'Miniature' : [],
+    'Other' : []
+}
+
+modelcategory_color_mapping = {
+    'Remote Control' : '#ff0000', 
+    'Static' : '#00ff00', 
+    'Miniature' : '#0000ff', 
+    'Non-Model' : '#aaaaaa'
 }
 
 ###############################################
@@ -1041,7 +1053,9 @@ switches_and_positions = db(
 db.define_table('wishlist'
                 , Field('item', type='string', label='Item', required=True)
                 , Field('notes', type='string', label='Notes')
+                , Field('modelcategory', type='string', label=db.model.modelcategory.label)
                 )
+db.wishlist.modelcategory.requires = db.model.modelcategory.requires
 
 ###############################################
 ## INITIAL DATABASE SETUP
@@ -1059,6 +1073,14 @@ if db(db.tag.id > 0).count() == 0:
     db.tag.insert(name='Modeling')
     db.tag.insert(name='Electronics')
     db.tag.insert(name='Scale')
+
+##############################################
+## Migration Steps
+
+# set any emtyp modelcategory to 'Remote Control'
+db(db.model.modelcategory == None).update(modelcategory='Remote Control')
+
+
 # -------------------------------------------------------------------------
 # after defining tables, uncomment below to enable auditing
 # -------------------------------------------------------------------------

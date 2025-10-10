@@ -45,7 +45,8 @@
     <div class="row mt-2">
 
         {{=makeFormField(addform, "item", FormFieldType.COLUMNS)}}
-        {{=makeFormField(addform, "notes", FormFieldType.COLUMNS, columns=4)}}
+        {{=makeFormField(addform, "notes", FormFieldType.COLUMNS, columns=3)}}
+        {{=makeFormField(addform, 'modelcategory', FormFieldType.COLUMNS, columns=3)}}
         <div class="col-2">{{=addform.custom.submit}}</div>
     </div>
     {{=addform.custom.end}}
