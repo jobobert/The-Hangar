@@ -230,6 +230,10 @@ db.define_table('model'
                 , Field('description', type='string', label='Description', comment='Details of the model')
                 , Field('notes', type='text', label='Details', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes))
                 , Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the model', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img])))
+                , Field('manufacturer', type='string', label='Manufacturer', comment='Who made the model?')
+                , Field('kitnumber', type='string', label='Kit Number', comment="Manufacturer's kit number")
+                , Field('kitlocation', type='string', label='Kit/Plan Location', comment='Where the kit/plan is stored')
+                #
                 , Field('attr_flight_timer', type='double', label='Flight Timer', comment='The length of the flight timer', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 , Field('attr_construction', type='string', label='Construction')
                 , Field('attr_cog', type='string', label='CoG', comment='The COG')
@@ -466,7 +470,7 @@ db.model.controltype.requires = IS_EMPTY_OR(IS_IN_SET(
 db.model.powerplant.requires = IS_EMPTY_OR(IS_IN_SET(
     ('Electric', 'Internal Combustion', 'Rocket', 'Rubber', 'Sail', 'None'), sort=True))
 db.model.attr_construction.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Balsa', 'Foam', 'Plastic', 'Composite', 'Other'), sort=True))
+    ('Balsa', 'Foam', 'Plastic', 'Composite', 'Other', 'Resin', 'Wood', 'Carbon Fiber'), sort=True))
 db.model.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 db.model.attr_copter_headtype.requires = IS_EMPTY_OR(IS_IN_SET(
     ('Collective Pitch', 'Collective Pitch - Flybar', 'Fixed Pitch'), sort=True))
@@ -489,6 +493,9 @@ db.model.img.default = os.path.join(
 
 db.model.attr_covering.widget = SQLFORM.widgets.autocomplete(
     request, db.model.attr_covering, limitby=(0, 10), min_length=2, distinct=True)
+
+db.model.manufacturer.widget = SQLFORM.widgets.autocomplete(
+    request, db.model.manufacturer, limitby=(0, 10), min_length=2, distinct=True)
 
 modeltype_controller_mapping = {
     'Airplane' : ['propeller'] ,
@@ -988,6 +995,17 @@ models_and_paints = db(
     &
     (db.paint.id == db.model_paint.paint)
 )
+
+###############################################
+## URL
+db.define_table('url'
+            , Field('url', type='string', required=True)
+            , Field('model', type='reference model', required=True)
+            , Field('notes', type='string')
+            )
+db.url.url.requires = IS_URL()
+db.url.notes.widget = SQLFORM.widgets.autocomplete(
+    request, db.url.notes, limitby=(0, 10), min_length=1, distinct=True)
 
 ###############################################
 ## SWITCH

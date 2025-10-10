@@ -2,22 +2,21 @@
 import json
 
 def index():
+    component_id = VerifyTableID('component', request.args(0)) or redirect(URL('component', 'listview'))
 
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
     addform = SQLFORM(db.model_component, fields=["model", "purpose", "channel"], showid=False, comments=False)
-    addform.vars.component = request.args[0]
+    addform.vars.component = component_id
     if addform.process(session=None, formname="addtomodel").accepted:
         response.flash = "Added to Model"
     elif addform.errors:
         response.flash = "Error Adding to Model"
 
-    component = db(db.component.id == request.args(
-        0)).select() or redirect(URL('component', 'listview'))
-    models = models_and_components(
-        db.component.id == request.args[0]).select(db.model.id, db.model.name, db.model.img)
-    flitetimes = db(db.eflite_time.motor == request.args(0)).select()
+    component = db(db.component.id == component_id).select() or redirect(URL('component', 'listview'))
+    models = models_and_components( db.component.id == component_id).select(db.model.id, db.model.name, db.model.img)
+    flitetimes = db(db.eflite_time.motor == component_id).select()
 
     modelCount = dict()
     for m in models:
@@ -137,7 +136,11 @@ def update():
     return dict(form=form, component_attribs=json.dumps(component_attribs))
 
 def rendercard_grid():
-    model_id = request.args[0]
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='component', title='Components')
+    
     newcomponentname = ""
 
     newform = SQLFORM(db.component, showid=False,
@@ -189,7 +192,10 @@ def rendercard():
     else:
         is_mobile = False 
 
-    model_id = request.args[0]
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='component', title='Components')
     
     newcomponentname = ""
 
@@ -257,8 +263,8 @@ def removefrommodel():
     # try to do this via ajax sometime...
     # session.forget(response)
 
-    model_id = request.args[0]
-    relationship_id = request.args[1]
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('default', 'index'))
+    relationship_id = VerifyTableID('model_component', request.args(1)) or redirect(URL('default', 'index'))
     db(db.model_component.id == relationship_id).delete()
 
     return redirect(URL('model', 'index.html', args=model_id))
@@ -299,3 +305,20 @@ def inventory():
     components = db(db.component).select(orderby=db.component.componenttype | db.component.name)
 
     return dict(components=components)
+
+def delete():
+    component_id = VerifyTableID('component', request.args(0)) or redirect(URL('component', 'listview'))
+
+    if db(db.model_component.component == component_id).count() > 0:
+        response.flash = "Cannot delete: component is assigned to models!"
+        redirect(session.ReturnHere or URL('component', 'listview'))
+
+    if db(db.eflite_time.motor == component_id).count() > 0:
+        response.flash = "Cannot delete: component is assigned to a flight time!"
+        redirect(session.ReturnHere or URL('component', 'listview'))
+
+    if component_id:
+        db(db.component.id == component_id).delete()
+        response.flash = "Deleted"
+        
+    return redirect(session.ReturnHere or URL('component', 'listview'))

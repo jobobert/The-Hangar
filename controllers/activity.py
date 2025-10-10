@@ -25,13 +25,13 @@ def rendercard():
 
 
 def calendar():
-    model_id = request.args(0)
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('default', 'index'))
 
     return dict(model_id=model_id)
 
 def listrecentflights():
 
-    model_id = request.args(0)
+    #model_id = VerifyTableID('model', request.args(0)) or redirect(URL('activity', 'calendar'))
 
     flights = db((db.activity.activitytype == 'Flight') | (
         db.activity.activitytype == 'Crash')).select(limitby=(0, 10), orderby=~db.activity.activitydate)
@@ -68,8 +68,8 @@ def events():
 
 def index():
 
-    activity_id = request.args[0]
-    activity = db.activity(activity_id)
+    activity_id = VerifyTableID('activity', request.args(0)) or redirect(URL('activity', 'calendar'))
+    activity = db.activity(activity_id) 
     response.title = "Activity"
 
     return dict(activity=activity)
@@ -102,7 +102,6 @@ def addactivity():
     response.view = 'content.html'
 
     return dict(content=form)
-
 
 def listview():
 
@@ -151,29 +150,35 @@ def modelactivities():
 
     response.title = "Model Activities"
 
-    model_id = request.args[0]
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
 
     activity_query = db(db.activity.model == model_id)
 
     activities = activity_query.select(orderby=~db.activity.activitydate)
 
     return dict(
-        activities=activities, model_name=db.model(request.args[0]).name, model_id=model_id)
+        activities=activities, model_name=db.model(model_id).name, model_id=model_id)
 
 
 def renderactivities():
-    model_id = request.args[0]
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='activity', title='Activity')
+
 
     activity_query = db(db.activity.model == model_id)
 
     activities = activity_query.select(orderby=~db.activity.activitydate)
 
-    return dict(
-        activities=activities)
+    return dict(activities=activities)
 
 
 def rendernotes():
-    model_id = request.args[0]
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='activity', title='Notes')
 
     activity_query = db((db.activity.model == model_id) &
                         (db.activity.activitytype == 'Note'))

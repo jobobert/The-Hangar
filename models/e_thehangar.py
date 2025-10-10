@@ -47,7 +47,7 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
     if columns > 12:
         columns = 12
     
-    print(f'{fieldname} @ {field.required} or {field.requires}')
+    #print(f'{fieldname} @ {field.required} or {field.requires}')
 
     if (field.required or
         (field.requires and (
@@ -273,6 +273,26 @@ def show_icon(iconname:str, size:int=0, alt:str="icon"):
     
 ############################################
 ## UTILITIES
+
+def VerifyTableID(table:str, rowID:int|str):
+    #print(f'{table} -- {rowID}:  {type(rowID)}')
+
+    try:
+        integer_value = int(rowID)
+    except ValueError:
+        print(f"Error: Could not convert '{rowID}' to an integer. Invalid input.")
+        response.flash = "Record not found!"
+        return None
+    except TypeError:
+        print(f"Error: Cannot convert type '{type(rowID).__name__}' to an integer.")
+        response.flash = "Record not found!"
+        return None
+
+    if (db(db[table].id == integer_value)).count() == 0:
+        response.flash = "Record not found!"
+        return None
+    
+    return integer_value
 
 def TwoDecimal(number):
     if number is None:

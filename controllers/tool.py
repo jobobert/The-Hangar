@@ -2,12 +2,13 @@
 
 def index():
     response.title = 'Tools'
+
+    tool_id = VerifyTableID('tool', request.args(0)) or redirect(URL('tool', 'listview'))
+
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
-    tool_id = request.args(0)
-    tools = db(db.tool.id == tool_id).select(
-    ) or redirect(URL('tool', 'listview'))
+    tools = db(db.tool.id == tool_id).select() 
 
     models = models_and_tools(
         db.tool.id == tool_id).select(db.model.id, db.model.name, db.model.img)
@@ -55,13 +56,14 @@ def update():
     for s in inputs:
         s['_autocomplete'] = 'off'
 
-    #response.view = 'content.html'
-    #return dict(content=form)
     return dict(form=form)
 
 def rendercard():
-    # session.forget(response)
-    model_id = request.args[0]
+
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='tool', title='Tools')
 
     addfields = ['tool']
     addform = SQLFORM(db.model_tool, fields=addfields,
@@ -106,10 +108,22 @@ def rendercard():
 
 def removefrommodel():
     # try to do this via ajax sometime...
-    # session.forget(response)
 
-    model_id = request.args[0]
-    relationship_id = request.args[1]
-    db(db.model_tool.id == relationship_id).delete()
+    VerifyTableID('model', request.args(0)) or redirect(URL('default', 'index'))
+    relationship_id = VerifyTableID('model_tool', request.args(1))  or redirect(URL('default', 'index'))
 
-    return redirect(URL('model', 'index.html', args=model_id))
+    if relationship_id:
+        db(db.model_tool.id == relationship_id).delete()
+
+    redirect(URL('model', 'index.html', args=model_id))
+
+def delete():
+    tool_id = VerifyTableID('tool', request.args(0)) or redirect(URL('tool', 'listview'))
+
+    if db(db.model_tool.tool == tool_id).count() > 0:
+        response.flash = "Cannot delete: tool is assigned to models!"
+        redirect(session.ReturnHere or URL('tool', 'listview'))
+
+    db(db.tool.id == tool_id).delete()
+    response.flash = "Deleted"
+    redirect(session.ReturnHere or URL('tool', 'listview'))

@@ -21,10 +21,13 @@ def rendercard():
     else:
         is_mobile = False 
 
-    model_id = request.args(0, cast=int) or redirect(URL('default', 'index'))
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='wtc', title='Water Tight Cylinder')
     
     addform = SQLFORM(db.model_wtc, fields=["wtc", "notes"], comments=False)
-    addform.vars.model = request.args(0) #model_id
+    addform.vars.model = model_id
     if addform.process(session=None, formname='addwtc').accepted:
         response.flash = "WTC Added"
     elif addform.errors:
@@ -79,6 +82,7 @@ def update():
     return dict(form=form)
 
 def listview():
+
     response.title = "Water Tight Cylinders"
 
     fields = (db.wtc.name, db.wtc.make, db.wtc.model)
@@ -95,3 +99,14 @@ def listview():
     response.view = 'content.html'
 
     return dict(content=wtcs, header=response.title)
+
+def delete():
+    wtc_id = VerifyTableID('wtc', request.args(0)) or redirect(URL('wtc', 'listview'))
+
+    if db(db.model_wtc.wtc == wtc_id).count() > 0:
+        response.flash = "Cannot delete: WTC is assigned to models!"        
+        redirect(session.ReturnHere or URL('wtc', 'listview'))
+
+    db(db.wtc.id == wtc_id).delete()
+    response.flash = "Deleted"
+    redirect(session.ReturnHere or URL('wtc', 'listview'))

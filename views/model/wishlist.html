@@ -43,8 +43,9 @@
 
     {{=addform.custom.begin}}
     <div class="row mt-2">
-        <div class="col">{{=addform.custom.widget.item}}</div>
-        <div class="col-2">{{=addform.custom.widget.notes}}</div>
+
+        {{=makeFormField(addform, "item", FormFieldType.COLUMNS)}}
+        {{=makeFormField(addform, "notes", FormFieldType.COLUMNS, columns=4)}}
         <div class="col-2">{{=addform.custom.submit}}</div>
     </div>
     {{=addform.custom.end}}

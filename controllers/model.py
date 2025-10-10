@@ -4,8 +4,10 @@ from gluon.contrib.user_agent_parser import mobilize
 
 
 def index(): 
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
 
-    model = db.model(request.args(0))  or redirect(URL('model', 'listview'))
+
+    model = db.model(model_id) 
 
     details_form = SQLFORM(db.model, model.id, fields=[
                            'notes'], showid=False, formstyle='divs')
@@ -27,6 +29,8 @@ def index():
 def wishlist():
     
     addform = SQLFORM(db.wishlist, formstyle='bootstrap4_inline', submit_button='Add')
+    for s in addform.elements('input', _type='text'):
+        s['_autocomplete'] = 'off'
     if addform.process(session=None, formname='wishlistadd').accepted:
         response.flash = "Added"
     elif addform.errors:
@@ -37,9 +41,14 @@ def wishlist():
         for y, z in request.vars.items():
             if z == 'found':
                 item = db(db.wishlist.id == y).select().first()
+                
                 # create a model
-                new_id = db.model.insert(name=item.item, modeltype='Airplane', havekit=True)
-                print(f"Create a model '{item.item}'")
+                new_id = db.model.insert(
+                    name=item.item, 
+                    modeltype='Airplane', 
+                    havekit=True
+                )
+                
                 # remove the item
                 db(db.wishlist.id == item.id).delete()
 
@@ -57,9 +66,10 @@ def wishlist():
 
 def export():
 
-    model = db.model(request.args(0)) or redirect(URL('model', 'listview'))
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
 
-    model_id = request.args(0)
+    model = db.model(model_id) 
+
     todos = db((db.todo.model == model_id) &
                (db.todo.complete == False)).select()
     components = models_and_components(db.model.id == model_id).select()
@@ -67,7 +77,7 @@ def export():
     batteries = db(db.model_battery.model == model_id).select()
     propellers = db(db.propeller.model == model_id).select()
     supportitems = db(db.supportitem.model == model_id).select()
-    flighttimes = db(db.eflite_time.model == request.args(0)).select()
+    flighttimes = db(db.eflite_time.model == model_id).select()
     attachments = db(db.attachment.model == model_id).select()
     activities = db(db.activity.model == model_id).select()
     wtcs = models_and_wtcs(db.model.id == model_id).select()
@@ -131,18 +141,62 @@ def exportminimal():
     return dict(model=model, todos=todos, components=c, tools=tools, batteries=batteries, propellers=propellers, supportitems=supportitems, flighttimes=flighttimes, attachments=attachments)
 
 def rendercard():
-    model = db.model(request.args(0)) or None
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate this model', controller='model', title='Models')
+
+    model = db.model(model_id) or None
 
     return dict(model=model)
 
+def renderurlcard():
+    model_id = VerifyTableID('model', request.args(0))
+
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return redirect(content='Unable to locate associated model', controller='model', title='URLs')
+
+    addform = SQLFORM(db.url, fields=['url', 'notes'], formstyle='bootstrap4_inline', submit_button='Add')
+    addform.vars.model = model_id
+    if addform.process(session=None, formname='addurlform').accepted:
+        response.flash = 'URL added to model'
+    elif addform.errors:
+        response.flash = 'Error adding URL to model'
+
+    del_id = 0
+    deleteform = SQLFORM.factory()
+    if deleteform.process(session=None, formname='urldeleteform').accepted:
+        for y, z in request.vars.items():
+            if z == "remove":
+                del_id = y
+                db(db.url.id == del_id).delete()
+                response.flash = "URL removed"
+    elif deleteform.errors:
+        response.flash = 'Unable to remove URL'
+
+    urlquery = db(db.url.model == model_id)
+    urlcount = urlquery.count()
+    urls = urlquery.select()
+
+    return dict(urls=urls, urlcount=urlcount, addform=addform, deleteform=deleteform)
+
+
 def printcard():
-    model_id = request.args(0)
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate this model', controller='model', title='Models')
 
     return dict(model_id=model_id)
 
 def renderpackinglistcard():
-    model_id = request.args(0)
-    model = db.model(model_id) or None
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate this model', controller='model', title='Models')
+    
+    model = db.model(model_id)
     batteries = db(db.model_battery.model == model_id).select()
     hardware = db(db.hardware.model == model_id).select()
     tools = db(db.model_tool.model == model_id).select()
@@ -153,7 +207,12 @@ def renderpackinglistcard():
     return dict(model=model, batteries=batteries, hardware=hardware, tools=tools, support_items=support_items, propellers=propellers, rigs=rigs)
 
 def renderhass():
-    model = db.model(request.args(0)) or None
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate this model', controller='model', title='Models')
+
+    model = db.model(model_id)
 
     if (not model):
         return HTML(BODY(H1("No Model Found")))
@@ -204,8 +263,10 @@ def renderstatecounts():
     return dict(counts=counts, options=request.args(0))
 
 def renderdashboard():
-
-    model = db.model(request.args(0)) or DIV("No Such Model Found")
+    model_id = VerifyTableID('model', request.args(0))
+    
+    model = db.model(model_id) if model_id else DIV("No Such Model Found")
+    
     todo_count = db((db.todo.model == model.id) &
                     (db.todo.complete == False)).count()
     note_count = db((db.activity.model == model.id) & (
@@ -434,17 +495,19 @@ def addflighttime():
 
 
 def removeflighttime():
-    model_id = db(db.eflite_time.id == request.args(0)).select().first().model
+    flitetime_id = VerifyTableID('eflite_time', request.args(0)) or redirect(URL('default', 'index'))
+    model_id = db(db.eflite_time.id == flitetime_id).select().first().model
 
-    db(db.eflite_time.id == request.args(0)).delete()
+    db(db.eflite_time.id == flitetime_id).delete()
 
     return redirect(URL('model', 'index.html', args=model_id))
 
 
 def updateflighttime():
-    model_id = db(db.eflite_time.id == request.args(0)).select().first().model
+    flitetime_id = VerifyTableID('eflite_time', request.args(0)) or redirect(URL('default', 'index'))
+    model_id = db(db.eflite_time.id == flitetime_id).select().first().model
 
-    form = SQLFORM(db.eflite_time, request.args(0), deletable=False, showid=False).process(
+    form = SQLFORM(db.eflite_time, flitetime_id, deletable=False, showid=False).process(
         message_onsuccess='Flight Time %s' % (
             'updated' if request.args else 'added'),
         # `next=(URL('model', 'updateflighttime', args=request.vars.id, extension="html"))
@@ -456,7 +519,11 @@ def updateflighttime():
 
 
 def renderflighttimes():
-    model_id = request.args(0)
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate this model', controller='model', title='Models')
+    
     model = db.model(model_id)
     motor = model.get_motor() or None
     message = None
@@ -485,7 +552,7 @@ def selected():
 
 def retire():
     content = []
-    model_id = request.args(0)
+    model_id = VerifyTableID('model', request.args(0))
 
     model = db.model(request.args(0)) or redirect(URL('model', 'listview'))
 
@@ -603,12 +670,11 @@ def atthefield():
 
 #@mobilize
 def renderhardware():
-    model_id = request.args(0)
 
-    #if len(request.args) == 2:
-    #    is_mobile = request.args[1]
-    #else:
-    #    is_mobile = False 
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='model', title='Hardware')
 
     fields = ['hardwaretype', 'diameter', 'length_mm', 'purpose', 'quantity']
     addform = SQLFORM(db.hardware, fields=fields, formstyle='bootstrap4_inline', submit_button='Submit')
@@ -628,7 +694,7 @@ def renderhardware():
                 del_id = y
                 db(db.hardware.id == del_id).delete()
                 response.flash = "Removal Success"
-                #response.flash = str(del_id) + " Removal Success"
+                
     elif deleteform.errors:
         response.flash = "Removal Failure"
 

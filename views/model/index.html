@@ -188,15 +188,32 @@
         </div>
         <div class="row">
             <div class="col mb-3">
+                {{=LOAD('model','renderurlcard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"URL"))}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="card-title">Attributes</h5>
                     </div>
                     <div class="card-body attribute-list">
                         <dl>
-                            <dt>Have Plan:</dt>
+                            {{if model.manufacturer:}}
+                            <dt>{{=db.model.manufacturer.label}}</dt>
+                            <dd>{{=model.manufacturer}}</dd>
+                            {{pass}}
+                            {{if model.kitnumber:}}
+                            <dt>{{=db.model.kitnumber.label}}</dt>
+                            <dd>{{=model.kitnumber}}</dd>
+                            {{pass}}
+                            {{if model.kitlocation:}}
+                            <dt>{{=db.model.kitlocation.label}}</dt>
+                            <dd>{{=model.kitlocation}}</dd>
+                            {{pass}}
+                            <dt>{{=db.model.haveplans.label}}</dt>
                             <dd>{{=model.haveplans}}</dd>
-                            <dt>Have Kit/Model:</dt>
+                            <dt>{{=db.model.havekit.label}}</dt>
                             <dd>{{=model.havekit}}</dd>
                             {{for key in sorted(model.__dict__):}}
                             {{if key.startswith('attr_') and model[key] and not key.startswith('attr_boat_rig_'):}}
@@ -242,7 +259,7 @@
         </div>
         <div class="row">
             <div class="col mb-3">
-                {{=LOAD('paint','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Attachments"))}}
+                {{=LOAD('paint','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Paint"))}}
             </div>
         </div>
     </div>
@@ -296,9 +313,9 @@
 
 
 
-<div class="row">
-    <div class="col mt-5 mb-5 ml-2">
-        <a class="btn btn-primary" href="{{=URL('model','update',args=model.id,extension='html')}}">Edit</a>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+        {{=editButton('model', 'update', model.id)}}
     </div>
 </div>
 

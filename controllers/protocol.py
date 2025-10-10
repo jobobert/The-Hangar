@@ -1,15 +1,15 @@
 
 def index():
     response.title = 'Protocol'
+
+    protocol_id = VerifyTableID('protocol', request.args(0)) or redirect(URL('protocol', 'listview'))
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
     
-    protocol = db.protocol(request.args(0)) or redirect(URL('default', 'index'))
+    protocol = db.protocol(protocol_id) or redirect(URL('default', 'index'))
 
-    models = db(db.model.protocol == request.args(0)).select()
-    transmitters = db(db.transmitter.protocol.contains(request.args(0))).select()
-
-    #response.view = 'content.html'
+    models = db(db.model.protocol == protocol_id).select()
+    transmitters = db(db.transmitter.protocol.contains(protocol_id)).select()
     
     return dict(protocol=protocol, models=models, transmitters=transmitters)
 

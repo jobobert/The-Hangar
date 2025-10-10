@@ -109,7 +109,9 @@ def update():
 def read():
     response.title = 'Read Article'
 
-    article = db.article(request.args(0)) or redirect(URL('library', 'index'))
+    article_id = VerifyTableID('article', request.args(0)) or redirect(URL('library', 'index'))
+
+    article = db.article(article_id)
 
     return dict(article=article)
 

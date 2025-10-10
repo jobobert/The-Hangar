@@ -1,7 +1,10 @@
 def rendercard():
 
-    #session.forget(response)
-    model_id = request.args[0]
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='propeller', title='Propellers')
+
     si_query = db(db.propeller.model == model_id)
 
     si_count = si_query.count() 
@@ -34,11 +37,11 @@ def rendercard():
 
 
 def remove():
-    #session.forget(response)
-    item_id = request.args(0)
+    
+    item_id = VerifyTableID('propeller', request.args(0)) or redirect(URL('default', 'index'))
     response.flash = item_id
     
     if item_id:
         db(db.propeller.id == item_id).delete()
-        #redirect(URL('default', 'breadcrumb_back'))
-        return redirect(URL('propeller', 'index', args=item_id, extension="html"))
+        
+        redirect(URL('propeller', 'index', args=item_id, extension="html"))

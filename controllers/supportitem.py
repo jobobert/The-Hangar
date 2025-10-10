@@ -1,7 +1,11 @@
 def rendercard():
     
-    #session.forget(response)
     model_id = request.args[0]
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='supportitem', title='Support Items')
+
     si_query = db(db.supportitem.model == model_id)
 
     si_count = si_query.count()
@@ -33,11 +37,14 @@ def rendercard():
     return dict(items=items, model_id=model_id, item_count=si_count, addform=addform, deleteform=deleteform)
 
 def remove():
-    #session.forget(response)
     
-    item_id = request.args(0)
-    response.flash = item_id
+    item_id = VerifyTableID('supportitem', request.args(0))
+    
     if item_id:
         db(db.supportitem.id == item_id).delete()
+        response.flash = "Support item removed successfully"
 
-        return redirect(URL('supportitem', 'index', args=item_id, extension="html"))
+    else:
+        response.flash = "Invalid support item ID"      
+        
+    redirect(session.ReturnHere or URL('supportitem', 'index', args=item_id, extension="html"))

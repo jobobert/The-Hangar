@@ -1,11 +1,12 @@
 
 
 def index():
+
+    transmitter_id = VerifyTableID('transmitter', request.args(0)) or redirect(URL('transmitter', 'listview'))
     response.title = 'Transmitters'
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
-    transmitter_id = request.args(0)
     transmitters = db(db.transmitter.id == transmitter_id).select(
     ) or redirect(URL('transmitter', 'listview'))
 
@@ -54,7 +55,5 @@ def update():
     for s in inputs:
         s['_autocomplete'] = 'off'
 
-    #response.view = 'content.html'
-    #return dict(content=form)
     return dict(form=form)
 

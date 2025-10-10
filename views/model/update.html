@@ -11,271 +11,278 @@ Your submitted form contains the following errors:
 {{pass}}
 
 {{=form.custom.begin}}
-<div class="container ">
-    <div class="row bg-light fixed-bottom pl-5 p-2">
-        {{=form.custom.submit}}
-    </div>
-    <div class="row">
-        <div class="card w-100 ">
-            <div class="card-header">
-                <h5 class="mb-0">General</h5>
-            </div>
-            <div class="container">
+
+<div class="row">
+    <div class="card w-100 px-2">
+        <div class="card-header">
+            <h5 class="mb-0">General</h5>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-8">
                 <div class="row">
-                    <div class="col-sm-8">
+                    {{=makeFormField(form, "name", FormFieldType.COLUMNS, columns=4)}}
+                    {{=makeFormField(form, "modeltype", FormFieldType.COLUMNS, columns=4)}}
+                    
+                </div>
+                <div class="row">
+                    {{=makeFormField(form, "description", FormFieldType.COLUMNS)}}
+                </div>
+                <div class="row">
+                    {{=makeFormField(form, "manufacturer", FormFieldType.COLUMNS, columns=4)}}
+                    {{=makeFormField(form, "kitnumber", FormFieldType.COLUMNS, columns=4)}}
+                    {{=makeFormField(form, "attr_flight_timer", FormFieldType.COLUMNS, columns=4)}}
+                </div>
+                <div class="row">
+                    {{=makeFormField(form, "subjecttype", FormFieldType.COLUMNS, columns=3)}}
+                    {{=makeFormField(form, "attr_scale", FormFieldType.COLUMNS, columns=3)}}
+                    <div class="col-3">
                         <div class="row">
-                            {{=makeFormField(form, "name", FormFieldType.COLUMNS, columns=4)}}
-                            {{=makeFormField(form, "modeltype", FormFieldType.COLUMNS, columns=4)}}
-                            {{=makeFormField(form, "attr_flight_timer", FormFieldType.COLUMNS, columns=4)}}
+                            {{=makeFormField(form, "haveplans", FormFieldType.COLUMNS, columns=0)}}
                         </div>
                         <div class="row">
-                            {{=makeFormField(form, "description", FormFieldType.COLUMNS)}}
+                            {{=makeFormField(form, "havekit", FormFieldType.COLUMNS, columns=0)}}
                         </div>
-                        <div class="row">
-                            {{=makeFormField(form, "subjecttype", FormFieldType.COLUMNS, columns=3)}}
-                            {{=makeFormField(form, "attr_scale", FormFieldType.COLUMNS, columns=3)}}
-                            <div class="col-3">
-                                <div class="row">
-                                    {{=makeFormField(form, "haveplans", FormFieldType.COLUMNS, columns=0)}}
-                                </div>
-                                <div class="row">
-                                    {{=makeFormField(form, "havekit", FormFieldType.COLUMNS, columns=0)}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-                            {{=makeFormField(form, "modelstate", FormFieldType.COLUMNS, columns=3)}}
-                            {{=makeFormField(form, "modelorigin", FormFieldType.COLUMNS, columns=3)}}
-                            {{=makeFormField(form, "controltype", FormFieldType.COLUMNS, columns=3)}}
-                            {{=makeFormField(form, "powerplant", FormFieldType.COLUMNS, columns=3)}}
-                        </div>
-                        <div class="row mt-2">
-                            {{=makeFormField(form, "configbackup", FormFieldType.COLUMNS, columns=4)}}
-                            {{=makeFormField(form, "transmitter", FormFieldType.COLUMNS, columns=4)}}
-                            {{=makeFormField(form, "protocol", FormFieldType.COLUMNS, columns=4)}}
-                        </div>
-
                     </div>
+                    {{=makeFormField(form, "kitlocation", FormFieldType.COLUMNS, columns=3)}}
 
-                    {{=makeFormField(form, "img", FormFieldType.COLUMNS, columns=4)}}
                 </div>
+                <div class="row mt-2">
+                    {{=makeFormField(form, "modelstate", FormFieldType.COLUMNS, columns=3)}}
+                    {{=makeFormField(form, "modelorigin", FormFieldType.COLUMNS, columns=3)}}
+                    {{=makeFormField(form, "controltype", FormFieldType.COLUMNS, columns=3)}}
+                    {{=makeFormField(form, "powerplant", FormFieldType.COLUMNS, columns=3)}}
+                </div>
+                <div class="row mt-2">
+                    {{=makeFormField(form, "configbackup", FormFieldType.COLUMNS, columns=4)}}
+                    {{=makeFormField(form, "transmitter", FormFieldType.COLUMNS, columns=4)}}
+                    {{=makeFormField(form, "protocol", FormFieldType.COLUMNS, columns=4)}}
+                </div>
+
             </div>
+
+            {{=makeFormField(form, "img", FormFieldType.COLUMNS, columns=4)}}
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="card w-100 ">
+        <div class="card-header" id="headingNotes">
+            <h5 class="mb-0">
+                {{=form.custom.label.notes}}
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="model_form_field">{{=form.custom.widget.notes}}</div>
+            <div class="model_form_comment">{{=form.custom.comment.notes}}</div>
         </div>
     </div>
-    <div class="row">
-        <div class="card w-100 ">
-            <div class="card-header" id="headingOne">
-                <h5 class="mb-0">
-                    {{=form.custom.label.notes}}
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="model_form_field">{{=form.custom.widget.notes}}</div>
-                <div class="model_form_comment">{{=form.custom.comment.notes}}</div>
-            </div>
+</div>
+<div class="row">
+    <div class="card w-100 ">
+        <div class="card-header" id="headingFieldNotes">
+            <h5 class="mb-0">
+                {{=form.custom.label.fieldnotes}}
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="model_form_field">{{=form.custom.widget.fieldnotes}}</div>
+            <div class="model_form_comment">{{=form.custom.comment.fieldnotes}}</div>
         </div>
     </div>
-    <div class="row">
-        <div class="card w-100 ">
-            <div class="card-header" id="headingOne">
-                <h5 class="mb-0">
-                    {{=form.custom.label.fieldnotes}}
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="model_form_field">{{=form.custom.widget.fieldnotes}}</div>
-                <div class="model_form_comment">{{=form.custom.comment.fieldnotes}}</div>
-            </div>
+</div>
+<div class="row">
+    <div class="card w-100 ">
+        <div class="card-header" id="headingDiagram">
+            <h5 class="mb-0">
+                {{=form.custom.label.diagram}}
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="model_form_field">{{=form.custom.widget.diagram}}</div>
+            <div class="model_form_comment">{{=form.custom.comment.diagram}}</div>
         </div>
     </div>
-    <div class="row">
-        <div class="card w-100 ">
-            <div class="card-header" id="headingOne">
-                <h5 class="mb-0">
-                    {{=form.custom.label.diagram}}
-                </h5>
-            </div>
+</div>
 
-            <div class="card-body">
-                <div class="model_form_field">{{=form.custom.widget.diagram}}</div>
-                <div class="model_form_comment">{{=form.custom.comment.diagram}}</div>
-            </div>
+
+<div class="row">
+
+    <div class="card w-100 py-2">
+        <div class="card-header" id="headingPhysical">
+            <h5 class="mb-0">
+                Attributes
+            </h5>
         </div>
-    </div>
 
-
-    <div class="row">
-
-        <div class="card w-100 ">
-            <div class="card-header" id="headingOne">
-                <h5 class="mb-0">
-                    Attributes
-                </h5>
-            </div>
-
-            <div class="card-body">
-                <div class="row">
-                    {{=makeFormField(form, "attr_length", FormFieldType.COLUMNS, columns=6)}}
-                    {{=makeFormField(form, "attr_construction", FormFieldType.COLUMNS, columns=6)}}
-
-                </div>
-                <div class="row">
-                    {{=makeFormField(form, "attr_width", FormFieldType.COLUMNS, columns=6)}}
-                    {{=makeFormField(form, "attr_covering", FormFieldType.COLUMNS, columns=6)}}
-
-                </div>
-                <div class="row">
-                    {{=makeFormField(form, "attr_height", FormFieldType.COLUMNS, columns=6)}}
-                    {{=makeFormField(form, "attr_cog", FormFieldType.COLUMNS, columns=6)}}
-
-                </div>
-                <div class="row">
-                    {{=makeFormField(form, "attr_weight_oz", FormFieldType.COLUMNS, columns=6)}}
-
-                </div>
+        <div class="card-body">
+            <div class="row">
+                {{=makeFormField(form, "attr_length", FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_construction", FormFieldType.COLUMNS, columns=6)}}
 
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="card w-100 ">
-            <div class="card-header" id="headingTwo">
-                <h5 class="mb-0">
-                    <a class=" " data-toggle="collapse" data-target="#collapse_airplane" , aria-expanded="false" aria-controls="collapse_airplane">Airplane &#8681;</a>
-                </h5>
-            </div>
-            <div class="card-body collapse" id="collapse_airplane">
-                <div class="container">
-                    <div class="row ml-1 mb-2 border-bottom border-secondary">
-                        {{=makeFormField(form, "attr_plane_rem_wings", FormFieldType.COLUMNS, columns=4)}}
-                        {{=makeFormField(form, "attr_plane_rem_wing_tube", FormFieldType.COLUMNS, columns=4)}}
-                        {{=makeFormField(form, "attr_plane_rem_struts", FormFieldType.COLUMNS, columns=4)}}
+            <div class="row">
+                {{=makeFormField(form, "attr_width", FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_covering", FormFieldType.COLUMNS, columns=6)}}
 
-                    </div>
-                    <div class="row">
-                        {{=makeFormField(form, "attr_plane_wingspan_mm", FormFieldType.COLUMNS, columns=6)}}
-                        {{=makeFormField(form, "attr_plane_wingarea", FormFieldType.COLUMNS, columns=6)}}
-
-                    </div>
-                    <div class="row">
-                        {{=makeFormField(form, "attr_plane_throw_aileron", FormFieldType.COLUMNS, columns=3)}}
-                        {{=makeFormField(form, "attr_plane_throw_elevator", FormFieldType.COLUMNS, columns=3)}}
-                        {{=makeFormField(form, "attr_plane_throw_rudder", FormFieldType.COLUMNS, columns=3)}}
-                        {{=makeFormField(form, "attr_plane_throw_flap", FormFieldType.COLUMNS, columns=3)}}
-
-                    </div>
-                </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="card w-100 ">
-            <div class="card-header" id="headingThree">
-                <h5 class="mb-0">
-                    <a class=" " data-toggle="collapse" data-target="#collapse_boat" , aria-expanded="false" aria-controls="collapse_boat">Boat &#8681;</a>
-                </h5>
-            </div>
-            <div class="card-body collapse" id="collapse_boat">
-                <div class="container">
-                    <div class="row">
-                        {{=makeFormField(form, "attr_boat_draft", FormFieldType.COLUMNS, columns=6)}}
-                        {{=makeFormField(form, "attr_sub_ballast", FormFieldType.COLUMNS, columns=6)}}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="card w-100 ">
-            <div class="card-header" id="headingThree">
-                <h5 class="mb-0">
-                    <a class=" " data-toggle="collapse" data-target="#collapse_copter" , aria-expanded="false" aria-controls="collapse_copter">Copter &#8681;</a>
-                </h5>
-            </div>
-            <div class="card-body collapse" id="collapse_copter">
-                <div class="container">
-                    <div class="row">
-                        {{=makeFormField(form, "attr_copter_headtype", FormFieldType.COLUMNS, columns=4)}}
-                        {{=makeFormField(form, "attr_copter_swashplate_type", FormFieldType.COLUMNS, columns=4)}}
-                        {{=makeFormField(form, "attr_copter_size", FormFieldType.COLUMNS, columns=4)}}
+            <div class="row">
+                {{=makeFormField(form, "attr_height", FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_cog", FormFieldType.COLUMNS, columns=6)}}
 
-                    </div>
-                    <div class="row">
-                        {{=makeFormField(form, "attr_multi_rotor_count", FormFieldType.COLUMNS, columns=3)}}
-                        {{=makeFormField(form, "attr_copter_blade_count", FormFieldType.COLUMNS, columns=3)}}
-                        {{=makeFormField(form, "attr_copter_mainrotor_length", FormFieldType.COLUMNS, columns=6)}}
-
-                    </div>
-                    <div class="row">
-                        {{=makeFormField(form, "attr_copter_tailrotor_drive", FormFieldType.COLUMNS, columns=3)}}
-                        {{=makeFormField(form, "attr_copter_tailrotor_blade_count", FormFieldType.COLUMNS, columns=3)}}
-                        {{=makeFormField(form, "attr_copter_tailrotor_span", FormFieldType.COLUMNS, columns=6)}}
-
-                    </div>
-                </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="card w-100 ">
-            <div class="card-header" id="headingThree">
-                <h5 class="mb-0">
-                    <a class=" " data-toggle="collapse" data-target="#collapse_rocket" , aria-expanded="false" aria-controls="collapse_rocket">Rocket &#8681;</a>
-                </h5>
-            </div>
-            <div class="card-body collapse" id="collapse_rocket">
-                <div class="container">
-                    <div class="row">
-                        {{=makeFormField(form, "attr_rocket_parachute", FormFieldType.COLUMNS, columns=4)}}
-                        {{=makeFormField(form, "attr_rocket_body_tube", FormFieldType.COLUMNS, columns=4)}}
-                        {{=makeFormField(form, "attr_rocket_motors", FormFieldType.COLUMNS, columns=4)}}
+            <div class="row">
+                {{=makeFormField(form, "attr_weight_oz", FormFieldType.COLUMNS, columns=6)}}
 
-                    </div>
-                </div>
             </div>
 
         </div>
     </div>
-    <div class="row">
-        <div class="card w-100 ">
-            <div class="card-header" id="headingThree">
-                <h5 class="mb-0">
-                    <a class=" " data-toggle="collapse" data-target="#collapse_car" , aria-expanded="false" aria-controls="collapse_car">Car &#8681;</a>
-                </h5>
-            </div>
-            <div class="card-body collapse" id="collapse_car">
-                <div class="container">
-                    <div class="row">
-                        {{=makeFormField(form, "attr_car_bodystyle", FormFieldType.COLUMNS, columns=6)}}
-                        {{=makeFormField(form, "attr_car_drive", FormFieldType.COLUMNS, columns=6)}}
+</div>
+<div class="row">
+    <div class="card w-100 py-2">
+        <div class="card-header" id="headingAirplane">
+            <h5 class="mb-0">
+                <a class=" " data-toggle="collapse" data-target="#collapse_airplane" aria-expanded="false" aria-controls="collapse_airplane">Airplane &#8681;</a>
+            </h5>
+        </div>
+        <div class="card-body collapse" id="collapse_airplane">
 
-                    </div>
-                </div>
+            <div class="row ml-1 mb-2 border-bottom border-secondary">
+                {{=makeFormField(form, "attr_plane_rem_wings", FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(form, "attr_plane_rem_wing_tube", FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(form, "attr_plane_rem_struts", FormFieldType.COLUMNS, columns=4)}}
+
             </div>
+            <div class="row">
+                {{=makeFormField(form, "attr_plane_wingspan_mm", FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_plane_wingarea", FormFieldType.COLUMNS, columns=6)}}
+
+            </div>
+            <div class="row">
+                {{=makeFormField(form, "attr_plane_throw_aileron", FormFieldType.COLUMNS, columns=3)}}
+                {{=makeFormField(form, "attr_plane_throw_elevator", FormFieldType.COLUMNS, columns=3)}}
+                {{=makeFormField(form, "attr_plane_throw_rudder", FormFieldType.COLUMNS, columns=3)}}
+                {{=makeFormField(form, "attr_plane_throw_flap", FormFieldType.COLUMNS, columns=3)}}
+
+            </div>
+
         </div>
     </div>
+</div>
+<div class="row">
+    <div class="card w-100 py-2">
+        <div class="card-header" id="headingBoat">
+            <h5 class="mb-0">
+                <a class=" " data-toggle="collapse" data-target="#collapse_boat" , aria-expanded="false" aria-controls="collapse_boat">Boat &#8681;</a>
+            </h5>
+        </div>
+        <div class="card-body collapse" id="collapse_boat">
 
-
-    <div class="row mt-3 mb-2">
-        <div class="card w-100 ">
-            <div class="card-header" id="headingOne">
-                <h5 class="mb-0">
-                    Final Disposition
-                </h5>
+            <div class="row">
+                {{=makeFormField(form, "attr_boat_draft", FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_sub_ballast", FormFieldType.COLUMNS, columns=6)}}
             </div>
 
-            <div class="card-body">
-                <div class="container">
-                    <div class="row">
-                        {{=makeFormField(form, "final_disposition", FormFieldType.COLUMNS, columns=9)}}
-                        {{=makeFormField(form, "final_value", FormFieldType.COLUMNS, columns=3)}}
-
-                    </div>
-
-                </div>
-            </div>
         </div>
     </div>
+</div>
+<div class="row">
+    <div class="card w-100 py-2">
+        <div class="card-header" id="headingCopter">
+            <h5 class="mb-0">
+                <a class=" " data-toggle="collapse" data-target="#collapse_copter" , aria-expanded="false" aria-controls="collapse_copter">Copter &#8681;</a>
+            </h5>
+        </div>
+        <div class="card-body collapse" id="collapse_copter">
+
+            <div class="row">
+                {{=makeFormField(form, "attr_copter_headtype", FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(form, "attr_copter_swashplate_type", FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(form, "attr_copter_size", FormFieldType.COLUMNS, columns=4)}}
+
+            </div>
+            <div class="row">
+                {{=makeFormField(form, "attr_multi_rotor_count", FormFieldType.COLUMNS, columns=3)}}
+                {{=makeFormField(form, "attr_copter_blade_count", FormFieldType.COLUMNS, columns=3)}}
+                {{=makeFormField(form, "attr_copter_mainrotor_length", FormFieldType.COLUMNS, columns=6)}}
+
+            </div>
+            <div class="row">
+                {{=makeFormField(form, "attr_copter_tailrotor_drive", FormFieldType.COLUMNS, columns=3)}}
+                {{=makeFormField(form, "attr_copter_tailrotor_blade_count", FormFieldType.COLUMNS, columns=3)}}
+                {{=makeFormField(form, "attr_copter_tailrotor_span", FormFieldType.COLUMNS, columns=6)}}
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="card w-100 py-2">
+        <div class="card-header" id="headingRocket">
+            <h5 class="mb-0">
+                <a class=" " data-toggle="collapse" data-target="#collapse_rocket" , aria-expanded="false" aria-controls="collapse_rocket">Rocket &#8681;</a>
+            </h5>
+        </div>
+        <div class="card-body collapse" id="collapse_rocket">
+
+            <div class="row">
+                {{=makeFormField(form, "attr_rocket_parachute", FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(form, "attr_rocket_body_tube", FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(form, "attr_rocket_motors", FormFieldType.COLUMNS, columns=4)}}
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="card w-100 py-2">
+        <div class="card-header" id="headingCar">
+            <h5 class="mb-0">
+                <a class=" " data-toggle="collapse" data-target="#collapse_car" , aria-expanded="false" aria-controls="collapse_car">Car &#8681;</a>
+            </h5>
+        </div>
+        <div class="card-body collapse" id="collapse_car">
+
+            <div class="row">
+                {{=makeFormField(form, "attr_car_bodystyle", FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_car_drive", FormFieldType.COLUMNS, columns=6)}}
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="row mt-3 mb-2">
+    <div class="card w-100 py-2">
+        <div class="card-header" id="headingFinalDisposition">
+            <h5 class="mb-0">
+                Final Disposition
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+                {{=makeFormField(form, "final_disposition", FormFieldType.COLUMNS, columns=9)}}
+                {{=makeFormField(form, "final_value", FormFieldType.COLUMNS, columns=3)}}
+
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=form.custom.submit}}
 </div>
 
 {{=form.custom.end}}

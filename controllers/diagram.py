@@ -1,15 +1,21 @@
 def rendermodeldiagram():
+
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
+
     if len(request.args) == 2:
         is_mobile = request.args[1]
     else:
         is_mobile = False 
 
-    model = db.model(request.args(0)) 
+    model = db.model(model_id) 
 
     return dict(dot=model.diagram, model_id=model.id,options=request.args(1),is_mobile=is_mobile)
 
 def rendermodelexport():
-    model = db.model(request.args(0)) 
+
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
+
+    model = db.model(model_id) 
 
     return dict(dot=model.diagram)
 
@@ -165,7 +171,9 @@ def createcomponentexamples():
     return comps
 
 def editmodeldiagram():
-    model = db.model(request.args(0)) 
+    model_id = VerifyTableID('activity', request.args(0)) or redirect(URL('model', 'listview'))
+    
+    model = db.model(model_id) 
 
     details_form = SQLFORM(db.model, model.id, fields=[
                            'diagram'], showid=False, formstyle='divs')

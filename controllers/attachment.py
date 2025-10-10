@@ -1,7 +1,10 @@
 
 def rendercard():
     
-    model_id = request.args[0]
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='attachment', title='Attachments')
 
     fields = ["name", "attachmenttype", "attachment"]
 
@@ -76,14 +79,9 @@ def update():
 def remove():
     # try to do this via ajax sometime...
 
-    #session.forget(response)
-
-    model_id = request.args[0]
-    attachment_id = request.args[1]
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('default', 'index'))
+    attachment_id = VerifyTableID('attachment', request.args(1)) or redirect(URL('default', 'index'))
 
     db(db.attachment.id == attachment_id).delete()
 
-    #breadcrumb_back()
-    #redirect(URL('default', 'breadcrumb_back'))
-    #redirect(URL('model', 'index', args=model_id))
-    return redirect(session.ReturnHere or URL('model', 'index', args=model_id))
+    redirect(session.ReturnHere or URL('model', 'index', args=model_id))

@@ -14,7 +14,7 @@
 
     <div class="row">
         <div class="card-deck">
-            {{if models:}}
+
             <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Associated Models</h5>
@@ -26,9 +26,10 @@
                         {{=modelListItem(model, img=True)}}
                         {{pass}}
                     </ul>
+                    {{pass}}
                 </div>
             </div>
-            {{pass}}
+
             {{if tool.attachment:}}
             <div class="card assoc-card">
                 <div class="card-header">

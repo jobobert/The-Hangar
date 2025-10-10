@@ -1,6 +1,6 @@
 
 def add():
-    model_id = request.args(0) or None
+    model_id = VerifyTableID('model', request.args(0))
 
     if not model_id:
         redirect(session.ReturnHere or URL('default','index'))
@@ -119,7 +119,7 @@ def renderpositions():
 
 def listswitches():
 
-    transmitter_id = int(request.args(0))
+    transmitter_id = VerifyTableID('transmitter', request.args(0))
 
     # Get the switches excluding those not associated with the specified transmitter
     switches = db(db.switch.model).select().exclude(lambda row: (row.model.transmitter.id == transmitter_id) & (row.model.modelstate.id > 1))

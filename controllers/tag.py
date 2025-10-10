@@ -34,10 +34,14 @@ def update():
     return dict(form=form)
 
 def delete():
-    tag_id = request.args(0)
+    tag_id = VerifyTableID('tag', request.args(0))
 
-    db(db.tag.id == tag_id).delete()
-
+    if tag_id:
+        response.flash = "Tag deleted"
+        db(db.tag.id == tag_id).delete()
+    else:
+        response.flash = "Could not delete: tag not found"
+    
     redirect(session.ReturnHere or URL('tag', 'listview'))
 
 def rendertags():

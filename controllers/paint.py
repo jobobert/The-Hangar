@@ -41,21 +41,32 @@ def listview():
     return dict(paints=paints)
 
 def delete():
-    paint_id = request.args(0)
+    paint_id = VerifyTableID('paint', request.args(0)) or redirect(URL('paint', 'listview'))
 
-    db(db.paint.id == paint_id).delete()
-    resposne.flash = 'Paint Deleted'
+    if db(db.model_paint.paint == paint_id).count() > 0:
+        response.flash = "Cannot delete: paint is assigned to models!"
+        return redirect(session.ReturnHere or URL('paint', 'listview'))
+    
+    if paint_id:
+        db(db.paint.id == paint_id).delete()
+        response.flash = 'Paint Deleted'    
+    else:
+        response.flash = "Cannot delete: paint not found"
+        
     return redirect(session.ReturnHere or URL('paint', 'listview'))
 
 def removefrommodel():
-    model_id = request.args(0)
-    relationship_id = request.args(1)
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('default', 'index'))
+    relationship_id = VerifyTableID('model_paint', request.args(1)) or redirect(URL('default', 'index'))
     db(db.model_paint.id == relationship_id).delete()
 
     return redirect(URL('model', 'index.html', args=model_id))
 
 def rendercard():
-    model_id = request.args(0)
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='paint', title='Paint')
 
     new_id = 0
     newform = SQLFORM(db.paint, showid=False, formstyle='bootstrap4_inline')

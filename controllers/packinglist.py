@@ -202,11 +202,6 @@ def allitems():
 def update():
     response.title = 'Update Packing Item'
 
-    # form = SQLFORM(db.packingitems, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False).process(
-    #     message_onsuccess='Item %s' % ('updated' if request.args else 'added'))
-
-    # if form.process().accepted:
-    #     redirect(URL('packinglist', 'allitems', args=form.vars.id, extension="html") or session.ReturnHere)
     form = SQLFORM(db.packingitems, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False).process(
         message_onsuccess='Packing Item %s' % ('updated' if request.args else 'added'),
         next=(URL('packinglist', 'allitems', extension="html"))
@@ -215,6 +210,4 @@ def update():
     for s in inputs:
         s['_autocomplete'] = 'off'
 
-    #response.view = 'content.html'
-    #return dict(content=form)
     return dict(form=form)

@@ -31,7 +31,7 @@ Your submitted form contains the following errors:
     </div>
     <div class="row">
         {{=makeFormField(form, "img", FormFieldType.COLUMNS, columns=6)}}
-        {{=makeFormField(form, "attachment", columns=6)}}
+        {{=makeFormField(form, "attachment", FormFieldType.COLUMNS, columns=6)}}
     </div>
     <div class="row">
         {{=makeFormField(form, "notes", FormFieldType.COLUMNS)}}

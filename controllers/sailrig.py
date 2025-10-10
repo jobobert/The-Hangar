@@ -1,11 +1,11 @@
 def index():
-    rigId = request.args(0)
-    rig = db(db.sailrig.id == rigId).select(
+    rig_id = VerifyTableID('sailrig', request.args(0)) or redirect(URL('sailrig', 'listview'))
+    rig = db(db.sailrig.id == rig_id).select(
     ).first() or redirect(URL('sailrig', 'listview'))
 
     response.title = "Sail Rig " + rig.rigname
 
-    model = db(db.sailrig.id == rigId).select(
+    model = db(db.sailrig.id == rig_id).select(
         db.sailrig.model).first()
 
     return dict(rig=rig, model=model)
@@ -47,7 +47,7 @@ def update():
 
 
 def delete():
-    sailrig_id = request.args[0]
+    sailrig_id = VerifyTableID('sailrig', request.args(0)) or redirect(URL('sailrig', 'listview'))
 
     db(db.sailrig.id == sailrig_id).delete()
     response.flash = "Deleted"
@@ -56,11 +56,15 @@ def delete():
 
 def rendercard():
     modelid = request.args(0)
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='sailrig', title='Sail Rigs')
 
     newFields = ['rigname', 'notes']
     newform = SQLFORM(db.sailrig, fields=newFields,
                       showid=False, formstyle='bootstrap4_inline')
-    newform.vars.model = modelid
+    newform.vars.model = model_id
     if newform.process(session=None, formname='newform').accepted:
         response.flash = 'Rig Added'
     elif newform.errors:
@@ -73,8 +77,8 @@ def rendercard():
     elif deleteform.errors:
         response.flash = 'Removal Failure'
 
-    rig_query = db(db.sailrig.model == modelid)
+    rig_query = db(db.sailrig.model == model_id)
     rig_count = rig_query.count()
     model_rigs = rig_query.select()
 
-    return dict(model_rigs=model_rigs, modelid=modelid, newform=newform, deleteform=deleteform, rig_count=rig_count)
+    return dict(model_rigs=model_rigs, modelid=model_id, newform=newform, deleteform=deleteform, rig_count=rig_count)

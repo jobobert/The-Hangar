@@ -21,15 +21,16 @@ def renderlist():
 
 
 def rendercard():
+
+    model_id = -1
+    todo_query = db(db.todo.complete == False)
     
     if request.args:
-        model_id = request.args[0]
-        todo_query = db((db.todo.model == model_id) &
+        model_id = VerifyTableID('model', request.args(0))
+        if model_id:
+            todo_query = db((db.todo.model == model_id) &
                         (db.todo.complete == False))
-    else:
-        model_id = -1
-        todo_query = db(db.todo.complete == False)
-
+    
     todo_count = todo_query.count()
 
     form = SQLFORM(db.todo, submit_button='Add')
@@ -60,14 +61,13 @@ def rendercard():
 
 def complete():
     # try to do this via ajax sometime...
-    # session.forget(response)
 
-    model_id = request.args[0]
-    todo_id = request.args[1]
-    #response.flash = todo_id
-    db(db.todo.id == todo_id).update(complete=True)
+    model_id = request.args(0)
+    todo_id = VerifyTableID('todo', request.args(1)) 
 
-    # return redirect(URL('todo', 'index', args=todo_id, extension="html"))
+    if todo_id:
+        db(db.todo.id == todo_id).update(complete=True)
+
     redirect(session.ReturnHere or URL('todo', 'index', args=model_id))
 
 
@@ -116,7 +116,6 @@ def update():
 
 def newmodal():
     # This is the controller to create a new todo in a modal...
-    #return dict(content="Need to make this happen...")
 
     fields = ["todo", "model", "critical", "notes"]
 
