@@ -233,7 +233,7 @@ db.define_table('model'
                 , Field('manufacturer', type='string', label='Manufacturer', comment='Who made the model?')
                 , Field('kitnumber', type='string', label='Kit Number', comment="Manufacturer's kit number")
                 , Field('kitlocation', type='string', label='Kit/Plan Location', comment='Where the kit/plan is stored')
-                , Field('modelcategory', type='string', label='Category', comment='Model category', required=True)
+                , Field('modelcategory', type='string', label='Category', comment='Model category', required=True, default='Non-Model')
                 #
                 , Field('attr_flight_timer', type='double', label='Flight Timer', comment='The length of the flight timer', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 , Field('attr_construction', type='string', label='Construction')
@@ -1077,8 +1077,8 @@ if db(db.tag.id > 0).count() == 0:
 ##############################################
 ## Migration Steps
 
-# set any emtyp modelcategory to 'Remote Control'
-db(db.model.modelcategory == None).update(modelcategory='Remote Control')
+# set any empty modelcategory to 'Remote Control'
+#db(db.model.modelcategory == None).update(modelcategory='Remote Control')
 
 
 # -------------------------------------------------------------------------

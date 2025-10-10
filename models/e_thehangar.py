@@ -199,7 +199,7 @@ def model_type_icon(model, size:int):
     if model.modeltype:
         return show_icon(folder + model.modeltype.lower() + '-' + str(size) + '.svg', size, model.modeltype)
     else:
-        return f"unknown modeltype for {model.name}"
+        return show_icon('noicon.svg', size, f"unknown modeltype for {model.name}")
 
 def model_powerplant_icon(model, size:int):
     folder = 'model_powerplant/'
