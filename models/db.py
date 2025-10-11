@@ -518,12 +518,7 @@ modeltype_controller_mapping = {
     'Other' : []
 }
 
-modelcategory_color_mapping = {
-    'Remote Control' : '#ff0000', 
-    'Static' : '#00ff00', 
-    'Miniature' : '#0000ff', 
-    'Non-Model' : '#aaaaaa'
-}
+
 
 ###############################################
 ## TODO

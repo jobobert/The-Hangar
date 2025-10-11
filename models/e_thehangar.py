@@ -481,8 +481,6 @@ def makeTagList(tags, divClass=""):
     if not tags:
         return ""
     return DIV([SPAN(t.name, _class="ml-2 badge badge-primary") for t in tags], _class=divClass)
-    
-        
 
 #################################################
 ## ACTION BUTTON CREATION

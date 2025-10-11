@@ -28,9 +28,10 @@
 </div>
 
 <div class="row mb-0 ml-2">
-    <div class="modelstate_bg_{{=model.modelstate}} col-sm-4">
+    <div class="modelstate_bg_{{=model.modelstate}} col-sm-3">
         {{try:}}{{=model.modelstate.name}}{{ except:}} Unknown{{pass}}
     </div>
+    <div class="col-sm-3 text-truncate model_category_background_nonmodel">{{=model.modelcategory or 'No Category'}}</div>
     <div class="col-sm-6">
         {{if model.subjecttype:}}
         <span class="badge badge-pill badge-secondary">{{=model.subjecttype}}</span>

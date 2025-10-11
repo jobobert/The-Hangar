@@ -3,7 +3,7 @@
     <h5>Model Not Found</h5>
 </div>
 {{else:}}
-<div class="card model-card mb-2" style="border: 2px solid {{=modelcategory_color_mapping.get(model.modelcategory, '#cccccc')}};">
+<div class="card model-card mb-2">
     <div style="position:absolute; top: 0px; left: 0px; display: inline-block; width:48px; float:left;">
         {{=model_type_icon(model, 48) }}
     </div>

@@ -3,7 +3,7 @@
     <h5>Model Not Found</h5>
 </div>
 {{else:}}
-<div class="card model-card mb-2" style="border: 2px solid {{=modelcategory_color_mapping.get(model.modelcategory, '#cccccc')}};">
+<div class="card model-card mb-2 model_category_border_remotecontrol">
     <div style="position:absolute; top: 0px; left: 0px; display: inline-block; width:48px; float:left;">
         {{=model_type_icon(model, 48) }}
     </div>
@@ -19,6 +19,7 @@
             {{=model.modelstate.name if model.modelstate else 'Unknown State'}}
         </h6>
     </div>
+    <div class="model_category_row_remotecontrol">{{=model.modelcategory}}</div>
     <div class="card-body">
         <a href="{{=URL('model','index',args=model.id,extension='html')}}" style="text-decoration: none; color: inherit;">
             <img class="card-img-top default-model-image" src="{{=URL('default', 'download', args=model.img)}}" alt="Card image cap" />
