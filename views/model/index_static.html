@@ -1,0 +1,267 @@
+{{extend 'layout.html'}}
+
+<div class="row ml-2">
+    <div class="btn-toolbar" role="toolbar">
+        <div class="btn-group mb-1 mr-2" role="group">
+            <a class="btn btn-outline-primary" href="{{=URL('model','update',args=model.id,extension='html')}}">Edit</a>
+            {{=LOAD('model','selected.load', args=[model.id], ajax=True, content='...')}}
+        </div>
+        <div class="btn-group mb-1 mr-2" role="group">
+            <a class=" btn btn-outline-secondary" href="{{=URL('activity','modelactivities', args=model.id)}}">Show
+                Events</a>
+            <a class="btn btn-outline-secondary" href="{{=URL('activity', 'addactivity', args=[model.id])}}">Add
+                Event</a>
+        </div>
+
+        <div><a class="btn btn-outline-primary" href="{{=URL('model', 'retire', args=[model.id])}}">Retire</a></div>
+        <div><a class="btn btn-outline-primary" href="{{=URL('model', 'printcard', args=[model.id])}}">Card</a></div>
+        <div><a class="btn btn-outline-primary" href="{{=URL('model', 'export', args=[model.id])}}">Export</a></div>
+        <div><a class="btn btn-outline-primary" href="{{=URL('model', 'exportminimal', args=[model.id])}}">Ex.Min</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3 ml-2 no-print">
+    <div class=" col-sm-12">
+        {{=LOAD('model','flowchart.load', args=[model.id], ajax=True, content='Loading Flowchart..')}}
+    </div>
+</div>
+
+<div class="row mb-0 ml-2">
+    <div class="modelstate_bg_{{=model.modelstate}} col-sm-4">
+        {{try:}}{{=model.modelstate.name}}{{ except:}} Unknown{{pass}}
+    </div>
+    <div class="col-sm-6">
+        {{if model.subjecttype:}}
+        <span class="badge badge-pill badge-secondary">{{=model.subjecttype}}</span>
+        {{pass}}
+        <span class="badge badge-pill badge-info">{{try:}}{{=model.modeltype}}{{ except:}} Unknown Type
+            {{pass}}</span>
+        <span class="badge badge-pill badge-info">{{try:}}{{=model.modelorigin}}{{ except:}} Unknown Type
+            {{pass}}</span>
+        {{if model.haveplans:}}
+        <span class="badge badge-pill badge-danger">Plans Available</span>
+        {{pass}}
+    </div>
+</div>
+<div class="row mb-3 ml-2">
+    <div class="col-12 col-md-7">
+        <h1 class="display-4">{{=model.name}}</h1>
+        <div class="row">
+            {{ if model.manufacturer:}}
+            <div class="col">
+                <small class="text-muted">{{=db.model.manufacturer.label}}</small> {{=model.manufacturer}}
+            </div>
+            {{pass}}
+            {{ if model.kitnumber:}}
+            <div class="col">
+                <small class="text-muted">{{=db.model.kitnumber.label}}</small> {{=model.kitnumber}}
+            </div>
+            {{pass}}
+            {{ if model.kitlocation:}}
+            <div class="col">
+                <small class="text-muted">{{=db.model.kitlocation.label}}</small> {{=model.kitlocation}}
+            </div>
+            {{pass}}
+        </div>
+        <p class="lead">{{=model.description}}</p>
+    </div>
+
+    <div class="col-12 col-md-5">
+        <img class="card-img-top" src="{{=URL('default', 'download', args=model.img)}}" alt="Card image cap">
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-sm">
+        <div class="row">
+            <div class="col mb-3">
+                {{=LOAD('activity','rendernotes.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Notes"))}}
+            </div>
+            <div class="col mb-3">
+                {{=LOAD('todo', 'rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Todos"))}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="row">
+            <div class="col mb-3">
+                {{=LOAD('attachment','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Attachments"))}}
+            </div>
+            <div class="col mb-3">
+                {{=LOAD('model','renderurlcard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"URL"))}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Attributes</h5>
+                    </div>
+                    <div class="card-body attribute-list">
+                        <dl>
+                            <dt>{{=db.model.haveplans.label}}</dt>
+                            <dd>{{=model.haveplans}}</dd>
+                            <dt>{{=db.model.havekit.label}}</dt>
+                            <dd>{{=model.havekit}}</dd>
+                            {{for key in sorted(model.__dict__):}}
+                            {{if key.startswith('attr_') and model[key] and not key.startswith('attr_boat_rig_'):}}
+                            {{c=''}}
+
+                            {{if key.startswith('attr_plane_') and model.modeltype != 'Airplane' :}}
+                            {{c="model_attr_light"}}
+                            {{elif key.startswith('attr_rocket_') and model.modeltype != 'Rocket':}}
+                            {{c="model_attr_light"}}
+                            {{elif key.startswith('attr_boat_') and model.modeltype != 'Boat':}}
+                            {{if model.modeltype != 'Submarine':}}
+                            {{c="model_attr_light"}}
+                            {{pass}}
+                            {{elif key.startswith('attr_sub_') and model.modeltype != 'Submarine':}}
+                            {{c="model_attr_light"}}
+                            {{elif key.startswith('attr_copter_') and model.modeltype != 'Helicopter':}}
+                            {{if model.modeltype != 'Autogyro' :}}
+                            {{c="model_attr_light"}}
+                            {{pass}}
+                            {{elif key.startswith('attr_multi_') and model.modeltype != 'Multirotor' :}}
+                            {{c="model_attr_light"}}
+                            {{elif key.startswith('attr_robot_') and model.modeltype != 'Robot' :}}
+                            {{c="model_attr_light"}}
+                            {{elif key.startswith('attr_experimental_') and model.modeltype != 'Experimental' :}}
+                            {{c="model_attr_light"}}
+                            {{else:}}
+                            {{c=''}}
+                            {{pass}}
+                            <dt class="{{=c}}">{{=getattr(db.model, key).label}}</dt>
+                            <dd class="{{=c}}">
+                                {{if getattr(db.model, key).type == 'double':}}
+                                {{=TwoDecimal(model[key])}} {{=ConvertMeasurementField(db.model, model, key)}}
+                                {{else:}}
+                                {{=model[key]}}
+                                {{pass}}
+                            </dd>
+                            {{pass}}
+                            {{pass}}
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="col mb-3">
+                {{=LOAD('paint','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Paint"))}}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col  mb-3">
+        <div class="card shadow  mb-3  rounded">
+            <div class="card-header">
+                <h5 class="card-title" style="display: inline-block;">Details</h5>
+                <a href="#" data-toggle="modal" data-target="#modal_details" class="card-link th-new-link">Edit</a>
+            </div>
+            <div class="card-body content hideContent" id="model-details">
+                {{=MARKMIN(model.notes)}}
+            </div>
+            <div class="show-more">
+                <a href="" onclick="return false;">Show More</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col mb-3">
+        {{=LOAD('component','rendercard.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True,content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Components"))}}
+    </div>
+</div>
+{{if model.fieldnotes:}}
+<div class="row">
+    <div class="col mb-3">
+        <div class="card shadow mb-3 rounded">
+            <div class="card-header">
+                <h5 class="card-title" style="display:inline-block">Field Notes</h5>
+            </div>
+            <div class="card-body">
+                {{=MARKMIN(model.fieldnotes)}}
+            </div>
+        </div>
+
+    </div>
+</div>
+{{pass}}
+
+<div class="row">
+    <div class="col mb-3">
+        {{=LOAD('activity', 'rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')), "Activities"))}}
+    </div>
+</div>
+
+
+
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=editButton('model', 'update', model.id)}}
+</div>
+</div>
+
+
+<div class="modal fade" id="modal_details" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_details_title">Details</h5>
+            </div>
+            <div class="modal-body">
+                {{=details_form}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- https://stackoverflow.com/questions/12307666/how-to-create-a-show-more-button-and-specify-how-many-lines-of-text-can-be-ini-->
+<script type="text/javascript">
+    $(".show-more a").on("click", function () {
+        var $this = $(this);
+        var $content = $this.parent().prev("div.content");
+        var linkText = $this.text().toUpperCase();
+
+        if (linkText === "SHOW MORE") {
+            linkText = "Show less";
+            //$content.switchClass("hideContent", "showContent", 400);
+            $content.addClass("showContent")
+            $content.removeClass("hideContent");
+        } else {
+            linkText = "Show more";
+            //$content.switchClass("showContent", "hideContent", 400);
+            $content.removeClass("showContent")
+            $content.addClass("hideContent");
+        };
+
+        $this.text(linkText);
+    })
+
+    const container = document.querySelector("#model-details");
+    var detailLinks = container.querySelectorAll("a");
+    for (var i = 0; i < detailLinks.length; i++) {
+        detailLinks[i].target = "_blank";
+    }
+
+    var deleteLinks = document.querySelectorAll('.delete');
+    for (var i = 0; i < deleteLinks.length; i++) {
+        deleteLinks[i].addEventListener('click', function (event) {
+            event.preventDefault();
+
+            var choice = confirm(this.getAttribute('data-confirm'));
+
+            if (choice) {
+                window.location.href = this.getAttribute('href');
+            }
+        });
+    }
+</script>

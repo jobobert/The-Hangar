@@ -1,0 +1,49 @@
+{{if model == None:}}
+<div class="card model-card mb-2">
+    <h5>Model Not Found</h5>
+</div>
+{{else:}}
+<div class="card model-card mb-2" style="border: 2px solid {{=modelcategory_color_mapping.get(model.modelcategory, '#cccccc')}};">
+    <div style="position:absolute; top: 0px; left: 0px; display: inline-block; width:48px; float:left;">
+        {{=model_type_icon(model, 48) }}
+    </div>
+
+    <h4 class="card-header text-center"><a href="{{=URL('model','index',args=model.id,extension='html')}}" style="text-decoration: none; color: inherit;">{{=model.name}}</a></h4>
+    <div class="">
+        <h6 class="text-right p-1 modelstate_bg_{{=model.modelstate if model.modelstate else 'none'}}">
+            {{=model.modelstate.name if model.modelstate else 'Unknown State'}}
+        </h6>
+
+    </div>
+    <div class="card-body">
+        <a href="{{=URL('model','index',args=model.id,extension='html')}}" style="text-decoration: none; color: inherit;">
+            <img class="card-img-top default-model-image" src="{{=URL('default', 'download', args=model.img)}}" alt="Card image cap" />
+        </a>
+        <ul class="nav nav-pills nav-fill model-summary">
+            <li class="nav-item">
+                {{=model.get_major_dimension()}}
+            </li>
+            <li class="nav-item">{{=LOAD('model','selected.load', args=[model.id,'card'], ajax=True, content='...')}}</li>
+        </ul>
+        <div class="pl-1 mt-0">
+            {{if model.haveplans:}}<span class="badge badge-info">Plans</span>{{pass}}
+            {{if model.havekit:}}<span class="badge badge-dark">Kit</span>{{pass}}
+        </div>
+        <p class="card-text">{{=model.description or ''}}</p>
+    </div>
+    <div>
+        <div class="model_detail_row">
+            <span class="pl-1 pr-1 m-0">{{=model.manufacturer}}</span>
+            <span class="pl-1 pr-1 m-0">{{=model.kitnumber}}</span>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.open_todos_count()}}</span><span>{{=controller_icon('todo', 20)}}</span></div>
+        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.activity.count()}}</span><span>{{=controller_icon('activity', 20)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_attachmentcount()}}</span><span>{{=controller_icon('attachment', 20)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.componentcount()}}</span><span>{{=controller_icon('component', 20)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px;">{{=A(action_icon('card', 20), _href=URL('model', 'printcard.html', args=[model.id]))}}</span></div>
+    </div>
+
+</div>
+{{pass}}
