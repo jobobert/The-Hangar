@@ -1,0 +1,23 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg"  xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" version="1.1" width="48" height="48">
+<desc>CopyRight:SVG Design Editor;
+configurationStart;Unit=smInches;Dpi=96;Division=4;Grid=True;Zoom=5;CanvasW=48;CanvasH=48;configurationEnd;</desc>
+<g isVisble = "True" inkscape:label = "train-48 Default Layer" inkscape:groupmode = "layer" ><rect style="fill:#F2F2F2;stroke:Black; stroke-width:1" x = "50" y = "50" width = "2.083333in" height = "1.041667in" transform = "matrix(0.01320227,0,0,0.05492117,5.419643,13.40597)" vector-effect="non-scaling-stroke" pen = "0.06601156,0.2746068" />
+<line style="fill:none;stroke:Black; stroke-width:3" x1 = "50" y1 = "50" x2 = "100" y2 = "100" transform = "matrix(16.41177,-16.42065,16.42054,16.41177,-1641.309,37.44636)" vector-effect="non-scaling-stroke" pen = "116.0793,116.0793" />
+<rect style="fill:#F2F2F2;stroke:Black; stroke-width:1" x = "50" y = "50" width = "1.041667in" height = "1.041667in" transform = "matrix(0.2569903,0,0,0.08345243,-11.99906,16.85472)" vector-effect="non-scaling-stroke" pen = "1.284953,0.4172629" />
+<rect style="fill:#F2F2F2;stroke:Black; stroke-width:1" x = "50" y = "50" width = "1.041667in" height = "1.041667in" transform = "matrix(0.2217687,0,0,0.11837,13.14362,8.983585)" vector-effect="non-scaling-stroke" pen = "1.10885,0.5918533" />
+<circle style="fill:#F2F2F2;stroke:Black; stroke-width:1" cx = "100" cy = "100" r = "0.5208333in" transform = "matrix(0.05456224,0,0,0.05456224,0.6156631,28.01566)" vector-effect="non-scaling-stroke" pen = "0.2728122,0.2728122" />
+<g id="group_1">
+<circle style="fill:#F2F2F2;stroke:Black; stroke-width:1" cx = "100" cy = "100" r = "0.5208333in" transform = "matrix(0.1248481,0,0,0.1248481,16.07279,17.27278)" vector-effect="non-scaling-stroke" pen = "0.6242449,0.6242449" />
+</g>
+<g id="group_4">
+<g id="group_5">
+<circle style="fill:#F2F2F2;stroke:Black; stroke-width:1" cx = "100" cy = "100" r = "0.5208333in" transform = "matrix(0.1248481,0,0,0.1248481,29.87279,17.27278)" vector-effect="non-scaling-stroke" pen = "0.6242449,0.6242449" />
+</g>
+</g>
+<g id="group_0">
+<circle style="fill:#F2F2F2;stroke:Black; stroke-width:1" cx = "100" cy = "100" r = "0.5208333in" transform = "matrix(0.05456224,0,0,0.05456224,8.015663,28.01566)" vector-effect="non-scaling-stroke" pen = "0.2728122,0.2728122" />
+</g>
+</g>
+</svg>
