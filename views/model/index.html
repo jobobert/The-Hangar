@@ -114,14 +114,15 @@
                 {{=LOAD('battery','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')), "Batteries"))}}
             </div>
         </div>
-        {{if 'propeller' in modeltype_controller_mapping[model.modeltype]:}}
+        {{allowed_controllers = modeltype_controller_mapping.get(model.modeltype, [])}}
+        {{if 'propeller' in allowed_controllers:}}
         <div class="row">
             <div class="col mb-3">
                 {{=LOAD('propeller','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Propellers"))}}
             </div>
         </div>
         {{pass}}
-        {{if 'rotor' in modeltype_controller_mapping[model.modeltype]:}}
+        {{if 'rotor' in allowed_controllers:}}
         <div class="row">
             <div class="col mb-3">
                 <div class="card">
@@ -145,14 +146,14 @@
             </div>
         </div>
         {{pass}}
-        {{if 'wtc' in modeltype_controller_mapping[model.modeltype]:}}
+        {{if 'wtc' in allowed_controllers:}}
         <div class="row">
             <div class="col mb-3">
                 {{=LOAD('wtc','rendercard.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True,content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Water Tight Cylinder"))}}
             </div>
         </div>
         {{pass}}
-        {{if 'sailrig' in modeltype_controller_mapping[model.modeltype]:}}
+        {{if 'sailrig' in allowed_controllers:}}
         <div class="row">
             <div class="col mb-3">
                 {{=LOAD('sailrig','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')), "Sail Rigs"))}}
@@ -228,7 +229,7 @@
                             {{c="model_attr_light"}}
                             {{pass}}
                             {{elif key.startswith('attr_sub_') and model.modeltype != 'Submarine':}}
-                            {{=c="model_attr_light"}}
+                            {{c="model_attr_light"}}
                             {{elif key.startswith('attr_copter_') and model.modeltype != 'Helicopter':}}
                             {{if model.modeltype != 'Autogyro' :}}
                             {{c="model_attr_light"}}
@@ -315,8 +316,8 @@
 
 
 <div class="row bg-light fixed-bottom pl-5 p-2">
-        {{=editButton('model', 'update', model.id)}}
-    </div>
+    {{=editButton('model', 'update', model.id)}}
+</div>
 </div>
 
 

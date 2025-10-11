@@ -76,6 +76,7 @@
                                 {{elif key.startswith('attr_multi_') and model.modeltype != 'Multirotor' :}}{{c="model_attr_light"}}
                                 {{elif key.startswith('attr_robot_') and model.modeltype != 'Robot' :}}{{c="model_attr_light"}}
                                 {{elif key.startswith('attr_experimental_') and model.modeltype != 'Experimental' :}}{{c="model_attr_light"}}
+                                {{elif key.startswith('attr_train_') and model.modeltype != 'Train' :}}{{c="model_attr_light"}}
                                 {{else:}} {{c=""}}
                                 {{pass}}
                                 <dt class="{{=c}}">{{=getattr(db.model, key).label}}</dt>

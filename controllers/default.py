@@ -19,10 +19,25 @@ def index():
     parse_success = False
     state_number = 4
     state_plus = True
-    the_filters = {'modeltype': '', 'controltype': '', 'powerplant': '',
-                   'plankit': '', 'transmitter': '', 'subjecttype': '', 'selected': ''}
-    filter_text = {'modeltype': '', 'controltype': '', 'powerplant': '',
-                   'plankit': '', 'transmitter': '', 'subjecttype': '', 'selected': ''}
+    the_filters = {
+                'modelcategory': ''
+                , 'modeltype': ''
+                , 'controltype': ''
+                , 'powerplant': ''
+                , 'plankit': ''
+                , 'transmitter': ''
+                , 'subjecttype': ''
+                , 'selected': ''
+                }
+    filter_text = {
+                'modelcategory': ''
+                , 'modeltype': ''
+                , 'controltype': ''
+                , 'powerplant': ''
+                , 'plankit': ''
+                , 'transmitter': ''
+                , 'subjecttype': ''
+                , 'selected': ''}
 
     states = db(db.modelstate).select(db.modelstate.id, db.modelstate.name)
     filterstatelist = []
@@ -61,6 +76,8 @@ def index():
         filters = the_filters
 
     fields = []
+    fields.append(Field('modelcategory', label=db.model.modelcategory.label,
+                        requires=IS_EMPTY_OR(db.model.modelcategory.requires), required=False))
     fields.append(Field('modeltype', label=db.model.modeltype.label,
                         requires=IS_EMPTY_OR(db.model.modeltype.requires), required=False))
     fields.append(Field('controltype', label=db.model.controltype.label,
@@ -90,6 +107,8 @@ def index():
         wasFormUsed = True
 
         response.flash = ''
+        filters['modelcategory'] = selectform.vars.modelcategory
+
         filters['modeltype'] = selectform.vars.modeltype
 
         filters['controltype'] = selectform.vars.controltype
@@ -115,6 +134,11 @@ def index():
         session.filters = filters = the_filters
         wasFormUsed = False
         redirect(URL(args=request.args, host=True))
+
+
+    if filters['modelcategory']:
+        queries.append(db.model.modelcategory == filters['modelcategory'])
+        filter_text['modelcategory'] = filters['modelcategory']
 
     if filters['modeltype']:
         queries.append(db.model.modeltype == filters['modeltype'])

@@ -24,6 +24,17 @@ def index():
         args=request.args, vars=request.get_vars, host=True)
 
     session.index = "index ready"
+
+    match model.modelcategory:
+        case 'Remote Control':
+            response.view = 'model/index_remotecontrol.html'
+        case 'Static':
+            response.view = 'model/index_static.html'
+        case 'Non-Model': 
+            response.view = 'model/index_nonmodel.html'
+        case _:
+            response.view = 'model/index_remotecontrol.html'
+
     return dict(model=model, details_form=details_form)
 
 def wishlist():
@@ -111,7 +122,10 @@ def exportminimal():
 
     model = db.model(request.args(0)) or redirect(URL('model', 'listview'))
 
-    model_id = request.args(0)
+    model_id = VerifyTableID('model', request.args(0)) 
+    if not model_id:
+        return redirect(session.ReturnHere or URL('component', 'listview'))
+
     todos = db((db.todo.model == model_id) &
                (db.todo.complete == False)).select()
     components = models_and_components(db.model.id == model_id).select()
@@ -149,6 +163,16 @@ def rendercard():
 
     model = db.model(model_id) or None
 
+    match model.modelcategory:
+        case 'Remote Control':
+            response.view = 'model/rendercard_remotecontrol.load'
+        case 'Static':
+            response.view = 'model/rendercard_static.load'
+        case 'Non-Model': 
+            response.view = 'model/rendercard_nonmodel.load'
+        case _:
+            response.view = 'model/rendercard_remotecontrol.load'
+
     return dict(model=model)
 
 def renderurlcard():
@@ -156,7 +180,7 @@ def renderurlcard():
 
     if not model_id:
         response.view = 'rendercarderror.load'
-        return redirect(content='Unable to locate associated model', controller='model', title='URLs')
+        return dict(content='Unable to locate associated model', controller='model', title='URLs')
 
     addform = SQLFORM(db.url, fields=['url', 'notes'], formstyle='bootstrap4_inline', submit_button='Add')
     addform.vars.model = model_id
@@ -290,7 +314,7 @@ def renderdashboard():
         'note', type='text', label='Note'), formstyle='divs', table_name='note_form')
     if note_form.process().accepted:
         db.activity.insert(
-            activitydate=request.now.today(), model=model, activitytype='Note', notes=note_form.vars.note
+            activitydate=request.now.today(), model=model.id, activitytype='Note', notes=note_form.vars.note
         )
         session.flash = "Note Added"
         redirect(URL('default', 'index', args=note_form.vars.id, extension="html"))
@@ -367,8 +391,6 @@ def update():
         pass
         #response.flash = "something happened"
 
-    #response.view = 'content.html'
-
     return dict(form=form)
 
 def addnote():
@@ -377,13 +399,15 @@ def addnote():
 
 def deleteconfig():
     # Delete the radio config
-    model_id = request.args(0)
+    model_id = VerifyTableID('model', request.args(0)) 
+    if not model_id:
+        return redirect(session.ReturnHere or URL('component', 'listview'))
 
     # Confirmation is done in the front end
     row = db(db.model.id == model_id).select().first()
     delete_file(row, 'configbackup')
 
-    return redirect(session.ReturnHere or URL('model', 'index.html', args=model_id))
+    return redirect(session.ReturnHere or URL('model', 'index', args=model_id))
 
 def updatestate():
     # session.forget(response)
@@ -402,7 +426,7 @@ def updatestate():
 
     # Add ModelState Activity into the Activity table
     db.activity.insert(
-        activitydate=request.now.today(), model=model  # db(db.model.id == model_id)
+        activitydate=request.now.today(), model=model.id  # db(db.model.id == model_id)
         , activitytype='StateChange', notes=notes
     )
 
@@ -460,7 +484,7 @@ def flowchart():
         states['service'] = '|future'
         links['service'] = URL('model', 'updatestate', args=(model_id, 5))
     else:
-        pass
+        return redirect(URL('default', 'index'))
 
     if 'ui' in request.cookies:
         if request.cookies['ui'].value == 'dashboard':
@@ -472,7 +496,10 @@ def flowchart():
 
 
 def addflighttime():
-    model_id = request.args(0)
+    model_id = VerifyTableID('model', request.args(0)) 
+    if not model_id:
+        return redirect(session.ReturnHere or URL('component', 'listview'))
+
     model = db.model(model_id)
     motor = model.get_motor()
 
@@ -536,7 +563,10 @@ def renderflighttimes():
 
 def selected():
     session.point = "selected"
-    model_id = request.args(0)
+    model_id = VerifyTableID('model', request.args(0)) 
+    if not model_id:
+        return redirect(session.ReturnHere or URL('component', 'listview'))
+
     options = request.args(1) or None
 
     model = db(db.model.id == model_id).select(db.model.id, db.model.selected)
@@ -613,7 +643,7 @@ def atthefield():
 
     fq = None
 
-    if request.vars['f']:
+    if request.vars.get('f'):
         # Then adjust the query accordingly...
         # 
         match request.vars['f']:
@@ -624,7 +654,7 @@ def atthefield():
             case 'b': 
                 fq = ( 'Boat', 'Submarine' )
             case 'd':
-                fq = ( 'Car' )
+                fq = ( 'Car', 'Train' )
             case 'o':
                 fq = ( 'Robot', 'Experimental' )
         

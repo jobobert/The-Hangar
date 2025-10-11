@@ -277,7 +277,7 @@ db.define_table('model'
                 , Field('attr_car_drive', type='string', label='X Wheel Drive', comment='How many wheels are powered?')
                 , Field('attr_car_bodystyle', type='string', label='Body Style', comment='What is the body style?')
                 #
-                , Field('attr_scale', type='string', label='Model Scale', comment='What is the scale of the model?')
+                , Field('attr_scale', type='string', label='Model Scale', comment='Model scale (1:x)?')
                 #
                 , Field('haveplans', type='boolean', label='Are plans in hand?')
                 , Field('havekit', type='boolean', label='Have kit/model?')
@@ -330,6 +330,7 @@ def get_major_dimension(model_id):
         case 'Car': dim = TwoDecimal(model.attr_length) or '---'
         case 'Autogyro': dim = TwoDecimal(model.attr_copter_mainrotor_length) or '---'
         case 'Submarine': dim = TwoDecimal(model.attr_length) or '---'
+        case 'Train': dim = TwoDecimal(model.attr_length) or '---'
         case _: dim = get_greatest_length(model) or '---'
 
     if dim != '---':
@@ -463,9 +464,9 @@ db.model.attr_copter_mainrotor_length.extra = {'measurement': 'mm'}
 db.model.attr_copter_tailrotor_span.extra = {'measurement': 'mm'}
 
 db.model.modelcategory.requires = IS_IN_SET(
-    ('Remote Control', 'Static', 'Miniature', 'Non-Model'), sort=True)
+    ('Remote Control', 'Static', 'Non-Model'), sort=True)
 db.model.modeltype.requires = IS_IN_SET(
-    ('Airplane', 'Rocket', 'Boat', 'Helicopter', 'Multirotor', 'Robot', 'Experimental', 'Car', 'Autogyro', 'Submarine', 'Non-Model', 'Miniature', 'Other'), sort=True)
+    ('Airplane', 'Rocket', 'Boat', 'Helicopter', 'Multirotor', 'Robot', 'Experimental', 'Car', 'Autogyro', 'Submarine', 'Non-Model', 'Miniature', 'Other', 'Train'), sort=True)
 db.model.modelorigin.requires = IS_EMPTY_OR(IS_IN_SET(
     ('Plan', 'Kit', 'ARF', 'RTF', 'Unknown'), sort=True))
 db.model.controltype.requires = IS_EMPTY_OR(IS_IN_SET(
@@ -513,6 +514,7 @@ modeltype_controller_mapping = {
     'Submarine' : ['propeller', 'wtc'],
     'Non-Model' : [],
     'Miniature' : [],
+    'Train' : [],
     'Other' : []
 }
 

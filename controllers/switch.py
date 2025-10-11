@@ -18,7 +18,10 @@ def add():
     return dict(form=form)
 
 def renderswitches():
-    model_id = request.args(0) or None
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate this model', controller='model', title='Models')
     render_card = request.args(1) #or True
 
     switchList = {}
@@ -46,7 +49,10 @@ def renderswitches():
     return dict(switchList=switchList, switch_count=x, model_id=model_id, render_card=render_card )
 
 def renderswitchtable(): 
-    model_id = request.args(0) or None
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate this model', controller='model', title='Models')
 
     switchList = {}
     x  = 0

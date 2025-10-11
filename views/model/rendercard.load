@@ -3,7 +3,7 @@
     <h5>Model Not Found</h5>
 </div>
 {{else:}}
-<div class="card model-card mb-2" style="border: 2px solid {{=modelcategory_color_mapping[model.modelcategory]}};">
+<div class="card model-card mb-2" style="border: 2px solid {{=modelcategory_color_mapping.get(model.modelcategory, '#cccccc')}};">
     <div style="position:absolute; top: 0px; left: 0px; display: inline-block; width:48px; float:left;">
         {{=model_type_icon(model, 48) }}
     </div>
@@ -15,9 +15,8 @@
 
     <h4 class="card-header text-center"><a href="{{=URL('model','index',args=model.id,extension='html')}}" style="text-decoration: none; color: inherit;">{{=model.name}}</a></h4>
     <div class="">
-        <h6 class="text-right p-1 modelstate_bg_{{=model.modelstate}}">
-            {{try:}}{{=model.modelstate.name}}{{ except:}} Unknown
-            State{{pass}}
+        <h6 class="text-right p-1 modelstate_bg_{{=model.modelstate if model.modelstate else 'none'}}">
+            {{=model.modelstate.name if model.modelstate else 'Unknown State'}}
         </h6>
     </div>
     <div class="card-body">

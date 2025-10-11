@@ -62,7 +62,9 @@ def rendercard():
 def complete():
     # try to do this via ajax sometime...
 
-    model_id = request.args(0)
+    model_id = VerifyTableID('model', request.args(0)) 
+    if not model_id:
+        return redirect(session.ReturnHere or URL('todo', 'listview'))
     todo_id = VerifyTableID('todo', request.args(1)) 
 
     if todo_id:

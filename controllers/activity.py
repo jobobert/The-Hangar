@@ -218,7 +218,10 @@ def addcrash():
     if request.args(0):
         activitydate = request.now
         activitytype = 'Crash'
-        model_id = request.args(0)
+        
+        model_id = VerifyTableID('model', request.args(0)) 
+        if not model_id:
+            return redirect(session.ReturnHere or URL('component', 'listview'))
 
         db.activity.insert(activitydate=activitydate,
                            activitytype=activitytype, model=model_id)
