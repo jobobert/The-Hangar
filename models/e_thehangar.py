@@ -265,6 +265,15 @@ def filetype_icon(attachment, size):
 
     return show_icon(folder + ext + '.png', size, ext)
 
+def filename_type_icon(filename:str, size:int):
+    folder = 'attachment_filetype/'
+    try:
+        ext = filename.split('.')[-1].lower()
+    except:
+        return "filename_type_icon error"
+
+    return show_icon(folder + ext + '.png', size, ext)
+
 def show_icon(iconname:str, size:int=0, alt:str="icon"):
     thename = 'icons/' + iconname
 
@@ -377,7 +386,8 @@ def isimage(attachment):
         'jpeg': True,
         'jpg': True,
         'gif': True,
-        'png': True
+        'png': True,
+        'bmp': True,
     }
     
     return imageExtensions.get(ext, False)

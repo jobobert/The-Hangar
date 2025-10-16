@@ -2,6 +2,7 @@
 
 import random
 import urllib
+import os
 # try:
 #    import response
 #    import request
@@ -9,6 +10,66 @@ import urllib
 # except:
 #    pass
 
+def find_unreferenced_uploads():
+    ## make form, use random int to identify file, show pic/download in view (don't use the "delete" above)
+    message=""
+    app_path = os.path.join(request.folder, 'uploads')
+
+    all_uploaded_files = set()
+    uploaded_files_fullpath = {}
+    for root, dirs, filenames in os.walk(app_path):
+        for filename in filenames:
+            all_uploaded_files.add(filename)
+            #print(f'-- {os.path.join(root, filename)}')
+            uploaded_files_fullpath[filename] = os.path.join(root, filename)
+
+    referenced_files = set()
+
+    # Iterate through all tables in your database
+    for table_name in db.tables:
+        table = db[table_name]
+        # Check each field in the table
+        for field_name in table.fields:
+            field = table[field_name]
+            # If the field is of type 'upload'
+            if field.type == 'upload':
+                # Fetch all filenames stored in this upload field
+                records = db(table).select(field)
+                for record in records:
+                    filename = record[field_name]
+                    if filename: # Ensure filename is not None or empty
+                        referenced_files.add(filename)
+
+    # Calculate the difference to find unreferenced files
+    unreferenced_files = {}
+    for file in all_uploaded_files:
+        found = False
+        for rfile in referenced_files:
+            if file == rfile:
+                found = True
+                break
+        if not found:
+            unreferenced_files[hash(file)] = file
+
+    del_id = 0
+    deleteform = SQLFORM.factory()
+    if deleteform.process(session=None, formname='deleteform').accepted:
+        for y, z in request.vars.items():
+            if z == "Remove":
+                del_id = int(y)
+                #message=del_id
+                fname = unreferenced_files.get(del_id, -1)
+                if fname != -1:
+                    fullfilename = uploaded_files_fullpath[fname]
+                    os.remove(fullfilename)
+                    del unreferenced_files[del_id]
+                    response.flash = "Removal Success"
+                else:
+                    response.flash = "Unknown File Requested"
+    elif deleteform.errors:
+        response.flash = "Removal Failure"
+
+    return dict(unreferenced_files=unreferenced_files, deleteform=deleteform, message=message)
 
 def index():
 
