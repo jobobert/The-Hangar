@@ -164,7 +164,7 @@ db.define_table('article'
                 #
                 , Field('articletype', type='string', label='Type', comment='The type')
                 #
-                , Field('img', uploadseparate=True, type='upload', autodelete=True, label='Image', comment='Cover Image (1000x1000)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img])))
+                , Field('img', uploadseparate=True, type='upload', autodelete=True, label='Image', comment='Cover Image (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img])))
                 #
                 , Field('summary', type='string', label='Summary', required=False, unique=False)
                 #
@@ -206,7 +206,7 @@ db.define_table('transmitter',
                 Field('nickname', type='string', label='Nickname'), 
                 Field('serial', type='string', label='Serial Number'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
-                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the transmitter', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
+                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the transmitter (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Manual', comment='The manual, etc', default=''), 
                 Field('os', type='string', label='Operating System/Version'),
                 Field('protocol', type='list:reference protocol', label='Protocols Supported', comment='The protocols supported by this transmitter',
@@ -232,7 +232,7 @@ db.define_table('model'
                 , Field('powerplant', type='string', label='Power Plant', comment='What type of power?')
                 , Field('description', type='string', label='Description', comment='Details of the model')
                 , Field('notes', type='text', label='Details', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes))
-                , Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the model', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img])))
+                , Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the model (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img])))
                 , Field('manufacturer', type='string', label='Manufacturer', comment='Who made the model?')
                 , Field('kitnumber', type='string', label='Kit Number', comment="Manufacturer's kit number")
                 , Field('kitlocation', type='string', label='Kit/Plan Location', comment='Where the kit/plan is stored')
@@ -585,7 +585,7 @@ db.define_table('activity',
                 Field('duration', type='double', Label='Duration (min)', comment='The duration, in minutes', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')), 
                 Field('activitylocation', type='string', label='Location'), 
                 Field('notes', type='text', label='Notes', comment='Notes about the event'), 
-                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the activity', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), 
+                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the activity (1500px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), 
                 format=lambda row: 'Unknown' if row is None else row.name
                 )
 
@@ -610,7 +610,7 @@ db.define_table('component',
                 Field('ownedcount', type='integer', label='Count', comment='How many are owned?', default=0, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
                 Field('significantdetail', type='string', label='Significant Detail', comment='A significant detail of this component'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
-                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the component', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
+                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the component (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='More info'), 
                 Field('storedat', type='string', label='Location', comment='Where is this component stored?'),
                 Field('attr_length', type='double', label='Length', comment='The length', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
@@ -737,7 +737,7 @@ db.define_table('tool',
                 Field('name', type='string', label='Name', required=True, unique=True), 
                 Field('tooltype', type='string', label='Type'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
-                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the tool', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
+                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the tool (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='Manual'), format=lambda row: 'Unknown' if row is None else row.tooltype + ': ' + row.name
                 )
 
@@ -897,7 +897,7 @@ db.define_table('supportitem',
                 Field('item', type='string', Label='Support Item'), 
                 Field('model', type='reference model'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
-                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the support item', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), 
+                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the support item (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), 
                 format=lambda row: row.item
                 )
 db.supportitem.item.widget = SQLFORM.widgets.autocomplete(
@@ -959,7 +959,7 @@ db.images.img.requires = IS_EMPTY_OR(IS_IMAGE())
 db.define_table('wtc',
                 Field('name', type='string', label='Name', required=True, unique=True),
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)),
-                Field('img', type='upload', uploadseparate=True, autodelete=True, label='Picture', comment='The picture of the WTC', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))),
+                Field('img', type='upload', uploadseparate=True, autodelete=True, label='Picture', comment='The picture of the WTC (1000px max)', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))),
                 Field('make', type='string', label='Make'),
                 Field('model', type='string', label='Model'),
                 Field('attr_length_mm', type='double', label='Length', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
@@ -1027,7 +1027,7 @@ db.define_table('paint',
                 Field('colorid', type='string', label='Color ID'),
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)),
                 Field('colorhex', type='string', label='The HTML/hex code that matches the color'),
-                Field('img', type='upload', uploadseparate=True, autodelete=True, label='Image', comment='The image of the paint color', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))),
+                Field('img', type='upload', uploadseparate=True, autodelete=True, label='Image', comment='The image of the paint color (500px max)', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))),
                 format=lambda row: row.manufacturer + ' ' + row.brand + ' ' + row.color 
                 )
 
