@@ -269,8 +269,10 @@ def filename_type_icon(filename:str, size:int):
     folder = 'attachment_filetype/'
     try:
         ext = filename.split('.')[-1].lower()
-    except:
-        return "filename_type_icon error"
+    except (AttributeError, TypeError, IndexError) as e:
+        # Fallback to a generic icon if filename is invalid
+        ext = 'nopicture'
+        folder = '/'
 
     return show_icon(folder + ext + '.png', size, ext)
 
