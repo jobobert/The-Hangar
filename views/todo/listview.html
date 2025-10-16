@@ -1,0 +1,46 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('todo', 48)}} Todos</h2>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col th-listview-header">
+        Model
+    </div>
+    <div class="col th-listview-header">
+        {{=db.todo.todo.label}}
+    </div>
+    <div class="col th-listview-header">
+        {{=db.todo.critical.label}}
+    </div>
+    <div class="col-sm-3 text-truncate th-listview-header">
+        {{=db.todo.notes.label}}
+    </div>
+    <div class="col-sm-4 th-listview-header">
+        &nbsp;
+    </div>
+</div>
+
+{{for todo in todos:}}
+<div class="row border-bottom my-2">
+    <div class="col">
+        {{=todo.model.name}}
+    </div>
+    <div class="col">
+        {{=todo.todo}}
+    </div>
+    <div class="col">
+        {{=todo.critical}}
+    </div>
+    <div class="col-sm-3 text-truncate">
+        {{=todo.notes}}
+    </div>
+    <div class="col-sm-4">
+        {{=completeButton('todo', 'complete', [None, todo.id])}}
+        {{=editButton('todo', 'update', [todo.id])}}
+    </div>
+</div>
+{{pass}}

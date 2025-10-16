@@ -1,0 +1,48 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('battery', 48)}} Batteries</h2>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col th-listview-header">
+        {{=db.battery.chemistry.label}}
+    </div>
+    <div class="col th-listview-header">
+        Size
+    </div>
+    <div class="col th-listview-header">
+        {{=db.battery.voltage.label}}
+    </div>
+    <div class="col th-listview-header">
+        {{=db.battery.ownedcount.label}}
+    </div>
+    <div class="col-sm-4 th-listview-header">
+        &nbsp;
+    </div>
+</div>
+
+{{for battery in batteries:}}
+<div class="row border-bottom my-2">
+    <div class="col">
+        {{=battery.chemistry}}
+    </div>
+    <div class="col">
+        {{=battery.get_name()}}
+    </div>
+    <div class="col">
+        {{=battery.voltage}}
+    </div>
+    <div class="col">
+        {{=battery.ownedcount}}
+    </div>
+    <div class="col-sm-4">
+        {{=viewButton('battery', 'index', [battery.id])}}
+        {{=editButton('battery', 'update', [battery.id])}}
+        {{=plusButton('battery', 'addcount', [battery.id])}}
+        {{=minusButton('battery', 'subtractcount', [battery.id])}}
+    </div>
+</div>
+{{pass}}

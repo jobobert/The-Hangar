@@ -1,0 +1,55 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('transmitter', 48)}} Transmitter</h2>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col-sm-1 th-listview-header">
+        &nbsp;
+    </div>
+    <div class="col th-listview-header">
+        {{=db.transmitter.name.label}}
+    </div>
+    <div class="col th-listview-header">
+        {{=db.transmitter.os.label}}
+    </div>
+    <div class="col th-listview-header">
+        Protocol
+    </div>
+    <div class="col-sm-1 th-listview-header">
+        &nbsp;
+    </div>
+</div>
+
+{{for transmitter in transmitters:}}
+<div class="row border-bottom my-2">
+    <div class="col-sm-1">
+        <img src="{{=URL('default', 'download', args=transmitter.img)}}" height="48px">
+    </div>
+    <div class="col">
+        {{=transmitter.name}}
+    </div>
+    <div class="col">
+        {{=transmitter.os}}
+    </div>
+    <div class="col">
+        {{if transmitter.protocol:}}
+        <ul>
+            {{for p in transmitter.protocol:}}
+            <li>{{=p.name}}</li>
+            {{pass}}
+        </ul>
+        {{else:}}
+        &nbsp;
+        {{pass}}
+    </div>
+
+    <div class="col-sm-3">
+        {{=viewButton('transmitter', 'index', [transmitter.id])}}
+        {{=editButton('transmitter', 'update', [transmitter.id])}}
+    </div>
+</div>
+{{pass}}

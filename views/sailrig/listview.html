@@ -1,0 +1,40 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('sailrig', 48)}} Sail Rigs</h2>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col-sm-1 th-listview-header">
+        &nbsp;
+    </div>
+    <div class="col th-listview-header">
+        Rig
+    </div>
+    <div class="col th-listview-header">
+        Model
+    </div>
+    <div class="col-sm-3 th-listview-header">
+        &nbsp;
+    </div>
+</div>
+
+{{for sailrig in sailrigs:}}
+<div class="row border-bottom my-2">
+    <div class="col-sm-1">
+        <img src="{{=URL('default', 'download', args=sailrig.img)}}" height="48px">
+    </div>
+    <div class="col">
+        {{=sailrig.rigname}}
+    </div>
+    <div class="col">
+        {{=sailrig.model.name}}
+    </div>
+    <div class="col-sm-3">
+        {{=viewButton('sailrig', 'index', [sailrig.id])}}
+        {{=editButton('sailrig', 'update', [sailrig.id])}}
+    </div>
+</div>
+{{pass}}

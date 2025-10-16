@@ -1,0 +1,34 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('protocol', 48)}} Protocols</h2>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col">
+        {{=db.protocol.namth-listview-header.label}}
+    </div>
+    <div class="col th-listview-header">
+        {{=db.protocol.description.label}}
+    </div>
+    <div class="col-sm-4 th-listview-header">
+        &nbsp;
+    </div>
+</div>
+
+{{for protocol in protocols:}}
+<div class="row border-bottom my-2">
+    <div class="col">
+        {{=protocol.name}}
+    </div>
+    <div class="col">
+        {{=protocol.description}}
+    </div>
+    <div class="col-sm-3">
+        {{=viewButton('protocol', 'index', [protocol.id])}}
+        {{=editButton('protocol', 'update', [protocol.id])}}
+    </div>
+</div>
+{{pass}}

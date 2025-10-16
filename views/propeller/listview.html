@@ -1,0 +1,44 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('propeller', 48)}} Propellers</h2>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col th-listview-header">
+        {{=db.propeller.item.label}}
+    </div>
+    <div class="col th-listview-header">
+        {{=db.propeller.model.label}}
+    </div>
+    <div class="col-sm-3 th-listview-header">
+        Actions
+    </div>
+</div>
+
+{{if propellers:}}
+{{for propeller in propellers:}}
+<div class="row border-bottom my-2">
+    <div class="col">
+        {{=propeller.item}}
+    </div>
+    <div class="col">
+        {{=propeller.model.name}}
+    </div>
+    <div class="col-sm-3">
+        {{=viewButton('propeller', 'index', [propeller.id])}}
+        {{=editButton('propeller', 'update', [propeller.id])}}
+    </div>
+</div>
+{{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No propellers found {{=newButton('propeller', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('propeller', 'update', '')}}
+</div>

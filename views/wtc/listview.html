@@ -1,0 +1,46 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('wtc', 48)}} Water Tight Cylinders</h2>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col-sm-1 th-listview-header">
+        &nbsp;
+    </div>
+    <div class="col th-listview-header">
+        <small class="">{{=db.wtc.name.label}}</small>
+    </div>
+    <div class="col th-listview-header">
+        <small class="">{{=db.wtc.make.label}}</small>
+    </div>
+    <div class="col th-listview-header">
+        <small class="">{{=db.wtc.model.label}}</small>
+    </div>
+    <div class="col-sm-3 th-listview-header">
+        &nbsp;
+    </div>
+</div>
+
+{{for wtc in wtcs:}}
+<div class="row border-bottom my-2">
+    <div class="col-sm-1">
+        <img src="{{=URL('default', 'download', args=wtc.img)}}" height="48px">
+    </div>
+    <div class="col">
+        <div class="text-nowrap text-truncate">{{=wtc.name}}</div>
+    </div>
+    <div class="col">
+        <div class="text-nowrap text-truncate">{{=wtc.make}}</div>
+    </div>
+    <div class="col">
+        <div class="text-nowrap text-truncate">{{=wtc.model}}</div>
+    </div>
+    <div class="col-sm-3">
+        {{=viewButton('wtc', 'index', [wtc.id])}}
+        {{=editButton('wtc', 'update', [wtc.id])}}
+    </div>
+</div>
+{{pass}}

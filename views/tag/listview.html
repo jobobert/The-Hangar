@@ -1,0 +1,29 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('tag', 48)}} Tags</h2>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col th-listview-header">
+        {{=db.tag.name.label}}
+    </div>
+    <div class="col-sm-4 th-listview-header">
+        &nbsp;
+    </div>
+</div>
+
+{{for tag in tags:}}
+<div class="row border-bottom my-2">
+    <div class="col">
+        {{=tag.name}}
+    </div>
+
+    <div class="col-sm-4">
+        {{=viewButton('tag', 'index', [tag.id])}}
+        {{=editButton('tag', 'update', [tag.id])}}
+    </div>
+</div>
+{{pass}}

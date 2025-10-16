@@ -1,0 +1,46 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('activity', 48)}} Activities</h2>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col th-listview-header">
+        {{=db.activity.activitydate.label}}
+    </div>
+    <div class="col th-listview-header">
+        Model
+    </div>
+    <div class="col th-listview-header">
+        {{=db.activity.activitytype.label}}
+    </div>
+    <div class="col th-listview-header">
+        {{=db.activity.activitylocation.label}}
+    </div>
+    <div class="col-sm-4 th-listview-header">
+        &nbsp;
+    </div>
+</div>
+
+{{for activity in activities:}}
+<div class="row border-bottom my-2">
+    <div class="col">
+        {{=activity.activitydate}}
+    </div>
+    <div class="col">
+        {{=activity.model.name}}
+    </div>
+    <div class="col">
+        {{=activity.activitytype}}
+    </div>
+    <div class="col">
+        {{=activity.activitylocation}}
+    </div>
+    <div class="col-sm-4">
+        {{=viewButton('activity', 'index', [activity.id])}}
+        {{=editButton('activity', 'update', [activity.id])}}
+    </div>
+</div>
+{{pass}}

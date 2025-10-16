@@ -1,0 +1,38 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('packinglist', 48)}} Packing List Items</h2>
+    </div>
+</div>
+
+
+<div class="row border-bottom my-2">
+    <div class="col th-listview-header">
+        {{=db.packingitems.name.label}}
+    </div>
+    <div class="col th-listview-header">
+        {{=db.packingitems.itemtype.label}}
+    </div>
+    <div class="col-sm-3 th-listview-header">
+        &nbsp;
+    </div>
+</div>
+
+
+
+{{for item in packingitems:}}
+<div class="row border-bottom my-2">
+
+    <div class="col">
+        {{=item.name}}
+    </div>
+    <div class="col">
+        {{=item.itemtype}}
+    </div>
+    <div class="col-sm-3">
+        {{=viewButton('packcinglist', 'index', [item.id])}}
+        {{=deleteButton('packinglist', 'delete', [item.id])}}
+    </div>
+</div>
+{{pass}}
