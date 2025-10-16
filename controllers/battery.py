@@ -20,25 +20,8 @@ def listview():
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
-    response.title = 'Battery List'
-
-    fields = (db.battery.chemistry, db.battery.cellcount, db.battery.mah, db.battery.crating, db.battery.voltage, db.battery.ownedcount
-              )
-
-    links = [
-        lambda row: viewButton('battery', 'index', [row.id]),
-        lambda row: editButton('battery', 'update', [row.id]),
-        lambda row: plusButton('battery', 'addcount', [row.id]),
-        lambda row: minusButton('battery', 'subtractcount', [row.id]),
-    ]
-
-    batteries = SQLFORM.grid(
-        db.battery, orderby=db.battery.chemistry | db.battery.cellcount | db.battery.mah | db.battery.crating, editable=False, details=False, maxtextlength=255, user_signature=False, create=False, deletable=False, links=links, fields=fields, _class='itemlist-grid'
-    )
-
-    response.view = 'content.html'
-
-    return dict(content=batteries, header=response.title)
+    batteries = db(db.battery).select(orderby=db.battery.chemistry | db.battery.cellcount | db.battery.mah | db.battery.crating)
+    return dict(batteries=batteries)
 
 
 def addcount():
@@ -129,11 +112,13 @@ def delete():
 
     battery_id = VerifyTableID('battery', request.args(0)) or redirect(URL('battery', 'listview'))
 
-    if db(db.model_battery.battery == battery_id).count() > 0:
+    #if db(db.model_battery.battery == battery_id).count() > 0:
+    if db(db.model_battery.battery == battery_id).select(db.model_battery.id, limitby=(0,1)).first():
         response.flash = "Cannot delete: battery is assigned to models!"
         redirect(session.ReturnHere or URL('battery', 'listview'))
 
-    if db(db.eflite_time.battery == battery_id).count() > 0:
+    #if db(db.eflite_time.battery == battery_id).count() > 0:
+    if db(db.eflite_time.battery == battery_id).select(db.model_battery.id, limitby=(0,1)).first():
         response.flash = "Cannot delete: battery is assigned to flight time record!"
         redirect(session.ReturnHere or URL('battery', 'listview'))
 

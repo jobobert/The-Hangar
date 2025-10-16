@@ -1,5 +1,7 @@
 {{extend 'layout.html'}}
 
+{{lastitemtype = None}}
+
 <div class="row mb-3">
     <div class="col-md-12">
         <h2>{{=controller_icon('packinglist', 48)}} Packing List Items</h2>
@@ -11,28 +13,35 @@
     <div class="col th-listview-header">
         {{=db.packingitems.name.label}}
     </div>
-    <div class="col th-listview-header">
-        {{=db.packingitems.itemtype.label}}
-    </div>
     <div class="col-sm-3 th-listview-header">
-        &nbsp;
+        Actions
     </div>
 </div>
 
 
-
+{{if packingitems:}}
 {{for item in packingitems:}}
+{{if item.itemtype != lastitemtype:}}
+{{lastitemtype = item.itemtype}}
+<div class="row th-listview-subheader my-2">{{=item.itemtype}}</div>
+{{pass}}
 <div class="row border-bottom my-2">
 
     <div class="col">
         {{=item.name}}
     </div>
-    <div class="col">
-        {{=item.itemtype}}
-    </div>
     <div class="col-sm-3">
-        {{=viewButton('packcinglist', 'index', [item.id])}}
-        {{=deleteButton('packinglist', 'delete', [item.id])}}
+        {{=viewButton('packingitems', 'index', [item.id])}}
+        {{=deleteButton('packingitems', 'delete', [item.id])}}
     </div>
 </div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No packing items found {{=newButton('packinglist', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('packinglist', 'update', '')}}
+</div>

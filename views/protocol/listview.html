@@ -7,17 +7,18 @@
 </div>
 
 <div class="row border-bottom my-2">
-    <div class="col">
-        {{=db.protocol.namth-listview-header.label}}
+    <div class="col th-listview-header">
+        {{=db.protocol.name.label}}
     </div>
     <div class="col th-listview-header">
         {{=db.protocol.description.label}}
     </div>
-    <div class="col-sm-4 th-listview-header">
-        &nbsp;
+    <div class="col-sm-3 th-listview-header">
+        Actions
     </div>
 </div>
 
+{{if protocols:}}
 {{for protocol in protocols:}}
 <div class="row border-bottom my-2">
     <div class="col">
@@ -32,3 +33,12 @@
     </div>
 </div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No protocols found {{=newButton('protocol', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('protocol', 'update', '')}}
+</div>

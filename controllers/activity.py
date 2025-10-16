@@ -105,24 +105,11 @@ def addactivity():
 
 def listview():
 
-    response.title = 'Activity List'
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
 
-    fields = (db.activity.activitydate, db.activity.model, db.activity.activitytype, db.activity.duration, db.activity.activitylocation
-              )
-
-    links = [
-        lambda row: viewButton('activity', 'index', [row.id]),
-        lambda row: editButton('activity', 'update', [row.id]),
-    ]
-
-    activities = SQLFORM.grid(
-        db.activity, orderby=db.activity.activitydate, editable=False, details=False, deletable=False, user_signature=False, maxtextlength=255, create=True, links=links, fields=fields
-    )
-
-    response.view = 'content.html'
-
-    return dict(content=activities, header=response.title)
-
+    activities = db(db.activity).select(orderby=db.activity.activitydate)
+    return dict(activities=activities)
 
 def update():
 

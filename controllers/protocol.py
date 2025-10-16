@@ -1,10 +1,11 @@
 
 def index():
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
+
     response.title = 'Protocol'
 
     protocol_id = VerifyTableID('protocol', request.args(0)) or redirect(URL('protocol', 'listview'))
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
     
     protocol = db.protocol(protocol_id) or redirect(URL('default', 'index'))
 
@@ -14,20 +15,12 @@ def index():
     return dict(protocol=protocol, models=models, transmitters=transmitters)
 
 def listview():
-    response.title = 'Protocols'
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
-    
-    links = [
-        lambda row: viewButton('protocol', 'index', [row.id]),
-        lambda row: editButton('protocol', 'update', [row.id]),
-    ]
 
-    grid = SQLFORM.grid(db.protocol, links=links, create=True, editable=False, deletable=False, details=False, csv=False, user_signature=False)
-    
-    response.view = 'content.html'
-    
-    return dict(content=grid, header=response.title)
+    protocols = db(db.protocol).select()
+    return dict(protocols=protocols)
+
 
 def update():
     response.title = 'Add/Update Protocol'

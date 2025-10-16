@@ -11,20 +11,21 @@
         &nbsp;
     </div>
     <div class="col th-listview-header">
-        Type
+        {{=db.tool.tooltype.label}}
     </div>
     <div class="col th-listview-header">
-        Type
+        {{=db.tool.name.label}}
     </div>
     <div class="col-sm-3 th-listview-header">
-        &nbsp;
+        Actions
     </div>
 </div>
 
+{{if tools:}}
 {{for tool in tools:}}
 <div class="row border-bottom my-2">
     <div class="col-sm-1">
-        <img src="{{=URL('default', 'download', args=tool.img)}}" height="48px">
+        <img src="{{=URL('default', 'download', args=tool.img)}}" height="48px" alt="{{=tool.name}}">
     </div>
     <div class="col">
         {{=tool.tooltype}}
@@ -36,4 +37,14 @@
         {{=viewButton('model', 'index', [tool.id])}}
         {{=editButton('model', 'update', [tool.id])}}
     </div>
+</div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No tools found {{=newButton('tool', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('tool', 'update', '')}}
+</div>

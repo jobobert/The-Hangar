@@ -16,11 +16,17 @@
     <li class="nav-item">
         <a class="nav-link {{=' active ' if active=='kits' else ''}}" href="{{=URL('model', 'listview',args=['kits'])}}">Kits</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link {{=' active ' if active=='static' else ''}}" href="{{=URL('model', 'listview',args=['static'])}}">Static</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{=' active ' if active=='nonmodel' else ''}}" href="{{=URL('model', 'listview',args=['nonmodel'])}}">Non Model</a>
+    </li>
 </ul>
 
 {{for model in models:}}
 <div class="row border-bottom my-2">
-    <div class="col-sm-2">
+    <div class="col-sm-1">
         <img src="{{=URL('default', 'download', args=model.img)}}" height="48px">
     </div>
     <div class="col">

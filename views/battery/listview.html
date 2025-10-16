@@ -11,7 +11,7 @@
         {{=db.battery.chemistry.label}}
     </div>
     <div class="col th-listview-header">
-        Size
+        {{=db.battery.get_name.label}}
     </div>
     <div class="col th-listview-header">
         {{=db.battery.voltage.label}}
@@ -20,10 +20,11 @@
         {{=db.battery.ownedcount.label}}
     </div>
     <div class="col-sm-4 th-listview-header">
-        &nbsp;
+        Actions
     </div>
 </div>
 
+{{if batteries:}}
 {{for battery in batteries:}}
 <div class="row border-bottom my-2">
     <div class="col">
@@ -46,3 +47,12 @@
     </div>
 </div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No batteries found {{=newButton('battery', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('battery', 'update', '')}}
+</div>

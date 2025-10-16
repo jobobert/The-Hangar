@@ -27,7 +27,7 @@
 }
 
 .th_form_field_calc {
-    background-color: #ece9e9;
+    background-color: #f5f1f1;
 }
 
 .model_form_field_calc {
@@ -947,4 +947,14 @@ div.index-page h3 {
     padding-bottom: 3px;
     width: 100%;
     margin-bottom: 2rem;
+}
+
+.th-listview-header{
+    background-color: #d9dad8;
+    font-weight: bold;
+}
+
+.th-listview-subheader{
+    background-color: #c2c1c1;
+    font-weight: normal;
 }

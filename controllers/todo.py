@@ -77,28 +77,14 @@ def listview():
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
-    response.title = 'Todo List'
-
     activemodels = db(db.model.modelstate > 1)._select(db.model._id)
 
     todo_query = db((db.todo.complete == False)
                     & (db.todo.model.belongs(activemodels))
-                    )
-    fields = (
-        db.todo.model, db.todo.todo, db.todo.critical, db.todo.notes
-    )
+                   )
 
-    links = [
-        lambda row: completeButton('todo', 'complete', [None, row.id]),
-        lambda row: editButton('todo', 'update', [row.id]),
-    ]
-    todos = SQLFORM.grid(
-        todo_query, user_signature=False, editable=False, deletable=False, details=False, create=False, fields=fields, links=links, maxtextlength=255
-    )
-
-    response.view = 'content.html'
-
-    return dict(content=todos, header=response.title)
+    todos = todo_query.select(orderby=db.todo.model | db.todo.todo)
+    return dict(todos=todos)
 
 
 def update():

@@ -12,23 +12,11 @@ def index():
 
 
 def listview():
-    response.title = 'Sail Rig List'
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
 
-    fields = (db.sailrig.rigname, db.sailrig.img,
-              db.sailrig.notes, db.sailrig.model)
-
-    links = [
-        lambda row: viewButton('sailrig', 'index', [row.id]),
-        lambda row: editButton('sailrig', 'update', [row.id]),
-    ]
-
-    sailrigs = SQLFORM.grid(
-        db.sailrig, orderby=db.sailrig.model | db.sailrig.rigname, editable=False, details=False, maxtextlength=255, user_signature=False, create=False, deletable=False, links=links, fields=fields, _class='itemlist-grid'
-    )
-
-    response.view = 'content.html'
-
-    return dict(content=sailrigs, header=response.title)
+    sailrigs = db(db.sailrig).select(orderby=db.sailrig.model | db.sailrig.rigname)
+    return dict(sailrigs=sailrigs)
 
 
 def update():

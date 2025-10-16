@@ -46,9 +46,8 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
         columns = 0
     if columns > 12:
         columns = 12
-    
-    #print(f'{fieldname} @ {field.required} or {field.requires}')
 
+    # If the field is required then bold the label
     if (field.required or
         (field.requires and (
             ('IS_NOT_EMPTY' in str(field.requires)) 
@@ -57,10 +56,12 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
         )):
         labelClass = "font-weight-bold"
 
+    # check for special field types
     #print(field.type)
     if field.type == 'boolean':
         isCheckbox = True
 
+    # Process field extra attributes
     if hasattr(field, 'extra'):
         if 'measurement' in field.extra:
             hasConverter = True
@@ -71,7 +72,7 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
                     originalText = 'mm'
                     conversionText = 'Inch'
                 case 'dm2':
-                    func = 'dm2ToSqin'
+                    func = None
                     originalText = 'dm2'
                     conversionText = 'sqin'
                 case 'oz':
@@ -79,8 +80,9 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
                     originalText = "oz"
                     conversionText = 'Gram'
                 case 'sqin':
-                    func = None
+                    func = 'dm2ToSqin'
                     originalText = 'sqin'
+                    conversionText = 'dm2'
                 case 'cc':
                     func = None
                     originalText = 'cc'
@@ -303,7 +305,6 @@ def TwoDecimal(number):
         return 0.00
     return "{:.2f}".format(number)
 
-
 def ZeroDecimal(number):
     if number is None:
         return 0
@@ -356,7 +357,7 @@ def ConvertMeasurementField(table, row, FieldName, seperator=" | "):
         case 'dm2':
             return seperator + str(TwoDecimal((row[FieldName] or 0) * 15.5)) + " sqin"
         case 'sqin':
-            return seperator + str(TwoDecimal((row[FieldName] or 0) / 15.5)) + "dm2"
+            return seperator + str(TwoDecimal((row[FieldName] or 0) / 15.5)) + " dm2"
         case 'cc':
             return seperator + str(TwoDecimal((row[FieldName] or 0) / 1000)) + " liters"
         case _:
@@ -387,7 +388,8 @@ def ispdf(attachment):
         ext = attachment.attachment.split('.')[-1]
     elif hasattr(attachment, "split"):
         ext = attachment.split('.')[-1]
-    elif type(attachment) == 'str':
+    #elif type(attachment) == 'str':
+    elif isinstance(attachment, str):
         ext = attachment.split('.')[-1]
     else:
         return False
@@ -505,6 +507,9 @@ def completeButton(controller, action, args, size=24):
 
 def deleteButton(controller, action, args, size=24 ):
     return _makeButton(action_icon('delete', size), controller, action ,args, 'btn btn-danger')
+
+def newButton(controller, action, args, size=24):
+    return _makeButton('Create', controller, action, args, 'btn btn-success')
 
 ######################################################
 ## LIST ITEM CREATION

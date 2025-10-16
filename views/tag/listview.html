@@ -11,10 +11,11 @@
         {{=db.tag.name.label}}
     </div>
     <div class="col-sm-4 th-listview-header">
-        &nbsp;
+        Actions
     </div>
 </div>
 
+{{if tags:}}
 {{for tag in tags:}}
 <div class="row border-bottom my-2">
     <div class="col">
@@ -27,3 +28,12 @@
     </div>
 </div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No tags found {{=newButton('tag', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('tag', 'update', '')}}
+</div>

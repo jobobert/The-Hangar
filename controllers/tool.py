@@ -17,26 +17,12 @@ def index():
 
 
 def listview():
-    response.title = 'Tool List'
+
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
-    # db.tool.img
-    fields = (db.tool.img, db.tool.tooltype, db.tool.name
-              )
-
-    links = [
-        lambda row: viewButton('tool', 'index', [row.id]),
-        lambda row: editButton('tool', 'update', [row.id]),
-    ]
-
-    tools = SQLFORM.grid(
-        db.tool, orderby=db.tool.tooltype, user_signature=False, editable=False, details=False, maxtextlength=255, create=False, deletable=False, links=links, fields=fields, _class='itemlist-grid'
-    )
-
-    response.view = 'content.html'
-
-    return dict(content=tools, header=response.title)
+    tools = db(db.tool).select(orderby=db.tool.tooltype | db.tool.name)
+    return dict(tools=tools)
 
 
 def update():
@@ -120,7 +106,8 @@ def removefrommodel():
 def delete():
     tool_id = VerifyTableID('tool', request.args(0)) or redirect(URL('tool', 'listview'))
 
-    if db(db.model_tool.tool == tool_id).count() > 0:
+    #if db(db.model_tool.tool == tool_id).count() > 0:
+    if db(db.model_tool.tool == tool_id).select(db.model_tool.id, limitby=(0,1)).first():
         response.flash = "Cannot delete: tool is assigned to models!"
         redirect(session.ReturnHere or URL('tool', 'listview'))
 

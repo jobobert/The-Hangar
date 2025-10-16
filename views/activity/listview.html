@@ -11,7 +11,7 @@
         {{=db.activity.activitydate.label}}
     </div>
     <div class="col th-listview-header">
-        Model
+        {{=db.activity.model.label}}
     </div>
     <div class="col th-listview-header">
         {{=db.activity.activitytype.label}}
@@ -20,17 +20,18 @@
         {{=db.activity.activitylocation.label}}
     </div>
     <div class="col-sm-4 th-listview-header">
-        &nbsp;
+        Actions
     </div>
 </div>
 
+{{if activities:}}
 {{for activity in activities:}}
 <div class="row border-bottom my-2">
     <div class="col">
         {{=activity.activitydate}}
     </div>
     <div class="col">
-        {{=activity.model.name}}
+        {{=activity.model.name if activity.model else 'None'}}
     </div>
     <div class="col">
         {{=activity.activitytype}}
@@ -44,3 +45,12 @@
     </div>
 </div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No activities found {{=newButton('activity', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('activity', 'update', '')}}
+</div>

@@ -20,14 +20,15 @@
         {{=db.todo.notes.label}}
     </div>
     <div class="col-sm-4 th-listview-header">
-        &nbsp;
+        Actions
     </div>
 </div>
 
+{{if todos:}}
 {{for todo in todos:}}
-<div class="row border-bottom my-2">
+<div class="row border-bottom my-2 {{='font-weight-bold' if todo.critical else ''}}">
     <div class="col">
-        {{=todo.model.name}}
+        {{=todo.model.name if todo.model else 'No Model'}}
     </div>
     <div class="col">
         {{=todo.todo}}
@@ -44,3 +45,12 @@
     </div>
 </div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No todos found {{=newButton('todo', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('todo', 'update', '')}}
+</div>

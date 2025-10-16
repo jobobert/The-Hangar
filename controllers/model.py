@@ -1,7 +1,6 @@
 
 from gluon.contrib.user_agent_parser import mobilize
-# -*- coding: utf-8 -*-
-
+import json
 
 def index(): 
     model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
@@ -120,12 +119,10 @@ def export():
 
 def exportminimal():
 
-    model = db.model(request.args(0)) or redirect(URL('model', 'listview'))
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
 
-    model_id = VerifyTableID('model', request.args(0)) 
-    if not model_id:
-        return redirect(session.ReturnHere or URL('component', 'listview'))
-
+    model = db.model(model_id) 
+    
     todos = db((db.todo.model == model_id) &
                (db.todo.complete == False)).select()
     components = models_and_components(db.model.id == model_id).select()
@@ -133,7 +130,7 @@ def exportminimal():
     batteries = db(db.model_battery.model == model_id).select()
     propellers = db(db.propeller.model == model_id).select()
     supportitems = db(db.supportitem.model == model_id).select()
-    flighttimes = db(db.eflite_time.model == request.args(0)).select()
+    flighttimes = db(db.eflite_time.model == model_id).select()
     attachments = db(db.attachment.model == model_id).select()
 
     c = {}
@@ -205,7 +202,6 @@ def renderurlcard():
     urls = urlquery.select()
 
     return dict(urls=urls, urlcount=urlcount, addform=addform, deleteform=deleteform)
-
 
 def printcard():
     model_id = VerifyTableID('model', request.args(0))
@@ -346,6 +342,12 @@ def listview():
         elif request.args[0] == 'kits':
             query = db.model.havekit == True
             active = 'kits'
+        elif request.args[0] == 'static':
+            query = db.model.modelcategory == 'Static'
+            active = 'static'
+        elif request.args[0] == 'nonmodel':
+            query = db.model.modelcategory == 'Non-Model'
+            active = 'nonmodel'
 
     fields = (db.model.img, db.model.name, db.model.modeltype, db.model.modelstate, db.model.controltype
               # , db.model.haveplans
@@ -391,7 +393,7 @@ def update():
         pass
         #response.flash = "something happened"
 
-    return dict(form=form)
+    return dict(form=form, modeltype_hide_attribs=json.dumps(modeltype_hide_attribs))
 
 def addnote():
     # Add the note and return. Use GET for the text

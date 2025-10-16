@@ -3,18 +3,8 @@ def listview():
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
-    response.title = 'Tag List'
-
-    fields=[db.tag.name]
-    
-    links = [
-        lambda row: editButton('tag', 'update', [row.id]),
-        lambda row: deleteButton('tag', 'delete', [row.id])
-    ]
-    grid = SQLFORM.grid(db.tag, links=links, fields=fields, create=True, editable=False, deletable=False, details=False, csv=False, user_signature=False)
-
-    response.view = 'content.html'
-    return dict(content=grid, header=response.title)
+    tags = db(db.tag).select()
+    return dict(tags=tags)
 
 def update():
     response.title = 'Add/Update Tag'

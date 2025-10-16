@@ -309,11 +309,13 @@ def inventory():
 def delete():
     component_id = VerifyTableID('component', request.args(0)) or redirect(URL('component', 'listview'))
 
-    if db(db.model_component.component == component_id).count() > 0:
+    #if db(db.model_component.component == component_id).count() > 0:
+    if db(db.model_component.component == component_id).select(db.model_component.id, limitby=(0,1)).first():
         response.flash = "Cannot delete: component is assigned to models!"
         redirect(session.ReturnHere or URL('component', 'listview'))
 
-    if db(db.eflite_time.motor == component_id).count() > 0:
+    #if db(db.eflite_time.motor == component_id).count() > 0:
+    if db(db.eflite_time.motor == component_id).select(db.eflite_time.id, limitby=(0,1)).first():
         response.flash = "Cannot delete: component is assigned to a flight time!"
         redirect(session.ReturnHere or URL('component', 'listview'))
 

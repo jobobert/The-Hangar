@@ -6,6 +6,7 @@
     </div>
 </div>
 
+{{if paints:}}
 {{for paint in paints:}}
 <div class="row border-bottom my-2">
     <div class="col-auto">
@@ -28,3 +29,12 @@
     </div>
 </div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No paint found {{=newButton('paint', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('paint', 'update', '')}}
+</div>

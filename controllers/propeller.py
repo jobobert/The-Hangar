@@ -35,6 +35,12 @@ def rendercard():
 
     return dict(items=items, model_id=model_id, item_count=si_count, addform=addform, deleteform=deleteform)
 
+def listview():
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
+
+    propellers = db(db.propeller).select(orderby=db.propeller.item | db.propeller.model)
+    return dict(propellers=propellers)
 
 def remove():
     

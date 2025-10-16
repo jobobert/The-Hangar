@@ -83,27 +83,17 @@ def update():
 
 def listview():
 
-    response.title = "Water Tight Cylinders"
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
 
-    fields = (db.wtc.name, db.wtc.make, db.wtc.model)
+    wtcs = db(db.wtc).select(orderby=db.wtc.name)
 
-    links = [
-        lambda row: viewButton('wtc', 'index', [row.id]),
-        lambda row: editButton('wtc', 'update', [row.id]),
-    ]
-
-    wtcs = SQLFORM.grid(
-        db.wtc, orderby=db.wtc.name, editable=False, details=False, maxtextlength=255, user_signature=False, create=True, deletable=False, links=links, fields=fields, _class='itemlist-grid'
-    )
-
-    response.view = 'content.html'
-
-    return dict(content=wtcs, header=response.title)
+    return dict(wtcs=wtcs)
 
 def delete():
     wtc_id = VerifyTableID('wtc', request.args(0)) or redirect(URL('wtc', 'listview'))
 
-    if db(db.model_wtc.wtc == wtc_id).count() > 0:
+    if db(db.model_wtc.wtc == wtc_id).select(db.model_wtc.id, limitby=(0,1)).first():
         response.flash = "Cannot delete: WTC is assigned to models!"        
         redirect(session.ReturnHere or URL('wtc', 'listview'))
 

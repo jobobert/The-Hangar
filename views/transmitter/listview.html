@@ -17,17 +17,18 @@
         {{=db.transmitter.os.label}}
     </div>
     <div class="col th-listview-header">
-        Protocol
+        {{=db.transmitter.protocol.label}}
     </div>
     <div class="col-sm-1 th-listview-header">
-        &nbsp;
+        Actions
     </div>
 </div>
 
+{{if transmitters:}}
 {{for transmitter in transmitters:}}
 <div class="row border-bottom my-2">
     <div class="col-sm-1">
-        <img src="{{=URL('default', 'download', args=transmitter.img)}}" height="48px">
+        <img src="{{=URL('default', 'download', args=transmitter.img)}}" height="48px" alt="{{=transmitter.name}}">
     </div>
     <div class="col">
         {{=transmitter.name}}
@@ -53,3 +54,12 @@
     </div>
 </div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No transmitters found {{=newButton('transmitter', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('transmitter', 'update', '')}}
+</div>

@@ -13,7 +13,7 @@ def select():
         # db.model
         query,
         fields=fields,
-        selectable=lambda ids: redirect(URL('packinglist', 'thelist', vars=dict(
+        selectable=lambda ids: redirect(URL('packingitems', 'thelist', vars=dict(
             id=ids,
             event=request.vars.chk_event,
             overnight=request.vars.chk_overnight,
@@ -183,31 +183,44 @@ def thelist():
     )
 
 
-def allitems():
+# def allitems():
 
-    response.title = 'Packing Items'
+#     response.title = 'Packing Items'
 
-    links = [
-        lambda row: editButton('packinglist', 'update', [row.id])
-    ]
+#     links = [
+#         lambda row: editButton('packinglist', 'update', [row.id])
+#     ]
 
-    form = SQLFORM.grid(
-        db.packingitems, links=links, details=False, editable=False, csv=False, create=True, _class='itemlist-grid', user_signature=False)
+#     form = SQLFORM.grid(
+#         db.packingitems, links=links, details=False, editable=False, csv=False, create=True, _class='itemlist-grid', user_signature=False)
 
-    response.view = 'content.html'
+#     response.view = 'content.html'
 
-    return dict(content=form, header=response.title)
+#     return dict(content=form, header=response.title)
 
+def listview():
+
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
+        
+    packingitems = db(db.packingitems).select(orderby=db.packingitems.itemtype | db.packingitems.name)
+    return dict(packingitems=packingitems)
 
 def update():
     response.title = 'Update Packing Item'
 
     form = SQLFORM(db.packingitems, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False).process(
         message_onsuccess='Packing Item %s' % ('updated' if request.args else 'added'),
-        next=(URL('packinglist', 'allitems', extension="html"))
+        next=(URL('packingitems', 'allitems', extension="html"))
     )
     inputs = form.elements('input', _type='text')
     for s in inputs:
         s['_autocomplete'] = 'off'
 
     return dict(form=form)
+
+def delete():
+    item_id = VerifyTableID('packingitems', request.args(0)) or redirect(URL('default', 'index'))
+
+    db(db.packingitems.id == item_id).delete()
+    return redirect(session.ReturnHere or URL('packingitems', 'listview'))

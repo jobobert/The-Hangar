@@ -79,37 +79,8 @@ Your submitted form contains the following errors:
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="card w-100 ">
-        <div class="card-header" id="headingFieldNotes">
-            <h5 class="mb-0">
-                {{=form.custom.label.fieldnotes}}
-            </h5>
-        </div>
-        <div class="card-body">
-            <div class="model_form_field">{{=form.custom.widget.fieldnotes}}</div>
-            <div class="model_form_comment">{{=form.custom.comment.fieldnotes}}</div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="card w-100 ">
-        <div class="card-header" id="headingDiagram">
-            <h5 class="mb-0">
-                {{=form.custom.label.diagram}}
-            </h5>
-        </div>
-
-        <div class="card-body">
-            <div class="model_form_field">{{=form.custom.widget.diagram}}</div>
-            <div class="model_form_comment">{{=form.custom.comment.diagram}}</div>
-        </div>
-    </div>
-</div>
-
 
 <div class="row">
-
     <div class="card w-100 py-2">
         <div class="card-header" id="headingPhysical">
             <h5 class="mb-0">
@@ -259,6 +230,33 @@ Your submitted form contains the following errors:
     </div>
 </div>
 
+<div class="row">
+    <div class="card w-100 ">
+        <div class="card-header" id="headingFieldNotes">
+            <h5 class="mb-0">
+                {{=form.custom.label.fieldnotes}}
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="model_form_field">{{=form.custom.widget.fieldnotes}}</div>
+            <div class="model_form_comment">{{=form.custom.comment.fieldnotes}}</div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="card w-100 ">
+        <div class="card-header" id="headingDiagram">
+            <h5 class="mb-0">
+                {{=form.custom.label.diagram}}
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="model_form_field">{{=form.custom.widget.diagram}}</div>
+            <div class="model_form_comment">{{=form.custom.comment.diagram}}</div>
+        </div>
+    </div>
+</div>
 
 <div class="row mt-3 mb-2">
     <div class="card w-100 py-2">
@@ -290,6 +288,10 @@ Your submitted form contains the following errors:
 <script>
 
     function typeChange() {
+        var ctrl = document.getElementById("model_modeltype");
+        var type = ctrl.value;
+
+        // First we expand/collapse groups
         // Key = dropdown value : Value = div id
         var types = {
             "Airplane": "airplane",
@@ -301,8 +303,6 @@ Your submitted form contains the following errors:
             "Autogyro": "copter",
             "Submarine": "boat"
         }
-        var ctrl = document.getElementById("model_modeltype");
-        var type = ctrl.value;
 
         // First we collapse them all
         for (var index in types) {
@@ -315,6 +315,28 @@ Your submitted form contains the following errors:
             $elem = document.getElementById("collapse_" + types[index]);
             if (index == type) {
                 $elem.classList.add('show');
+            }
+        }
+
+        //// Next we disable any applicable fields
+        let modeltype_hide_attribs;
+        try {
+            modeltype_hide_attribs = JSON.parse('{{=XML(modeltype_hide_attribs)}}');
+        } catch (e) {
+            console.error('Failed to parse modeltype_hide_attribs:', e);
+            return;
+        } 
+        
+        let attrs = document.querySelectorAll('[id^="model_"]');
+        for (let i = 0; i < attrs.length; i++) {
+            if (type in modeltype_hide_attribs) {
+                let attr_name = attrs[i].id.slice(6);
+                if (modeltype_hide_attribs[type].includes(attr_name)) {
+                    document.getElementById(attrs[i].id).disabled = true;
+                }
+                else {
+                    document.getElementById(attrs[i].id).disabled = false;
+                }
             }
         }
     }

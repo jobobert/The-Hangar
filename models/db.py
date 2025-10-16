@@ -129,6 +129,8 @@ markmin_comment = SPAN('More on Markmin ',   A('here  ', _href='http://www.web2p
 diagram_comment = SPAN('Editor ', A('here', _href='https://viz-js.com', _target='_blank'))
 
 
+field_method_labels = {}
+
 ###############################################
 ## MODEL STATE
 
@@ -180,6 +182,7 @@ db.define_table('article'
 db.article.showAttachmentPopup = Field.Method(
     lambda row: AttachPopup(row.article.attachment)  # AttachPopup(row.name)
 )
+db.article.showAttachmentPopup.label = 'Attachment'
 
 db.article.articletype.requires = IS_IN_SET(
     ('Article', 'Book', 'Idea'), sort=True)
@@ -297,12 +300,18 @@ db.define_table('model'
 db.model.get_wingspan = Field.Method(
     lambda row: TwoDecimal(row.model.attr_plane_wingspan_in)
 )
+db.model.get_wingspan.label = 'Wingspace (in)'
+
 db.model.get_wingspan0 = Field.Method(
     lambda row: ZeroDecimal(row.model.attr_plane_wingspan_mm)
 )
+db.model.get_wingspan0.label = 'Wingspan (mm)'
+
 db.model.get_length = Field.Method(
     lambda row: ZeroDecimal(row.model.attr_length)
 )
+db.model.get_length.label = 'Length'
+
 def get_greatest_length(model):
     return max(model.attr_length or 0, model.attr_width or 0, model.attr_height or 0)
 def get_major_dimension(model_id):
@@ -326,7 +335,6 @@ def get_major_dimension(model_id):
                 dim = TwoDecimal(model.attr_copter_mainrotor_length)
             else:
                 dim = '---'
-        case 'Robot' | 'Experimental': dim = get_greatest_length(model) or '---'
         case 'Car': dim = TwoDecimal(model.attr_length) or '---'
         case 'Autogyro': dim = TwoDecimal(model.attr_copter_mainrotor_length) or '---'
         case 'Submarine': dim = TwoDecimal(model.attr_length) or '---'
@@ -340,9 +348,12 @@ def get_major_dimension(model_id):
 db.model.get_major_dimension = Field.Method(
     lambda row: get_major_dimension(row.model.id)
 )
+db.model.get_major_dimension.label = 'Major Dimension'
+
 db.model.search = Field.Method(
     lambda row: row.name
 )
+db.model.search.label = 'Search'
 
 def get_motor_component(model_id):
     components = models_and_components(db.model.id == model_id)  # .select()
@@ -356,6 +367,7 @@ def get_motor_component(model_id):
 db.model.get_motor = Field.Method(
     lambda row: get_motor_component(row.model.id)
 )
+db.model.get_motor.label = 'Motor'
 
 def get_receiver_component(model_id):
     components = models_and_components(db.model.id == model_id)  # .select()
@@ -366,6 +378,7 @@ def get_receiver_component(model_id):
 db.model.get_receiver = Field.Method(
     lambda row: get_receiver_component(row.model.id)
 )
+db.model.get_receiver.label = 'Receiver'
 
 def has_radio_backup(model_id):
     model = db(db.model.id == model_id).select().first()
@@ -384,6 +397,7 @@ def has_radio_backup(model_id):
 db.model.radio_config_backedup = Field.Method(
     lambda row: has_radio_backup(row.model.id)
 )
+db.model.radio_config_backedup.label = 'Config Backed Up'
 
 def model_battery_count(model_id):
     batteries = models_and_batteries(db.model.id == model_id).select()
@@ -394,6 +408,7 @@ def model_battery_count(model_id):
 db.model.get_batterycount = Field.Method(
     lambda row: model_battery_count(row.model.id)
 )
+db.model.get_batterycount.label = 'Battery Count'
 
 def model_battery_list(model_id):
     batts = []
@@ -407,12 +422,14 @@ def model_battery_list(model_id):
 db.model.get_battery_list = Field.Method(
     lambda row: model_battery_list(row.model.id)
 )
+db.model.get_battery_list.label = 'Battery List'
 
 def model_sailrig_count(model_id):
     return db(db.sailrig.model == model_id).count()
 db.model.get_sailrigcount = Field.Method(
     lambda row: model_sailrig_count(row.model.id)
 )
+db.model.get_sailrigcount.label = 'Sailrig Count'
 
 def model_sailrig_list(model_id):
     rigs = []
@@ -424,27 +441,32 @@ def model_sailrig_list(model_id):
 db.model.get_sailrig_list = Field.Method(
     lambda row: model_sailrig_list(row.model.id)
 )
+db.model.get_sailrig_list.label = 'Sailrig List'
 
 def model_component_count(model_id):
     return models_and_components(db.model.id == model_id).count()
 db.model.componentcount = Field.Method(
     lambda row: model_component_count(row.model.id)
 )
+db.model.componentcount.label = 'Component Count'
 
 def model_attachment_count(model_id):
     return db(db.attachment.model == model_id).count()
 db.model.get_attachmentcount = Field.Method(
     lambda row: model_attachment_count(row.model.id)
 )
+db.model.get_attachmentcount.label = 'Attachment Count'
 
 db.model.open_todos_count = Field.Method(
     lambda row: db((db.todo.model == row.model.id) &
                    (db.todo.complete == False)).count()
 )
+db.model.open_todos_count.label = 'Open Todo Count'
 
 db.model.activity_count = Field.Method(
     lambda row: db(db.activity.model == row.model.id).count()
 )
+db.model.activity_count.label = 'Activity Count'
 
 db.model.activity_flightcount = Field.Method(
     lambda row: db(
@@ -452,6 +474,7 @@ db.model.activity_flightcount = Field.Method(
         (db.activity.activitytype == 'Flight')
     ).count()
 )
+db.model.activity_flightcount.label = 'Flight Count'
 
 db.model.attr_length.extra = {'measurement': 'mm'}
 db.model.attr_width.extra = {'measurement': 'mm'}
@@ -508,13 +531,31 @@ modeltype_controller_mapping = {
     'Helicopter' : ['rotor'], 
     'Multirotor' : ['rotor'], 
     'Robot' : [], 
-    'Experimental' : ['propller', 'rotor', 'wtc', 'sailrig'], 
+    'Experimental' : ['propeller', 'rotor', 'wtc', 'sailrig'], 
     'Car' : [], 
-    'Autogyro' : ['propller', 'rotor'] ,
+    'Autogyro' : ['propeller', 'rotor'] ,
     'Submarine' : ['propeller', 'wtc'],
     'Non-Model' : [],
     'Miniature' : [],
     'Train' : [],
+    'Other' : []
+}
+
+# Fields that are not editable when a modeltype is selected
+modeltype_hide_attribs = {
+    'Airplane' : [] ,
+    'Rocket' : ['controltype', 'attr_covering'], 
+    'Boat' : ['attr_covering'], 
+    'Helicopter' : ['attr_covering'], 
+    'Multirotor' : ['attr_covering'], 
+    'Robot' : ['attr_covering'], 
+    'Experimental' : [], 
+    'Car' : ['attr_covering'], 
+    'Autogyro' : [] ,
+    'Submarine' : ['attr_covering'],
+    'Non-Model' : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog', 'attr_covering', 'configbackup', 'transmitter', 'protocol'],
+    'Miniature' : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog', 'attr_covering', 'configbackup', 'transmitter', 'protocol'],
+    'Train' : ['attr_cog', 'attr_covering', 'configbackup'],
     'Other' : []
 }
 
@@ -608,12 +649,17 @@ def component_used_count(comp_id):
 db.component.get_usedcount = Field.Method(
     lambda row: component_used_count(row.component.id)
 )
+db.component.get_usedcount.label = 'Used Count'
+
 db.component.get_remainingcount = Field.Method(
     lambda row: row.component.ownedcount - row.component.get_usedcount()
 )
+db.component.get_remainingcount.label = 'Remaining Count'
+
 db.component.showAttachmentPopup = Field.Method(
     lambda row: AttachPopup(row.component.attachment)  # AttachPopup(row.name)
 )
+db.component.showAttachmentPopup.label = 'Attachment'
 
 db.component.attr_length.extra = {'measurement': 'mm'}
 db.component.attr_width.extra = {'measurement': 'mm'}
@@ -731,14 +777,19 @@ db.define_table('battery',
                 format=lambda row: row.chemistry + ': ' + str(row.cellcount) + 's' + str(row.mah) + ' (' + str(row.crating) + ') '
                 )
 
+######################
+# Can you add a lable to this? If so, use it in the listview
+######################
 db.battery.get_name = Field.Method(
     lambda row: str(row.battery.cellcount) + 's' + str(row.battery.mah) +
     ' (' + str(row.battery.crating) + ') ' + row.battery.chemistry
 )
+db.battery.get_name.label = 'Battery Size'
 
 db.battery.get_maxamps = Field.Method(
     lambda row: (row.battery.crating * row.battery.mah) / 1000
 )
+db.battery.get_maxamps.label = 'Max Amps'
 
 db.battery.chemistry.requires = IS_IN_SET(
     ('LiPo', 'LiFE', 'NiMH', 'NiCad', 'Li-Ion', 'Alkaline'), sort=True)
@@ -822,6 +873,8 @@ db.eflite_time.get_minutes = Field.Method(
     lambda row: TwoDecimal(
         get_min(row.eflite_time.battery.mah, row.eflite_time.amps))
 )
+db.eflite_time.get_minutes.label = 'Flight Minutes'
+
 def g_wpp(row):
     if (not row.eflite_time.model.attr_weight_lbs):
         return "No Weight Set"
@@ -830,9 +883,12 @@ db.eflite_time.get_wattsperpound = Field.Method(
     lambda row: g_wpp(
         row)
 )
+db.eflite_time.get_wattsperpound.label = 'Watts/Pound'
+
 db.eflite_time.is_overrating = Field.Method(
     lambda row: (row.eflite_time.amps > row.eflite_time.battery.get_maxamps())
 )
+db.eflite_time.is_overrating.label = 'Is Overrating'
 
 ###############################################
 ## SUPPORT ITEM
@@ -978,6 +1034,7 @@ db.define_table('paint',
 db.paint.get_name = Field.Method(
     lambda row: row.paint.manufacturer + ' ' + row.paint.brand + ' ' + row.paint.color
 )
+db.paint.get_name.label = 'Name'
 
 db.paint.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(500, 500)))
 

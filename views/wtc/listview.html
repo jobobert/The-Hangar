@@ -11,23 +11,24 @@
         &nbsp;
     </div>
     <div class="col th-listview-header">
-        <small class="">{{=db.wtc.name.label}}</small>
+        {{=db.wtc.name.label}}
     </div>
     <div class="col th-listview-header">
-        <small class="">{{=db.wtc.make.label}}</small>
+        {{=db.wtc.make.label}}
     </div>
     <div class="col th-listview-header">
-        <small class="">{{=db.wtc.model.label}}</small>
+        {{=db.wtc.model.label}}
     </div>
     <div class="col-sm-3 th-listview-header">
-        &nbsp;
+        Actions
     </div>
 </div>
 
+{{if wtcs:}}
 {{for wtc in wtcs:}}
 <div class="row border-bottom my-2">
     <div class="col-sm-1">
-        <img src="{{=URL('default', 'download', args=wtc.img)}}" height="48px">
+        <img src="{{=URL('default', 'download', args=wtc.img)}}" height="48px" alt="{{=wtc.name}}">
     </div>
     <div class="col">
         <div class="text-nowrap text-truncate">{{=wtc.name}}</div>
@@ -44,3 +45,12 @@
     </div>
 </div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No water tight cylinders found {{=newButton('wtc', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('wtc', 'update', '')}}
+</div>

@@ -11,26 +11,27 @@
         &nbsp;
     </div>
     <div class="col th-listview-header">
-        Rig
+        {{=db.sailrig.rigname.label}}
     </div>
     <div class="col th-listview-header">
-        Model
+        {{=db.sailrig.model.label}}
     </div>
     <div class="col-sm-3 th-listview-header">
-        &nbsp;
+        Actions
     </div>
 </div>
 
+{{if sailrigs:}}
 {{for sailrig in sailrigs:}}
 <div class="row border-bottom my-2">
     <div class="col-sm-1">
-        <img src="{{=URL('default', 'download', args=sailrig.img)}}" height="48px">
+        <img src="{{=URL('default', 'download', args=sailrig.img)}}" height="48px" alt="{{=sailrig.rigname}}">
     </div>
     <div class="col">
         {{=sailrig.rigname}}
     </div>
     <div class="col">
-        {{=sailrig.model.name}}
+        {{=sailrig.model.name if sailrig.model else 'None'}}
     </div>
     <div class="col-sm-3">
         {{=viewButton('sailrig', 'index', [sailrig.id])}}
@@ -38,3 +39,12 @@
     </div>
 </div>
 {{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No sail rigs found {{=newButton('sailrig', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('sailrig', 'update', '')}}
+</div>
