@@ -47,6 +47,16 @@
   }
 </style>
 
+<ul class="nav nav-tabs mb-2 d-print-none">
+  {{for x, category in db.model.modelcategory.requires.options():}}
+  {{if category != "":}}
+  <li class="nav-item">
+    <a class="nav-link {{=' active ' if modelCategory == category else ''}}" href="{{= URL('default', 'index') }}?c={{=category}}">{{=category}}</a>
+  </li>
+  {{pass}}
+  {{pass}}
+</ul>
+
 <div class="row mb-2 d-print-none">
   <div class="col-sm-12">
     <a class="btn btn-secondary" href="{{=URL('default','index', vars=dict(s='1*'))}}">Show All</a>

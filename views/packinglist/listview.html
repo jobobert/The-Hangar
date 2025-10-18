@@ -13,7 +13,7 @@
     <div class="col th-listview-header">
         {{=db.packingitems.name.label}}
     </div>
-    <div class="col-sm-3 th-listview-header">
+    <div class="col th-listview-header">
         Actions
     </div>
 </div>
@@ -27,10 +27,10 @@
 {{pass}}
 <div class="row border-bottom my-2">
 
-    <div class="col">
+    <div class="col text-truncate">
         {{=item.name}}
     </div>
-    <div class="col-sm-3">
+    <div class="col">
         {{=viewButton('packingitems', 'index', [item.id])}}
         {{=deleteButton('packingitems', 'delete', [item.id])}}
     </div>

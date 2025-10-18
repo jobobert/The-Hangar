@@ -8,18 +8,15 @@
 
 <div class="row border-bottom my-2">
     <div class="col th-listview-header">
-        {{=db.battery.chemistry.label}}
-    </div>
-    <div class="col th-listview-header">
         {{=db.battery.get_name.label}}
     </div>
-    <div class="col th-listview-header">
+    <div class="col d-none d-md-block th-listview-header">
         {{=db.battery.voltage.label}}
     </div>
-    <div class="col th-listview-header">
+    <div class="col d-none d-md-block th-listview-header">
         {{=db.battery.ownedcount.label}}
     </div>
-    <div class="col-sm-4 th-listview-header">
+    <div class="col th-listview-header">
         Actions
     </div>
 </div>
@@ -28,18 +25,15 @@
 {{for battery in batteries:}}
 <div class="row border-bottom my-2">
     <div class="col">
-        {{=battery.chemistry}}
-    </div>
-    <div class="col">
         {{=battery.get_name()}}
     </div>
-    <div class="col">
-        {{=battery.voltage}}
+    <div class="col d-none d-md-block">
+        {{=TwoDecimal(battery.voltage)}}
     </div>
-    <div class="col">
+    <div class="col d-none d-md-block">
         {{=battery.ownedcount}}
     </div>
-    <div class="col-sm-4">
+    <div class="col">
         {{=viewButton('battery', 'index', [battery.id])}}
         {{=editButton('battery', 'update', [battery.id])}}
         {{=plusButton('battery', 'addcount', [battery.id])}}

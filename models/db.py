@@ -710,8 +710,8 @@ db.component.notes.format = lambda component: MARKMIN(component.notes)
 ## MODEL COMPONENT
 
 db.define_table('model_component'
-                , Field('model', 'reference model')
-                , Field('component', 'reference component')
+                , Field('model', type='reference model', label='Model')
+                , Field('component', type='reference component', label='Component')
                 , Field('purpose', type='string', label='Purpose', comment='Purpose of this component', represent=lambda v, r: '' if v is None else v)
                 , Field('channel', type='integer', label='Channel', comment='Channel Assignment', represent=lambda v, r: '' if v is None else v, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control'))
                 )
@@ -752,8 +752,8 @@ db.tool.notes.format = lambda tool: MARMIN(tool.notes)
 ## MODEL TOOL
 
 db.define_table('model_tool', 
-                Field('model', 'reference model'), 
-                Field('tool', 'reference tool')
+                Field('model', type='reference model', label='Model'), 
+                Field('tool', type='reference tool', label='Tool')
                 )
 
 db.model_tool.tool.requires = IS_IN_DB(
@@ -808,8 +808,8 @@ db.battery.name.label = 'Name'
 ## MODEL BATTERY
 
 db.define_table('model_battery', 
-                Field('model', 'reference model'), 
-                Field('battery', 'reference battery'),
+                Field('model', type='reference model', label='Model'), 
+                Field('battery', type='reference battery', label='Battery'),
                 Field('quantity', type='integer', label='Num required', default=1)
                 )
 db.model_battery.battery.requires = IS_IN_DB(
@@ -825,9 +825,9 @@ models_and_batteries = db(
 ## SAIL RIG
 
 db.define_table('sailrig', 
-                Field('rigname', type='string', label='Designation (A, B, C)', required=True, unique=False), 
-                Field('model', 'reference model'), 
-                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the sail rig', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
+                Field('rigname', type='string', label='Name (A, B, C)', required=True, unique=False), 
+                Field('model', type='reference model', label='Model'), 
+                Field('img', type='upload', uploadseparate=True, autodelete=True, label='Picture', comment='The picture of the sail rig', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
                 Field('mast_length_mm', type='integer', label='Mast Length', required=False), 
                 Field('mast_material', type='string', label='Mast Material', required=False), 
                 Field('main_boom_length_mm', type='integer', label='Main Boom Length', required=False), 
@@ -922,7 +922,7 @@ db.propeller.item.widget = SQLFORM.widgets.autocomplete(
 db.define_table('attachment', 
                 Field('name', type='string', label='Name'), 
                 Field('attachmenttype', type='string', label='Type'), 
-                Field('model', 'reference model'), 
+                Field('model', type='reference model', label='Model'), 
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='The attachment')
                 )
 
@@ -983,8 +983,8 @@ db.wtc.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 ## MODEL WTC
 
 db.define_table('model_wtc', 
-                Field('model', 'reference model'), 
-                Field('wtc',   'reference wtc'),
+                Field('model', type='reference model', label='Model'), 
+                Field('wtc',   type='reference wtc', label="Water Tight Cylinder"),
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)),
                 format=lambda row: 'Unknown' if row is None else row.model.name + " : " + row.wtc.name
                 )
@@ -999,7 +999,7 @@ models_and_wtcs = db(
 ## HARDWARE
 
 db.define_table('hardware',
-                Field('model', 'reference model', label='Model', required=True),
+                Field('model', type='reference model', label='Model', required=True),
                 Field('hardwaretype', type='string', label='Type', required=True),
                 Field('diameter', type='string', label='Size/Dimensions'),
                 Field('length_mm', type='double', label='Length', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
@@ -1049,8 +1049,8 @@ db.paint.colorhex.extra = {'input': 'color'}
 ## MODEL PAINT
 
 db.define_table('model_paint', 
-                Field('model', 'reference model', required=True), 
-                Field('paint', 'reference paint', required=True),
+                Field('model', type='reference model', label='Model', required=True), 
+                Field('paint', type='reference paint', label='Paint', required=True),
                 Field('purpose', type='string', label='On what part was the paint used?', required=True)
                 )
 db.model_paint.paint.requires = IS_IN_DB(
@@ -1065,9 +1065,9 @@ models_and_paints = db(
 ###############################################
 ## URL
 db.define_table('url'
-            , Field('url', type='string', required=True)
-            , Field('model', type='reference model', required=True)
-            , Field('notes', type='string')
+            , Field('url', type='string', label='URL', required=True)
+            , Field('model', type='reference model', label='Model', required=True)
+            , Field('notes', type='string', label='Notes')
             )
 db.url.url.requires = IS_URL()
 db.url.notes.widget = SQLFORM.widgets.autocomplete(

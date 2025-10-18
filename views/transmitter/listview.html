@@ -13,13 +13,13 @@
     <div class="col th-listview-header">
         {{=db.transmitter.name.label}}
     </div>
-    <div class="col th-listview-header">
+    <div class="col d-none d-md-block th-listview-header">
         {{=db.transmitter.os.label}}
     </div>
-    <div class="col th-listview-header">
+    <div class="col d-none d-md-block th-listview-header">
         {{=db.transmitter.protocol.label}}
     </div>
-    <div class="col-sm-1 th-listview-header">
+    <div class="col th-listview-header">
         Actions
     </div>
 </div>
@@ -28,15 +28,15 @@
 {{for transmitter in transmitters:}}
 <div class="row border-bottom my-2">
     <div class="col-sm-1">
-        <img src="{{=URL('default', 'download', args=transmitter.img)}}" height="48px" alt="{{=transmitter.name}}">
+        <img src="{{=URL('default', 'download', args=transmitter.img)}}" height="48px" alt="Image">
     </div>
-    <div class="col">
+    <div class="col text-truncate">
         {{=transmitter.name}}
     </div>
-    <div class="col">
+    <div class="col d-none d-md-block">
         {{=transmitter.os}}
     </div>
-    <div class="col">
+    <div class="col d-none d-md-block">
         {{if transmitter.protocol:}}
         <ul>
             {{for p in transmitter.protocol:}}
@@ -48,7 +48,7 @@
         {{pass}}
     </div>
 
-    <div class="col-sm-3">
+    <div class="col">
         {{=viewButton('transmitter', 'index', [transmitter.id])}}
         {{=editButton('transmitter', 'update', [transmitter.id])}}
     </div>

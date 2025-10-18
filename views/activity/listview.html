@@ -16,7 +16,7 @@
     <div class="col th-listview-header">
         {{=db.activity.activitytype.label}}
     </div>
-    <div class="col th-listview-header">
+    <div class="col d-none d-md-block th-listview-header">
         {{=db.activity.activitylocation.label}}
     </div>
     <div class="col-sm-4 th-listview-header">
@@ -30,13 +30,13 @@
     <div class="col">
         {{=activity.activitydate}}
     </div>
-    <div class="col">
+    <div class="col text-truncate">
         {{=activity.model.name if activity.model else 'None'}}
     </div>
     <div class="col">
         {{=activity.activitytype}}
     </div>
-    <div class="col">
+    <div class="col d-none d-md-block">
         {{=activity.activitylocation}}
     </div>
     <div class="col-sm-4">

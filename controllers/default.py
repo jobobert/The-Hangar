@@ -81,8 +81,8 @@ def index():
     state_number = 4
     state_plus = True
     the_filters = {
-                'modelcategory': ''
-                , 'modeltype': ''
+                #'modelcategory': ''
+                 'modeltype': ''
                 , 'controltype': ''
                 , 'powerplant': ''
                 , 'plankit': ''
@@ -91,8 +91,8 @@ def index():
                 , 'selected': ''
                 }
     filter_text = {
-                'modelcategory': ''
-                , 'modeltype': ''
+                #'modelcategory': ''
+                 'modeltype': ''
                 , 'controltype': ''
                 , 'powerplant': ''
                 , 'plankit': ''
@@ -106,6 +106,27 @@ def index():
     queries = []
 
     wasFormUsed = False
+
+    # Setting up the model category.
+    # Step 1: set default
+    # Step 2: check the URL
+    # Step 3: check the session
+    # Step 4: verify or set to known state
+    # Step 5: do the filtering
+    viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
+    modelCategory = viableOptions[2]
+
+    if session.modelcategory:
+        modelCategory = session.modelcategory
+
+    if request.vars['c']:
+        modelCategory = request.vars['c'] 
+
+    if modelCategory not in viableOptions:
+        modelCategory = viableOptions[2]
+
+    session.modelcategory = modelCategory
+    queries.append(db.model.modelcategory == modelCategory)
 
     for s in states:
         the_filters[s.name] = ''
@@ -137,8 +158,8 @@ def index():
         filters = the_filters
 
     fields = []
-    fields.append(Field('modelcategory', label=db.model.modelcategory.label,
-                        requires=IS_EMPTY_OR(db.model.modelcategory.requires), required=False))
+    #fields.append(Field('modelcategory', label=db.model.modelcategory.label,
+    #                    requires=IS_EMPTY_OR(db.model.modelcategory.requires), required=False))
     fields.append(Field('modeltype', label=db.model.modeltype.label,
                         requires=IS_EMPTY_OR(db.model.modeltype.requires), required=False))
     fields.append(Field('controltype', label=db.model.controltype.label,
@@ -168,7 +189,7 @@ def index():
         wasFormUsed = True
 
         response.flash = ''
-        filters['modelcategory'] = selectform.vars.modelcategory
+        #filters['modelcategory'] = selectform.vars.modelcategory
 
         filters['modeltype'] = selectform.vars.modeltype
 
@@ -197,9 +218,9 @@ def index():
         redirect(URL(args=request.args, host=True))
 
 
-    if filters['modelcategory']:
-        queries.append(db.model.modelcategory == filters['modelcategory'])
-        filter_text['modelcategory'] = filters['modelcategory']
+    #if filters['modelcategory']:
+    #    queries.append(db.model.modelcategory == filters['modelcategory'])
+    #    filter_text['modelcategory'] = filters['modelcategory']
 
     if filters['modeltype']:
         queries.append(db.model.modeltype == filters['modeltype'])
@@ -272,7 +293,7 @@ def index():
             pass
 
     session.ft = filter_text
-    return dict(models=models, form=selectform, filters=filter_text, selected=selected, log=log)
+    return dict(models=models, form=selectform, filters=filter_text, selected=selected, log=log, modelCategory=modelCategory)
 
 
 def setui():

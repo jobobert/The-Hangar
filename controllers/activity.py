@@ -104,10 +104,9 @@ def addactivity():
     return dict(content=form)
 
 def listview():
-
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
-
+    
     activities = db(db.activity).select(orderby=db.activity.activitydate)
     return dict(activities=activities)
 

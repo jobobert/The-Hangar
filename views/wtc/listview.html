@@ -13,13 +13,13 @@
     <div class="col th-listview-header">
         {{=db.wtc.name.label}}
     </div>
-    <div class="col th-listview-header">
+    <div class="col d-none d-md-block th-listview-header">
         {{=db.wtc.make.label}}
     </div>
-    <div class="col th-listview-header">
+    <div class="col d-none d-md-block th-listview-header">
         {{=db.wtc.model.label}}
     </div>
-    <div class="col-sm-3 th-listview-header">
+    <div class="col th-listview-header">
         Actions
     </div>
 </div>
@@ -33,13 +33,13 @@
     <div class="col">
         <div class="text-nowrap text-truncate">{{=wtc.name}}</div>
     </div>
-    <div class="col">
+    <div class="col d-none d-md-block">
         <div class="text-nowrap text-truncate">{{=wtc.make}}</div>
     </div>
-    <div class="col">
+    <div class="col d-none d-md-block">
         <div class="text-nowrap text-truncate">{{=wtc.model}}</div>
     </div>
-    <div class="col-sm-3">
+    <div class="col">
         {{=viewButton('wtc', 'index', [wtc.id])}}
         {{=editButton('wtc', 'update', [wtc.id])}}
     </div>

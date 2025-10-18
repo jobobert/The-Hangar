@@ -39,7 +39,9 @@ def listview():
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
-    propellers = db(db.propeller).select(orderby=db.propeller.item | db.propeller.model)
+    activemodels = db(db.model.modelstate > 1)._select(db.model._id)
+
+    propellers = db(db.propeller.model.belongs(activemodels)).select(orderby=db.propeller.item | db.propeller.model)
     return dict(propellers=propellers)
 
 def remove():

@@ -11,9 +11,6 @@
         {{=db.protocol.name.label}}
     </div>
     <div class="col th-listview-header">
-        {{=db.protocol.description.label}}
-    </div>
-    <div class="col-sm-3 th-listview-header">
         Actions
     </div>
 </div>
@@ -25,9 +22,6 @@
         {{=protocol.name}}
     </div>
     <div class="col">
-        {{=protocol.description}}
-    </div>
-    <div class="col-sm-3">
         {{=viewButton('protocol', 'index', [protocol.id])}}
         {{=editButton('protocol', 'update', [protocol.id])}}
     </div>

@@ -13,13 +13,13 @@
     <div class="col th-listview-header">
         {{=db.todo.todo.label}}
     </div>
-    <div class="col th-listview-header">
+    <div class="col d-none d-md-block th-listview-header">
         {{=db.todo.critical.label}}
     </div>
-    <div class="col-sm-3 text-truncate th-listview-header">
+    <div class="col-sm-3 d-none d-md-block text-truncate th-listview-header">
         {{=db.todo.notes.label}}
     </div>
-    <div class="col-sm-4 th-listview-header">
+    <div class="col th-listview-header">
         Actions
     </div>
 </div>
@@ -27,19 +27,19 @@
 {{if todos:}}
 {{for todo in todos:}}
 <div class="row border-bottom my-2 {{='font-weight-bold' if todo.critical else ''}}">
-    <div class="col">
+    <div class="col text-truncate">
         {{=todo.model.name if todo.model else 'No Model'}}
     </div>
-    <div class="col">
+    <div class="col text-truncate">
         {{=todo.todo}}
     </div>
-    <div class="col">
+    <div class="col d-none d-md-block">
         {{=todo.critical}}
     </div>
-    <div class="col-sm-3 text-truncate">
+    <div class="col-sm-3 d-none d-md-block text-truncate">
         {{=todo.notes}}
     </div>
-    <div class="col-sm-4">
+    <div class="col">
         {{=completeButton('todo', 'complete', [None, todo.id])}}
         {{=editButton('todo', 'update', [todo.id])}}
     </div>

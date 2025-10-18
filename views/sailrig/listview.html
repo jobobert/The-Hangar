@@ -7,7 +7,7 @@
 </div>
 
 <div class="row border-bottom my-2">
-    <div class="col-sm-1 th-listview-header">
+    <div class="col-sm-1 d-none d-md-block th-listview-header">
         &nbsp;
     </div>
     <div class="col th-listview-header">
@@ -16,7 +16,7 @@
     <div class="col th-listview-header">
         {{=db.sailrig.model.label}}
     </div>
-    <div class="col-sm-3 th-listview-header">
+    <div class="col th-listview-header">
         Actions
     </div>
 </div>
@@ -24,7 +24,7 @@
 {{if sailrigs:}}
 {{for sailrig in sailrigs:}}
 <div class="row border-bottom my-2">
-    <div class="col-sm-1">
+    <div class="col-sm-1 d-none d-md-block">
         <img src="{{=URL('default', 'download', args=sailrig.img)}}" height="48px" alt="{{=sailrig.rigname}}">
     </div>
     <div class="col">
@@ -33,7 +33,7 @@
     <div class="col">
         {{=sailrig.model.name if sailrig.model else 'None'}}
     </div>
-    <div class="col-sm-3">
+    <div class="col">
         {{=viewButton('sailrig', 'index', [sailrig.id])}}
         {{=editButton('sailrig', 'update', [sailrig.id])}}
     </div>

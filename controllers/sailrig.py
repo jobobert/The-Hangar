@@ -15,7 +15,9 @@ def listview():
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
-    sailrigs = db(db.sailrig).select(orderby=db.sailrig.model | db.sailrig.rigname)
+    activemodels = db(db.model.modelstate > 1)._select(db.model._id)
+
+    sailrigs = db(db.sailrig.model.belongs(activemodels)).select(orderby=db.sailrig.model | db.sailrig.rigname)
     return dict(sailrigs=sailrigs)
 
 

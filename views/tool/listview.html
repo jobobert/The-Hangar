@@ -1,5 +1,7 @@
 {{extend 'layout.html'}}
 
+{{lastitemtype = None}}
+
 <div class="row mb-3">
     <div class="col-md-12">
         <h2>{{=controller_icon('tool', 48)}} Tools</h2>
@@ -7,33 +9,31 @@
 </div>
 
 <div class="row border-bottom my-2">
-    <div class="col-sm-1 th-listview-header">
+    <div class="col-sm-1 d-none d-md-block th-listview-header">
         &nbsp;
-    </div>
-    <div class="col th-listview-header">
-        {{=db.tool.tooltype.label}}
     </div>
     <div class="col th-listview-header">
         {{=db.tool.name.label}}
     </div>
-    <div class="col-sm-3 th-listview-header">
+    <div class="col th-listview-header">
         Actions
     </div>
 </div>
-
+ 
 {{if tools:}}
 {{for tool in tools:}}
+{{if tool.tooltype != lastitemtype:}}
+{{lastitemtype = tool.tooltype}}
+<div class="row th-listview-subheader my-2">{{=tool.tooltype}}</div>
+{{pass}}
 <div class="row border-bottom my-2">
-    <div class="col-sm-1">
+    <div class="col-sm-1  d-none d-md-block">
         <img src="{{=URL('default', 'download', args=tool.img)}}" height="48px" alt="{{=tool.name}}">
-    </div>
-    <div class="col">
-        {{=tool.tooltype}}
     </div>
     <div class="col">
         {{=tool.name}}
     </div>
-    <div class="col-sm-3">
+    <div class="col">
         {{=viewButton('model', 'index', [tool.id])}}
         {{=editButton('model', 'update', [tool.id])}}
     </div>

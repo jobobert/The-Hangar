@@ -276,9 +276,15 @@ def renderhass():
     # return dict(model=model)
 
 def renderstatecounts():
-    # (response)
+    viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
+    modelCategory = viableOptions[2]
+    if session.modelcategory:
+        modelCategory = session.modelcategory
 
-    counts = db(db.model).select(db.model.modelstate,
+    if modelCategory not in viableOptions:
+        modelCategory = viableOptions[2]
+
+    counts = db(db.model.modelcategory == modelCategory).select(db.model.modelstate,
                                  db.model.id.count(), groupby=db.model.modelstate)
 
     return dict(counts=counts, options=request.args(0))
@@ -734,7 +740,6 @@ def renderhardware():
     hardware = db(db.hardware.model == model_id).select()
 
     return dict(hardware=hardware, addform=addform, deleteform=deleteform)
-
 
 def updatemodelbattery():
     response.title = "Update Model/Battery"

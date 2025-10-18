@@ -86,7 +86,6 @@ def listview():
     todos = todo_query.select(orderby=db.todo.model | db.todo.todo)
     return dict(todos=todos)
 
-
 def update():
  
     response.title = 'Add/Update Todo'
