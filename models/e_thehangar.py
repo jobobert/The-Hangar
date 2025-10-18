@@ -197,11 +197,19 @@ def model_type_icon(model, size:int):
     folder = 'model_type/'
     if size not in [32, 48]: size = 32
 
-    #print(f'{model.name} and {model.modeltype}')
     if model.modeltype:
         return show_icon(folder + model.modeltype.lower() + '-' + str(size) + '.svg', size, model.modeltype)
     else:
         return show_icon('noicon.svg', size, f"unknown modeltype for {model.name}")
+
+def text_model_type_icon(modeltype:str, size:int):
+    folder = 'model_type/'
+    if size not in [32, 48]: size = 32
+
+    try:
+        return show_icon(folder + modeltype.lower() + '-' + str(size) + '.svg', size, modeltype)
+    except:
+        return show_icon('noicon.svg', size, f"unknown modeltype for {modeltype}")
 
 def model_powerplant_icon(model, size:int):
     folder = 'model_powerplant/'
@@ -265,7 +273,7 @@ def filetype_icon(attachment, size):
 
     return show_icon(folder + ext + '.png', size, ext)
 
-def filename_type_icon(filename:str, size:int):
+def filename_filetype_icon(filename:str, size:int):
     folder = 'attachment_filetype/'
     try:
         ext = filename.split('.')[-1].lower()

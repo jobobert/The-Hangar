@@ -14,10 +14,13 @@
     <div class="row border-bottom py-1">
         <div class="col">
             <div class="row">
-                <div class="col">
-                    <span class="">{{=item.item }}</span>
+                <div class="col-auto">
+                    {{=text_model_type_icon(item.modeltype, 32)}}
                 </div>
-                <div class="col-3">
+                <div class="col">
+                    <span class="">{{=item.item }} ({{=item.modelcategory}} {{=item.modeltype}})</span>
+                </div>
+                <div class="col-auto">
                     {{if item.notes:}}
                     <a class="btn btn-primary" data-toggle="collapse" href="#notes{{=item.id}}" role="button" aria-expanded="false" aria-controls="collapseExample">
                         Notes
@@ -46,8 +49,9 @@
 
         {{=makeFormField(addform, "item", FormFieldType.COLUMNS)}}
         {{=makeFormField(addform, "notes", FormFieldType.COLUMNS, columns=3)}}
+        {{=makeFormField(addform, "modeltype", FormFieldType.COLUMNS, columns=3)}}
         {{=makeFormField(addform, 'modelcategory', FormFieldType.COLUMNS, columns=3)}}
-        <div class="col-2">{{=addform.custom.submit}}</div>
+        <div class="col-1">{{=addform.custom.submit}}</div>
     </div>
     {{=addform.custom.end}}
 

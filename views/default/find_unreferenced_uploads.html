@@ -10,7 +10,7 @@
 <div class="row border-bottom">
     <div class="col">
 
-        {{=filename_type_icon(file, 24)}}
+        {{=filename_filetype_icon(file, 24)}}
         {{=A(file, _href=URL('default', 'download', args=file))}}
     </div>
     {{if isimage(file):}}

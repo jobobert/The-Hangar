@@ -1093,8 +1093,10 @@ switches_and_positions = db(
 db.define_table('wishlist'
                 , Field('item', type='string', label='Item', required=True)
                 , Field('notes', type='string', label='Notes')
+                , Field('modeltype', type='string', label=db.model.modeltype.label)
                 , Field('modelcategory', type='string', label=db.model.modelcategory.label)
                 )
+db.wishlist.modeltype.requires = db.model.modeltype.requires
 db.wishlist.modelcategory.requires = db.model.modelcategory.requires
 
 ###############################################

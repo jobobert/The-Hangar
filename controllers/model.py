@@ -55,9 +55,14 @@ def wishlist():
                 # create a model
                 new_id = db.model.insert(
                     name=item.item, 
-                    modeltype='Other', 
+                    modeltype=item.modeltype,  
                     modelcategory=item.modelcategory,
                     havekit=True
+                )
+                db.activity.insert(
+                    activitydate = request.now.date(),
+                    model=new_id,
+                    activitytype='Purchase'
                 )
                 
                 # remove the item
