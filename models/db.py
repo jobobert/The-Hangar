@@ -335,14 +335,10 @@ def get_major_dimension(model_id):
         return str(dim) + 'mm'
     
     return dim
-db.model.get_major_dimension = Field.Method(
-    lambda row: get_major_dimension(row.model.id)
-)
+db.model.get_major_dimension = Field.Method( lambda row: get_major_dimension(row.model.id) )
 db.model.get_major_dimension.label = 'Major Dimension'
 
-db.model.search = Field.Method(
-    lambda row: row.name
-)
+db.model.search = Field.Method(lambda row: row.name)
 db.model.search.label = 'Search'
 
 def get_motor_component(model_id):
@@ -354,9 +350,7 @@ def get_motor_component(model_id):
             ret = c.model_component.component
 
     return ret
-db.model.get_motor = Field.Method(
-    lambda row: get_motor_component(row.model.id)
-)
+db.model.get_motor = Field.Method(lambda row: get_motor_component(row.model.id) )
 db.model.get_motor.label = 'Motor'
 
 def get_receiver_component(model_id):
@@ -365,9 +359,7 @@ def get_receiver_component(model_id):
     for c in components.select():
         if c.component.componenttype == 'Receiver':
             return c.model_component.component
-db.model.get_receiver = Field.Method(
-    lambda row: get_receiver_component(row.model.id)
-)
+db.model.get_receiver = Field.Method(lambda row: get_receiver_component(row.model.id) )
 db.model.get_receiver.label = 'Receiver'
 
 def has_radio_backup(model_id):
@@ -383,9 +375,7 @@ def has_radio_backup(model_id):
             return 'No'
     else:
         return 'NA'
-db.model.radio_config_backedup = Field.Method(
-    lambda row: has_radio_backup(row.model.id)
-)
+db.model.radio_config_backedup = Field.Method( lambda row: has_radio_backup(row.model.id) )
 db.model.radio_config_backedup.label = 'Config Backed Up'
 
 def model_battery_count(model_id):
@@ -394,9 +384,7 @@ def model_battery_count(model_id):
     for m_b in batteries:
         count = count + m_b.battery.ownedcount
     return count
-db.model.get_batterycount = Field.Method(
-    lambda row: model_battery_count(row.model.id)
-)
+db.model.get_batterycount = Field.Method( lambda row: model_battery_count(row.model.id) )
 db.model.get_batterycount.label = 'Battery Count'
 
 def model_battery_list(model_id):
@@ -408,16 +396,12 @@ def model_battery_list(model_id):
         if name not in batts:
             batts.append(name)
     return batts
-db.model.get_battery_list = Field.Method(
-    lambda row: model_battery_list(row.model.id)
-)
+db.model.get_battery_list = Field.Method( lambda row: model_battery_list(row.model.id) )
 db.model.get_battery_list.label = 'Battery List'
 
 def model_sailrig_count(model_id):
     return db(db.sailrig.model == model_id).count()
-db.model.get_sailrigcount = Field.Method(
-    lambda row: model_sailrig_count(row.model.id)
-)
+db.model.get_sailrigcount = Field.Method( lambda row: model_sailrig_count(row.model.id) )
 db.model.get_sailrigcount.label = 'Sailrig Count'
 
 def model_sailrig_list(model_id):
@@ -427,23 +411,17 @@ def model_sailrig_list(model_id):
     for r in m_r:
         rigs.append(r.rigname)
     return rigs
-db.model.get_sailrig_list = Field.Method(
-    lambda row: model_sailrig_list(row.model.id)
-)
+db.model.get_sailrig_list = Field.Method( lambda row: model_sailrig_list(row.model.id) )
 db.model.get_sailrig_list.label = 'Sailrig List'
 
 def model_component_count(model_id):
     return models_and_components(db.model.id == model_id).count()
-db.model.componentcount = Field.Method(
-    lambda row: model_component_count(row.model.id)
-)
+db.model.componentcount = Field.Method( lambda row: model_component_count(row.model.id) )
 db.model.componentcount.label = 'Component Count'
 
 def model_attachment_count(model_id):
     return db(db.attachment.model == model_id).count()
-db.model.get_attachmentcount = Field.Method(
-    lambda row: model_attachment_count(row.model.id)
-)
+db.model.get_attachmentcount = Field.Method( lambda row: model_attachment_count(row.model.id) )
 db.model.get_attachmentcount.label = 'Attachment Count'
 
 db.model.open_todos_count = Field.Method(
@@ -452,9 +430,7 @@ db.model.open_todos_count = Field.Method(
 )
 db.model.open_todos_count.label = 'Open Todo Count'
 
-db.model.activity_count = Field.Method(
-    lambda row: db(db.activity.model == row.model.id).count()
-)
+db.model.activity_count = Field.Method( lambda row: db(db.activity.model == row.model.id).count() )
 db.model.activity_count.label = 'Activity Count'
 
 db.model.activity_flightcount = Field.Method(
@@ -531,9 +507,13 @@ modeltype_controller_mapping = {
 }
 
 # Fields that are not editable when a modeltype is selected
+# This list must be updated if a new modeltype is added
 modeltype_hide_attribs = {
     'Airplane' : [] ,
-    'Rocket' : ['controltype', 'attr_covering'], 
+    'Rocket' : [
+        'controltype', 
+        'attr_covering'
+        ], 
     'Boat' : ['attr_covering'], 
     'Helicopter' : ['attr_covering'], 
     'Multirotor' : ['attr_covering'], 
@@ -542,10 +522,60 @@ modeltype_hide_attribs = {
     'Car' : ['attr_covering'], 
     'Autogyro' : [] ,
     'Submarine' : ['attr_covering'],
-    'Non-Model' : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog', 'attr_covering', 'configbackup', 'transmitter', 'protocol'],
-    'Miniature' : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog', 'attr_covering', 'configbackup', 'transmitter', 'protocol'],
+    'Non-Model' : [
+        'controltype', 
+        'powerplant', 
+        'attr_flight_timer', 
+        'attr_cog', 
+        'attr_covering', 
+        'configbackup', 
+        'transmitter', 
+        'protocol'
+        ],
+    'Miniature' : [
+        'controltype', 
+        'powerplant', 
+        'attr_flight_timer', 
+        'attr_cog', 
+        'attr_covering', 
+        'configbackup', 
+        'transmitter', 
+        'protocol'
+        ],
     'Train' : ['attr_cog', 'attr_covering', 'configbackup'],
     'Other' : []
+}
+
+# Fields that are not editable when a modelcategory is selected
+# This list must be updated if a new modelcategory is added
+modelcategory_hide_attribs = {
+    'Remote Control' : [], 
+    'Static' : [
+        'controltype', 
+        'powerplant', 
+        'attr_flight_timer', 
+        'attr_cog',
+        'attr_boat_draft',
+        'attr_sub_ballast',
+        'attr_copter_swashplate_type',
+        'configbackup',
+        'transmitter',
+        'protocol'
+        ], 
+    'Non-Model' : [
+        'controltype', 
+        'powerplant', 
+        'attr_cog', 
+        'attr_plane_rem_wings', 
+        'attr_plane_rem_wing_tube',
+        'attr_plane_rem_struts',
+        'attr_boat_draft',
+        'attr_sub_ballast',
+        'attr_copter_swashplate_type',
+        'configbackup',
+        'transmitter',
+        'protocol'
+        ]
 }
 
 
@@ -1091,7 +1121,7 @@ switches_and_positions = db(
 ## WISH LIST
 
 db.define_table('wishlist'
-                , Field('item', type='string', label='Item', required=True)
+                , Field('item', type='string', label='Item', required=True, unique=True)
                 , Field('notes', type='string', label='Notes')
                 , Field('modeltype', type='string', label=db.model.modeltype.label)
                 , Field('modelcategory', type='string', label=db.model.modelcategory.label)

@@ -291,6 +291,9 @@ Your submitted form contains the following errors:
         var ctrl = document.getElementById("model_modeltype");
         var type = ctrl.value;
 
+        var ctrlCat = document.getElementById("model_modelcategory");
+        var cat = ctrlCat.value;
+
         // First we expand/collapse groups
         // Key = dropdown value : Value = div id
         var types = {
@@ -318,29 +321,42 @@ Your submitted form contains the following errors:
             }
         }
 
-        //// Next we disable any applicable fields
+        //// Next we disable any applicable fields, based on modeltype and then by modelcategory
         let modeltype_hide_attribs;
         try {
             modeltype_hide_attribs = JSON.parse('{{=XML(modeltype_hide_attribs)}}');
         } catch (e) {
             console.error('Failed to parse modeltype_hide_attribs:', e);
             return;
-        } 
-        
+        }
+
+        let modelcategory_hide_attribs;
+        try {
+            modelcategory_hide_attribs = JSON.parse('{{=XML(modelcategory_hide_attribs)}}');
+        }
+        catch (e) {
+            console.error('Failed to parse modelcategory_hide_attribs:', e);
+            return;
+        }
+
         let attrs = document.querySelectorAll('[id^="model_"]');
         for (let i = 0; i < attrs.length; i++) {
+            let attr_name = attrs[i].id.slice(6);
+            document.getElementById(attrs[i].id).disabled = false;
             if (type in modeltype_hide_attribs) {
-                let attr_name = attrs[i].id.slice(6);
                 if (modeltype_hide_attribs[type].includes(attr_name)) {
                     document.getElementById(attrs[i].id).disabled = true;
                 }
-                else {
-                    document.getElementById(attrs[i].id).disabled = false;
+            }
+            if (cat in modelcategory_hide_attribs) {
+                if (modelcategory_hide_attribs[cat].includes(attr_name)) {
+                    document.getElementById(attrs[i].id).disabled = true;
                 }
             }
         }
     }
 
     document.getElementById("model_modeltype").addEventListener("change", typeChange);
+    document.getElementById("model_modelcategory").addEventListener("change", typeChange);
     jQuery(document).ready(typeChange);
 </script>

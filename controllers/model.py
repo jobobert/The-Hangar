@@ -404,7 +404,7 @@ def update():
         pass
         #response.flash = "something happened"
 
-    return dict(form=form, modeltype_hide_attribs=json.dumps(modeltype_hide_attribs))
+    return dict(form=form, modeltype_hide_attribs=json.dumps(modeltype_hide_attribs), modelcategory_hide_attribs=json.dumps(modelcategory_hide_attribs))
 
 def addnote():
     # Add the note and return. Use GET for the text
