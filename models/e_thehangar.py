@@ -302,14 +302,18 @@ def show_icon(iconname:str, size:int=0, alt:str="icon"):
 def VerifyTableID(table:str, rowID:int|str):
     #print(f'{table} -- {rowID}:  {type(rowID)}')
 
+    if rowID == None:
+        print("VerifyTableID: Error: Received Null ID")
+        return None
+
     try:
         integer_value = int(rowID)
     except ValueError:
-        print(f"Error: Could not convert '{rowID}' to an integer. Invalid input.")
+        print(f"VerifyTableID: Error: Could not convert '{rowID}' to an integer. Invalid input.")
         response.flash = "Record not found!"
         return None
     except TypeError:
-        print(f"Error: Cannot convert type '{type(rowID).__name__}' to an integer.")
+        print(f"VerifyTableID: Error: Cannot convert type '{type(rowID).__name__}' to an integer.")
         response.flash = "Record not found!"
         return None
 

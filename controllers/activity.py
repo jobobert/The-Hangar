@@ -25,7 +25,7 @@ def rendercard():
 
 
 def calendar():
-    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('default', 'index'))
+    model_id = VerifyTableID('model', request.args(0))
 
     return dict(model_id=model_id)
 

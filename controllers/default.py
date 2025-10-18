@@ -84,7 +84,6 @@ def index():
     state_number = 4
     state_plus = True
     the_filters = {
-                #'modelcategory': ''
                  'modeltype': ''
                 , 'controltype': ''
                 , 'powerplant': ''
@@ -94,7 +93,6 @@ def index():
                 , 'selected': ''
                 }
     filter_text = {
-                #'modelcategory': ''
                  'modeltype': ''
                 , 'controltype': ''
                 , 'powerplant': ''
@@ -161,8 +159,7 @@ def index():
         filters = the_filters
 
     fields = []
-    #fields.append(Field('modelcategory', label=db.model.modelcategory.label,
-    #                    requires=IS_EMPTY_OR(db.model.modelcategory.requires), required=False))
+
     fields.append(Field('modeltype', label=db.model.modeltype.label,
                         requires=IS_EMPTY_OR(db.model.modeltype.requires), required=False))
     fields.append(Field('controltype', label=db.model.controltype.label,
@@ -192,7 +189,6 @@ def index():
         wasFormUsed = True
 
         response.flash = ''
-        #filters['modelcategory'] = selectform.vars.modelcategory
 
         filters['modeltype'] = selectform.vars.modeltype
 
@@ -219,11 +215,6 @@ def index():
         session.filters = filters = the_filters
         wasFormUsed = False
         redirect(URL(args=request.args, host=True))
-
-
-    #if filters['modelcategory']:
-    #    queries.append(db.model.modelcategory == filters['modelcategory'])
-    #    filter_text['modelcategory'] = filters['modelcategory']
 
     if filters['modeltype']:
         queries.append(db.model.modeltype == filters['modeltype'])
@@ -274,7 +265,7 @@ def index():
     if not wasFormUsed:
         if 'ui' in request.cookies:
             if request.cookies['ui'].value == 'dashboard':
-                queries.append(db.model.selected == True)
+                queries.append((db.model.selected == True) & (db.model.modelstate > 1))
         if 'ui' not in request.cookies or request.cookies['ui'].value != 'dashboard':
             if session.stateplus:
                 queries.append(db.model.modelstate >= session.state)
@@ -285,9 +276,13 @@ def index():
 
     models = db(query).select(db.model.ALL, orderby=db.model.name)
 
-    selected = -1
+    selected = None
     if request.args:
-        selected = request.args(0)
+        selected = VerifyTableID('model', request.args(0))
+    if selected == None:
+        selected = -1
+
+    print(f'selected = {selected}')
 
     if 'ui' in request.cookies:
         if request.cookies['ui'].value == 'dashboard':

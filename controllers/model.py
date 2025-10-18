@@ -281,23 +281,33 @@ def renderhass():
     # return dict(model=model)
 
 def renderstatecounts():
-    viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
-    modelCategory = viableOptions[2]
-    if session.modelcategory:
-        modelCategory = session.modelcategory
+    if request.args(0) == 'dashboard':
+        counts = db(db.model).select(db.model.modelstate,
+                                    db.model.id.count(), groupby=db.model.modelstate)
 
-    if modelCategory not in viableOptions:
+        return dict(counts=counts, options=request.args(0))
+    else:
+        viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
         modelCategory = viableOptions[2]
+        if session.modelcategory:
+            modelCategory = session.modelcategory
 
-    counts = db(db.model.modelcategory == modelCategory).select(db.model.modelstate,
-                                 db.model.id.count(), groupby=db.model.modelstate)
+        if modelCategory not in viableOptions:
+            modelCategory = viableOptions[2]
 
-    return dict(counts=counts, options=request.args(0))
+        counts = db(db.model.modelcategory == modelCategory).select(db.model.modelstate,
+                                    db.model.id.count(), groupby=db.model.modelstate)
+
+        return dict(counts=counts, options=request.args(0))
 
 def renderdashboard():
     model_id = VerifyTableID('model', request.args(0))
+
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate this model', controller='model', title='Models')
     
-    model = db.model(model_id) if model_id else DIV("No Such Model Found")
+    model = db.model(model_id)
     
     todo_count = db((db.todo.model == model.id) &
                     (db.todo.complete == False)).count()

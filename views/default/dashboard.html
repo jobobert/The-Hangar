@@ -5,7 +5,7 @@
         {{if not models:}}
 
         <div class="col-sm-12 m-5">
-            <h3>No Models Found</h3>
+            <h4>No Models Found</h4>
             <a href="{{=URL('default', 'setui', args=[''])}}">Return to Card View</a>
         </div>
 
@@ -48,7 +48,7 @@
                 $('#list li:first-child a').tab('show')
             })
         </script>
-
+ 
         {{else:}}
         {{=LOAD('model','renderdashboard.load', args=[selected], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')), 'Getting Model Details...'))}}
         {{pass}}
@@ -65,9 +65,9 @@
                 </button>
             </div>
             <div class="modal-body">
-                {{try:}}
-                {{=LOAD('todo','newmodal.load', args=[model.id], ajax=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
-                {{except:}}
+                {{if selected != -1:}}
+                {{=LOAD('todo','newmodal.load', args=[selected], ajax=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                {{else:}}
                 No model is available to attach a todo to, sorry.
                 {{pass}}
             </div>
