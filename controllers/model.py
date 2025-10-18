@@ -76,7 +76,7 @@ def wishlist():
     elif convertform.errors:
         response.flash = "An error occurred"
 
-    list = db(db.wishlist).select()
+    list = db(db.wishlist).select(orderby=db.wishlist.item)
 
     return dict(list=list, addform=addform, convertform=convertform)
 
@@ -616,13 +616,6 @@ def retire():
             if var == "reason":
                 reason = request.vars[var]
 
-                db.activity.insert(
-                    activitydate=request.now.today(), model=model_id  # db(db.model.id == model_id)
-                    , activitytype='Retirement', notes=reason
-                )
-
-                db(db.model.id == model_id).update(modelstate=1)
-
             if "disposition" in var:
                 model_component_id = int(var.split("_")[0])
                 component_id = int(
@@ -639,6 +632,14 @@ def retire():
                 db(db.model_component.id == model_component_id).delete()
             else:
                 pass
+
+        db.activity.insert(
+            activitydate=request.now.today(), 
+            model=model_id, 
+            activitytype='Retirement', 
+            notes=reason
+        )
+        db(db.model.id == model_id).update(modelstate=1)
 
         redirect(URL('model', 'index', args=model_id))
 

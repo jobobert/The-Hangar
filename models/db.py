@@ -237,9 +237,9 @@ db.define_table('model'
                 , Field('attr_weight_oz', type='double', label='Weight', comment='The weight', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))                
                 , Field('attr_covering', type='string', label='Covering', comment='The covering type')
                 #
-                , Field('attr_plane_rem_wings', type='boolean', label='Removable Wings?', comment='Does it have removable wings?')
-                , Field('attr_plane_rem_wing_tube', type='boolean', label='Removable Wing Tube?', comment='Does it have a removable wing tube?')
-                , Field('attr_plane_rem_struts', type='boolean', label='Removable Struts?', comment='Does it have removable struts?')
+                , Field('attr_plane_rem_wings', type='boolean', notnull=True, label='Removable Wings?', comment='Does it have removable wings?')
+                , Field('attr_plane_rem_wing_tube', type='boolean', notnull=True, label='Removable Wing Tube?', comment='Does it have a removable wing tube?')
+                , Field('attr_plane_rem_struts', type='boolean', notnull=True, label='Removable Struts?', comment='Does it have removable struts?')
                 , Field('attr_plane_wingspan_mm', type='double', label='Wingspan', comment='The wingspan (in mm)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 , Field('attr_plane_wingarea', type='double', label='Wingarea', comment='The wing area (in sqin)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 , Field('attr_plane_throw_aileron', type='string', label='Aileron Throw', comment='The aileron throws')
@@ -272,11 +272,11 @@ db.define_table('model'
                 #
                 , Field('attr_scale', type='string', label='Model Scale', comment='Model scale (1:x)?')
                 #
-                , Field('haveplans', type='boolean', label='Are plans in hand?')
-                , Field('havekit', type='boolean', label='Have kit/model?')
+                , Field('haveplans', type='boolean', notnull=True, label='Are plans in hand?')
+                , Field('havekit', type='boolean', notnull=True,label='Have kit/model?')
                 , Field('configbackup', uploadseparate=True, type='upload', autodelete=True, label='Radio Config', comment='The backup of the radio/receiver configuration')
                 , Field('transmitter', type='reference transmitter', label='Transmitter', comment='Which transmitter is this model bound to?')
-                , Field('selected', type='boolean', label='Mark Selected', comment='Avoid manual changes', default=False)
+                , Field('selected', type='boolean', notnull=True, label='Mark Selected', comment='Avoid manual changes', default=False)
                 , Field('subjecttype', type='string', label='Model Subject', comment='Is this a scale model?')
                 , Field('final_disposition', type='string', label='Final Disposition', comment='How to liquidate the fleet')
                 , Field('final_value', type='double', label='Reasonable Value', comment='A reasonable value for the model')
@@ -608,9 +608,9 @@ db.define_table('component',
                 Field('attr_weight_oz', type='double', label='Weight', comment='The weight', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),               
                 #
                 Field('attr_channel_count', type='integer', label='Channel Count', comment='Number of channels', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
-                Field('attr_telemetry_port', type='boolean', label='Telemetry Port', comment='This component has a telemetry port'),
-                Field('attr_sbus_port', type='boolean', label='SBUS Port', comment='This component has an SBUS port'),
-                Field('attr_pwr_port', type='boolean', label='Power Port', comment='This component has an power port'),
+                Field('attr_telemetry_port', type='boolean', notnull=True, label='Telemetry Port', comment='This component has a telemetry port'),
+                Field('attr_sbus_port', type='boolean', notnull=True, label='SBUS Port', comment='This component has an SBUS port'),
+                Field('attr_pwr_port', type='boolean', notnull=True, label='Power Port', comment='This component has an power port'),
                 Field('attr_protocol', type='reference protocol', label='Protocol', comment='The radio protocol used by this model'),
                 Field('attr_gear_type', type='string', label='Gear Type', comment='The material the gears are made of'),
                 Field('attr_amps_in', type='double', label='Rated Amps In', comment='The rated input amps'),
@@ -1121,7 +1121,8 @@ if db(db.tag.id > 0).count() == 0:
 
 # set any empty modelcategory to 'Remote Control'
 #db(db.model.modelcategory == None).update(modelcategory='Remote Control')
-
+#db(db.model.havekit == None).update(havekit=False)
+#db(db.model.haveplans == None).update(haveplans=False)
 
 # -------------------------------------------------------------------------
 # after defining tables, uncomment below to enable auditing
