@@ -178,10 +178,10 @@ def switch_icon(switchitem: str, size: int):
 
     return show_icon(folder + switchitem + '.png', 32)
 
-def action_icon(action: str, size:int):
+def action_icon(action: str, size:int, alt:str=None):
     folder = 'action/'
-
-    return show_icon(folder + action.lower() + '.png', size, action)
+    
+    return show_icon(folder + action.lower() + '.png', size, alt if alt else action)
 
 def activity_icon(activity:str, size:int):
     folder = 'activity/'
@@ -292,9 +292,9 @@ def show_icon(iconname:str, size:int=0, alt:str="icon"):
         #return iconname
 
     if size > 0:
-        return IMG(_src=URL('static', thename), _alt=alt, _width=str(size) + 'px', _height=str(size) + 'px')
+        return IMG(_src=URL('static', thename), _alt=alt, _title=alt, _width=str(size) + 'px', _height=str(size) + 'px')
     
-    return IMG(_src=URL('static', thename), _alt=alt)
+    return IMG(_src=URL('static', thename), _alt=alt, _title=alt)
     
 ############################################
 ## UTILITIES
