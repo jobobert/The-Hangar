@@ -161,21 +161,13 @@ db.define_table('tag',
 
 db.define_table('article'
                 , Field('name', type='string', label='Name', required=True, unique=True)
-                #
                 , Field('articletype', type='string', label='Type', comment='The type')
-                #
                 , Field('img', uploadseparate=True, type='upload', autodelete=True, label='Image', comment='Cover Image (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img])))
-                #
                 , Field('summary', type='string', label='Summary', required=False, unique=False)
-                #
                 , Field('notes', type='text', label='Content', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes))
-                #
                 , Field('author', type='string', label='Author', required=False, unique=False)
-                #
                 , Field('articlesource', type='string', label='Source', comment='Where did it come from?')
-                #
                 , Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='More info')
-                #
                 , Field('tags', type='list:reference tag')
                 )
 
@@ -216,8 +208,6 @@ db.define_table('transmitter',
                 )
 
 db.transmitter.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
-
-
 
 
 ###############################################
@@ -356,8 +346,8 @@ db.model.search = Field.Method(
 db.model.search.label = 'Search'
 
 def get_motor_component(model_id):
-    components = models_and_components(db.model.id == model_id)  # .select()
-    # return components
+    components = models_and_components(db.model.id == model_id) 
+    
     ret = None
     for c in components.select():
         if c.component.componenttype == 'Motor':
@@ -370,8 +360,8 @@ db.model.get_motor = Field.Method(
 db.model.get_motor.label = 'Motor'
 
 def get_receiver_component(model_id):
-    components = models_and_components(db.model.id == model_id)  # .select()
-    # return components
+    components = models_and_components(db.model.id == model_id)
+
     for c in components.select():
         if c.component.componenttype == 'Receiver':
             return c.model_component.component
@@ -383,7 +373,6 @@ db.model.get_receiver.label = 'Receiver'
 def has_radio_backup(model_id):
     model = db(db.model.id == model_id).select().first()
 
-    # if model.get_receiver() != None:
     if model.transmitter != None:
         if model.configbackup != None:
             if len(model.configbackup) > 0:
@@ -657,7 +646,7 @@ db.component.get_remainingcount = Field.Method(
 db.component.get_remainingcount.label = 'Remaining Count'
 
 db.component.showAttachmentPopup = Field.Method(
-    lambda row: AttachPopup(row.component.attachment)  # AttachPopup(row.name)
+    lambda row: AttachPopup(row.component.attachment) 
 )
 db.component.showAttachmentPopup.label = 'Attachment'
 
@@ -861,9 +850,6 @@ db.define_table('eflite_time',
                 Field('watts', type='double', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'), required=True)
                 )
 
-#db.eflite_time.model.requires = IS_NOT_EMPTY()
-#db.eflite_time.motor.requires = IS_NOT_EMPTY()
-#db.eflite_time.battery.requires = IS_NOT_EMPTY()
 db.eflite_time.amps.requires = IS_NOT_EMPTY()
 db.eflite_time.watts.requires = IS_NOT_EMPTY()
 
@@ -895,7 +881,7 @@ db.eflite_time.is_overrating.label = 'Is Overrating'
 
 db.define_table('supportitem', 
                 Field('item', type='string', Label='Support Item'), 
-                Field('model', type='reference model'), 
+                Field('model', type='reference model', label='Model'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
                 Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the support item (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), 
                 format=lambda row: row.item

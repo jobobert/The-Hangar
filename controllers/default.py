@@ -58,12 +58,15 @@ def find_unreferenced_uploads():
             if z == "Remove":
                 del_id = int(y)
                 #message=del_id
-                fname = unreferenced_files.get(del_id, -1)
-                if fname != -1:
+                fname = unreferenced_files.get(del_id)
+                if fname is not None:
                     fullfilename = uploaded_files_fullpath[fname]
-                    os.remove(fullfilename)
-                    del unreferenced_files[del_id]
-                    response.flash = "Removal Success"
+                    try:
+                        os.remove(fullfilename)
+                        del unreferenced_files[del_id]
+                        response.flash = "Removal Success"
+                    except (OSError, PermissionError) as e:
+                        response.flash = f'Failed to remove file: {str(e)}'
                 else:
                     response.flash = "Unknown File Requested"
     elif deleteform.errors:

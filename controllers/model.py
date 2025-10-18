@@ -770,3 +770,4 @@ def updatemodelpaint():
     response.view = 'content.html'
 
     return dict(content=form, header=response.title)
+
