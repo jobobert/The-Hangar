@@ -21,11 +21,11 @@ No Todos
             <div class="col-sm-2">
                 <label class="form-check-label" for="todo_critical" id="todo_critical__label">
                     <input class="form-check-input boolean" id="todo_critical" name="critical" type="checkbox" value="on" />
-                    Critical
+                    {{=db.todo.critical.label}}
                 </label>
             </div>
             <div>
-                <input type="submit" class="btn btn-primary" />
+                <input type="submit" value="Add" class="btn btn-default" />
             </div>
             <input type="hidden" name="_formname" value="todoform" />
             <input type="hidden" name="model" value="{{=model_id}}" />
@@ -34,6 +34,7 @@ No Todos
 </div>
 
 {{else:}}
+<!-- Not the dashboard view -->
 <div class="card">
     <div class="card-header">
         <h5 class="card-title"><span class="card-icon">{{=controller_icon('todo', 25)}}</span>{{=todo_count}} Todos</h5>
@@ -43,7 +44,7 @@ No Todos
         {{for todo in todos:}}
         <div class="row  border-top mt-1 mb-1 pt-1">
             <!-- The text needs to link to the details (same card, popover?) 
-                The complete button just needs to complete it and reload the list -->
+                        The complete button just needs to complete it and reload the list -->
             <div class="col"><a href="{{=URL('todo', 'update.html', args=[todo.id])}}"><span class="{{='todo_critical' if todo.critical == True else ''}}">{{=todo.todo}}</span></a></div>
             <div class="col-2">
                 <!--<a class="btn btn-primary" href="{{=URL('todo','complete',args=[model_id,todo.id])}}">Done</a>-->
@@ -62,7 +63,7 @@ No Todos
                 <div class="col-sm-2">
                     <label class="form-check-label" for="todo_critical" id="todo_critical__label">
                         <input class="form-check-input boolean" id="todo_critical" name="critical" type="checkbox" value="on">
-                        Critical
+                        {{=db.todo.critical.label}}
                     </label>
                 </div>
                 <div class="col-sm-3">

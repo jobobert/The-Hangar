@@ -107,27 +107,28 @@ def index():
     queries = []
 
     wasFormUsed = False
-
-    # Setting up the model category.
-    # Step 1: set default
-    # Step 2: check the URL
-    # Step 3: check the session
-    # Step 4: verify or set to known state
-    # Step 5: do the filtering
-    viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
-    modelCategory = viableOptions[2]
-
-    if session.modelcategory:
-        modelCategory = session.modelcategory
-
-    if request.vars['c']:
-        modelCategory = request.vars['c'] 
-
-    if modelCategory not in viableOptions:
+    modelCategory = None
+    if request.cookies['ui'].value != 'dashboard':
+        # Setting up the model category.
+        # Step 1: set default
+        # Step 2: check the URL
+        # Step 3: check the session
+        # Step 4: verify or set to known state
+        # Step 5: do the filtering
+        viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
         modelCategory = viableOptions[2]
 
-    session.modelcategory = modelCategory
-    queries.append(db.model.modelcategory == modelCategory)
+        if session.modelcategory:
+            modelCategory = session.modelcategory
+
+        if request.vars['c']:
+            modelCategory = request.vars['c'] 
+
+        if modelCategory not in viableOptions:
+            modelCategory = viableOptions[2]
+
+        session.modelcategory = modelCategory
+        queries.append(db.model.modelcategory == modelCategory)
 
     for s in states:
         the_filters[s.name] = ''

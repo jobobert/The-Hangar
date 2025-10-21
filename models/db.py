@@ -761,7 +761,7 @@ db.define_table('tool',
                 )
 
 db.tool.tooltype.requires = IS_IN_SET(
-    ('Hand Tool', 'Fuel Tool', 'Power Tool', 'Electric Tool', 'Radio'), sort=True)
+    ('Hand Tool', 'Fuel Tool', 'Power Tool', 'Electric Tool', 'Other'), sort=True)
 db.tool.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 
 db.tool.notes.format = lambda tool: MARMIN(tool.notes)

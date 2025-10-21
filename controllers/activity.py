@@ -159,7 +159,6 @@ def renderactivities():
 
     return dict(activities=activities)
 
-
 def rendernotes():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
@@ -171,18 +170,20 @@ def rendernotes():
 
     fields = (db.activity.notes)
 
-    form = SQLFORM(db.activity, submit_button='Add')  # , fields=fields)
+    form = SQLFORM(db.activity, submit_button='Add')
+    for s in form.elements('input', _type='text'):
+        s['_autocomplete'] = 'off'
     form.vars.model = model_id
-    form.vars.activitytype = 'Note'
+    form.vars.activitytype = "Note"
     form.vars.activitydate = request.now
     if form.process(session=None, formname='noteform').accepted:
         response.flash = "New Note Added"
     elif form.errors:
-        response.flash = "Error Adding New Note " + form.errors
+        response.flash = "Error Adding New Note " + str(form.errors)
 
     activities = activity_query.select(orderby=~db.activity.activitydate)
 
-    return dict(form=form, notes=activities, model_id=model_id, options=request.args(1))
+    return dict(notes=activities, model_id=model_id, options=request.args(1))
 
 
 def addflight():

@@ -11,9 +11,7 @@ Your submitted form contains the following errors:
 {{pass}}
 
 {{=form.custom.begin}}
-<div class="row bg-light fixed-bottom pl-5 p-2">
-    {{=form.custom.submit}}
-</div>
+
 <div class="update-page">
     <div class="row">
         <h2 class="">{{=controller_icon('tool', 48)}} Tool</h2>
@@ -34,7 +32,20 @@ Your submitted form contains the following errors:
         {{=makeFormField(form, "attachment", FormFieldType.COLUMNS)}}
 
     </div>
+    <div class="row">
+        
+    </div>
 </div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    <div class="d-inline-block">{{=form.custom.submit}}</div>
+    <div class="d-inline-block ml-4">Delete</div>
+    <div class="d-inline-block ml-5">{{=form.custom.delete}}</div>
+    
+</div>
+
+
+
 
 
 {{=form.custom.end}}

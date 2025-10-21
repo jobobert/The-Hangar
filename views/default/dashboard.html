@@ -16,7 +16,7 @@
             </li>
             {{for model in models:}}
             <li class="dashboard-list list-group-item modelstate_border-left_{{=model.modelstate}} {{=' dashboard-highlight' if int(model.id) == int(selected) else ''}}">
-                <a href="{{=URL('default', 'index',args=model.id)}}">
+                <a href="{{=URL('default', 'index', args=model.id)}}">
                     <img src="{{=URL('default', 'download', args=model.img)}}" style="max-width: 48px; max-height: 48px;" />
                     {{=model.name}}</a>
             </li>
@@ -39,8 +39,8 @@
         <div class="row">
             {{=LOAD('activity', 'calendar.load')}}
         </div>
-        <div class="row">
-            {{=LOAD('todo','renderlist.load', args=['dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')), 'Loading Todos'))}}
+        <div class="row" id="todorow">
+            {{=LOAD('todo','renderlist.load', args=['dashboard'], ajax_trap=True, target='todorow', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')), 'Loading Todos'))}}
         </div>
 
         <script>

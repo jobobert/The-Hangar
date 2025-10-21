@@ -45,7 +45,7 @@
                         <div id="tdescription" class="tab-pane">
                             {{if model.transmitter:}}
                             <div class="mb-3 p-1 bg-light">
-                                <b>Transmitter:</b> {{=model.transmitter.nickname or model.transmitter.name}} 
+                                <b>Transmitter:</b> {{=model.transmitter.nickname or model.transmitter.name}}
                                 {{if model.protocol:}}
                                 <b> / </b> {{=model.protocol.name}}
                                 {{pass}}
@@ -54,10 +54,10 @@
                             {{=MARKMIN(model.notes)}}
                         </div>
                         <div id="tnotes" class="tab-pane active">
-                            {{=LOAD('activity','rendernotes.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Reading Notes...'))}}
+                            {{=LOAD('activity','rendernotes.load', args=[model.id, 'dashboard'], ajax_trap=True, target='tnotes_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Reading Notes...'))}}
                         </div>
                         <div id="ttodos" class="tab-pane">
-                            {{=LOAD('todo', 'rendercard.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Loading Todos...'))}}
+                            {{=LOAD('todo',    'rendercard.load',  args=[model.id, 'dashboard'], ajax_trap=True, target='ttodos_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Loading Todos...'))}}
                         </div>
                         <div id="tattributes" class="tab-pane attribute-list">
                             <dl>
@@ -87,115 +87,33 @@
                         </div>
                         {{if options["component"] > 0:}}
                         <div id="tcomponents" class="tab-pane">
-                            {{=LOAD('component','rendercard.load', args=[model.id, 'dashboard'], ajax=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                            {{=LOAD('component','rendercard.load', args=[model.id, 'dashboard'], ajax=True, target='tcomponents_inner', content=IMG(_src=URL('static', 'images/waiting.gif')))}}
                         </div>
                         {{pass}}
                         {{if options["tool"] > 0:}}
                         <div id="ttools" class="tab-pane">
-                            {{=LOAD('tool','rendercard.load', args=[model.id, 'dashboard'], ajax=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                            {{=LOAD('tool','rendercard.load', args=[model.id, 'dashboard'], ajax=True, target='ttools_inner', content=IMG(_src=URL('static', 'images/waiting.gif')))}}
                         </div>
                         {{pass}}
                         {{if options["attachment"] > 0:}}
                         <div id="tattachments" class="tab-pane">
-                            {{=LOAD('attachment','rendercard.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
+                            {{=LOAD('attachment','rendercard.load', args=[model.id, 'dashboard'], ajax_trap=True, target='tattachments_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
                         </div>
                         {{pass}}
                         {{if options["switch"] > 0:}}
                         <div id="tswitches" class="tab-pane">
-                            {{=LOAD('switch','renderswitchtable.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
+                            {{=LOAD('switch','renderswitchtable.load', args=[model.id, 'dashboard'], ajax_trap=True, target='tswitches_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
                         </div>
                         {{pass}}
                         {{if model.diagram:}}
                         <div id="tdiagram" class="tab-pane">
-                            {{=LOAD('diagram','rendermodeldiagram.load', args=[model.id, 'dashboard'], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+                            {{=LOAD('diagram','rendermodeldiagram.load', args=[model.id, 'dashboard'], ajax_trap=True, target='tdiagram_inner', content=DIV(IMG(_src=URL('static',
                             'images/waiting.gif')), "Wiring Diagram"))}}
                         </div>
                         {{pass}}
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="modal_details" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
-    <div class="modal-dialog" role="document" style="max-width: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Tools</h5>
-            </div>
-            <div class="modal-body">
-                {{=details_form}}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="newnote" tabindex="-1" role="dialog" aria-labelledby="newNoteLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="newNoteLabel">New Note/Activity</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                {{=note_form}}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="newtodo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Add Todo</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                XXXXX
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- <div>Tab: <script>document.write(sessionStorage.getItem("clicked"))</script></div> -->
-
-<script>
-    //$(function () {
-    //    $('#list li:first-child a').tab('show')
-    //});
-
-    //var clickedId = '';
-
-    //$('#tab-list li a').click(function () {
-    //    sessionStorage.setItem("clicked", $(this).attr('id'));
-    //});
-
-    //if (sessionStorage.getItem("clicked") != null){
-    //    clickedId = sessionStorage.getItem("clicked");
-    //}
-    //else{
-    //    sessionStorage.setItem('tabdesc', $(this).attr('id'));
-    //    clickedId = 'tabdesc';
-    //}
-
-    //$(function(){
-    //    $('#'+clickedId).tab('show')
-    //});
-
-</script>

@@ -21,8 +21,7 @@ def renderlist():
 
 
 def rendercard():
-
-    model_id = -1
+    model_id = None
     todo_query = db(db.todo.complete == False)
     
     if request.args:
@@ -40,7 +39,7 @@ def rendercard():
     if form.process(session=None, formname='todoform').accepted:
         response.flash = "New Todo Added"
     elif form.errors:
-        response.flash = "Error Adding New Todo"
+        response.flash = "Error Adding New Todo " + str(form.errors)
 
     del_id = 0
     completeform = SQLFORM.factory()
@@ -50,15 +49,14 @@ def rendercard():
                 del_id = y
                 db(db.todo.id == del_id).update(complete=True)
                 response.flash = "Todo Completed"
-                #response.flash = str(del_id) + " Removal Success"
     elif completeform.errors:
-        response.flash = "Todo Completion Failure"
+        response.flash = "Todo Completion Failure " + str(completeform.errors)
 
     todos = todo_query.select()
 
     return dict(todos=todos, model_id=model_id, todo_count=todo_count, options=request.args(1), completeform=completeform)
 
-
+ 
 def complete():
     # try to do this via ajax sometime...
 
