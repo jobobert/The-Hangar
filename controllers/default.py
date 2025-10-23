@@ -283,7 +283,7 @@ def index():
     if selected == None:
         selected = -1
 
-    print(f'selected = {selected}')
+    #print(f'selected = {selected}')
 
     if 'ui' in request.cookies:
         if request.cookies['ui'].value == 'dashboard':
@@ -483,3 +483,25 @@ def editfinal_render():
         response.flash = "Error Setting Disposition"
 
     return dict(form=form, model=model)
+
+def inventory():
+
+    response.title = 'Component Inventory'
+    session.ReturnHere = URL(
+        args=request.args, vars=request.get_vars, host=True)
+
+    components = db(db.component).select(orderby=db.component.componenttype | db.component.name)
+    propellers = db(db.propeller).select(orderby=db.propeller.item, distinct=True)
+
+    hardware = db(db.hardware).select(orderby=db.hardware.hardwaretype | db.hardware.diameter | db.hardware.length_mm)
+    unique_formatted_values = set()
+    unique_hardware = []
+    for row in hardware:
+        value = f'{row.hardwaretype}_{row.diameter}_{row.length_mm}'
+        if value not in unique_formatted_values:
+            unique_formatted_values.add(value)
+            unique_hardware.append(row)
+
+    batteries = db(db.battery).select(orderby=db.battery.chemistry | db.battery.cellcount | db.battery.mah | db.battery.crating)
+
+    return dict(components=components, propellers=propellers, hardware=unique_hardware, batteries=batteries)

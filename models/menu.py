@@ -15,8 +15,8 @@ response.menu = [
     (T('Calendar'), False, URL('activity', 'calendar'), []),
     (T('Library'), False, URL('library', 'index'), []),
     (T('Activity'), False, '#', [
-        (DIV(controller_icon('packingitem', icon_size), ' Pack'         ), False, URL('packinglist', 'select')),
-        (DIV(controller_icon('component',   icon_size), ' Inventory'   ), False, URL('component', 'inventory')),
+        (DIV(controller_icon('packingitem', icon_size), ' Pack'        ), False, URL('packinglist', 'select')),
+        (DIV(controller_icon('component',   icon_size), ' Inventory'   ), False, URL('default', 'inventory')),
     ]),
     (T('List'), False, '#', [
         (DIV(controller_icon('model',       icon_size), ' Model'       ), False, URL('model', 'listview')),
@@ -35,7 +35,7 @@ response.menu = [
         (DIV(controller_icon('packingitem', icon_size), ' Packing Item'), False, URL('packinglist', 'listview')),
         (DIV(controller_icon('protocol',    icon_size), ' Protocol'    ), False, URL('protocol', 'listview')),
         (DIV(controller_icon('image',       icon_size), ' Images'      ), False, URL('image', 'index')),
-        (DIV(controller_icon('tag',         icon_size), ' Tags'         ), False, URL('tag', 'listview')),
+        (DIV(controller_icon('tag',         icon_size), ' Tags'        ), False, URL('tag', 'listview')),
         (DIV(controller_icon('activity',    icon_size), ' Activity'    ), False, URL('activity', 'listview')),
         (DIV(controller_icon('todo',        icon_size), ' Todo'        ), False, URL('todo', 'listview')),
     ]),

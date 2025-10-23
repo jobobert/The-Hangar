@@ -25,6 +25,13 @@ def splitColumn(size:int):
         half = size // 2
         return (half + 1, half)
 
+def makeFormDeleteButton(form):
+    if form.custom.delete:
+        form.custom.delete['_class'] += ' th-delete-checkbox-button'
+        return DIV(XML('<label for="delete_record" class="th-delete-checkbox-button-label">Delete</label>'), form.custom.delete, _class='d-inline-block ml-2')
+    else:
+        return ''
+
 def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0, fieldid:str = "", divClass:str = ""):
     table = form.table
     field = db[table][fieldname]

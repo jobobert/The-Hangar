@@ -1021,7 +1021,7 @@ db.define_table('hardware',
                 Field('length_mm', type='double', label='Length', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
                 Field('purpose', type='string', label='Purpose'),
                 Field('quantity', type='integer', label='Quantity', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
-                format=lambda row: row.type + " : " + row.size
+                format=lambda row: row.hardwaretype + " : " + row.diameter + " x " + row.length_mm
                 )
 db.hardware.length_mm.extra = {'measurement': 'mm'}
 

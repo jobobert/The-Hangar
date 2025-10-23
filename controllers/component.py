@@ -296,15 +296,7 @@ def updatemodelrelation():
 
     return dict(content=form, header=header)
 
-def inventory():
 
-    response.title = 'Component Inventory'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
-    components = db(db.component).select(orderby=db.component.componenttype | db.component.name)
-
-    return dict(components=components)
 
 def delete():
     component_id = VerifyTableID('component', request.args(0)) or redirect(URL('component', 'listview'))

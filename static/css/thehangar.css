@@ -949,12 +949,45 @@ div.index-page h3 {
     margin-bottom: 2rem;
 }
 
-.th-listview-header{
+.th-listview-header {
     background-color: #d9dad8;
     font-weight: bold;
 }
 
-.th-listview-subheader{
+.th-listview-subheader {
     background-color: #c2c1c1;
     font-weight: normal;
+}
+
+.th-delete-checkbox-button {
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+.th-delete-checkbox-button-label {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #ff1100be;
+    color: white;
+    border-radius: .25rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.th-delete-checkbox-button:checked+.th-delete-checkbox-button-label {
+    background-color: #28a745;
+    /* Color when checked */
+}
+
+.th-delete-checkbox-button-label:hover {
+    background-color: #b36500;
+    /* Darker on hover */
+}
+
+.th-delete-checkbox-button:checked+.th-delete-checkbox-button-label:hover {
+    background-color: #218838;
+    /* Darker on hover when checked */
 }

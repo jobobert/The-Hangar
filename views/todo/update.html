@@ -11,9 +11,7 @@ Your submitted form contains the following errors:
 {{pass}}
 
 {{=form.custom.begin}}
-<div class="row bg-light fixed-bottom pl-5 p-2">
-    {{=form.custom.submit}}
-</div>
+
 <div class="update-page">
     <div class="row">
         <h2 class="">{{=controller_icon('todo', 48)}} Todo</h2>
@@ -32,4 +30,10 @@ Your submitted form contains the following errors:
     </div>
 
 </div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=form.custom.submit}}
+    {{=makeFormDeleteButton(form)}}
+</div>
+
 {{=form.custom.end}}

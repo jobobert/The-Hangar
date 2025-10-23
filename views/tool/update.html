@@ -33,19 +33,15 @@ Your submitted form contains the following errors:
 
     </div>
     <div class="row">
-        
+
     </div>
 </div>
 
 <div class="row bg-light fixed-bottom pl-5 p-2">
     <div class="d-inline-block">{{=form.custom.submit}}</div>
-    <div class="d-inline-block ml-4">Delete</div>
-    <div class="d-inline-block ml-5">{{=form.custom.delete}}</div>
-    
+
+    {{=makeFormDeleteButton(form)}}
 </div>
-
-
-
 
 
 {{=form.custom.end}}
