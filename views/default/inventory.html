@@ -1,0 +1,139 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>Inventory</h2>
+    </div>
+</div>
+
+{{if components:}}
+<h3>Components</h3>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">&nbsp;</th>
+            <th scope="col">Type</th>
+            <th scope="col">Image</th>
+            <th scope="col">Name</th>
+            <th scope="col">Location</th>
+            <th scope="col">Remaining</th>
+            <th scope="col" class="d-print-none">Action</th>
+            <th scope="col">Actual</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for comp in components:}}
+        <tr>
+            <td><input type="checkbox" class="form-check-input" name="comp_{{=comp.id}}" value="{{=comp.id}}"></td>
+            <td>{{=comp.componenttype}} {{if comp.componentsubtype:}}({{=comp.componentsubtype}}){{pass}}</td>
+            <td><img class="" style="max-width: 100px;" src="{{=URL('default', 'download', args=comp.img)}}" alt="Card image cap"></td>
+            <td><a href="{{=URL('component', 'index', args=comp.id)}}">{{=comp.name}}</a></td>
+            <td>{{if comp.storedat:}}{{=comp.storedat}}{{else:}}Unknown{{pass}}</td>
+            <td>{{=comp.get_remainingcount()}}</td>
+            <td class="d-print-none">
+                {{=plusButton('component', 'addcount', comp.id)}}
+                {{=minusButton('component', 'subractcount', comp.id)}}
+            </td>
+            <td><input type="text" class="form-control" name="actual_{{=comp.id}}"></td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+{{else:}}
+No components found.
+{{pass}}
+
+{{if propellers:}}
+
+<h3>Propellers</h3>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">&nbsp;</th>
+            <th scope="col">Propeller</th>
+            <th scope="col">Actual</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for propeller in propellers:}}
+        <tr>
+            <td><input type="checkbox" class="form-check-input" name="propeller_{{=propeller.id}}" value="{{=propeller.id}}"></td>
+            <td>{{=propeller.item}}</td>
+            <td><input type="text" class="form-control" name="actual_propeller_{{=propeller.id}}"></td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+
+{{else:}}
+No propellers found.
+{{pass}}
+
+{{if hardware:}}
+
+<h3>Hardware</h3>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">&nbsp;</th>
+            <th scope="col">Type</th>
+            <th scope="col">Diameter</th>
+            <th scope="col">Length</th>
+            <th scope="col">Actual</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for hware in hardware:}}
+        <tr>
+            <td><input type="checkbox" class="form-check-input" name="hardware_{{=hware.id}}" value="{{=hware.id}}"></td>
+            <td>{{=hware.hardwaretype}}</td>
+            <td>{{=hware.diameter}}</td>
+            <td>{{=hware.length_mm}}</td>
+            <td><input type="text" class="form-control" name="actual_hardware_{{=hware.id}}"></td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+
+{{else:}}
+No hardware found.
+{{pass}}
+
+{{if batteries:}}
+
+<h3>Batteries</h3>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">&nbsp;</th>
+            <th scope="col">Chemistry</th>
+            <th scope="col">Cell Count</th>
+            <th scope="col">MAh</th>
+            <th scope="col">C Rating</th>
+            <th scope="col">Owned</th>
+            <th scope="col" class="d-print-none">Action</th>
+            <th scope="col">Actual</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for battery in batteries:}}
+        <tr>
+            <td><input type="checkbox" class="form-check-input" name="battery_{{=battery.id}}" value="{{=battery.id}}"></td>
+            <td>{{=battery.chemistry}}</td>
+            <td>{{=battery.cellcount}}</td>
+            <td>{{=battery.mah}}</td>
+            <td>{{=battery.crating}}</td>
+            <td>{{=battery.ownedcount}}</td>
+            <td class="d-print-none">
+                {{=plusButton('battery', 'addcount', battery.id)}}
+                {{=minusButton('battery', 'subractcount', battery.id)}}
+            </td>
+            <td><input type="text" class="form-control" name="actual_battery_{{=battery.id}}"></td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+
+{{else:}}
+No batteries found.
+{{pass}}
