@@ -16,12 +16,12 @@ def rendercard():
         response.flash = "Error Adding New Activity "
     activity_query = db(db.activity.model == model_id)
 
-    activity_count = activity_query.count()
+    get_activitycount = activity_query.count()
 
     activities = activity_query.select(
         orderby=~db.activity.activitydate | ~db.activity.id)
 
-    return dict(activities=activities, model_id=model_id, activity_count=activity_count, form=form)
+    return dict(activities=activities, model_id=model_id, get_activitycount=get_activitycount, form=form)
 
 
 def calendar():

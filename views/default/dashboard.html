@@ -11,7 +11,9 @@
 
         {{else:}}
         <ul class="list-group">
-            <li class="list-group-item"><a href="{{=URL('default', 'index')}}">Overview</a> /
+            <li class="list-group-item">
+                <a href="{{=URL('default', 'index')}}">Overview</a>
+                 |
                 <a href="{{=URL('default', 'setui', args=[''])}}">Cards</a>
             </li>
             {{for model in models:}}
@@ -75,19 +77,19 @@
                             <ul id="tab-list" class="nav nav-pills mt-3 border-bottom">
                                 <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabdesc" href="#tdescription">Description</a></li>
                                 <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabattr" href="#tattributes">Attributes</a></li>
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabnote" href="#tnotes">{{=selectedmodel.notecount()}} Notes</a></li>
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtodo" href="#ttodos">{{=selectedmodel.opentodocount()}} Todos</a></li>
-                                {{if selectedmodel.componentcount() > 0:}}
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabcomp" href="#tcomponents">{{=selectedmodel.componentcount()}} Components</a></li>
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabnote" href="#tnotes">{{=selectedmodel.get_notecount()}} Notes</a></li>
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtodo" href="#ttodos">{{=selectedmodel.get_opentodocount()}} Todos</a></li>
+                                {{if selectedmodel.get_componentcount() > 0:}}
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabcomp" href="#tcomponents">{{=selectedmodel.get_componentcount()}} Components</a></li>
                                 {{pass}}
-                                {{if selectedmodel.toolcount() > 0:}}
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtool" href="#ttools">{{=selectedmodel.toolcount()}} Tools</a></li>
+                                {{if selectedmodel.get_toolcount() > 0:}}
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtool" href="#ttools">{{=selectedmodel.get_toolcount()}} Tools</a></li>
                                 {{pass}}
-                                {{if selectedmodel.attachmentcount() > 0:}}
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabatta" href="#tattachments">{{=selectedmodel.attachmentcount()}} Attachments</a></li>
+                                {{if selectedmodel.get_attachmentcount() > 0:}}
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabatta" href="#tattachments">{{=selectedmodel.get_attachmentcount()}} Attachments</a></li>
                                 {{pass}}
-                                {{if selectedmodel.switchcount() > 0:}}
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabswit" href="#tswitches">{{=selectedmodel.switchcount()}} Switches</a></li>
+                                {{if selectedmodel.get_switchcount() > 0:}}
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabswit" href="#tswitches">{{=selectedmodel.get_switchcount()}} Switches</a></li>
                                 {{pass}}
                                 {{if selectedmodel.diagram:}}
                                 <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabdiag" href="#tdiagram">Diagram</a></li>
@@ -125,7 +127,7 @@
                                         {{if key.startswith('attr_plane_') and selectedmodel.modeltype != 'Airplane' :}}{{c="model_attr_light"}}
                                         {{elif key.startswith('attr_rocket_') and selectedmodel.modeltype != 'Rocket':}}{{c="model_attr_light"}}
                                         {{elif key.startswith('attr_boat_') and selectedmodel.modeltype != 'Boat':}}{{c="model_attr_light"}}
-                                        {{elif key.startswith('attr_copter_') and (selectedmodel.modeltype != 'Helicopter' and model.modeltype != 'Autogyro') :}}{{c="model_attr_light"}}
+                                        {{elif key.startswith('attr_copter_') and (selectedmodel.modeltype != 'Helicopter' and selectedmodel.modeltype != 'Autogyro') :}}{{c="model_attr_light"}}
                                         {{elif key.startswith('attr_multi_') and selectedmodel.modeltype != 'Multirotor' :}}{{c="model_attr_light"}}
                                         {{elif key.startswith('attr_robot_') and selectedmodel.modeltype != 'Robot' :}}{{c="model_attr_light"}}
                                         {{elif key.startswith('attr_experimental_') and selectedmodel.modeltype != 'Experimental' :}}{{c="model_attr_light"}}
@@ -138,22 +140,22 @@
                                         {{pass}}
                                     </dl>
                                 </div>
-                                {{if selectedmodel.componentcount() > 0:}}
+                                {{if selectedmodel.get_componentcount() > 0:}}
                                 <div id="tcomponents" class="tab-pane">
                                     {{=LOAD('component','rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax=True, target='tcomponents_inner', content=IMG(_src=URL('static', 'images/waiting.gif')))}}
                                 </div>
                                 {{pass}}
-                                {{if selectedmodel.toolcount() > 0:}}
+                                {{if selectedmodel.get_toolcount() > 0:}}
                                 <div id="ttools" class="tab-pane">
                                     {{=LOAD('tool','rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax=True, target='ttools_inner', content=IMG(_src=URL('static', 'images/waiting.gif')))}}
                                 </div>
                                 {{pass}}
-                                {{if selectedmodel.attachmentcount() > 0:}}
+                                {{if selectedmodel.get_attachmentcount() > 0:}}
                                 <div id="tattachments" class="tab-pane">
                                     {{=LOAD('attachment','rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='tattachments_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
                                 </div>
                                 {{pass}}
-                                {{if selectedmodel.switchcount() > 0:}}
+                                {{if selectedmodel.get_switchcount() > 0:}}
                                 <div id="tswitches" class="tab-pane">
                                     {{=LOAD('switch','renderswitchtable.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='tswitches_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
                                 </div>
@@ -186,7 +188,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                {{if selected != -1:}}
+                {{if selectedmodel:}}
                 {{=LOAD('todo','newmodal.load', args=[selectedmodel.id], ajax=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
                 {{else:}}
                 No model is available to attach a todo to, sorry.

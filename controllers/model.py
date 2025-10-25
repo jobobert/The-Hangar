@@ -267,7 +267,7 @@ def renderhass():
                     _style="overflow: auto;"
                 ),
                 DIV(
-                    H6(model.opentodocount(), " Todos | ", model.activity_count(), " Activities",
+                    H6(model.get_opentodocount(), " Todos | ", model.get_activitycount(), " Activities",
                        _style="color: #789f8a; background-color: #0a373a; padding-left: 1em;"),
                     UL(*[LI(x.todo) for x in todos]),
                     _style="display:block; float:clear; "
@@ -690,7 +690,7 @@ def atthefield():
     fields = (db.model.img, db.model.name)
 
     links = [
-        dict(header='Count', body=lambda row: row.activity_flightcount()),
+        dict(header='Count', body=lambda row: row.get_flightcount()),
         lambda row: A('+1', _href=URL('activity', 'addflight', args=[row.id]), _class='btn btn-primary'),
         lambda row: A(activity_icon('crash', 20), _href=URL('activity', 'addcrash', args=[row.id]), _class='btn btn-outline-danger'),
         lambda row: A(controller_icon('model', 20), _href=URL('model', 'index', args=[ row.id]), _class="btn btn-outline-secondary")

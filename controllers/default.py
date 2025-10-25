@@ -278,12 +278,13 @@ def index():
     models = db(query).select(db.model.ALL, orderby=db.model.name)
 
     selected = None
+    selectedModel = None
     if request.args:
         selected = VerifyTableID('model', request.args(0))
         if selected:
             selectedmodel = db(db.model.id == selected).select().first()
             
-    if selected == None:
+    if selected is None:
         selected = -1
         selectedmodel = None
 

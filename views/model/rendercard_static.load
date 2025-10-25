@@ -39,10 +39,10 @@
         </div>
     </div>
     <div class="card-footer">
-        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.opentodocount()}}</span><span>{{=controller_icon('todo', 20)}}</span></div>
+        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.get_opentodocount()}}</span><span>{{=controller_icon('todo', 20)}}</span></div>
         <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.activity.count()}}</span><span>{{=controller_icon('activity', 20)}}</span></div>
-        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.attachmentcount()}}</span><span>{{=controller_icon('attachment', 20)}}</span></div>
-        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.componentcount()}}</span><span>{{=controller_icon('component', 20)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_attachmentcount()}}</span><span>{{=controller_icon('attachment', 20)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_componentcount()}}</span><span>{{=controller_icon('component', 20)}}</span></div>
         <div class="d-inline p-2"><span style="margin-right: 5px;">{{=A(action_icon('card', 20), _href=URL('model', 'printcard.html', args=[model.id]))}}</span></div>
     </div>
 

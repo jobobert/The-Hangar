@@ -42,7 +42,7 @@
     <span>Unknown Protocol</span>
     {{pass}}
     <span> | </span>
-    {{if model.radio_config_backedup() == 'Yes':}}
+    {{if model.get_radio_config_backedup() == 'Yes':}}
     <span>{{=A('Download Config', _href=URL('default', 'download', args=model.configbackup))}}</span>
     <span> | </span>
     <span>{{=A('Delete Config', _class='delete', data={'confirm': 'Are you sure to delete this item?'},

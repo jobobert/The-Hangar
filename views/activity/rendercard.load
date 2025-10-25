@@ -1,13 +1,12 @@
-
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title"><span class="card-icon">{{=controller_icon('activity', 25)}}</span>{{=activity_count}} Activities</h5>
+        <h5 class="card-title"><span class="card-icon">{{=controller_icon('activity', 25)}}</span>{{=get_activitycount}} Activities</h5>
     </div>
     <div class="card-body">
         {{if activities:}}
         {{for activity in activities:}}
         <div class="row">
-            <div class="col-9 d-block activitytype_{{=activity.activitytype}}" style="border-left-width: 10px;">{{=B(activity.activitydate)}}<br/>{{=activity.activitytype}}</div>
+            <div class="col-9 d-block activitytype_{{=activity.activitytype}}" style="border-left-width: 10px;">{{=B(activity.activitydate)}}<br />{{=activity.activitytype}}</div>
             <div class="col-3 d-block">
                 <!--<a class="btn btn-primary" href="{{=URL('activity','update',args=activity.id,extension='html')}}">Edit</a>-->
                 {{=editButton('activity', 'update', activity.id)}}
@@ -33,5 +32,3 @@
         </div>
     </div>
 </div>
-
-

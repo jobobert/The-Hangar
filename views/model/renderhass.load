@@ -76,9 +76,9 @@
             </ul>
         </div>
         <div>
-            <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.opentodocount()}}</span><span>{{=controller_icon('todo', 25)}}</span></div>
+            <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.get_opentodocount()}}</span><span>{{=controller_icon('todo', 25)}}</span></div>
             <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.activity.count()}}</span><span>{{=controller_icon('activity', 25)}}</span></div>
-            <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.attachmentcount()}}</span><span>{{=controller_icon('attachment', 30)}}</span></div>
+            <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_attachmentcount()}}</span><span>{{=controller_icon('attachment', 30)}}</span></div>
             <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_batterycount()}}</span><span>{{=controller_icon('batter', 30)}}</span></div>
         </div>
     </div>

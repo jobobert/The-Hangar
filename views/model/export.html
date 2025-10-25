@@ -46,10 +46,10 @@
     <tr class="row export-row">
         <th class="col export-field_name">Config Backup</th>
         <td class="col export-field_name">
-            {{if model.radio_config_backedup() == 'Yes':}}
+            {{if model.get_radio_config_backedup() == 'Yes':}}
             Radio/Receiver Config is Backed Up
             {{=A('Download', _href=URL('default', 'download', args=model.configbackup))}}
-            {{elif model.radio_config_backedup() == 'No':}}
+            {{elif model.get_radio_config_backedup() == 'No':}}
             Radio/Receiver Config is not Backed Up
             {{pass}}
         </td>

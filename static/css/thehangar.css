@@ -103,7 +103,7 @@
 }
 
 .modelstate_border-left_1 {
-    border-left: solid 4px #474b47;
+    border-left: solid 6px #474b47;
 }
 
 .modelstate_border-bottom_1 {
@@ -117,7 +117,7 @@
 }
 
 .modelstate_border-left_2 {
-    border-left: solid 4px #5549c5;
+    border-left: solid 6px #5549c5;
 }
 
 .modelstate_border-bottom_2 {
@@ -131,7 +131,7 @@
 }
 
 .modelstate_border-left_3 {
-    border-left: solid 4px #b18802;
+    border-left: solid 6px #b18802;
 }
 
 .modelstate_border-bottom_3 {
@@ -145,7 +145,7 @@
 }
 
 .modelstate_border-left_4 {
-    border-left: solid 4px #b8e614;
+    border-left: solid 6px #b8e614;
 }
 
 .modelstate_border-bottom_4 {
@@ -160,7 +160,7 @@
 }
 
 .modelstate_border-left_5 {
-    border-left: solid 4px #24a718;
+    border-left: solid 6px #24a718;
 }
 
 .modelstate_border-bottom_5 {
@@ -174,7 +174,7 @@
 }
 
 .modelstate_border-left_6 {
-    border-left: solid 4px #a72918;
+    border-left: solid 6px #a72918;
 }
 
 .modelstate_border-bottom_6 {
@@ -188,7 +188,7 @@
 }
 
 .modelstate_border-left_7 {
-    border-left: solid 4px #ac5832;
+    border-left: solid 6px #ac5832;
 }
 
 .modelstate_border-bottom_7 {
@@ -658,7 +658,7 @@ table>thead>tr>td {
 }
 
 .dashboard-highlight {
-    background-color: #efefef;
+    background-color: #c5bcbc;
     font-weight: bold;
 }
 

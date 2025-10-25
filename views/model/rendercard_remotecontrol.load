@@ -7,7 +7,7 @@
     <div style="position:absolute; top: 0px; left: 0px; display: inline-block; width:48px; float:left;">
         {{=model_type_icon(model, 48) }}
     </div>
-    {{if model.radio_config_backedup() == 'No':}}
+    {{if model.get_radio_config_backedup() == 'No':}}
     <div style="position:absolute; top: 0px; left: 270px; display: inline-block; width:48px; float:right;">
         {{=action_icon('warning', 32) }}
     </div>
@@ -66,16 +66,16 @@
             {{if model.get_batterycount() > 0:}}
             <span class="pl-1 pr-1 m-0 text-right">
                 {{=controller_icon('battery', 20)}}
-                {{=" | ".join(model.get_battery_list())}}
+                {{=" | ".join(model.get_batterylist())}}
             </span>
             {{pass}}
         </div>
     </div>
     <div class="card-footer">
-        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.opentodocount()}}</span><span>{{=controller_icon('todo', 20)}}</span></div>
+        <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.get_opentodocount()}}</span><span>{{=controller_icon('todo', 20)}}</span></div>
         <div class="d-inline p-2 "><span style="margin-right: 5px">{{=model.activity.count()}}</span><span>{{=controller_icon('activity', 20)}}</span></div>
-        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.attachmentcount()}}</span><span>{{=controller_icon('attachment', 20)}}</span></div>
-        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.componentcount()}}</span><span>{{=controller_icon('component', 20)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_attachmentcount()}}</span><span>{{=controller_icon('attachment', 20)}}</span></div>
+        <div class="d-inline p-2"><span style="margin-right: 5px">{{=model.get_componentcount()}}</span><span>{{=controller_icon('component', 20)}}</span></div>
         <div class="d-inline p-2"><span style="margin-right: 5px;">{{=A(action_icon('card', 20), _href=URL('model', 'printcard.html', args=[model.id]))}}</span></div>
     </div>
 
