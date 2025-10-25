@@ -267,7 +267,7 @@ def renderhass():
                     _style="overflow: auto;"
                 ),
                 DIV(
-                    H6(model.open_todos_count(), " Todos | ", model.activity_count(), " Activities",
+                    H6(model.opentodocount(), " Todos | ", model.activity_count(), " Activities",
                        _style="color: #789f8a; background-color: #0a373a; padding-left: 1em;"),
                     UL(*[LI(x.todo) for x in todos]),
                     _style="display:block; float:clear; "

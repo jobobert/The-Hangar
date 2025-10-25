@@ -20,7 +20,7 @@
 <div class="row mt-3">
     <div class="card-group">
         {{for note in notes:}}
-        <div class="col-xs-12 col-sm-4">
+        <div class="col">
             <div class="card">
                 <div class="card-header">{{=note.activitydate.strftime('%b %d, %Y')}}</div>
                 <div class="card-body">

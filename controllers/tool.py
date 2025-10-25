@@ -38,7 +38,6 @@ def update():
         redirect(URL('tool', 'index', args=form.vars.id,
                  extension="html") or session.ReturnHere)
 
-    #form.custom.delete['_class'] += ' th-delete-checkbox-button'
     inputs = form.elements('input', _type='text')
     for s in inputs:
         s['_autocomplete'] = 'off'

@@ -419,16 +419,31 @@ def model_component_count(model_id):
 db.model.componentcount = Field.Method( lambda row: model_component_count(row.model.id) )
 db.model.componentcount.label = 'Component Count'
 
+def model_tool_count(model_id):
+    return models_and_tools(db.model.id == model_id).count()
+db.model.toolcount = Field.Method( lambda row: model_tool_count(row.model.id) )
+db.model.toolcount.label = 'Tool Count'
+
+def model_switch_count(model_id):
+    return db(db.switch.model == model_id).count()
+db.model.switchcount = Field.Method( lambda row: model_switch_count(row.model.id) )
+db.model.switchcount.label = 'Switch Count'
+
+def model_note_count(model_id):
+    return db((db.activity.model == model_id) & (db.activity.activitytype == 'Note')).count()
+db.model.notecount = Field.Method( lambda row: model_note_count(row.model.id) )
+db.model.notecount.label = 'Note Count'
+
 def model_attachment_count(model_id):
     return db(db.attachment.model == model_id).count()
-db.model.get_attachmentcount = Field.Method( lambda row: model_attachment_count(row.model.id) )
-db.model.get_attachmentcount.label = 'Attachment Count'
+db.model.attachmentcount = Field.Method( lambda row: model_attachment_count(row.model.id) )
+db.model.attachmentcount.label = 'Attachment Count'
 
-db.model.open_todos_count = Field.Method(
+db.model.opentodocount = Field.Method(
     lambda row: db((db.todo.model == row.model.id) &
                    (db.todo.complete == False)).count()
 )
-db.model.open_todos_count.label = 'Open Todo Count'
+db.model.opentodocount.label = 'Open Todo Count'
 
 db.model.activity_count = Field.Method( lambda row: db(db.activity.model == row.model.id).count() )
 db.model.activity_count.label = 'Activity Count'
@@ -1021,7 +1036,7 @@ db.define_table('hardware',
                 Field('length_mm', type='double', label='Length', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
                 Field('purpose', type='string', label='Purpose'),
                 Field('quantity', type='integer', label='Quantity', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
-                format=lambda row: row.hardwaretype + " : " + row.diameter + " x " + row.length_mm
+                format=lambda row: row.hardwaretype + " : " + row.diameter + " x " + str(row.length_mm)
                 )
 db.hardware.length_mm.extra = {'measurement': 'mm'}
 

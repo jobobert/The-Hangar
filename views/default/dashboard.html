@@ -48,9 +48,130 @@
                 $('#list li:first-child a').tab('show')
             })
         </script>
- 
+
+        {{elif selectedmodel:}}
+
+        <div class="container">
+            <div class="row mb-3 ml-2">
+                <div class=" col-sm-12">
+                    {{=LOAD('model','flowchart.load', args=[selectedmodel.id], ajax=True, content='Loading Flowchart..')}}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="container">
+                        <div class="row">
+                            <div class="btn-group" role="group">
+                                <a class="btn btn-primary" href="{{=URL('model','index',args=selectedmodel.id,extension='html')}}">Details</a>
+                                <a class="btn btn-outline-primary" href="{{=URL('model','update',args=selectedmodel.id,extension='html')}}">Edit</a>
+                                {{=LOAD('model','selected.load', args=[selectedmodel.id], ajax=True, content='...')}}
+                            </div>
+                        </div>
+
+
+
+                        <div class="row p-2">
+                            <ul id="tab-list" class="nav nav-pills mt-3 border-bottom">
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabdesc" href="#tdescription">Description</a></li>
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabattr" href="#tattributes">Attributes</a></li>
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabnote" href="#tnotes">{{=selectedmodel.notecount()}} Notes</a></li>
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtodo" href="#ttodos">{{=selectedmodel.opentodocount()}} Todos</a></li>
+                                {{if selectedmodel.componentcount() > 0:}}
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabcomp" href="#tcomponents">{{=selectedmodel.componentcount()}} Components</a></li>
+                                {{pass}}
+                                {{if selectedmodel.toolcount() > 0:}}
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtool" href="#ttools">{{=selectedmodel.toolcount()}} Tools</a></li>
+                                {{pass}}
+                                {{if selectedmodel.attachmentcount() > 0:}}
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabatta" href="#tattachments">{{=selectedmodel.attachmentcount()}} Attachments</a></li>
+                                {{pass}}
+                                {{if selectedmodel.switchcount() > 0:}}
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabswit" href="#tswitches">{{=selectedmodel.switchcount()}} Switches</a></li>
+                                {{pass}}
+                                {{if selectedmodel.diagram:}}
+                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabdiag" href="#tdiagram">Diagram</a></li>
+                                {{pass}}
+                            </ul>
+
+                            <div class="col-12 tab-content m-2">
+                                <div id="tdescription" class="tab-pane">
+                                    {{if selectedmodel.transmitter:}}
+                                    <div class="mb-3 p-1 bg-light">
+                                        <b>Transmitter:</b> {{=selectedmodel.transmitter.nickname or selectedmodel.transmitter.name}}
+                                        {{if selectedmodel.protocol:}}
+                                        <b> / </b> {{=selectedmodel.protocol.name}}
+                                        {{pass}}
+                                    </div>
+                                    {{pass}}
+                                    {{=MARKMIN(selectedmodel.notes)}}
+                                </div>
+                                <div id="tnotes" class="tab-pane active">
+                                    {{=LOAD('activity','rendernotes.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='tnotes_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Reading Notes...'))}}
+                                </div>
+                                <div id="ttodos" class="tab-pane">
+                                    {{=LOAD('todo', 'rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='ttodos_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Loading Todos...'))}}
+                                </div>
+                                <div id="tattributes" class="tab-pane attribute-list">
+                                    <dl>
+                                        <dt>Have Plan:</dt>
+                                        <dd>{{=selectedmodel.haveplans}}</dd>
+                                        <dt>Have Kit:</dt>
+                                        <dd>{{=selectedmodel.havekit}}</dd>
+                                        {{for key in sorted(selectedmodel.__dict__):}}
+                                        {{if key.startswith('attr_') and selectedmodel[key]:}}
+                                        {{c=''}}
+
+                                        {{if key.startswith('attr_plane_') and selectedmodel.modeltype != 'Airplane' :}}{{c="model_attr_light"}}
+                                        {{elif key.startswith('attr_rocket_') and selectedmodel.modeltype != 'Rocket':}}{{c="model_attr_light"}}
+                                        {{elif key.startswith('attr_boat_') and selectedmodel.modeltype != 'Boat':}}{{c="model_attr_light"}}
+                                        {{elif key.startswith('attr_copter_') and (selectedmodel.modeltype != 'Helicopter' and model.modeltype != 'Autogyro') :}}{{c="model_attr_light"}}
+                                        {{elif key.startswith('attr_multi_') and selectedmodel.modeltype != 'Multirotor' :}}{{c="model_attr_light"}}
+                                        {{elif key.startswith('attr_robot_') and selectedmodel.modeltype != 'Robot' :}}{{c="model_attr_light"}}
+                                        {{elif key.startswith('attr_experimental_') and selectedmodel.modeltype != 'Experimental' :}}{{c="model_attr_light"}}
+                                        {{elif key.startswith('attr_train_') and selectedmodel.modeltype != 'Train' :}}{{c="model_attr_light"}}
+                                        {{else:}} {{c=""}}
+                                        {{pass}}
+                                        <dt class="{{=c}}">{{=getattr(db.model, key).label}}</dt>
+                                        <dd class="{{=c}}">{{=selectedmodel[key]}}</dd>
+                                        {{pass}}
+                                        {{pass}}
+                                    </dl>
+                                </div>
+                                {{if selectedmodel.componentcount() > 0:}}
+                                <div id="tcomponents" class="tab-pane">
+                                    {{=LOAD('component','rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax=True, target='tcomponents_inner', content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                                </div>
+                                {{pass}}
+                                {{if selectedmodel.toolcount() > 0:}}
+                                <div id="ttools" class="tab-pane">
+                                    {{=LOAD('tool','rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax=True, target='ttools_inner', content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                                </div>
+                                {{pass}}
+                                {{if selectedmodel.attachmentcount() > 0:}}
+                                <div id="tattachments" class="tab-pane">
+                                    {{=LOAD('attachment','rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='tattachments_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
+                                </div>
+                                {{pass}}
+                                {{if selectedmodel.switchcount() > 0:}}
+                                <div id="tswitches" class="tab-pane">
+                                    {{=LOAD('switch','renderswitchtable.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='tswitches_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
+                                </div>
+                                {{pass}}
+                                {{if selectedmodel.diagram:}}
+                                <div id="tdiagram" class="tab-pane">
+                                    {{=LOAD('diagram','rendermodeldiagram.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='tdiagram_inner', content=DIV(IMG(_src=URL('static',
+                                    'images/waiting.gif')), "Wiring Diagram"))}}
+                                </div>
+                                {{pass}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         {{else:}}
-        {{=LOAD('model','renderdashboard.load', args=[selected], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')), 'Getting Model Details...'))}}
+        Something happened!
         {{pass}}
     </div>
 </div>
@@ -66,7 +187,7 @@
             </div>
             <div class="modal-body">
                 {{if selected != -1:}}
-                {{=LOAD('todo','newmodal.load', args=[selected], ajax=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                {{=LOAD('todo','newmodal.load', args=[selectedmodel.id], ajax=True, content=IMG(_src=URL('static', 'images/waiting.gif')))}}
                 {{else:}}
                 No model is available to attach a todo to, sorry.
                 {{pass}}

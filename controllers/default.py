@@ -280,8 +280,12 @@ def index():
     selected = None
     if request.args:
         selected = VerifyTableID('model', request.args(0))
+        if selected:
+            selectedmodel = db(db.model.id == selected).select().first()
+            
     if selected == None:
         selected = -1
+        selectedmodel = None
 
     #print(f'selected = {selected}')
 
@@ -292,7 +296,7 @@ def index():
             pass
 
     session.ft = filter_text
-    return dict(models=models, form=selectform, filters=filter_text, selected=selected, log=log, modelCategory=modelCategory)
+    return dict(models=models, form=selectform, filters=filter_text, selected=selected, selectedmodel=selectedmodel, log=log, modelCategory=modelCategory)
 
 
 def setui():
@@ -491,7 +495,7 @@ def inventory():
         args=request.args, vars=request.get_vars, host=True)
 
     components = db(db.component).select(orderby=db.component.componenttype | db.component.name)
-    propellers = db(db.propeller).select(orderby=db.propeller.item, distinct=True)
+    propellers = db(db.propeller).select(orderby=db.propeller.item, groupby=db.propeller.item)
 
     hardware = db(db.hardware).select(orderby=db.hardware.hardwaretype | db.hardware.diameter | db.hardware.length_mm)
     unique_formatted_values = set()
