@@ -13,9 +13,7 @@ Your submitted form contains the following errors:
 {{=form.custom.begin}}
 
 <div class="update-page">
-    <div class="row bg-light fixed-bottom pl-5 p-2">
-        {{=form.custom.submit}}
-    </div>
+    
 
     <div class="row ">
         <h2 class="">{{=controller_icon('component', 48)}} Component</h2>
@@ -82,8 +80,14 @@ Your submitted form contains the following errors:
         {{pass}}
     </div>
 
-    {{=form.custom.end}}
+    
 </div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=makeFormField(form, 'submit', FormFieldType.ROWS)}}
+</div>
+
+{{=form.custom.end}}
 
 <script>
 

@@ -38,8 +38,7 @@ Your submitted form contains the following errors:
 </div>
 
 <div class="row bg-light fixed-bottom pl-5 p-2">
-    <div class="d-inline-block">{{=form.custom.submit}}</div>
-
+    {{=makeFormField(form, 'submit', fieldType=FormFieldType.COLUMNS)}}
     {{=makeFormDeleteButton(form)}}
 </div>
 

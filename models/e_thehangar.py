@@ -36,7 +36,7 @@ def makeFormDeleteButton(form):
 
 def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0, fieldid:str = "", divClass:str = ""):
     table = form.table
-    field = db[table][fieldname]
+    field = db[table][fieldname] if fieldname.lower() != 'submit' else None
     isCheckbox = False
     theLabel = None
     theInput = None
@@ -57,85 +57,91 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
         columns = 12
 
     # If the field is required then bold the label
-    if (field.required or
-        (field.requires and (
-            ('IS_NOT_EMPTY' in str(field.requires)) 
-            or 
-            ('IS_EMPTY_OR' not in str(field.requires)))
-        )):
-        labelClass = "font-weight-bold"
+    if field:
+        if (field.required or
+            (field.requires and (
+                ('IS_NOT_EMPTY' in str(field.requires)) 
+                or 
+                ('IS_EMPTY_OR' not in str(field.requires)))
+            )):
+            labelClass = "font-weight-bold"
 
-    # check for special field types
-    #print(field.type)
-    if field.type == 'boolean':
-        isCheckbox = True
+        # check for special field types
+        #print(field.type)
+        if field.type == 'boolean':
+            isCheckbox = True
 
-    # Process field extra attributes
-    if hasattr(field, 'extra'):
-        if 'measurement' in field.extra:
-            hasConverter = True
-            func = None # the func javascript function must be declared in layout.html!!
-            match field.extra['measurement']:
-                case 'mm':
-                    func = 'inchToMm'
-                    originalText = 'mm'
-                    conversionText = 'Inch'
-                case 'dm2':
-                    func = None
-                    originalText = 'dm2'
-                    conversionText = 'sqin'
-                case 'oz':
-                    func = 'gramToOz'
-                    originalText = "oz"
-                    conversionText = 'Gram'
-                case 'sqin':
-                    func = 'dm2ToSqin'
-                    originalText = 'sqin'
-                    conversionText = 'dm2'
-                case 'cc':
-                    func = None
-                    originalText = 'cc'
-                case _:
-                    hasConverter = False
+        # Process field extra attributes
+        if hasattr(field, 'extra'):
+            if 'measurement' in field.extra:
+                hasConverter = True
+                func = None # the func javascript function must be declared in layout.html!!
+                match field.extra['measurement']:
+                    case 'mm':
+                        func = 'inchToMm'
+                        originalText = 'mm'
+                        conversionText = 'Inch'
+                    case 'dm2':
+                        func = None
+                        originalText = 'dm2'
+                        conversionText = 'sqin'
+                    case 'oz':
+                        func = 'gramToOz'
+                        originalText = "oz"
+                        conversionText = 'Gram'
+                    case 'sqin':
+                        func = 'dm2ToSqin'
+                        originalText = 'sqin'
+                        conversionText = 'dm2'
+                    case 'cc':
+                        func = None
+                        originalText = 'cc'
+                    case _:
+                        hasConverter = False
 
-            if hasConverter and func == None:
-                theConverterInput = f"No Converter Available '{field.extra['measurement']}'"
-            elif hasConverter:
-                theConverterInput = INPUT(
-                        _placeholder = conversionText,
-                        _class = 'double form-control th_form_field_calc',
-                        _type = 'number',
-                        _step = '0.01',
-                        _autocomplete = "off",
-                        _id = f'c_{fieldname}',
-                        _onchange = f'{func}("c_{fieldname}", "{inputID}");'
-                    )
-                theConverterLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""}" for="c_{fieldname}">{field.label or field.name} ({conversionText})</label>') 
-                theConverterComment = XML(f'<small class="form-text text-muted d-none d-sm-block">Convert from {conversionText}</small>')
-        if 'input' in field.extra:
-            #print(field.extra['input'])
-            match field.extra['input']:
-                case 'color':
-                    inputType = 'color'
-    
-    col1 = col2 = columns
-    if hasConverter:
-        col1, col2 = splitColumn(columns)
+                if hasConverter and func == None:
+                    theConverterInput = f"No Converter Available '{field.extra['measurement']}'"
+                elif hasConverter:
+                    theConverterInput = INPUT(
+                            _placeholder = conversionText,
+                            _class = 'double form-control th_form_field_calc',
+                            _type = 'number',
+                            _step = '0.01',
+                            _autocomplete = "off",
+                            _id = f'c_{fieldname}',
+                            _onchange = f'{func}("c_{fieldname}", "{inputID}");'
+                        )
+                    theConverterLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""}" for="c_{fieldname}">{field.label or field.name} ({conversionText})</label>') 
+                    theConverterComment = XML(f'<small class="form-text text-muted d-none d-sm-block">Convert from {conversionText}</small>')
+            if 'input' in field.extra:
+                #print(field.extra['input'])
+                match field.extra['input']:
+                    case 'color':
+                        inputType = 'color'
+        
+        col1 = col2 = columns
+        if hasConverter:
+            col1, col2 = splitColumn(columns)
 
-    theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">{field.label or field.name} {"(" + originalText + ")" if originalText else ""}</label>')
-    theInput = form.custom.widget[fieldname]
-    theComment = XML(f'<small class="form-text text-muted d-none d-sm-block">{field.comment or ""}</small>')
+        theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">{field.label or field.name} {"(" + originalText + ")" if originalText else ""}</label>')
+        theInput = form.custom.widget[fieldname]
+        theComment = XML(f'<small class="form-text text-muted d-none d-sm-block">{field.comment or ""}</small>')
 
-    if inputType:
-        theInput.attributes['_type'] = inputType
-    
-    if '_type' in theInput.attributes:
-        #print(theInput.attributes['_type'] )
+        if inputType:
+            theInput.attributes['_type'] = inputType
+        
+        if '_type' in theInput.attributes:
+            #print(theInput.attributes['_type'] )
 
-        if theInput.attributes['_type'] == 'text':
-            theInput.attributes['_placeholder'] = field.label or field.name
-    
-    output = None
+            if theInput.attributes['_type'] == 'text':
+                theInput.attributes['_placeholder'] = field.label or field.name
+        
+        output = None
+    elif fieldname.lower() == 'submit':
+        col1 = col2 = columns
+        theComment = XML('&nbsp;')
+        theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">&nbsp;</label>')
+        theInput = form.custom.submit
 
     if fieldType == FormFieldType.COLUMNS:
         output = DIV(

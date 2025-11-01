@@ -51,7 +51,7 @@
         {{=makeFormField(addform, "notes", FormFieldType.COLUMNS, columns=3)}}
         {{=makeFormField(addform, "modeltype", FormFieldType.COLUMNS, columns=3)}}
         {{=makeFormField(addform, 'modelcategory', FormFieldType.COLUMNS, columns=3)}}
-        <div class="col-1">{{=addform.custom.submit}}</div>
+        {{=makeFormField(addform, 'submit', FormFieldType.COLUMNS, columns=1)}}
     </div>
     {{=addform.custom.end}}
 

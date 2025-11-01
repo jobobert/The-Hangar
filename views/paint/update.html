@@ -32,7 +32,7 @@ Your submitted form contains the following errors:
 </div>
 
 <div class="row bg-light fixed-bottom pl-5 p-2">
-    {{=form.custom.submit}}
+    {{=makeFormField(form, 'submit', fieldType=FormFieldType.COLUMNS)}}
     {{=makeFormDeleteButton(form)}}
 </div>
 

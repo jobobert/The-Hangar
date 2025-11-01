@@ -11,9 +11,7 @@ Your submitted form contains the following errors:
 {{pass}}
 
 {{=form.custom.begin}}
-<div class="row bg-light fixed-bottom pl-5 p-2">
-    {{=form.custom.submit}}
-</div>
+
 <div class="update-page">
     <div class="row">
         <h2 class="">{{=controller_icon('wtc', 48)}} Water Tight Cylinder</h2>
@@ -59,6 +57,10 @@ Your submitted form contains the following errors:
             {{=makeFormField(form, "attr_weight_oz", FormFieldType.COLUMNS)}}
         </div>
     </fieldset>
+</div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=makeFormField(form, 'submit', fieldType=FormFieldType.COLUMNS)}}
 </div>
 
 {{=form.custom.end}}

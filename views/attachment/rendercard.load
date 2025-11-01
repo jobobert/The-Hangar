@@ -52,7 +52,7 @@
 
                 </div>
                 <div class="row">
-                    {{=form.custom.submit}}
+                    {{=makeFormField(form, 'submit', FormFieldType.COLUMNS, columns=0)}}
                 </div>
 
                 {{=form.custom.end}}
