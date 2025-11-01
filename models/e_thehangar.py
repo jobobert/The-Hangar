@@ -35,8 +35,23 @@ def makeFormDeleteButton(form):
         return ''
 
 def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0, fieldid:str = "", divClass:str = ""):
+    isSubmit = False
+    field = None
+    inputID = ""
+
+    if not form:
+        return DIV("No form provided")
+
     table = form.table
-    field = db[table][fieldname] if fieldname.lower() != 'submit' else None
+    if fieldname.lower() == 'submit':
+        isSubmit = True
+    else:
+        try:
+            field = db[table][fieldname]
+            inputID = f'{table}_{fieldname}'
+        except KeyError:
+            field = None
+    
     isCheckbox = False
     theLabel = None
     theInput = None
@@ -49,7 +64,7 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
     conversionText = ""
     labelClass = ""
     inputType = None
-    inputID = f'{table}_{fieldname}'
+    
 
     if columns < 0:
         columns = 0
@@ -137,11 +152,16 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
                 theInput.attributes['_placeholder'] = field.label or field.name
         
         output = None
-    elif fieldname.lower() == 'submit':
+    elif isSubmit:
         col1 = col2 = columns
         theComment = XML('&nbsp;')
         theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">&nbsp;</label>')
         theInput = form.custom.submit
+    else:
+        col1 = col2 = columns
+        theComment = XML('&nbsp;')
+        theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">&nbsp;</label>')
+        theInput = SPAN(f'Unknown field: {fieldname}')
 
     if fieldType == FormFieldType.COLUMNS:
         output = DIV(

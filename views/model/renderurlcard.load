@@ -23,5 +23,6 @@
             {{=makeFormField(addform, 'notes', fieldType=FormFieldType.COLUMNS, columns=2)}}
             {{=makeFormField(addform, 'submit', fieldType=FormFieldType.COLUMNS, columns=2)}}
         </div>
+        {{=addform.custom.end}}
     </div>
 </div>
