@@ -99,7 +99,7 @@ def getDatabaseHelp(field) -> str:
         case 'component.storedat':
             return """
             If you have lots of components in lots of locations, use this field to narrow down where you have to look.
-            Maybe you have an upstairs room, or maybe you are organized enough to have numbered bins. Whatever work best
+            Maybe you have an upstairs room, or maybe you are organized enough to have numbered bins. Whatever works best
             for you is what is best to put in this field.
             """
         case 'component.significantdetail':
