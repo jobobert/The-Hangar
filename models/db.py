@@ -860,7 +860,7 @@ models_and_batteries = db(
 ## SAIL RIG
 
 db.define_table('sailrig', 
-                Field('rigname', type='string', label='Name (A, B, C)', required=True, unique=False), 
+                Field('rigname', type='string', label='Name', comment='e.g. A, B, or C', required=True, unique=False), 
                 Field('model', type='reference model', label='Model'), 
                 Field('img', type='upload', uploadseparate=True, autodelete=True, label='Picture', comment='The picture of the sail rig', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
                 Field('mast_length_mm', type='integer', label='Mast Length', required=False), 
@@ -888,12 +888,12 @@ db.sailrig.jib_sail_area_dm2.extra = {'measurement': 'dm2'}
 ## EFLIGHT TIME
 
 db.define_table('eflite_time', 
-                Field('model', type='reference model', required=True), 
-                Field('motor', type='reference component', required=True), 
-                Field('battery', type='reference battery', required=True), 
-                Field('propeller', type='string'), 
-                Field('amps', type='double', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'), required=True), 
-                Field('watts', type='double', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'), required=True)
+                Field('model', type='reference model', label='Model', required=True), 
+                Field('motor', type='reference component', label='Motor', required=True), 
+                Field('battery', type='reference battery', label='Battery', required=True), 
+                Field('propeller', type='string', label='Propeller'), 
+                Field('amps', type='double', label='Amps Drawn', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'), required=True), 
+                Field('watts', type='double', label='Watts Drawn', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'), required=True)
                 )
 
 db.eflite_time.amps.requires = IS_NOT_EMPTY()

@@ -68,7 +68,7 @@ def getDatabaseHelp(field) -> str:
         case 'model.kitlocation':
             return """
             If you find that you have too many kits in too many locations, use this field to identify where
-            in your stash the kit lives. It could a room name, a shelf number, or a dewey decimal concoction
+            in your stash the kit lives. It could a room name, a shelf number, or a Dewey Decimal concoction
             all your own. Whatever works for you!
             """
         case 'model.subjecttype':
@@ -77,16 +77,16 @@ def getDatabaseHelp(field) -> str:
             """
         case 'model.final_disposition':
             return """
-            I know this is tough subject. You have worked hard on your models. You are proud of your collection.
-            But will your estate's executor have any ideas what to do with it all when you are gone? Use this part
+            I know this is a tough subject. You have worked hard on your models. You are proud of your collection.
+            But will your estate's executor have any idea what to do with it all when you are gone? Use this part
             of the form to share your wishes with your family. And help them understand a reasonable value for the
             model if they choose to collect any money from it. I have added a few friends' names to make sure 
             special models head their way (assuming, of course, my family doesn't want the item). Again, I know it
-            is tough, but better you now then them later."""
+            is tough, but better you now than them later."""
 
         case 'component.diagramname':
             return """
-            To keep the diagrams consice, use this field to output a shorter name for the component when it is part
+            To keep the diagrams concise, use this field to output a shorter name for the component when it is part
             of a diagram. Maybe not as generic as 'servo', but maybe the model is unique enough that the manufacturer
             isn't necessary?
             """
@@ -98,11 +98,32 @@ def getDatabaseHelp(field) -> str:
             """
         case 'component.storedat':
             return """
-            If you have lots of components in lots of locations use this field to narrow down where you have to look.
+            If you have lots of components in lots of locations, use this field to narrow down where you have to look.
             Maybe you have an upstairs room, or maybe you are organized enough to have numbered bins. Whatever work best
             for you is what is best to put in this field.
             """
+        case 'component.significantdetail':
+            return """
+            Sometimes there is just something about a component that matters. There may be an attribute for that something,
+            but if not, use this field to record it. The significant detail is shown on the list view for easy reference."""
 
-            
+
+        case 'sailrig.rigname':
+            return """
+            The name of the rig as you know it. Oftentimes this is simply 'A' or 'B', but another name might make
+            more sense in your context."""
+
+        case 'supportitem.item':
+            return """
+            Certain models have unique needs and items that are required for successful operation. Maybe it is 
+            some rubber bands to hold the wings on, or some glycerin to make the smoke generator function. Whatever
+            it is, add it here and when you make a packing list it'll be there to remind you."""
+
+        case 'wishlist.modeltype' | 'wishlist.modelcategory':
+            return """
+            Setting the type and category in the wishlist allows for easy conversion to a model record when you 
+            fulfill your wish! Plus is really helps in organizing the wish when you are presented with a wall full
+            of potential new models."""
+
         case _:
             return None
