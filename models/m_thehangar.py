@@ -25,10 +25,16 @@ def splitColumn(size:int):
         half = size // 2
         return (half + 1, half)
 
+def makeFormSubmitbutton(form):
+    if form.custom.submit:
+        return(DIV(form.custom.submit, _class='d-inline-block ml-2'))
+    else:
+        return ''
+
 def makeFormDeleteButton(form):
     if form.custom.delete:
         #form.custom.delete['_class'] += ' th-delete-checkbox-button'
-        form.custom.delete['_class'] = form.custom.delete.get('_class', '') + ' th-delete-checkbox-button'
+        form.custom.delete['_class'] = form.custom.delete['_class'] + ' th-delete-checkbox-button'
 
         return DIV(XML('<label for="delete_record" class="th-delete-checkbox-button-label">Delete</label>'), form.custom.delete, _class='d-inline-block ml-2')
     else:
@@ -38,6 +44,7 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
     isSubmit = False
     field = None
     inputID = ""
+    helpText = None
 
     if not form:
         return DIV("No form provided")
@@ -49,10 +56,12 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
         try:
             field = db[table][fieldname]
             inputID = f'{table}_{fieldname}'
+            helpText = getDatabaseHelp(field)
         except KeyError:
             field = None
     
     isCheckbox = False
+    theHelp = None
     theLabel = None
     theInput = None
     theComment = None
@@ -138,7 +147,12 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
         if hasConverter:
             col1, col2 = splitColumn(columns)
 
-        theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">{field.label or field.name} {"(" + originalText + ")" if originalText else ""}</label>')
+        if helpText:
+            #theHelp = DIV(f'{helpText}', _id=f'{inputID}_help', _popover)
+            theHelp = XML(f'<div id="{inputID}_help" popover>{MARKMIN(helpText)}</div>')
+            theHelpIcon = XML(f'<button type="button" class="btn btn-link" popovertarget="{inputID}_help">{action_icon("help", 15)}</button>')
+  
+        theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">{field.label or field.name} {"(" + originalText + ")" if originalText else ""} {theHelpIcon if helpText else ""}</label>')
         theInput = form.custom.widget[fieldname]
         theComment = XML(f'<small class="form-text text-muted d-none d-sm-block">{field.comment or ""}</small>')
 
@@ -174,7 +188,8 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
             theConverterInput,
             theConverterComment if theConverterComment else "",
             _class=f'{"col" if col2 == 0 else f"col-sm-{col2}"} {divClass}'
-        ) if hasConverter else "")
+        ) if hasConverter else ""
+        ) + (theHelp if theHelp else "") 
 
     if fieldType == FormFieldType.ROWS:
         output = DIV(
@@ -192,7 +207,7 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
                 _class=f'col-sm-10'),
             _class=f'{divClass} form-group row'
             ) if hasConverter else ""
-        )
+        ) + (theHelp if theHelp else "")
 
     if fieldid:
         output = DIV(output, _id=fieldid, _class=f'col-sm-{columns}')
