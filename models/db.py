@@ -186,6 +186,7 @@ db.article.notes.format = lambda article: MARKMIN(article.notes)
 
 ###############################################
 ## TRANSMITTER
+## PROTOCOL
 
 db.define_table('protocol', 
                 Field('name', type='string', label='Name'), 
@@ -229,8 +230,8 @@ db.define_table('model'
                 , Field('modelcategory', type='string', label='Category', comment='Model category', required=True, default='Non-Model')
                 #
                 , Field('attr_flight_timer', type='double', label='Flight Timer', comment='The length of the flight timer', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
-                , Field('attr_construction', type='string', label='Construction')
-                , Field('attr_cog', type='string', label='CoG', comment='The COG')
+                , Field('attr_construction', type='string', label='Construction', comment='What the model is, mainly, made of')
+                , Field('attr_cog', type='string', label='CoG', comment='The Center Of Gravity')
                 , Field('attr_length', type='double', label='Length', comment='The length', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 , Field('attr_width', type='double', label='Width/Beam', comment='The width/beam', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 , Field('attr_height', type='double', label='Height', comment='The height', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
@@ -638,8 +639,8 @@ db.activity.notes.format = lambda model: MARKMIN(model.notes)
 
 db.define_table('component', 
                 Field('name', type='string', label='Name', required=True, unique=True), 
-                Field('diagramname', type='string', label='Diagram Name', required=False, unique=False),
-                Field('componenttype', type='string', label='Type', required=True), 
+                Field('diagramname', type='string', label='Diagram Name', comment='The name used in the diagram', required=False, unique=False),
+                Field('componenttype', type='string', label='Type', comment='The type of component', required=True), 
                 Field('componentsubtype', type='string', label='Subtype', comment='The Sub Type'), 
                 Field('ownedcount', type='integer', label='Count', comment='How many are owned?', default=0, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
                 Field('significantdetail', type='string', label='Significant Detail', comment='A significant detail of this component'), 

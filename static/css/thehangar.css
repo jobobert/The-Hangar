@@ -991,3 +991,12 @@ div.index-page h3 {
     background-color: #218838;
     /* Darker on hover when checked */
 }
+
+.help_popover{
+    max-width: 75%;
+    padding: 1rem 1rem;
+    background-color: #dfdddd;
+    border-radius: 10px;
+    border-top-width: 1rem;
+    border-color:#571353
+}

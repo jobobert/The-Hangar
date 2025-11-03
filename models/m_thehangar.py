@@ -149,8 +149,8 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
 
         if helpText:
             #theHelp = DIV(f'{helpText}', _id=f'{inputID}_help', _popover)
-            theHelp = XML(f'<div id="{inputID}_help" popover>{MARKMIN(helpText)}</div>')
-            theHelpIcon = XML(f'<button type="button" class="btn btn-link" popovertarget="{inputID}_help">{action_icon("help", 15)}</button>')
+            theHelp = XML(f'<div id="{inputID}_help" popover class="help_popover">{MARKMIN(helpText)}</div>')
+            theHelpIcon = XML(f'<button type="button" class="btn btn-link" style="margin-top: -0.5rem" popovertarget="{inputID}_help">{action_icon("help", 15)}</button>')
   
         theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">{field.label or field.name} {"(" + originalText + ")" if originalText else ""} {theHelpIcon if helpText else ""}</label>')
         theInput = form.custom.widget[fieldname]
