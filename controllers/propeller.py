@@ -44,7 +44,7 @@ def listview():
     propellers = db(db.propeller.model.belongs(activemodels)).select(orderby=db.propeller.item | db.propeller.model)
     return dict(propellers=propellers)
 
-def remove():
+def delete():
     
     item_id = VerifyTableID('propeller', request.args(0)) or redirect(URL('default', 'index'))
     response.flash = item_id

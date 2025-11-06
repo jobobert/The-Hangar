@@ -119,17 +119,11 @@ def update():
     if form.process().accepted:
         session.flash = "Activity Updated"
         redirect(session.ReturnHere or URL('model', 'index', args=model_id))
-        # breadcrumb_back()
-        #redirect(URL('default', 'breadcrumb_back'))
-        # turned off breakcrumbs - if need to redirect, do it here
+    
     elif form.errors:
         response.flash = "Error Adding New Activity "
-    # else:
-        #response.flash = "Please Add a New Model"
 
-    response.view = 'content.html'
-
-    return dict(content=form)
+    return dict(form=form)
 
 
 def modelactivities():
