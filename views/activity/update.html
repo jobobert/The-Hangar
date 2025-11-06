@@ -1,0 +1,31 @@
+{{extend 'layout.html'}}
+
+{{=form.custom.begin}}
+<div class=" update-page">
+    <div class="row ">
+        <h2 class="">{{=controller_icon('activity', 48)}} Activity</h2>
+    </div>
+    
+    <div class="row">
+        {{=makeFormField(form, "activitydate", FormFieldType.COLUMNS, columns=4)}}
+        {{=makeFormField(form, "activitytype", FormFieldType.COLUMNS, columns=4)}}
+        {{=makeFormField(form, "model", FormFieldType.COLUMNS, columns=4)}}
+    </div>
+
+    <div class="row">
+        {{=makeFormField(form, "duration", FormFieldType.COLUMNS, columns=4)}}
+        {{=makeFormField(form, "activitylocation", FormFieldType.COLUMNS, columns=4)}}
+        {{=makeFormField(form, "img", FormFieldType.COLUMNS, columns=4)}}
+    </div>
+
+    <div class="row">
+        {{=makeFormField(form, "notes", FormFieldType.COLUMNS)}}
+    </div>
+
+</div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=makeFormSubmitbutton(form)}}
+</div>
+
+{{=form.custom.end}}
