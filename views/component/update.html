@@ -13,7 +13,7 @@ Your submitted form contains the following errors:
 {{=form.custom.begin}}
 
 <div class="update-page">
-    
+
 
     <div class="row ">
         <h2 class="">{{=controller_icon('component', 48)}} Component</h2>
@@ -23,12 +23,16 @@ Your submitted form contains the following errors:
         {{=makeFormField(form, "name", FormFieldType.COLUMNS, columns=4)}}
         {{=makeFormField(form, "componenttype", FormFieldType.COLUMNS, columns=4)}}
         {{=makeFormField(form, "componentsubtype", FormFieldType.COLUMNS, columns=4)}}
-        
+
     </div>
     <div class="row">
         {{=makeFormField(form, "significantdetail", FormFieldType.COLUMNS, columns=6)}}
         {{=makeFormField(form, "diagramname", FormFieldType.COLUMNS, columns=6)}}
-       
+
+    </div>
+    <div class="row">
+        {{=makeFormField(form, "customdot", FormFieldType.COLUMNS)}}
+        <div class="col-12" id="customdot">DOT here</div>
     </div>
     <div class="row">
         {{=makeFormField(form, "ownedcount", FormFieldType.COLUMNS, columns=6)}}
@@ -39,7 +43,7 @@ Your submitted form contains the following errors:
     <div class="row">
         {{=makeFormField(form, "img", FormFieldType.COLUMNS, columns=6)}}
         {{=makeFormField(form, "attachment", FormFieldType.COLUMNS, columns=6)}}
-        
+
     </div>
 
 
@@ -71,7 +75,7 @@ Your submitted form contains the following errors:
     </div>
 
     <br>
-    
+
     <div class="row mb-2">
         {{for key in form.custom.label:}}
         {{if key.startswith('attr_') and key not in ['attr_length', 'attr_width', 'attr_height', 'attr_weight_oz']:}}
@@ -80,7 +84,7 @@ Your submitted form contains the following errors:
         {{pass}}
     </div>
 
-    
+
 </div>
 
 <div class="row bg-light fixed-bottom pl-5 p-2">
@@ -89,6 +93,7 @@ Your submitted form contains the following errors:
 
 {{=form.custom.end}}
 
+<script src="{{=URL('static','js/viz-global.js')}}"></script>
 <script>
 
     function typeChange() {
@@ -115,6 +120,24 @@ Your submitted form contains the following errors:
         }
     }
 
+    const myTextarea = document.getElementById('component_customdot');
+    myTextarea.addEventListener('input', (event) => {
+        updateGraph();
+    });
+
+    function updateGraph() {
+
+        Viz.instance().then(viz => {
+            var content = "digraph G { Example " + document.getElementById("component_customdot").value + "}";
+            //alert(content);
+            const svg = viz.renderSVGElement(content);
+
+            document.getElementById("customdot").replaceChildren(svg);
+        });
+    }
+
     document.getElementById("component_componenttype").addEventListener("change", typeChange);
     jQuery(document).ready(typeChange);
+
+    updateGraph();
 </script>

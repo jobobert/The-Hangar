@@ -108,7 +108,7 @@ def index():
 
     wasFormUsed = False
     modelCategory = None
-    if request.cookies['ui'].value != 'dashboard':
+    if 'ui' in request.cookies and request.cookies['ui'].value != 'dashboard':
         # Setting up the model category.
         # Step 1: set default
         # Step 2: check the URL

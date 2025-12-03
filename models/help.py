@@ -84,6 +84,15 @@ def getDatabaseHelp(field) -> str:
             special models head their way (assuming, of course, my family doesn't want the item). Again, I know it
             is tough, but better you now than them later."""
 
+        case 'component.customdot':
+            return """
+            Use this format:
+
+                [label="My Component\nPurpose"; shape=box; color=blue];
+            
+            to customize how this component appears in diagrams. You can use {id}, {name}, and {purpose}
+            as variables that will be replaced with the component's unique ID, name, and purpose respectively
+            """
         case 'component.diagramname':
             return """
             To keep the diagrams concise, use this field to output a shorter name for the component when it is part

@@ -119,36 +119,42 @@ def creatediagramfromcomponents(model_id):
         comptype = row.component.componenttype
         compname = row.component.diagramname if row.component.diagramname else row.component.name
         
-        match comptype:
-            
-            case 'ESC': 
-                nodes.append(f'"{components[comptype]["id"]}{id}" [label="{compname}\n{row.purpose}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
-                edges.append(f'{"receiver:f" + str(row.channel) if row.channel else "default"} -- {components[comptype]["id"]}{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
-                escid = id
-            case 'Motor':
-                nodes.append(f'"{components[comptype]["id"]}{id}" [label="{compname}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
-                edges.append(f'{"esc" + str(escid) if escid != "" else "default"} -- motor{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
-            case 'Receiver':
-                count = 4 
-                ports = []
-                if row.component.attr_channel_count:
-                    count = row.component.attr_channel_count
-                ports.append(f'"receiver" [label = "<f0>{compname}')
-                for x in range(1, count + 1):
-                    ports.append(f'| <f{x}>Port {x} ')
-                if row.component.attr_telemetry_port:
-                    ports.append(' | <t1>Telemetry ')
-                if row.component.attr_sbus_port:
-                    ports.append(' | <t2>SBUS ')
-                if row.component.attr_pwr_port:
-                    ports.append(' | <t3>Power ')
-                ports.append('";shape = "record";];')
-                nodes.append(''.join(ports))
-            case 'Battery': 
-                pass
-            case _: 
-                nodes.append(f'"{components[comptype]["id"]}{id}" [label="{compname}\n{row.purpose if row.purpose else ""}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
-                edges.append(f'{"receiver:f" + str(row.channel) if row.channel else "default"} -- {components[comptype]["id"]}{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
+        if row.component.customdot:
+            theID = components[comptype]["id"] + str(id)
+            customReplacement = row.component.customdot.replace('{id}', str(id)).replace('{name}', compname).replace('{purpose}', row.purpose if row.purpose else '')
+            nodes.append(f'{theID} {customReplacement}')
+            #nodes.append(f'{theID} {row.component.customdot}')
+            edges.append(f'{"receiver:f" + str(row.channel) if row.channel else "default"} -- {theID} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
+        else:
+            match comptype:
+                case 'ESC': 
+                    nodes.append(f'"{components[comptype]["id"]}{id}" [label="{compname}\n{row.purpose}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
+                    edges.append(f'{"receiver:f" + str(row.channel) if row.channel else "default"} -- {components[comptype]["id"]}{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
+                    escid = id
+                case 'Motor':
+                    nodes.append(f'"{components[comptype]["id"]}{id}" [label="{compname}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
+                    edges.append(f'{"esc" + str(escid) if escid != "" else "default"} -- motor{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
+                case 'Receiver':
+                    count = 4 
+                    ports = []
+                    if row.component.attr_channel_count:
+                        count = row.component.attr_channel_count
+                    ports.append(f'"receiver" [label = "<f0>{compname}')
+                    for x in range(1, count + 1):
+                        ports.append(f'| <f{x}>Port {x} ')
+                    if row.component.attr_telemetry_port:
+                        ports.append(' | <t1>Telemetry ')
+                    if row.component.attr_sbus_port:
+                        ports.append(' | <t2>SBUS ')
+                    if row.component.attr_pwr_port:
+                        ports.append(' | <t3>Power ')
+                    ports.append('";shape = "record";];')
+                    nodes.append(''.join(ports))
+                case 'Battery': 
+                    pass
+                case _: 
+                    nodes.append(f'"{components[comptype]["id"]}{id}" [label="{compname}\n{row.purpose if row.purpose else ""}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
+                    edges.append(f'{"receiver:f" + str(row.channel) if row.channel else "default"} -- {components[comptype]["id"]}{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
 
     for row in model_battery.render():
         id += 1
@@ -171,7 +177,7 @@ def createcomponentexamples():
     return comps
 
 def editmodeldiagram():
-    model_id = VerifyTableID('activity', request.args(0)) or redirect(URL('model', 'listview'))
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
     
     model = db.model(model_id) 
 
