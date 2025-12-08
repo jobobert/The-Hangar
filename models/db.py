@@ -1061,11 +1061,11 @@ db.define_table('paint',
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)),
                 Field('colorhex', type='string', label='The HTML/hex code that matches the color'),
                 Field('img', type='upload', uploadseparate=True, autodelete=True, label='Image', comment='The image of the paint color (500px max)', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))),
-                format=lambda row: row.manufacturer + ' ' + row.brand + ' ' + row.color 
+                format=lambda row: f"{row.manufacturer} {row.brand or ''} {row.color}" 
                 )
 
 db.paint.get_name = Field.Method(
-    lambda row: row.paint.manufacturer + ' ' + row.paint.brand + ' ' + row.paint.color
+    lambda row: f"{row.paint.manufacturer or 'Unspecified manufacturer'} {row.paint.brand or ''} {row.paint.color or 'Unspecified color'}" 
 )
 db.paint.get_name.label = 'Name'
 
