@@ -1,0 +1,23 @@
+{{if not todos:}}
+<div class="export-notfound">No Todos</div>
+{{else:}}
+<h3 class="export-h3">Todos</h3>
+<table class="table export-table">
+    <tr class="row export-row">
+        <th class="col export-row_header">Todo</th>
+        <th class="col export-row_header">Notes</th>
+    </tr>
+    {{for todo in todos:}}
+    <tr class="row export-row">
+        <td class="col export-field_value">{{=todo.todo}}
+            {{if todo.critical:}}
+            <span class="badge badge-danger">Critical</span>
+            {{pass}}
+        </td>
+        <td class="col export-field_value ">
+            <div class=" export-field_notes">{{=MARKMIN(todo.notes)}}</div>
+        </td>
+    </tr>
+    {{pass}}
+</table>
+{{pass}}

@@ -12,7 +12,7 @@
             <div class="col">
                 <div class="tool_name">
                     {{if mt.paint.colorhex:}}
-                    <div class="d-inline-block" style="width: 20px; height:20px; background-color:{{=mt.paint.colorhex}}">&nbsp;</div>
+                    <div class="d-inline-block swatch" style="width: 20px; height:20px; background-color:{{=mt.paint.colorhex}}">&nbsp;</div>
                     {{pass}}
                     <a class="d-inline-block text-decoration-none" href="{{=URL('paint', 'index.html', args=mt.paint)}}">{{=mt.paint.get_name()}}</a>
                     <span>used for {{=mt.purpose}}</span>

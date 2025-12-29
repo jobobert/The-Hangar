@@ -1,4 +1,4 @@
-import urllib.parse
+#import urllib.parse
 
 def index():
 
@@ -100,3 +100,44 @@ def delete():
     db(db.wtc.id == wtc_id).delete()
     response.flash = "Deleted"
     redirect(session.ReturnHere or URL('wtc', 'listview'))
+
+def renderexport():
+    """
+    Render WTC export for a given model
+    """
+
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='wtc', title='Water Tight Cylinder Export')
+    
+    wtcs = models_and_wtcs(db.model.id == model_id).select() or None
+
+    torender = {
+        'title': 'Water Tight Cylinders',
+        'items': [],
+        'emptymsg': 'No Water Tight Cylinders associated with this model',
+        'controller': 'wtc',
+        'header': None,
+    }
+
+    for wtc in wtcs or []:
+        cylinder = wtc.wtc
+        content = {
+            'name': cylinder.name,
+            'img': cylinder.img,
+            'attachment': None, 
+            'details': []
+        }
+
+        content['details'] = [
+            (getattr(db.wtc,'make').label, cylinder.make),
+            (getattr(db.wtc,'model').label, cylinder.model),
+            (getattr(db.wtc,'notes').label, MARKMIN(cylinder.notes) if cylinder.notes else ''),
+            (getattr(db.wtc,'attr_ballast_capacity').label, cylinder.attr_ballast_capacity),
+        ]
+
+        torender['items'].append(content)
+
+    response.view = 'renderexport.load'
+    return dict(content=torender)

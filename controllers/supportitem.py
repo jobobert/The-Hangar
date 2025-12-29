@@ -48,3 +48,26 @@ def remove():
         response.flash = "Invalid support item ID"      
         
     redirect(session.ReturnHere or URL('supportitem', 'index', args=item_id, extension="html"))
+
+def renderexport():
+    
+    model_id = request.args[0]
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='supportitem', title='Support Items')
+
+    supportitems = db(db.supportitem.model == model_id).select()
+
+    torender = {
+        'title': 'Support Items',
+        'items': [],
+        'emptymsg': 'No supporting items necessary',
+        'controller': 'supportitem',
+        'header': None,
+    }
+    for item in supportitems or []:
+        torender['items'].append((item.item, MARKMIN(item.notes or '')))
+
+    response.view = 'renderexport.load'
+    return dict(content=torender)

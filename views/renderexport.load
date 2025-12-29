@@ -1,0 +1,95 @@
+{{ # content: dict with 'title', 'items', 'emptymsg', 'controller', 'header' as tuple of (name, value) }}
+{{ # items can be: }}
+{{ # string (preformatted) }}
+{{ # list of tuple with ('name', 'value') }}
+{{ # list of dict with ('name', 'img', 'attachment', 'details' as list of tuple with ('name', 'value')) }}
+
+{{if not content:}}
+    {{print("DEBUG: renderexport.load called with no content")}}
+    <div class="export-notfound">ERROR: no data provided</div>
+
+{{else:}}
+    <h3 class="export-h3">
+        {{if content.get('controller'):}}
+        {{=controller_icon(content['controller'], 25)}}
+        {{pass}}
+        {{=content['title']}}
+    </h3>
+    {{if not content['items']:}}
+        {{print("DEBUG: renderexport.load called with empty items")}}
+        <div class="export-notfound">{{=content['emptymsg']}}</div>
+
+    {{else:}}
+        {{if isinstance(content['items'], str):}}
+            {{print("DEBUG: renderexport.load called with string items")}}
+            <div class="export-field_notes">{{=content['items']}}</div>
+
+        {{elif isinstance(content['items'], list):}}
+            {{print("DEBUG: renderexport.load called with list items")}}
+            {{if isinstance(content['items'][0], tuple):}}
+                {{for item in content['items']:}}
+                    {{#print(item)}}
+                    <table class="table export-table">
+                        <tr class="row export-row">
+                            <th class="col export-field_name">{{=item[0]}}</th>
+                            <td class="col export-field_value">{{=item[1]}}</td>
+                        </tr>
+                    </table>
+                {{pass}}
+            {{elif isinstance(content['items'][0], dict):}}
+                {{for item in content['items']:}}
+                    <div class="d-inline-block">
+                        {{if item.get('img'):}}
+                            <img class="export-img-sm" src="{{=URL('default', 'download', args=item['img'])}}" alt="Item Image">
+                        {{pass}}
+                    </div>
+
+                    {{if item.get('name'):}}
+                        <div class="d-inline-block">
+                            <h4 class="export-item-name">{{=item['name']}}</h4>
+                        </div>
+                    {{pass}}
+
+                    <table class="table export-table">
+                    {{if item.get('attachment'):}}
+                        <tr class="row export-row">
+                            <th class="col export-field_name">Attachment</th>
+                            <td class="col export-field_value">
+                                <div class="d-inline-block attachment_icon">{{=filetype_icon(item['attachment'], 32) }}</div>
+                                <div class="d-inline-block attachment_name">{{=A('Download', _href=URL('default', 'download', args=item['attachment']))}}
+                                    <div>
+                                        {{if isimage(item['attachment']):}}
+                                            <img class='card-img-top' src="{{=URL('default', 'download', args=item['attachment'])}}" alt='Attachment'>
+                                        {{pass}}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {{pass}}
+
+                    {{if content.get('header'):}}
+                        <tr class="row export-row">
+                            <th class="col export-row_header">{{=content['header'][0]}}</th>
+                            <th class="col export-row_header">{{=content['header'][1]}}</th>
+                        </tr>
+                    {{pass}}
+                    {{if item.get('details'):}}
+                        {{for detail in item['details']:}}
+                        <tr class="row export-row">
+                            <th class="col export-field_name">{{=detail[0]}}</th>
+                            <td class="col export-field_value">{{=detail[1]}}</td>
+                        </tr>
+                        {{pass}}
+                    {{pass}}
+                    </table>
+                {{pass}}
+            {{else:}}
+                {{print("DEBUG: renderexport.load called with unknown list format, rendering the first item")}}
+                {{=content['items'][0]}}
+            {{pass}}
+        {{else:}}
+            {{print("DEBUG: renderexport.load called with unknown items type")}}
+            {{=content['items']}}
+        {{pass}}
+    {{pass}}
+{{pass}}

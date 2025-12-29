@@ -72,3 +72,38 @@ def rendercard():
     model_rigs = rig_query.select()
 
     return dict(model_rigs=model_rigs, modelid=model_id, newform=newform, deleteform=deleteform, rig_count=rig_count)
+
+def renderexport():
+    """
+    Render Sail Rig export for a given model
+    """
+
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='sailrig', title='Sail Rig Export')
+
+    sailrigs = db(db.sailrig.model == model_id).select() or None
+
+    torender = {
+        'title': 'Sail Rig',
+        'items': [],
+        'emptymsg': 'No sails are associated with this model',
+        'controller': 'sailrig',
+        'header': None,
+    }
+    for rig in sailrigs or []:
+        content = {
+            'name': rig.rigname,
+            'img': rig.img,
+            'attachment': None,
+            'details': []
+        }
+        content['details'] = [
+            (getattr(db.sailrig,'notes').label, MARKMIN(rig.notes) if rig.notes else '')
+        ]
+
+        torender['items'].append(content)
+
+    response.view = 'renderexport.load'
+    return dict(content=torender)

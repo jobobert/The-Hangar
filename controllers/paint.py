@@ -95,9 +95,10 @@ def rendercard():
     if deleteform.process(session=None, formname='deletepaintform').accepted:
         for y, z in request.vars.items():
             if z ==  'Remove':
-                del_id = y
-                db(db.model_paint.id == del_id).delete()
-                response.flash = 'Removal Sucess'
+                del_id = VerifyTableID('model_paint', y)
+                if del_id and db.model_paint[del_id].model == model_id:
+                    db(db.model_paint.id == del_id).delete()
+                    response.flash = 'Removal Sucess'
     elif deleteform.errors:
         response.flash = "Removal Failure"
 
@@ -106,3 +107,25 @@ def rendercard():
     model_paints = paint_query.select()
 
     return dict(model_paints=model_paints, model_id=model_id, addform=addform, newform=newform, deleteform=deleteform, paint_count=paint_count)
+
+def renderexport():
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='paint', title='Paint')
+
+    paints = db(db.model_paint.model == model_id).select() or None
+
+    torender = {
+        'title': 'Paints',
+        'items': [],
+        'emptymsg': 'No paints are associated with this model',
+        'controller': 'paint',
+        'header': None,
+    }
+
+    for paint in paints or []:
+        torender['items'].append((paint.paint.color, paint.purpose))
+
+    response.view = 'renderexport.load'
+    return dict(content=torender)

@@ -118,7 +118,8 @@ def update():
         'default', 'download'), deletable=True, showid=False)
     if form.process().accepted:
         session.flash = "Activity Updated"
-        redirect(session.ReturnHere or URL('model', 'index', args=model_id))
+        #print(form.vars.model)
+        redirect(session.ReturnHere or URL('model', 'index', args=form.vars.model))
     
     elif form.errors:
         response.flash = "Error Adding New Activity "
@@ -223,3 +224,43 @@ def addcrash():
         )
 
     return redirect(session.ReturnHere or URL('component', 'listview'))
+
+def renderexport():
+
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'            
+        return dict(content='Unable to locate the associated model', controller='activity', title='Activities')
+    
+    activities = db(db.activity.model == model_id).select(orderby=~db.activity.activitydate | ~db.activity.id)
+    torender = {
+        'title': 'Activities',
+        'items': None,
+        'emptymsg': 'No activities are associated with this model',
+        'controller': 'activity',
+        'header': None,
+    }
+
+    table = TABLE(_class="table export-table")
+    header = [
+        TH(getattr(db.activity,'activitydate').label, _class="col export-field_name"),
+        TH(getattr(db.activity,'activitytype').label, _class="col export-field_name"),
+        TH(getattr(db.activity,'duration').label, _class="col export-field_name"),
+        TH(getattr(db.activity,'activitylocation').label, _class="col export-field_name"),
+        TH(getattr(db.activity,'notes').label, _class="col export-field_name"),
+    ]
+    table.append(TR(*header, _class="row export-row"))
+    for activity in activities or []:
+        row = [
+            TD(activity.activitydate, _class="col export-field_value"),
+            TD(activity.activitytype, _class="col export-field_value"),
+            TD(activity.duration, _class="col export-field_value"),
+            TD(activity.activitylocation, _class="col export-field_value"),
+            TD(MARKMIN(activity.notes) if activity.notes else "", _class="col export-field_value"),
+        ]
+        table.append(TR(*row, _class="row export-row"))
+
+    torender['items'] = table
+
+    response.view = 'renderexport.load'
+    return dict(content=torender)

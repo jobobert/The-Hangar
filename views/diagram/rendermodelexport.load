@@ -2,6 +2,10 @@
 
 {{if dot:}}
 
+<h3 class="export-h3">
+    {{=controller_icon('diagram', 25)}}
+    Wiring Diagram
+</h3>
 <div id="graph-container" style=""></div>
 
 

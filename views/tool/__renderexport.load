@@ -1,0 +1,39 @@
+{{if not tools:}}
+<div class="export-notfound">No Tools</div>
+{{else:}}
+<h3 class="export-h3">Tools</h3>
+{{for tool in tools:}}
+{{t = tool.tool}}
+<div class="d-inline-block">
+    {{if tool.tool.img:}}
+    <img class=" export-image-xsm" src="{{=URL('default', 'download', args=t.img)}}" alt="Tool Image">
+    {{else:}}
+    &nbsp;
+    {{pass}}
+</div>
+<div class="d-inline-block">
+    <h4>{{=t.name}}</h4>
+</div>
+<table class="table export-table">
+    <tr class="row export-row">
+
+        <td class="col export-field_value">{{=t.tooltype}}</td>
+        <td class="col export-field_value">
+            {{if t.attachment:}}
+            <div class="d-inline-block attachment_icon">{{=filetype_icon(t.attachment, 32) }}</div>
+            <div class="d-inline-block attachment_name">{{=A('Download Attachment', _href=URL('default', 'download', args=t.attachment))}}</div>
+            {{if isimage(t.attachment):}}
+            <img class='card-img-top' src="{{=URL('default', 'download', args=t.attachment)}}" alt='Attachment'>
+            {{pass}}
+            {{else:}}
+            &nbsp;
+            {{pass}}
+        </td>
+        <td class="col export-field_value ">
+            <div class=" export-field_notes">{{=MARKMIN(t.notes)}}</div>
+        </td>
+    </tr>
+
+</table>
+{{pass}}
+{{pass}}

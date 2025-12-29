@@ -19,10 +19,9 @@
         <div><a class="btn btn-outline-primary" href="{{=URL('model', 'retire', args=[model.id])}}">Retire</a></div>
         <div><a class="btn btn-outline-primary" href="{{=URL('model', 'printcard', args=[model.id])}}">Card</a></div>
         <div><a class="btn btn-outline-primary" href="{{=URL('model', 'export', args=[model.id])}}">Export</a></div>
-        <div><a class="btn btn-outline-primary" href="{{=URL('model', 'exportminimal', args=[model.id])}}">Ex.Min</a>
-        </div>
     </div>
 </div>
+
 
 <div class="row mb-3 ml-2 no-print">
     <div class=" col-sm-12">
@@ -364,8 +363,8 @@
     var detailLinks = container.querySelectorAll("a");
     for (var i = 0; i < detailLinks.length; i++) {
         detailLinks[i].target = "_blank";
+        detailLinks[i].rel = "noopener noreferrer";
     }
-
     var deleteLinks = document.querySelectorAll('.delete');
     for (var i = 0; i < deleteLinks.length; i++) {
         deleteLinks[i].addEventListener('click', function (event) {

@@ -4,12 +4,12 @@ No switches defined
 
 {{else:}}
 {{if options == 'dashboard':}}
-    <ul>
+<ul>
     {{for k in switchList.keys():}}
-        <li><span style="font-weight:bold">{{=switchList[k]['switch']}}</span>
+    <li><span style="font-weight:bold">{{=switchList[k]['switch']}}</span>
         {{=switchList[k]['purpose']}}</li>
-        {{pass}}
-    </ul>
+    {{pass}}
+</ul>
 {{else:}}
 <table class="table export-table">
     {{for k in switchList.keys():}}
@@ -18,12 +18,13 @@ No switches defined
         <td class="col export-field_name font-weight-bold">{{=switchList[k]['purpose']}}</td>
     </tr>
     <tr class="row export-row ">
-        <td class="col export-field_name">{{=show_icon('s-' + switchList[k]['type'] + '.png', 32)}}</td>
+
+        <td class="col export-field_name">{{=switch_icon(switchList[k]['type'], 32)}}</td>
         <td class="col export-field_value">
             <table>
                 {{for p in switchList[k]['positions'].keys():}}
                 <tr>
-                    <td> {{=show_icon('s-' + p + '.png', 32)}}</td>
+                    <td> {{=switch_icon( p, 32)}}</td>
 
                     <td>{{=switchList[k]['positions'][p]}}</td>
                 </tr>

@@ -53,3 +53,26 @@ def delete():
         db(db.propeller.id == item_id).delete()
         
         redirect(URL('propeller', 'index', args=item_id, extension="html"))
+
+def renderexport():
+
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='propeller', title='Propellers')
+
+    propellers = db(db.propeller.model == model_id).select()
+
+    torender = {
+        'title': 'Propellers',
+        'items': [],
+        'emptymsg': 'No propellers associated with this model',
+        'controller': 'propeller',
+        'header': None,
+    }
+
+    for propeller in propellers or []:
+        torender['items'].append((propeller.item, ""))
+
+    response.view = 'renderexport.load'
+    return dict(content=torender)

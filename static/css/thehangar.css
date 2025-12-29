@@ -1,8 +1,8 @@
 /* The Model Edit Form */
 
-.model_form_label {
-    /*font-style: italic;*/
-}
+/*.model_form_label {
+    font-style: italic;
+}*/
 
 .th_form_label_required,
 .model_form_label_required {
@@ -443,6 +443,14 @@ div.activitytype_Purchase {
     border-left: solid 2px #830c83;
 }
 
+a.activitytype_Reconfiguration {
+    background-color: #379aa5c7;
+}
+
+div.activitytype_Reconfiguration {
+    border-left: solid 2px #379aa5c7;
+}
+
 a.activitytype_Retirement {
     background-color: #4c4d49;
 }
@@ -855,12 +863,45 @@ td.battery-ownedcount {
 }
 
 /* Export Styles */
+.export-h3 {
+    border-bottom: 3px solid #630556;
+    padding-bottom: 3px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.export-h4 {
+    border-bottom: 3px solid rgb(139, 110, 219);
+    padding-bottom: 3px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.export-item-name
+{
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
 .export-row {
     padding-left: 2em;
 }
 
+.export-img-sm {
+    max-width: 100px;
+    max-height: auto;
+    object-fit: contain;
+}
+
+.export-img-xsm {
+    max-width: 50px;
+    max-height: auto;
+    object-fit: contain;
+}
+
 .export-row_header {
-    background-color: rgb(69, 36, 161);
+    /*background-color: rgb(139, 110, 219);*/
+    border-bottom: 3px solid rgb(139, 110, 219);
 }
 
 .export-col_header {
@@ -992,11 +1033,17 @@ div.index-page h3 {
     /* Darker on hover when checked */
 }
 
-.help_popover{
+.help_popover {
     max-width: 75%;
     padding: 1rem 1rem;
     background-color: #dfdddd;
     border-radius: 10px;
     border-top-width: 1rem;
-    border-color:#571353;
+    border-color: #571353;
+}
+
+.swatch {
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
 }

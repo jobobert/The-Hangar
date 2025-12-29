@@ -5,7 +5,6 @@ import json
 def index(): 
     model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
 
-
     model = db.model(model_id) 
 
     details_form = SQLFORM(db.model, model.id, fields=[
@@ -86,76 +85,90 @@ def export():
 
     model = db.model(model_id) 
 
-    todos = db((db.todo.model == model_id) &
-               (db.todo.complete == False)).select()
-    components = models_and_components(db.model.id == model_id).select()
-    tools = db(db.model_tool.model == model_id).select()
-    batteries = db(db.model_battery.model == model_id).select()
-    propellers = db(db.propeller.model == model_id).select()
-    supportitems = db(db.supportitem.model == model_id).select()
-    flighttimes = db(db.eflite_time.model == model_id).select()
     attachments = db(db.attachment.model == model_id).select()
-    activities = db(db.activity.model == model_id).select()
-    wtcs = models_and_wtcs(db.model.id == model_id).select()
-    hardware = db(db.hardware.model == model_id).select()
-
-    c = {}
-    for comp in components:
-        if len(c) > 0 and comp.component.name in c:
-            # add the purpose/channel
-            c[comp.component.name]['uses'].append(
-                {'purpose': comp.model_component.purpose, 'channel': comp.model_component.channel})
-        else:
-            c[comp.component.name] = {
-                'img': comp.component.img,
-                'type': comp.component.componenttype,
-                'subtype': comp.component.componentsubtype,
-                'significantdetail': comp.component.significantdetail,
-                'ownedcount': comp.component.ownedcount,
-                'attachment': comp.component.attachment,
-                'notes': comp.component.notes,
-                'uses': [{'purpose': comp.model_component.purpose, 'channel': comp.model_component.channel}]
-            }
-            #c[comp.component.name] = {'type':'type', 'subtype': 'sub'}
 
     response.title = 'Export Model: ' + model.name
 
-    return dict(model=model, todos=todos, components=c, tools=tools, batteries=batteries, propellers=propellers, supportitems=supportitems, flighttimes=flighttimes, attachments=attachments, activities=activities, wtcs=wtcs, hardware=hardware)
+    return dict(model=model, attachments=attachments)
 
-def exportminimal():
+def exportflighttimes():
+    model_id = VerifyTableID('model', request.args(0)) or None
 
-    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
+    flighttimes = db(db.eflite_time.model == model_id).select() or None
 
-    model = db.model(model_id) 
-    
-    todos = db((db.todo.model == model_id) &
-               (db.todo.complete == False)).select()
-    components = models_and_components(db.model.id == model_id).select()
-    tools = db(db.model_tool.model == model_id).select()
-    batteries = db(db.model_battery.model == model_id).select()
-    propellers = db(db.propeller.model == model_id).select()
-    supportitems = db(db.supportitem.model == model_id).select()
-    flighttimes = db(db.eflite_time.model == model_id).select()
-    attachments = db(db.attachment.model == model_id).select()
+    torender = {
+        'title': 'Flight Times',
+        'items': None,
+        'emptymsg': 'No flight times calculated',
+        'controller': None,
+        'header': None,
+    }
 
-    c = {}
-    for comp in components:
-        if len(c) > 0 and comp.component.name in c:
-            # add the purpose/channel
-            c[comp.component.name]['uses'].append(
-                {'purpose': comp.model_component.purpose, 'channel': comp.model_component.channel})
-        else:
-            c[comp.component.name] = {
-                'img': comp.component.img,
-                'type': comp.component.componenttype,
-                'notes': comp.component.notes,
-                'uses': [{'purpose': comp.model_component.purpose, 'channel': comp.model_component.channel}]
-            }
-            #c[comp.component.name] = {'type':'type', 'subtype': 'sub'}
+    table = TABLE(_class="table export-table")
+    header = [
+        TH(getattr(db.component,'componenttype').label, _class="col export-field_name"),
+        TH('Battery', _class="col export-field_name"),
+        TH(getattr(db.propeller,'item').label, _class="col export-field_name"),
+        TH(getattr(db.eflite_time,'amps').label, _class="col export-field_name"),
+        TH(getattr(db.eflite_time,'watts').label, _class="col export-field_name"),
+        TH('Minutes', _class="col export-field_name"),
+        TH('Watts/Pound', _class="col export-field_name"),
+        TH('Is Over Rating?', _class="col export-field_name")
+    ]
+    table.append(TR(*header, _class="row export-row"))
+    for ft in flighttimes or []:
+        row = [
+            TD(ft.motor.name if ft.motor else '', _class="col export-field_value"),
+            TD(ft.battery.name if ft.battery else '', _class="col export-field_value"),            TD(ft.propeller, _class="col export-field_value"),
+            TD(ft.amps, _class="col export-field_value"),
+            TD(ft.watts, _class="col export-field_value"),
+            TD(ft.get_minutes(), _class="col export-field_value"),
+            TD(ft.get_wattsperpound(), _class="col export-field_value"),
+            TD(ft.is_overrating(), _class="col export-field_value")
+        ]
+        table.append(TR(*row, _class="row export-row"))
 
-    response.title = 'Export Model (minimal): ' + model.name
+    torender['items'] = table
 
-    return dict(model=model, todos=todos, components=c, tools=tools, batteries=batteries, propellers=propellers, supportitems=supportitems, flighttimes=flighttimes, attachments=attachments)
+    response.view = 'renderexport.load'
+    return dict(content=torender)
+
+def exporthardware():
+    model_id = VerifyTableID('model', request.args(0)) or None
+
+    hardware = db(db.hardware.model == model_id).select() or None
+
+    torender = {
+        'title': 'Hardware',
+        'items': None,
+        'emptymsg': 'No hardware is associated with this model',
+        'controller': None,
+        'header': None,
+    }
+
+    table = TABLE(_class="table export-table")
+    header = [
+        TH(getattr(db.hardware,'hardwaretype').label, _class="col export-field_name"),
+        TH(getattr(db.hardware,'diameter').label, _class="col export-field_name"),
+        TH(getattr(db.hardware,'length_mm').label, _class="col export-field_name"),
+        TH(getattr(db.hardware,'purpose').label, _class="col export-field_name"),
+        TH(getattr(db.hardware,'quantity').label, _class="col export-field_name"),
+    ]
+    table.append(TR(*header, _class="row export-row"))
+    for h in hardware or []:
+        row = [
+            TD(h.hardwaretype, _class="col export-field_value"),
+            TD(h.diameter, _class="col export-field_value"),
+            TD(h.length_mm, _class="col export-field_value"),
+            TD(h.purpose, _class="col export-field_value"),
+            TD(h.quantity, _class="col export-field_value"),
+        ]
+        table.append(TR(*row, _class="row export-row"))
+
+    torender['items'] = table
+
+    response.view = 'renderexport.load'
+    return dict(content=torender)
 
 def rendercard():
     model_id = VerifyTableID('model', request.args(0))

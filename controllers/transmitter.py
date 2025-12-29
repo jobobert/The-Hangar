@@ -44,3 +44,43 @@ def update():
 
     return dict(form=form)
 
+def renderexport():
+    transmitter_id = VerifyTableID('transmitter', request.args(0))
+
+    if not transmitter_id:
+            response.view = 'rendercarderror.load'
+            return dict(content='Unable to locate the associated transmitter', controller='transmitter', title='Transmitter')
+
+    if transmitter_id:
+        transmitter = db(db.transmitter.id == transmitter_id).select().first() or None
+
+    if not transmitter:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated transmitter', controller='transmitter', title='Transmitter')
+
+    torender = {
+        'title': 'Transmitter',
+        'items': [],
+        'emptymsg': 'No Transmitter',
+        'controller': 'transmitter',
+        'header': None,
+    }
+
+    content = {
+            'name': f"{transmitter.name} {'(' + transmitter.nickname + ')' if transmitter.nickname else ''}",
+            'img': transmitter.img,
+            'attachment': transmitter.attachment, 
+            'details': [
+                (getattr(db.transmitter,'manufacturer').label, transmitter.manufacturer),
+                (getattr(db.transmitter,'model').label, transmitter.model),
+                (getattr(db.transmitter,'protocol').label, transmitter.get_protocollist()),
+                (getattr(db.transmitter,'os').label, transmitter.os),
+                (getattr(db.transmitter,'serial').label, transmitter.serial),
+                (getattr(db.transmitter,'notes').label, MARKMIN(transmitter.notes)),
+            ]
+        }
+
+    torender['items'].append(content)
+
+    response.view = 'renderexport.load'
+    return dict(content=torender)

@@ -1,0 +1,74 @@
+{{if not components:}}
+<div class="export-notfound">No Components</div>
+{{else:}}
+<h3 class="export-h3">Components</h3>
+{{for component in components:}}
+{{comp = component.model_component.component}}
+<div class="d-inline-block">
+    <img class="export-img-xsm" src="{{=URL('default', 'download', args=comp.img)}}" alt="Component Image">
+</div>
+<div class="d-inline-block">
+    <h4>{{=comp.name}}</h4>
+</div>
+<table class="table export-table">
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.component,'serial').label}}</th>
+        <td class="col export-field_value">{{=comp.serial}}</td>
+    </tr>
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.component,'componenttype').label}}</th>
+        <td class="col export-field_value">{{=comp.type}}</td>
+    </tr>
+    {{if comp.subtype:}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.component,'componentsubtype').label}}</th>
+        <td class="col export-field_value">{{=comp.subtype}}</td>
+    </tr>
+    {{pass}}
+    {{if comp.significantdetail:}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.component,'significantdetail').label}}</th>
+        <td class="col export-field_value">{{=comp.significantdetail}}</td>
+    </tr>
+    {{pass}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.component,'ownedcount').label}}</th>
+        <td class="col export-field_value">{{=comp.ownedcount}} owned</td>
+    </tr>
+    {{if comp.attachment:}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.component,'attachment').label}}</th>
+        <td class="col export-field_value">
+            <div class="d-inline-block attachment_icon">{{=filetype_icon(comp.attachment, 32) }}</div>
+            <div class="d-inline-block attachment_name">{{=A('Download', _href=URL('default', 'download', args=comp.attachment))}}<div></div>
+                {{if isimage(comp.attachment):}}
+                <img class='card-img-top' src="{{=URL('default', 'download', args=comp.attachment)}}" alt='Attachment'>
+                {{pass}}
+        </td>
+    </tr>
+    {{pass}}
+
+    </td>
+    </tr>
+    <tr class="row export-row">
+        <th class="col export-field_name">Purpose</th>
+        <td class="col export-field_value">
+            {{if component.model_component.purpose:}}
+            {{=B(component.model_component.purpose)}}
+            {{else:}}
+            General Purpose
+            {{pass}}
+            {{if component.model_component.channel:}}
+            on channel
+            {{=B(component.model_component.channel)}}
+            {{pass}}
+        </td>
+    </tr>
+    <tr class="row export-row">
+        <td class="col export-field_value ">
+            <div class=" export-field_notes">{{=MARKMIN(comp.notes)}}</div>
+        </td>
+    </tr>
+</table>
+{{pass}}
+{{pass}}

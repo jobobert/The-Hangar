@@ -1,0 +1,37 @@
+{{if not transmitter:}}
+<div class="export-notfound">No Transmitter</div>
+{{else:}}
+<h3 class="export-h3">Transmitter Details</h3>
+<div class="d-inline-block">
+    <img width="200px" class="export-img-sm" src="{{=URL('default', 'download', args=transmitter.img)}}" alt="Transmitter Image">
+</div>
+<div class="d-inline-block">
+    <h4>{{=transmitter.name}}</h4>
+</div>
+<table class="table export-table">
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.transmitter,'serial').label}}</th>
+        <td class="col export-field_value">{{=transmitter.serial}}</td>
+    </tr>
+    {{if transmitter.attachment:}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.transmitter,'attachment').label}}</th>
+        <td class="col export-field_value">
+            <div class="d-inline-block attachment_icon">{{=filetype_icon(transmitter.attachment, 32) }}</div>
+            <div class="d-inline-block attachment_name">{{=A('Download', _href=URL('default', 'download', args=transmitter.attachment))}}</div>
+            {{if isimage(transmitter.attachment):}}
+            <img class='card-img-top' src="{{=URL('default', 'download', args=transmitter.attachment)}}" alt='Attachment'>
+            {{pass}}
+        </td>
+    </tr>
+    {{pass}}
+    <tr class="row export-row">
+        <th class="col export-field_name">{{=getattr(db.transmitter,'notes').label}}</th>
+    </tr>
+    <tr class="row export-row" colspan="2">
+        <td class="col export-field_value ">
+            <div class=" export-field_notes">{{=MARKMIN(transmitter.notes)}}</div>
+        </td>
+    </tr>
+</table>
+{{pass}}

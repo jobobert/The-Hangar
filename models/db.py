@@ -201,6 +201,8 @@ db.define_table('transmitter',
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
                 Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the transmitter (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Manual', comment='The manual, etc', default=''), 
+                Field('manufacturer', type='string', label='Manufacturer', comment='Who made the transmitter?'),
+                Field('model', type='string', label='Model', comment='The model of the transmitter'),
                 Field('os', type='string', label='Operating System/Version'),
                 Field('protocol', type='list:reference protocol', label='Protocols Supported', comment='The protocols supported by this transmitter',
                 widget=SQLFORM.widgets.checkboxes.widget, 
@@ -209,7 +211,12 @@ db.define_table('transmitter',
                 )
 
 db.transmitter.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
-
+db.transmitter.protocol.represent = lambda ids, row: ', '.join([db.protocol(id).name for id in ids if db.protocol(id)])
+def expandProtocols(list_of_ids):
+    return ', '.join([db.protocol(id).name for id in list_of_ids if db.protocol(id)])
+db.transmitter.get_protocollist = Field.Method(
+    lambda row: expandProtocols(row.transmitter.protocol)
+)
 
 ###############################################
 ## MODEL
@@ -625,7 +632,7 @@ db.define_table('activity',
                 )
 
 db.activity.activitytype.requires = IS_IN_SET(
-    ('Flight', 'Crash', 'Repair', 'Purchase', 'Retirement', 'Note', 'StateChange', 'Other'), sort=True)
+    ('Flight', 'Crash', 'Repair', 'Purchase', 'Retirement', 'Note', 'StateChange', 'Other', 'Reconfiguration'), sort=True)
 db.activity.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1500, 1500)))
 
 db.activity.activitylocation.widget = SQLFORM.widgets.autocomplete(
@@ -639,6 +646,7 @@ db.activity.notes.format = lambda model: MARKMIN(model.notes)
 
 db.define_table('component', 
                 Field('name', type='string', label='Name', required=True, unique=True), 
+                Field('serial', type='string', label='Serial Number'), 
                 Field('diagramname', type='string', label='Diagram Name', comment='The name used in the diagram', required=False, unique=False),
                 Field('customdot', type='string', label='Custom .dot Code', comment='Custom .dot code for diagrams', required=False, unique=False),
                 Field('componenttype', type='string', label='Type', comment='The type of component', required=True), 
@@ -1000,6 +1008,7 @@ db.define_table('wtc',
                 Field('attr_width_mm', type='double', label='Width/Beam', comment='The width/beam', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
                 Field('attr_height_mm', type='double', label='Height', comment='The height', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
                 Field('attr_weight_oz', type='double', label='Weight', comment='The weight', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_ballast_capacity', type='double', label='Ballast Capacity', comment='The ballast capacity', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
                 #
                 format=lambda row: 'Unknown' if row is None else row.name
                 )
@@ -1009,6 +1018,7 @@ db.wtc.attr_outer_diameter_mm.extra = {'measurement': 'mm'}
 db.wtc.attr_width_mm.extra = {'measurement': 'mm'}
 db.wtc.attr_height_mm.extra = {'measurement': 'mm'}
 db.wtc.attr_weight_oz.extra = {'measurement': 'oz'}
+db.wtc.attr_ballast_capacity.extra = {'measurement': 'oz'}
 
 db.wtc.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 

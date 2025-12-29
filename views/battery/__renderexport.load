@@ -1,0 +1,13 @@
+{{if not batteries:}}
+<div class="export-notfound">No Batteries</div>
+{{else:}}
+<h3 class="export-h3">Batteries</h3>
+<table class="table export-table">
+{{for battery in batteries:}}
+<tr class="row export-row">
+    <th class="col export-field_name">{{=battery.battery.name}}</th>
+    <td class="col export-field_value">{{=battery.quantity}} needed</td>
+</tr>
+{{pass}}
+</table>
+{{pass}}

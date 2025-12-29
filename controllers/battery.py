@@ -134,3 +134,25 @@ def removefrommodel():
     db(db.model_battery.id == relationship_id).delete()
 
     return redirect(URL('model', 'index.html', args=model_id))
+
+def renderexport():
+    
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        response.view = 'rendercarderror.load'
+        return dict(content='Unable to locate the associated model', controller='battery', title='Batteries')
+
+    batteries = db(db.model_battery.model == model_id).select() or None
+
+    torender = {
+        'title': 'Batteries',
+        'items': [],
+        'emptymsg': 'No Batteries assigned to this model',
+        'controller': 'battery',
+        'header': None,
+    }
+    for battery in batteries or []:
+        torender['items'].append((battery.battery.name or "Unknown", f"{battery.quantity} needed"))
+            
+    response.view = 'renderexport.load'
+    return dict(content=torender)
