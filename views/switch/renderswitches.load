@@ -1,8 +1,6 @@
 {{if render_card:}}
 {{if switch_count == 0:}}
-
-No switches defined
-
+<p class="col">No switches defined</p>
 {{else:}}
 {{for k in switchList.keys():}}
 <div class="col d-block">
@@ -18,30 +16,32 @@ No switches defined
     </div>
     <div class="card-body">
         {{if switch_count == 0:}}
-
-        No switches defined
-
+        <p class="col">No switches defined</p>
         {{else:}}
         {{for k in switchList.keys():}}
-        <div class="row">
-
-            <div class="col-2 d-block font-weight-bold">{{=switchList[k]['switch']}}</div>
-            <div class="col d-block ml-4 ">{{=switchList[k]['purpose']}}</div>
+        <div class="row d-none d-md-flex">
+            <div class="col-2 d-inline-block font-weight-bold">{{=switchList[k]['switch']}}</div>
+            <div class="col d-inline-block ml-4 ">{{=switchList[k]['purpose']}}</div>
             <div class="col-2">
-                {{=editButton('switch', 'update.html',switchList[k]['id'])}}
+                {{=editButton('switch', 'update.html', switchList[k]['id'])}}
             </div>
-
+        </div>
+        <div class="row d-flex d-md-none">
+            <div class="col d-inline-block font-weight-bold">{{=switchList[k]['switch']}}</div>
+            <div class="col d-inline-block ml-4 ">{{=switchList[k]['purpose']}}</div>
+            <div class="col-2">
+                {{=editButton('switch', 'update.html', switchList[k]['id'])}}
+            </div>
         </div>
 
         <div class="row border-bottom ">
-            <!--<div class="col-4">{{=switchList[k]['type']}}</div>-->
             <div class="col-3 d-none d-md-inline">
                 {{=switch_icon(switchList[k]['type'], 32)}}
             </div>
             <div class="col-9 d-none d-md-inline">
                 {{for p in switchList[k]['positions'].keys():}}
                 <div class="row border-bottom">
-                    <!--<div class="col-6">{{=p}}</div>-->
+
                     <div class="col-3">
                         {{=switch_icon( p, 32)}}
                     </div>
@@ -52,9 +52,7 @@ No switches defined
         </div>
 
         {{pass}}
-
         {{pass}}
-
 
     </div>
     <div class="card-footer">

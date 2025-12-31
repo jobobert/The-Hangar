@@ -4,36 +4,39 @@
 
 <div>
     {{=A("Edit", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="btn btn-primary")}}
-    {{else:}}
-    <div class="card">
-        <div class="card-header">
-            <h5 class="card-title" style="display: inline-block;">
-                <span class="card-icon">{{=controller_icon('diagram', 25)}}</span>
-                Wiring Diagram
-            </h5>
-            {{=A("Edit", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="card-link th-new-link")}}
 
-        </div>
-        {{pass}}
+    <div id="graph-container" class="col"></div>
+</div>
 
-
-        <div class="card-body">
-            {{if not is_mobile:}}
-            <div id="graph-container" class="col"></div>
-            {{pass}}
-        </div>
+{{else:}}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;">
+            <span class="card-icon">{{=controller_icon('diagram', 25)}}</span>
+            Wiring Diagram
+        </h5>
+        {{=A("Edit", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="card-link th-new-link")}}
 
     </div>
 
+    <div class="card-body">
 
-    <script>
+        <div id="graph-container" class="col"></div>
 
-        const dotGraph = `{{=XML(dot)}}`;
+    </div>
 
-        Viz.instance().then(viz => {
-            const svg = viz.renderSVGElement(dotGraph);
+</div>
+{{pass}}
 
-            document.getElementById("graph-container").appendChild(svg);
-        });
 
-    </script>
+<script>
+
+    const dotGraph = `{{=XML(dot)}}`;
+
+    Viz.instance().then(viz => {
+        const svg = viz.renderSVGElement(dotGraph);
+
+        document.getElementById("graph-container").appendChild(svg);
+    });
+
+</script>

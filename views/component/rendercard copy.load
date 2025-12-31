@@ -32,57 +32,48 @@
 
         {{=deleteform.custom.begin}}
         {{for component in components:}}
-        <div class="container component-item">
-
-            <div class="row">
-                <div class="col-2 component-item-image"><img class="component-item-image" src="{{=URL('default', 'download', args=component.model_component.component.img)}}" /></div>
-                <div class="col">
-                    <div class="row">
-                        <div class="col component-item-name d-inline">
-                            <a class="text-decoration-none" href="{{=URL('component','index.html',args=[component.model_component.component])}}">
-                                {{=component.model_component.component.name}}</a>
-                            <span class="badge badge-pill badge-primary d-none d-md-inline">{{=component.model_component.component.componenttype}}</span>
-                            {{if component.model_component.component.componentsubtype:}}
-                            <span class="badge badge-pill badge-info d-none d-md-inline">{{=component.model_component.component.componentsubtype}}</span>
-                            {{pass}}
-                        </div>
-
-                        {{if component.model_component.component.attachment:}}
-                        <div class="col-2 d-none d-md-inline">
-                            <a class="d-inline-block d-none d-md-inline order-last order-sm-0 "
-                               href="{{=URL('default', 'download', args=component.model_component.component.attachment)}}">
-                                {{=filetype_icon(component.model_component.component.attachment, 32) }}
-                            </a>
-                            <span class="d-inline-block">{{=component.model_component.component.showAttachmentPopup()}}</span>
-                        </div>
+        <div class="row component-item">
+            <div class="col-sm-2 component-item-image"><img class="component-item-image" src="{{=URL('default', 'download', args=component.model_component.component.img)}}" /></div>
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-12 component-item-name d-inline">
+                        <a class="text-decoration-none" href="{{=URL('component','index.html',args=[component.model_component.component])}}">
+                            {{=component.model_component.component.name}}</a>
+                        <span class="badge badge-pill badge-primary d-none d-md-inline">{{=component.model_component.component.componenttype}}</span>
+                        {{if component.model_component.component.componentsubtype:}}
+                        <span class="badge badge-pill badge-info d-none d-md-inline">{{=component.model_component.component.componentsubtype}}</span>
                         {{pass}}
-
-                    </div>
-                    {{if component.model_component.component.significantdetail:}}
-                    <div class="row">
-                        <div class="col d-none d-md-inline component-item-significantdetail">{{=component.model_component.component.significantdetail}}</div>
-                    </div>
-                    {{pass}}
-                    <div class="row">
-                        <div class="col col-md-4 component-item-channel">
-                            {{if component.model_component.channel:}}
-                            <span class="component-item-channel_label d-inline ">Channel:</span>
-                            <span class="component-item-channel_value d-inline">{{=component.model_component.channel}}</span>
-                            {{pass}}
-                        </div>
-                        <div class="col col-md-8 d-none d-md-inline component-item-purpose">
-                            {{if component.model_component.purpose:}}
-                            <span class="component-item-purpose_label">Purpose:</span> <span class="component-item-purpose_value">{{=component.model_component.purpose}}</span>
-                            {{pass}}
-                        </div>
                     </div>
                 </div>
-                <div class="col-2 component-item-buttons">
-                    <a class="btn btn-warning d-inline-block" href="{{=URL('component','updatemodelrelation',args=component.model_component.id)}}">{{=action_icon('edit', 16)}}</a>
-                    <button class="btn btn-danger d-inline-block" type="submit" value="Remove" name="{{=component.model_component.id}}">{{=action_icon('delete', 16)}}</button>
+                {{if component.model_component.component.significantdetail:}}
+                <div class="row col-12 d-none d-md-inline component-item-significantdetail">{{=component.model_component.component.significantdetail}}</div>
+                {{pass}}
+                <div class="row">
+                    <div class="col-12 col-md-4 component-item-channel">
+                        {{if component.model_component.channel:}}
+                        <span class="component-item-channel_label d-inline ">Channel:</span>
+                        <span class="component-item-channel_value d-inline">{{=component.model_component.channel}}</span>
+                        {{pass}}
+                    </div>
+                    <div class="col-12 col-md-8 d-none d-md-inline component-item-purpose">
+                        {{if component.model_component.purpose:}}
+                        <span class="component-item-purpose_label">Purpose:</span> <span class="component-item-purpose_value">{{=component.model_component.purpose}}</span>
+                        {{pass}}
+                    </div>
                 </div>
             </div>
+            <div class="col-sm-2 component-item-buttons">
+                <a class="btn btn-warning d-inline-block" href="{{=URL('component','updatemodelrelation',args=component.model_component.id)}}">{{=action_icon('edit', 16)}}</a>
+                <button class="btn btn-danger d-inline-block" type="submit" value="Remove" name="{{=component.model_component.id}}">{{=action_icon('delete', 16)}}</button>
+                {{if component.model_component.component.attachment:}}
+                <a class="d-inline-block d-none d-md-inline order-last order-sm-0 "
+                   href="{{=URL('default', 'download', args=component.model_component.component.attachment)}}">
+                    {{=filetype_icon(component.model_component.component.attachment, 32) }}
+                </a>
 
+                <div class="d-inline-block">{{=component.model_component.component.showAttachmentPopup()}}</div>
+                {{pass}}
+            </div>
         </div>
         {{pass}}
         {{=deleteform.custom.end}}

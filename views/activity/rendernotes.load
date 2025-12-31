@@ -17,20 +17,16 @@
     </form>
 </div>
 
-<div class="row mt-3">
-    <div class="card-group">
+
+<div class="row mt-3 ml-3">
+    <dl>
         {{for note in notes:}}
-        <div class="col">
-            <div class="card">
-                <div class="card-header">{{=note.activitydate.strftime('%b %d, %Y')}}</div>
-                <div class="card-body">
-                    <p class="card-text p-0">{{=MARKMIN(note.notes)}}</p>
-                </div>
-            </div>
-        </div>
+        <dt>{{=note.activitydate.strftime('%b %d, %Y')}}</dt>
+        <dd>{{=MARKMIN(note.notes)}}</dd>
         {{pass}}
-    </div>
+    </dl>
 </div>
+
 {{else:}}
 <!-- Not the dashboard view -->
 <div class="card">

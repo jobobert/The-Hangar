@@ -19,8 +19,8 @@
         <div><a class="btn btn-outline-primary" href="{{=URL('model', 'retire', args=[model.id])}}">Retire</a></div>
         <div><a class="btn btn-outline-primary" href="{{=URL('model', 'printcard', args=[model.id])}}">Card</a></div>
         <div><a class="btn btn-outline-primary" href="{{=URL('model', 'export', args=[model.id])}}">Export</a></div>
-        </div>
     </div>
+</div>
 </div>
 
 <div class="row mb-3 ml-2 no-print">
@@ -86,185 +86,163 @@
 
 
 <div class="row">
-    <div class="col-sm">
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('activity','rendernotes.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Notes"))}}
+
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('activity','rendernotes.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Notes"))}}
+    </div>
+
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('todo', 'rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Todos"))}}
+    </div>
+
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('model','renderflighttimes.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Flight Times"))}}
+    </div>
+
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('switch', 'renderswitches.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Switches"))}}
+    </div>
+
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('battery','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')), "Batteries"))}}
+    </div>
+
+    {{allowed_controllers = modeltype_controller_mapping.get(model.modeltype, [])}}
+
+    {{if 'propeller' in allowed_controllers:}}
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('propeller','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Propellers"))}}
+    </div>
+    {{pass}}
+
+    {{if 'rotor' in allowed_controllers:}}
+    <div class="col-12 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title" style="display: inline-block;">
+                    <span class="card-icon">{{=attribute_icon('rotor', 25)}}</span>
+                    Rotors
+                </h5>
             </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('todo', 'rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Todos"))}}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('model','renderflighttimes.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Flight Times"))}}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('switch', 'renderswitches.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Switches"))}}
+            <div class="card-body">
+                {{if model.attr_multi_rotor_count and model.attr_multi_rotor_count > 0:}}
+                <b>{{=model.attr_multi_rotor_count}}</b> Main Rotor(s) with <b>{{=model.attr_copter_blade_count}}</b>
+                blade(s) of <b>{{=model.attr_copter_mainrotor_length}}</b>mm length<br />
+                <b>1</b> Tail Rotor with <b>{{=model.attr_copter_tailrotor_blade_count}}</b> blade(s) of
+                <b>{{=model.attr_copter_tailrotor_span}}</b>mm length
+                {{else:}}
+                No rotors on this model
+                {{pass}}
             </div>
         </div>
     </div>
-    <div class="col-sm">
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('battery','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')), "Batteries"))}}
+    {{pass}}
+
+    {{if 'wtc' in allowed_controllers:}}
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('wtc','rendercard.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True,content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Water Tight Cylinder"))}}
+    </div>
+    {{pass}}
+
+    {{if 'sailrig' in allowed_controllers:}}
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('sailrig','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')), "Sail Rigs"))}}
+    </div>
+    {{pass}}
+
+    <!-- this -->
+
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('tool','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Tools"))}}
+    </div>
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('supportitem','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Support Items"))}}
+    </div>
+
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('model', 'renderhardware.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Hardware"))}}
+    </div>
+
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('attachment','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Attachments"))}}
+    </div>
+
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('model','renderurlcard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"URL"))}}
+    </div>
+
+    <div class="col-12 col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Attributes</h5>
             </div>
-        </div>
-        {{allowed_controllers = modeltype_controller_mapping.get(model.modeltype, [])}}
-        {{if 'propeller' in allowed_controllers:}}
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('propeller','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Propellers"))}}
-            </div>
-        </div>
-        {{pass}}
-        {{if 'rotor' in allowed_controllers:}}
-        <div class="row">
-            <div class="col mb-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title" style="display: inline-block;">
-                            <span class="card-icon">{{=attribute_icon('rotor', 25)}}</span>
-                            Rotors
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        {{if model.attr_multi_rotor_count and model.attr_multi_rotor_count > 0:}}
-                        <b>{{=model.attr_multi_rotor_count}}</b> Main Rotor(s) with <b>{{=model.attr_copter_blade_count}}</b>
-                        blade(s) of <b>{{=model.attr_copter_mainrotor_length}}</b>mm length<br />
-                        <b>1</b> Tail Rotor with <b>{{=model.attr_copter_tailrotor_blade_count}}</b> blade(s) of
-                        <b>{{=model.attr_copter_tailrotor_span}}</b>mm length
+            <div class="card-body attribute-list">
+                <dl>
+                    {{if model.manufacturer:}}
+                    <dt>{{=db.model.manufacturer.label}}</dt>
+                    <dd>{{=model.manufacturer}}</dd>
+                    {{pass}}
+                    {{if model.kitnumber:}}
+                    <dt>{{=db.model.kitnumber.label}}</dt>
+                    <dd>{{=model.kitnumber}}</dd>
+                    {{pass}}
+                    {{if model.kitlocation:}}
+                    <dt>{{=db.model.kitlocation.label}}</dt>
+                    <dd>{{=model.kitlocation}}</dd>
+                    {{pass}}
+                    <dt>{{=db.model.haveplans.label}}</dt>
+                    <dd>{{=model.haveplans}}</dd>
+                    <dt>{{=db.model.havekit.label}}</dt>
+                    <dd>{{=model.havekit}}</dd>
+                    {{for key in sorted(model.__dict__):}}
+                    {{if key.startswith('attr_') and model[key] and not key.startswith('attr_boat_rig_'):}}
+                    {{c=''}}
+
+                    {{if key.startswith('attr_plane_') and model.modeltype != 'Airplane' :}}
+                    {{c="model_attr_light"}}
+                    {{elif key.startswith('attr_rocket_') and model.modeltype != 'Rocket':}}
+                    {{c="model_attr_light"}}
+                    {{elif key.startswith('attr_boat_') and model.modeltype != 'Boat':}}
+                    {{if model.modeltype != 'Submarine':}}
+                    {{c="model_attr_light"}}
+                    {{pass}}
+                    {{elif key.startswith('attr_sub_') and model.modeltype != 'Submarine':}}
+                    {{c="model_attr_light"}}
+                    {{elif key.startswith('attr_copter_') and model.modeltype != 'Helicopter':}}
+                    {{if model.modeltype != 'Autogyro' :}}
+                    {{c="model_attr_light"}}
+                    {{pass}}
+                    {{elif key.startswith('attr_multi_') and model.modeltype != 'Multirotor' :}}
+                    {{c="model_attr_light"}}
+                    {{elif key.startswith('attr_robot_') and model.modeltype != 'Robot' :}}
+                    {{c="model_attr_light"}}
+                    {{elif key.startswith('attr_experimental_') and model.modeltype != 'Experimental' :}}
+                    {{c="model_attr_light"}}
+                    {{else:}}
+                    {{c=''}}
+                    {{pass}}
+                    <dt class="{{=c}}">{{=getattr(db.model, key).label}}</dt>
+                    <dd class="{{=c}}">
+                        {{if getattr(db.model, key).type == 'double':}}
+                        {{=TwoDecimal(model[key])}} {{=ConvertMeasurementField(db.model, model, key)}}
                         {{else:}}
-                        No rotors on this model
+                        {{=model[key]}}
                         {{pass}}
-                    </div>
-                </div>
+                    </dd>
+                    {{pass}}
+                    {{pass}}
+                </dl>
             </div>
         </div>
-        {{pass}}
-        {{if 'wtc' in allowed_controllers:}}
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('wtc','rendercard.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True,content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Water Tight Cylinder"))}}
-            </div>
-        </div>
-        {{pass}}
-        {{if 'sailrig' in allowed_controllers:}}
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('sailrig','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')), "Sail Rigs"))}}
-            </div>
-        </div>
-        {{pass}}
     </div>
+
+    <div class="col-12 col-md-6 mb-3">
+        {{=LOAD('paint','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Paint"))}}
+    </div>
+
 </div>
 
-<div class="row">
-    <div class="col">
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('tool','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Tools"))}}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('supportitem','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Support Items"))}}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('model', 'renderhardware.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Hardware"))}}
-            </div>
-        </div>
-    </div>
-    <div class="col">
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('attachment','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Attachments"))}}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('model','renderurlcard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"URL"))}}
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title">Attributes</h5>
-                    </div>
-                    <div class="card-body attribute-list">
-                        <dl>
-                            {{if model.manufacturer:}}
-                            <dt>{{=db.model.manufacturer.label}}</dt>
-                            <dd>{{=model.manufacturer}}</dd>
-                            {{pass}}
-                            {{if model.kitnumber:}}
-                            <dt>{{=db.model.kitnumber.label}}</dt>
-                            <dd>{{=model.kitnumber}}</dd>
-                            {{pass}}
-                            {{if model.kitlocation:}}
-                            <dt>{{=db.model.kitlocation.label}}</dt>
-                            <dd>{{=model.kitlocation}}</dd>
-                            {{pass}}
-                            <dt>{{=db.model.haveplans.label}}</dt>
-                            <dd>{{=model.haveplans}}</dd>
-                            <dt>{{=db.model.havekit.label}}</dt>
-                            <dd>{{=model.havekit}}</dd>
-                            {{for key in sorted(model.__dict__):}}
-                            {{if key.startswith('attr_') and model[key] and not key.startswith('attr_boat_rig_'):}}
-                            {{c=''}}
 
-                            {{if key.startswith('attr_plane_') and model.modeltype != 'Airplane' :}}
-                            {{c="model_attr_light"}}
-                            {{elif key.startswith('attr_rocket_') and model.modeltype != 'Rocket':}}
-                            {{c="model_attr_light"}}
-                            {{elif key.startswith('attr_boat_') and model.modeltype != 'Boat':}}
-                            {{if model.modeltype != 'Submarine':}}
-                            {{c="model_attr_light"}}
-                            {{pass}}
-                            {{elif key.startswith('attr_sub_') and model.modeltype != 'Submarine':}}
-                            {{c="model_attr_light"}}
-                            {{elif key.startswith('attr_copter_') and model.modeltype != 'Helicopter':}}
-                            {{if model.modeltype != 'Autogyro' :}}
-                            {{c="model_attr_light"}}
-                            {{pass}}
-                            {{elif key.startswith('attr_multi_') and model.modeltype != 'Multirotor' :}}
-                            {{c="model_attr_light"}}
-                            {{elif key.startswith('attr_robot_') and model.modeltype != 'Robot' :}}
-                            {{c="model_attr_light"}}
-                            {{elif key.startswith('attr_experimental_') and model.modeltype != 'Experimental' :}}
-                            {{c="model_attr_light"}}
-                            {{else:}}
-                            {{c=''}}
-                            {{pass}}
-                            <dt class="{{=c}}">{{=getattr(db.model, key).label}}</dt>
-                            <dd class="{{=c}}">
-                                {{if getattr(db.model, key).type == 'double':}}
-                                {{=TwoDecimal(model[key])}} {{=ConvertMeasurementField(db.model, model, key)}}
-                                {{else:}}
-                                {{=model[key]}}
-                                {{pass}}
-                            </dd>
-                            {{pass}}
-                            {{pass}}
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                {{=LOAD('paint','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Paint"))}}
-            </div>
-        </div>
-    </div>
-</div>
 <div class="row">
     <div class="col  mb-3">
         <div class="card shadow  mb-3  rounded">
