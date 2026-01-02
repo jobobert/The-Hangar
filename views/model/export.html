@@ -83,7 +83,7 @@
                 {{=A(att.name + " (" + att.attachmenttype + ")", _href=URL('default', 'download', args=att.attachment))}}
             </div>
             {{if isimage(att.attachment):}}
-            <img class='card-img-top' src="{{=URL('default', 'download', args=att.attachment)}}" alt='Attachment'>
+            <img style="max-width: 20rem;" class='card-img-top' src="{{=URL('default', 'download', args=att.attachment)}}" alt='Attachment'>
             {{pass}}
             {{pass}}
             {{else:}}
@@ -104,9 +104,10 @@
 
 {{=LOAD('todo', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Todos"))}}
 
-{{=LOAD('component', 'renderexport_formodel.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Components"))}}
 
 {{=LOAD('tool', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Tools"))}}
+
+{{=LOAD('model', 'exporthardware.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Hardware"))}}
 
 {{=LOAD('battery', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Batteries"))}}
 
@@ -118,12 +119,12 @@
 
 {{=LOAD('model', 'exportflighttimes.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Flight Times"))}}
 
-{{=LOAD('diagram', 'rendermodelexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Switches"))}}
-
-{{=LOAD('model', 'exporthardware.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Hardware"))}}
-
 {{=LOAD('wtc', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Water Tight Cylinders"))}}
 
 {{=LOAD('sailrig', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Sail Rigs"))}}
+
+{{=LOAD('component', 'renderexport_formodel.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Components"))}}
+
+{{=LOAD('diagram', 'rendermodelexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Switches"))}}
 
 {{=LOAD('activity', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Activities"))}}

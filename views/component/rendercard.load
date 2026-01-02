@@ -113,34 +113,18 @@
                     </script>
 
                     {{=addform.custom.begin}}
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td class="w2p_fl">Search:</td>
-                                <td class="w2p_fw" colspan="2"><input type="text" class="string form-control" ID="searchFor" onkeyup="searchSelect(this.id, 'model_component_component')"></td>
-                            </tr>
-                            <tr>
-                                <td class="w2p_fl"></td>
-                                <td class="w2p_fw"></td>
-                            </tr>
-                            <tr>
-                                <td class="w2p_fl"><label for="model_component_component">{{=addform.custom.label.component}}:</label></td>
-                                <td class="w2p_fw">{{=addform.custom.widget.component}}</td>
-                            </tr>
-                            <tr>
-                                <td class="w2p_fl"><label for="model_component_purpose">{{=addform.custom.label.purpose}}:</label></td>
-                                <td class="w2p_fw">{{=addform.custom.widget.purpose}}</td>
-                            </tr>
-                            <tr>
-                                <td class="w2p_fl"><label for="model_component_channel">{{=addform.custom.label.channel}}:</label></td>
-                                <td class="w2p_fw">{{=addform.custom.widget.channel}}</td>
-                            </tr>
-                            <tr>
-                                <td class="w2p_fl"></td>
-                                <td class="w2p_fw">{{=addform.custom.submit}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    <div class="form-group row">
+                        <label class="form-text col-sm-2 col-form-label " for="searchFor">Search</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="string form-control" id="searchFor" onkeyup="searchSelect(this.id, 'model_component_component')">
+                        </div>
+                    </div>
+
+                    {{=makeFormField(addform, "component", FormFieldType.ROWS)}}
+                    {{=makeFormField(addform, "purpose", FormFieldType.ROWS)}}
+                    {{=makeFormField(addform, "channel", FormFieldType.ROWS)}}
+                    {{=makeFormField(addform, "submit", FormFieldType.ROWS, columns=2)}}
                     {{=addform.custom.end}}
                 </div>
             </div>

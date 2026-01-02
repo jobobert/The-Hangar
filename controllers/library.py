@@ -99,7 +99,7 @@ def update():
     elif form.errors:
         response.flash = "Error Adding Article"
     else:
-        pass  # response.flash = "somethign happened"
+        pass  # response.flash = "something happened"
 
     response.view = 'content.html'
 

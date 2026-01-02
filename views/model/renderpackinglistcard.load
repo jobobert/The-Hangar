@@ -26,6 +26,26 @@
             {{pass}}
         </div>
         <div class="col-6 ">
+            {{if model.attr_plane_rem_wings or attr_plane_rem_wing_tube or attr_plane_rem_struts:}}
+            <div class="row">
+                <h5 class="ml-3">Don't Forget</h5>
+            </div>
+            {{if model.attr_plane_rem_wings:}}
+            <div class="row">
+                <div class="ml-5">Removable Wings</div>
+            </div>
+            {{pass}}
+            {{if model.attr_plane_rem_wing_tube:}}
+            <div class="row">
+                <div class="ml-5">Removable Wing Tube</div>
+            </div>
+            {{pass}}
+            {{if model.attr_plane_rem_struts:}}
+            <div class="row">
+                <div class="ml-5">Removable Struts</div>
+            </div>
+            {{pass}}
+            {{pass}}
             {{if model.fieldnotes:}}
             <div class="row">
                 <h5 class="ml-3">Field Notes</h5>
@@ -80,11 +100,11 @@
                 <div class="col-4">
                     <h5 class="">Rotors</h5>
                     <div class="ml-2">
-                    <div><b>({{=model.attr_multi_rotor_count * model.attr_copter_blade_count}})</b> {{=model.attr_copter_mainrotor_length}}mm main rotors</div>
-                    <div><b>({{=model.attr_copter_tailrotor_blade_count}}) </b> {{=model.attr_copter_tailrotor_span}}</b>mm tail rotors</div>
-                
+                        <div><b>({{=model.attr_multi_rotor_count * model.attr_copter_blade_count}})</b> {{=model.attr_copter_mainrotor_length}}mm main rotors</div>
+                        <div><b>({{=model.attr_copter_tailrotor_blade_count}}) </b> {{=model.attr_copter_tailrotor_span}}</b>mm tail rotors</div>
+
+                    </div>
                 </div>
-            </div>
                 {{pass}}
 
                 {{if rigs:}}

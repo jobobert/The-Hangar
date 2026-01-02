@@ -76,7 +76,7 @@ def renderexport():
                 (getattr(db.transmitter,'protocol').label, transmitter.get_protocollist()),
                 (getattr(db.transmitter,'os').label, transmitter.os),
                 (getattr(db.transmitter,'serial').label, transmitter.serial),
-                (getattr(db.transmitter,'notes').label, MARKMIN(transmitter.notes)),
+                #(getattr(db.transmitter,'notes').label, MARKMIN(transmitter.notes)),
             ]
         }
 

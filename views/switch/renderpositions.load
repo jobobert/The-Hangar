@@ -16,8 +16,8 @@
 {{=deleteform.custom.end}}
 {{=addform.custom.begin}}
 <div class="row">
-    <div class="col-3">{{=addform.custom.widget.pos}}</div>
-    <div class="col-6">{{=addform.custom.widget.func}}</div>
-    <div class="col-3">{{=addform.custom.submit}}</div>
+    {{=makeFormField(addform, 'pos', fieldType=FormFieldType.COLUMNS, columns=3)}}
+    {{=makeFormField(addform, 'func', fieldType=FormFieldType.COLUMNS, columns=6)}}
+    {{=makeFormField(addform, 'submit', fieldType=FormFieldType.COLUMNS, columns=3)}}
 </div>
 {{=addform.custom.end}}

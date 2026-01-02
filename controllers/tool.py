@@ -51,7 +51,7 @@ def rendercard():
         response.view = 'rendercarderror.load'
         return dict(content='Unable to locate the associated model', controller='tool', title='Tools')
 
-    addfields = ['tool']
+    addfields = ['tool', 'purpose']
     addform = SQLFORM(db.model_tool, fields=addfields,
                       formstyle='bootstrap4_inline', submit_button='Add')
     addform.vars.model = model_id
@@ -117,7 +117,7 @@ def renderexport():
         }
         content['details'] = [
             (getattr(db.tool,'tooltype').label, t.tooltype),
-            (getattr(db.tool,'notes').label, t.notes),
+            (getattr(db.tool,'notes').label, t.purpose or 'No purpose specified'),
         ]
 
         torender['items'].append(content)

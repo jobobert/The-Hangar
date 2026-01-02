@@ -104,31 +104,32 @@ def exportflighttimes():
         'header': None,
     }
 
-    table = TABLE(_class="table export-table")
-    header = [
-        TH(getattr(db.component,'componenttype').label, _class="col export-field_name"),
-        TH('Battery', _class="col export-field_name"),
-        TH(getattr(db.propeller,'item').label, _class="col export-field_name"),
-        TH(getattr(db.eflite_time,'amps').label, _class="col export-field_name"),
-        TH(getattr(db.eflite_time,'watts').label, _class="col export-field_name"),
-        TH('Minutes', _class="col export-field_name"),
-        TH('Watts/Pound', _class="col export-field_name"),
-        TH('Is Over Rating?', _class="col export-field_name")
-    ]
-    table.append(TR(*header, _class="row export-row"))
-    for ft in flighttimes or []:
-        row = [
-            TD(ft.motor.name if ft.motor else '', _class="col export-field_value"),
-            TD(ft.battery.name if ft.battery else '', _class="col export-field_value"),            TD(ft.propeller, _class="col export-field_value"),
-            TD(ft.amps, _class="col export-field_value"),
-            TD(ft.watts, _class="col export-field_value"),
-            TD(ft.get_minutes(), _class="col export-field_value"),
-            TD(ft.get_wattsperpound(), _class="col export-field_value"),
-            TD(ft.is_overrating(), _class="col export-field_value")
+    if flighttimes:
+        table = TABLE(_class="table export-table")
+        header = [
+            TH(getattr(db.component,'componenttype').label, _class="col export-field_name"),
+            TH('Battery', _class="col export-field_name"),
+            TH(getattr(db.propeller,'item').label, _class="col export-field_name"),
+            TH(getattr(db.eflite_time,'amps').label, _class="col export-field_name"),
+            TH(getattr(db.eflite_time,'watts').label, _class="col export-field_name"),
+            TH('Minutes', _class="col export-field_name"),
+            TH('Watts/Pound', _class="col export-field_name"),
+            TH('Is Over Rating?', _class="col export-field_name")
         ]
-        table.append(TR(*row, _class="row export-row"))
+        table.append(TR(*header, _class="row export-row"))
+        for ft in flighttimes or []:
+            row = [
+                TD(ft.motor.name if ft.motor else '', _class="col export-field_value"),
+                TD(ft.battery.name if ft.battery else '', _class="col export-field_value"),            TD(ft.propeller, _class="col export-field_value"),
+                TD(ft.amps, _class="col export-field_value"),
+                TD(ft.watts, _class="col export-field_value"),
+                TD(ft.get_minutes(), _class="col export-field_value"),
+                TD(ft.get_wattsperpound(), _class="col export-field_value"),
+                TD(ft.is_overrating(), _class="col export-field_value")
+            ]
+            table.append(TR(*row, _class="row export-row"))
 
-    torender['items'] = table
+        torender['items'] = table
 
     response.view = 'renderexport.load'
     return dict(content=torender)
@@ -146,26 +147,27 @@ def exporthardware():
         'header': None,
     }
 
-    table = TABLE(_class="table export-table")
-    header = [
-        TH(getattr(db.hardware,'hardwaretype').label, _class="col export-field_name"),
-        TH(getattr(db.hardware,'diameter').label, _class="col export-field_name"),
-        TH(getattr(db.hardware,'length_mm').label, _class="col export-field_name"),
-        TH(getattr(db.hardware,'purpose').label, _class="col export-field_name"),
-        TH(getattr(db.hardware,'quantity').label, _class="col export-field_name"),
-    ]
-    table.append(TR(*header, _class="row export-row"))
-    for h in hardware or []:
-        row = [
-            TD(h.hardwaretype, _class="col export-field_value"),
-            TD(h.diameter, _class="col export-field_value"),
-            TD(h.length_mm, _class="col export-field_value"),
-            TD(h.purpose, _class="col export-field_value"),
-            TD(h.quantity, _class="col export-field_value"),
+    if hardware:
+        table = TABLE(_class="table export-table")
+        header = [
+            TH(getattr(db.hardware,'hardwaretype').label, _class="col export-field_name"),
+            TH(getattr(db.hardware,'diameter').label, _class="col export-field_name"),
+            TH(getattr(db.hardware,'length_mm').label, _class="col export-field_name"),
+            TH(getattr(db.hardware,'purpose').label, _class="col export-field_name"),
+            TH(getattr(db.hardware,'quantity').label, _class="col export-field_name"),
         ]
-        table.append(TR(*row, _class="row export-row"))
+        table.append(TR(*header, _class="row export-row"))
+        for h in hardware or []:
+            row = [
+                TD(h.hardwaretype, _class="col export-field_value"),
+                TD(h.diameter, _class="col export-field_value"),
+                TD(h.length_mm, _class="col export-field_value"),
+                TD(h.purpose, _class="col export-field_value"),
+                TD(h.quantity, _class="col export-field_value"),
+            ]
+            table.append(TR(*row, _class="row export-row"))
 
-    torender['items'] = table
+        torender['items'] = table
 
     response.view = 'renderexport.load'
     return dict(content=torender)

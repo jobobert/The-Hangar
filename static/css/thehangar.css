@@ -506,6 +506,11 @@ div.activitytype_Other {
     padding-left: 1em;
 }
 
+.tool_purpose {
+    font-style: italic;
+    padding-left: 1em;
+}
+
 .attachment_name {
     font: inherit;
 }

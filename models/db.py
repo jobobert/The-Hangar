@@ -797,7 +797,8 @@ db.tool.notes.format = lambda tool: MARMIN(tool.notes)
 
 db.define_table('model_tool', 
                 Field('model', type='reference model', label='Model'), 
-                Field('tool', type='reference tool', label='Tool')
+                Field('tool', type='reference tool', label='Tool'),
+                Field('purpose', type='string', label='Purpose')
                 )
 
 db.model_tool.tool.requires = IS_IN_DB(
@@ -1053,7 +1054,7 @@ db.define_table('hardware',
 db.hardware.length_mm.extra = {'measurement': 'mm'}
 
 db.hardware.hardwaretype.requires = IS_IN_SET(
-    ('Wood Screw, Pan Head', 'Wood Screw, Flat Head', 'Bolt, Socket Head', 'Servo Screw', 'Grub Screw'), sort=True
+    ('Wood Screw, Pan Head', 'Wood Screw, Flat Head', 'Bolt, Socket Head', 'Servo Screw', 'Grub Screw', 'Nylon Bolt'), sort=True
 )
 db.hardware.diameter.widget = SQLFORM.widgets.autocomplete(
     request, db.hardware.diameter, limitby=(0, 10), min_length=1, distinct=True)
