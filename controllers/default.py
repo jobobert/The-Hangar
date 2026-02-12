@@ -80,6 +80,9 @@ def index():
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
+    if 'ui' not in request.cookies:
+        request.cookies['ui'] = 'list'
+
     parse_success = False
     state_number = 4
     state_plus = True
