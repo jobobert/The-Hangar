@@ -33,7 +33,7 @@
     </tr>
     <tr class="row export-row">
         <th class="col export-field_name">{{=getattr(db.model,'protocol').label}}</th>
-        <td class="col export-field_value">{{=db.protocol(model.protocol).name if model.protocol else 'N/A'}}</td>
+        <td class="col export-field_value">{{=db.protocol(model.protocol).name if model.protocol else 'No Protocol Specified'}}</td>
     </tr>
     <tr class="row export-row">
         <th class="col export-field_name">{{=getattr(db.model,'description').label}}</th>

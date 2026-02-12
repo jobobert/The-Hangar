@@ -276,7 +276,9 @@ db.define_table('model'
                 #
                 , Field('attr_car_scale', type='string', label='Vehicle Scale', comment="The scale of the vehicle")
                 , Field('attr_car_drive', type='string', label='X Wheel Drive', comment='How many wheels are powered?')
+                , Field('attr_car_drivetrain', type='string', label='Drivetrain', comment='What type of drivetrain?')
                 , Field('attr_car_bodystyle', type='string', label='Body Style', comment='What is the body style?')
+                , Field('attr_car_wheelbase', type='double', label='Wheelbase', comment='The wheelbase', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
                 #
                 , Field('attr_scale', type='string', label='Model Scale', comment='Model scale (1:x)?')
                 #
@@ -473,6 +475,7 @@ db.model.attr_plane_wingarea.extra = {'measurement': 'sqin'}
 db.model.attr_boat_draft.extra = {'measurement': 'mm'}
 db.model.attr_copter_mainrotor_length.extra = {'measurement': 'mm'}
 db.model.attr_copter_tailrotor_span.extra = {'measurement': 'mm'}
+db.model.attr_car_wheelbase.extra = {'measurement': 'mm'}
 
 db.model.modelcategory.requires = IS_IN_SET(
     ('Remote Control', 'Static', 'Non-Model'), sort=True)
@@ -494,9 +497,11 @@ db.model.attr_copter_tailrotor_drive.requires = IS_EMPTY_OR(IS_IN_SET(
 db.model.subjecttype.requires = IS_EMPTY_OR(IS_IN_SET(
     ('Scale', 'Semi-Scale', 'Fantasy', 'Sport'), sort=True))
 db.model.attr_car_bodystyle.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Truggy', 'Car', 'Truck', 'Other'), sort=True))
+    ('Truggy', 'Car', 'Truck', 'Buggy', 'Other'), sort=True))
 db.model.attr_car_drive.requires = IS_EMPTY_OR(IS_IN_SET(
     ('2 Wheel', '4 Wheel', 'All Wheel', 'Other'), sort=True))
+db.model.attr_car_drivetrain.requires = IS_EMPTY_OR(IS_IN_SET(
+    ('Shaft Drive', 'Belt Drive', 'Gear-Reduction', 'Direct Drive'), sort=True))
 db.model.attr_sub_ballast.requires = IS_EMPTY_OR(IS_IN_SET(
     ('Piston Tank','SAS - Semi-Aspirated','RCABS - Recirculating Compressed Air Ballast', 'Vented Low-Pressure', 'Compressed Gas', 'Pressure Pump', 'Dynamic'), sort=True
 ))
@@ -542,7 +547,7 @@ modeltype_hide_attribs = {
     'Multirotor' : ['attr_covering'], 
     'Robot' : ['attr_covering'], 
     'Experimental' : [], 
-    'Car' : ['attr_covering'], 
+    'Car' : ['attr_cog', 'attr_covering'], 
     'Autogyro' : [] ,
     'Submarine' : ['attr_covering'],
     'Non-Model' : [
@@ -679,6 +684,12 @@ db.define_table('component',
                 Field('attr_num_turns', type='integer', label='Number of Turns', comment='The number of rotations'),
                 Field('attr_watts_in', type='double', label='Max Watts In', comment='The maximum watts in'),
                 Field('attr_watts_out', type='double', label='Max Watts Out', comment='The maximum watts out'),
+                Field('attr_pump_type', type='string', label='Pump Type', comment='The type of pump'),
+                Field('attr_travel', type='double', label='Travel', comment='The travel distance', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_model_scale', type='string', label='Model Scale', comment='The model scale the component is for (1:x)?'),
+                #
+                Field('manufacturer', type='string', label='Manufacturer', comment='Who made the component?'),
+                Field('model', type='string', label='Model', comment='The model of the component'),
                 #
                 format=lambda row: 'Unknown' if row is None else row.name
                 )
@@ -710,12 +721,20 @@ db.component.attr_width.extra = {'measurement': 'mm'}
 db.component.attr_height.extra = {'measurement': 'mm'}
 db.component.attr_weight_oz.extra = {'measurement': 'oz'}
 db.component.attr_displacement_cc.extra = {'measurement': 'cc'}
+db.component.attr_travel.extra = {'measurement': 'mm'}
 
 db.component.img.default = os.path.join(
     request.folder, 'static', 'images', 'defaultUpload.png')
 
+db.component.attr_pump_type.requires = IS_EMPTY_OR(IS_IN_SET((
+    'Diaphragm', 'Centrifugal', 'Peristaltic', 'Gear', 'Piston', 'Other'), sort=True))
+
+# REMEMBER: 
+#  If you add a new component type:
+#  - update the component_attribs dictionary below
+#  - update controllers/diagram.py -> rendermodelexport to handle the new component type
 db.component.componenttype.requires = IS_IN_SET((
-    'Engine', 'Servo', 'Receiver', 'Motor', 'ESC', 'BEC', 'Regulator', 'Flight Controller', 'Gyro', 'Battery Charger', 'Flybarless Controller', 'Electrical', 'Switch', 'Winch', 'Other', 'Retracts'), sort=True)
+    'Engine', 'Servo', 'Receiver', 'Motor', 'ESC', 'BEC', 'Regulator', 'Flight Controller', 'Gyro', 'Battery Charger', 'Flybarless Controller', 'Electrical', 'Switch', 'Winch', 'Other', 'Retracts', 'Pump', 'Sensor', 'Tire', 'Shock'), sort=True)
 
 component_attribs = {
     'Engine': ['attr_displacement_cc'], 
@@ -734,6 +753,10 @@ component_attribs = {
     'Winch': ['attr_voltage_in', 'attr_num_turns'], 
     'Other': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'],
     'Retracts': ['attr_voltage_in'],
+    'Pump': ['attr_voltage_in','attr_amps_in','attr_amps_out', 'attr_pump_type'],
+    'Sensor': ['attr_voltage_in','attr_amps_in'],
+    'Tire': ['attr_model_scale'],
+    'Shock': ['attr_travel'],
 }
 
 db.component.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
@@ -746,6 +769,8 @@ db.component.attr_gear_type.widget = SQLFORM.widgets.autocomplete(
     request, db.component.attr_gear_type, limitby=(0, 10), min_length=2, distinct=True)
 db.component.attr_switch_type.widget = SQLFORM.widgets.autocomplete(
     request, db.component.attr_switch_type, limitby=(0, 10), min_length=2, distinct=True)
+db.component.manufacturer.widget = SQLFORM.widgets.autocomplete(
+    request, db.component.manufacturer, limitby=(0, 10), min_length=1, distinct=True)
 
 db.component.notes.format = lambda component: MARKMIN(component.notes)
 
@@ -837,10 +862,10 @@ db.battery.get_maxamps = Field.Method(
 db.battery.get_maxamps.label = 'Max Amps'
 
 db.battery.chemistry.requires = IS_IN_SET(
-    ('LiPo', 'LiFE', 'NiMH', 'NiCad', 'Li-Ion', 'Alkaline'), sort=True)
+    ('LiPo', 'LiFE', 'NiMH', 'NiCad', 'Li-Ion', 'Alkaline', 'SLA'), sort=True)
 
 # This dict must contain the same keys as the IS_IN_SET of the chemistry .requires
-chem_volt = {'LiPo': 3.7, 'LiFE': 3.3, 'NiMH': 1.2, 'NiCad': 1.2, 'Li-Ion': 3.7, 'Alkaline': 1.5}
+chem_volt = {'LiPo': 3.7, 'LiFE': 3.3, 'NiMH': 1.2, 'NiCad': 1.2, 'Li-Ion': 3.7, 'Alkaline': 1.5, 'SLA': 2.0}
 db.battery.voltage = Field.Virtual(
     lambda row: row.battery.cellcount*chem_volt[row.battery.chemistry])
 db.battery.voltage.label = 'Voltage'

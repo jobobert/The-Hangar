@@ -13,7 +13,7 @@ def select():
         # db.model
         query,
         fields=fields,
-        selectable=lambda ids: redirect(URL('packingitems', 'thelist', vars=dict(
+        selectable=lambda ids: redirect(URL('packinglist', 'thelist', vars=dict(
             id=ids,
             event=request.vars.chk_event,
             overnight=request.vars.chk_overnight,
@@ -44,6 +44,7 @@ def select():
 
 
 def thelist():
+    print("in thelist", request.vars)
     response.title = 'The List'
     if type(request.vars.id) is not list:
         model_ids = [request.vars.id]

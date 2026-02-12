@@ -22,6 +22,11 @@ def rendermodelexport():
 # This list must be kept in sync with the component.componenttype(s) in the database,
 # Plus battery and connector
 # The "edgeattrib" has to be in the edge_attribs dict
+components_to_ignore = [
+    'Battery Charger'
+    , 'Tire'
+    , 'Shock'
+]
 components = {
     'Engine': 
         {'id': 'eng', 'shape': 'invhouse', 'attribs': 'style="filled"; fillcolor="#efefef"', 'edgeattrib': '5v Servo'}
@@ -41,8 +46,8 @@ components = {
         {'id': 'fc', 'shape': 'Msquare', 'attribs': 'style="filled"; fillcolor="#df80ff"', 'edgeattrib': '5v Servo'}
     , 'Gyro':                  
         {'id': 'gyro', 'shape': 'Mcircle', 'attribs': 'style="filled"; fillcolor="#ff0066"', 'edgeattrib': '5v Servo'}
-    , 'Battery Charger':       
-        {'id': 'battchar', 'shape': 'rect', 'attribs': 'style="filled"; fillcolor="#efefef"', 'edgeattrib': '12v 12gauge'}
+    #, 'Battery Charger':       
+    #    {'id': 'battchar', 'shape': 'rect', 'attribs': 'style="filled"; fillcolor="#efefef"', 'edgeattrib': '12v 12gauge'}
     , 'Flybarless Controller': 
         {'id': 'fblcont', 'shape': 'tripleoctagon', 'attribs': 'style="filled"; fillcolor="#9900cc"', 'edgeattrib': '5v Servo'}
     , 'Electrical':            
@@ -60,7 +65,14 @@ components = {
         {'id': 'batt', 'shape': 'circle', 'attribs': 'style="filled"; fillcolor="#ffcc00"', 'edgeattrib': '12v 12gauge'}
     , 'Connector': 
         {'id': 'conn', 'shape': 'house', 'attribs': 'style="filled"; fillcolor="#806600"', 'edgeattrib': '12v 12gauge'}
+
+    , 'Pump':
+        {'id': 'pump', 'shape': 'hexagon', 'attribs': 'style="filled"; fillcolor="#efefef"', 'edgeattrib': '12v 12gauge'}
+
+    , 'Sensor':
+        {'id': 'sensor', 'shape': 'cds', 'attribs': 'style="filled"; fillcolor="#797979"', 'edgeattrib': '5v Servo'}
 }
+
 
 default_components = {
     'Servo': f'"servo" [label="Servo"; shape="{components["Servo"]["shape"]}"; {components["Servo"]["attribs"]};];',
@@ -115,6 +127,9 @@ def creatediagramfromcomponents(model_id):
     escid = 0
 
     for row in sorted(model_components, key=lambda type: type.component.componenttype):
+        if row.component.componenttype in components_to_ignore:
+            continue
+        
         id += 1
         comptype = row.component.componenttype
         compname = row.component.diagramname if row.component.diagramname else row.component.name

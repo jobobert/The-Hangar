@@ -135,7 +135,7 @@ def renderexport():
     for todo in todos or []:
         torender['items'].append((
             f"{todo.todo}{' (Critical)' if todo.critical else ''}", 
-            MARKMIN(todo.notes) if todo.notes else 'N/A'
+            MARKMIN(todo.notes) if todo.notes else 'No Notes'
         ))
 
     response.view = 'renderexport.load'

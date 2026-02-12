@@ -26,7 +26,7 @@
             {{pass}}
         </div>
         <div class="col-6 ">
-            {{if model.attr_plane_rem_wings or attr_plane_rem_wing_tube or attr_plane_rem_struts:}}
+            {{if model.attr_plane_rem_wings or model.attr_plane_rem_wing_tube or model.attr_plane_rem_struts:}}
             <div class="row">
                 <h5 class="ml-3">Don't Forget</h5>
             </div>
