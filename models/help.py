@@ -115,7 +115,15 @@ def getDatabaseHelp(field) -> str:
             return """
             Sometimes there is just something about a component that matters. There may be an attribute for that something,
             but if not, use this field to record it. The significant detail is shown on the list view for easy reference."""
-
+        case 'component.manufacturer':
+            return """
+            The manufacturer of the component can be helpful for finding it again, especially if you have a lot of components
+            from different manufacturers. It can also be helpful for remembering which version of a component you have."""
+        case 'component.model':
+            return """
+            If you have a lot of components from the same manufacturer, the model can be helpful for finding it again. It can also
+            be helpful for remembering which version of a component you have. Note that the model field is not meant for the "model" 
+            the component is used in, but rather the model number or name given by the manufacturer."""
 
         case 'sailrig.rigname':
             return """

@@ -172,10 +172,14 @@ def creatediagramfromcomponents(model_id):
                     edges.append(f'{"receiver:f" + str(row.channel) if row.channel else "default"} -- {components[comptype]["id"]}{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
 
     for row in model_battery.render():
-        id += 1
-        nodes.append(f'"batt{id}" [label = "{row.battery}"; {components["Battery"]["attribs"]}];')
-        if escid != 0:
-            edges.append(f'esc{escid} -- batt{id} [{edge_attribs[components["Battery"]["edgeattrib"]]}];')
+        batt_count  = row.quantity if row.quantity else 1
+        
+        for x in range(1, batt_count + 1):
+            #print(f"{x} of {batt_count}")
+            id += 1
+            nodes.append(f'"batt{id}" [label = "{row.battery}"; {components["Battery"]["attribs"]}];')
+            if escid != 0:
+                edges.append(f'esc{escid} -- batt{id} [{edge_attribs[components["Battery"]["edgeattrib"]]}];')
 
     ret = '\n// Nodes\n'
     ret += "\n".join(nodes)
