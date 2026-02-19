@@ -172,7 +172,9 @@ def creatediagramfromcomponents(model_id):
                     edges.append(f'{"receiver:f" + str(row.channel) if row.channel else "default"} -- {components[comptype]["id"]}{id} [{edge_attribs[components[comptype]["edgeattrib"]]}];')
 
     for row in model_battery.render():
-        batt_count  = row.quantity if row.quantity else 1
+        batt_count = row.quantity if row.quantity else 1
+        if batt_count == 0:
+            continue
         
         for x in range(1, batt_count + 1):
             #print(f"{x} of {batt_count}")
