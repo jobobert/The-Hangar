@@ -24,6 +24,8 @@ def index():
     session.index = "index ready"
 
     match model.modelcategory:
+        case 'Dynamic':
+            response.view = 'model/index_dynamic.html'
         case 'Remote Control':
             response.view = 'model/index_remotecontrol.html'
         case 'Static':
@@ -181,6 +183,8 @@ def rendercard():
     model = db.model(model_id) or None
 
     match model.modelcategory:
+        case 'Dynamic':
+            response.view = 'model/rendercard_dynamic.load'
         case 'Remote Control':
             response.view = 'model/rendercard_remotecontrol.load'
         case 'Static':

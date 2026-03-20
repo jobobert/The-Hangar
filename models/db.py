@@ -478,7 +478,7 @@ db.model.attr_copter_tailrotor_span.extra = {'measurement': 'mm'}
 db.model.attr_car_wheelbase.extra = {'measurement': 'mm'}
 
 db.model.modelcategory.requires = IS_IN_SET(
-    ('Remote Control', 'Static', 'Non-Model'), sort=True)
+    ('Remote Control', 'Static', 'Non-Model', 'Dynamic'), sort=True)
 db.model.modeltype.requires = IS_IN_SET(
     ('Airplane', 'Rocket', 'Boat', 'Helicopter', 'Multirotor', 'Robot', 'Experimental', 'Car', 'Autogyro', 'Submarine', 'Non-Model', 'Miniature', 'Other', 'Train'), sort=True)
 db.model.modelorigin.requires = IS_EMPTY_OR(IS_IN_SET(
@@ -578,6 +578,7 @@ modeltype_hide_attribs = {
 # This list must be updated if a new modelcategory is added
 modelcategory_hide_attribs = {
     'Remote Control' : [], 
+    'Dynamic' : [],
     'Static' : [
         'controltype', 
         'powerplant', 
@@ -1202,8 +1203,8 @@ if db(db.tag.id > 0).count() == 0:
 ##############################################
 ## Migration Steps
 
-# set any empty modelcategory to 'Remote Control'
-#db(db.model.modelcategory == None).update(modelcategory='Remote Control')
+# set all modelcategory from 'Remote Control' to 'Dynamic'
+#db(db.model.modelcategory == 'Remote Control').update(modelcategory='Dynamic')
 #db(db.model.havekit == None).update(havekit=False)
 #db(db.model.haveplans == None).update(haveplans=False)
 
