@@ -30,9 +30,20 @@
                 </div>
                 <div class="card-body attribute-list">
                     <dl>
-                        <dt class="d-block">Serial</dt>
+
+
+
+                        <dt>{{=db.transmitter.manufacturer.label}}</dt>
+                        <dd class="ml-1">{{=transmitter.manufacturer}}</dd>
+                        <dt>{{=db.transmitter.model.label}}</dt>
+                        <dd class="ml-1">{{=transmitter.model}}</dd>
+                        <dt>{{=db.transmitter.processor.label}}</dt>
+                        <dd class="ml-1">{{=transmitter.processor}}</dd>
+                        <dt>{{=db.transmitter.radio_firmware.label}}</dt>
+                        <dd class="ml-1">{{=transmitter.radio_firmware}}</dd>
+                        <dt>{{=db.transmitter.serial.label}}</dt>
                         <dd class="ml-1">{{=transmitter.serial}}</dd>
-                        <dt class="d-block">Operating System</dt>
+                        <dt>{{=db.transmitter.os.label}}</dt>
                         <dd class="ml-1">{{=transmitter.os}}</dd>
                         <dt class="d-block">Protocols</dt>
                         {{if transmitter.protocol:}}

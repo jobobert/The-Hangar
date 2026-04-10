@@ -203,6 +203,8 @@ db.define_table('transmitter',
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Manual', comment='The manual, etc', default=''), 
                 Field('manufacturer', type='string', label='Manufacturer', comment='Who made the transmitter?'),
                 Field('model', type='string', label='Model', comment='The model of the transmitter'),
+                Field('processor', type='string', label='Processor', comment='The processor in the transmitter'),
+                Field('radio_firmware', type='string', label='Radio Firmware', comment='The radio firmware running on the transmitter'),
                 Field('os', type='string', label='Operating System/Version'),
                 Field('protocol', type='list:reference protocol', label='Protocols Supported', comment='The protocols supported by this transmitter',
                 widget=SQLFORM.widgets.checkboxes.widget, 
@@ -211,6 +213,18 @@ db.define_table('transmitter',
                 )
 
 db.transmitter.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
+
+db.transmitter.manufacturer.widget = SQLFORM.widgets.autocomplete(
+    request, db.transmitter.manufacturer, limitby=(0, 10), min_length=2, distinct=True)
+db.transmitter.model.widget = SQLFORM.widgets.autocomplete(
+    request, db.transmitter.model, limitby=(0, 10), min_length=2, distinct=True)
+db.transmitter.processor.widget = SQLFORM.widgets.autocomplete(
+    request, db.transmitter.processor, limitby=(0, 10), min_length=2, distinct=True)
+db.transmitter.radio_firmware.widget = SQLFORM.widgets.autocomplete(
+    request, db.transmitter.radio_firmware, limitby=(0, 10), min_length=2, distinct=True)
+db.transmitter.os.widget = SQLFORM.widgets.autocomplete(
+    request, db.transmitter.os, limitby=(0, 10), min_length=2, distinct=True)
+
 db.transmitter.protocol.represent = lambda ids, row: ', '.join([db.protocol(id).name for id in ids if db.protocol(id)])
 def expandProtocols(list_of_ids):
     return ', '.join([db.protocol(id).name for id in list_of_ids if db.protocol(id)])
@@ -478,7 +492,7 @@ db.model.attr_copter_tailrotor_span.extra = {'measurement': 'mm'}
 db.model.attr_car_wheelbase.extra = {'measurement': 'mm'}
 
 db.model.modelcategory.requires = IS_IN_SET(
-    ('Remote Control', 'Static', 'Non-Model', 'Dynamic'), sort=True)
+    ('Static', 'Non-Model', 'Dynamic'), sort=True)
 db.model.modeltype.requires = IS_IN_SET(
     ('Airplane', 'Rocket', 'Boat', 'Helicopter', 'Multirotor', 'Robot', 'Experimental', 'Car', 'Autogyro', 'Submarine', 'Non-Model', 'Miniature', 'Other', 'Train'), sort=True)
 db.model.modelorigin.requires = IS_EMPTY_OR(IS_IN_SET(
@@ -688,6 +702,7 @@ db.define_table('component',
                 Field('attr_pump_type', type='string', label='Pump Type', comment='The type of pump'),
                 Field('attr_travel', type='double', label='Travel', comment='The travel distance', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
                 Field('attr_model_scale', type='string', label='Model Scale', comment='The model scale the component is for (1:x)?'),
+                Field('attr_firmware_version', type='string', label='Firmware Version', comment='The firmware version of the component'),
                 #
                 Field('manufacturer', type='string', label='Manufacturer', comment='Who made the component?'),
                 Field('model', type='string', label='Model', comment='The model of the component'),
@@ -740,22 +755,22 @@ db.component.componenttype.requires = IS_IN_SET((
 component_attribs = {
     'Engine': ['attr_displacement_cc'], 
     'Servo': ['attr_voltage_in','attr_gear_type', 'attr_torque'], 
-    'Receiver': ['attr_voltage_in','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol'], 
+    'Receiver': ['attr_voltage_in','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol','attr_firmware_version'], 
     'Motor': ['attr_motor_kv', 'attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'], 
-    'ESC': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'], 
+    'ESC': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out','attr_firmware_version'], 
     'BEC': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'], 
     'Regulator': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'], 
-    'Flight Controller': ['attr_amps_in', 'attr_voltage_in','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol'], 
+    'Flight Controller': ['attr_amps_in', 'attr_voltage_in','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol','attr_firmware_version'], 
     'Gyro': ['attr_voltage_in'], 
-    'Battery Charger': ['attr_channel_count','attr_amps_in','attr_voltage_in', 'attr_watts_in','attr_amps_out','attr_voltage_out', 'attr_watts_out'], 
-    'Flybarless Controller': ['attr_voltage_in','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol' ], 
+    'Battery Charger': ['attr_channel_count','attr_amps_in','attr_voltage_in', 'attr_watts_in','attr_amps_out','attr_voltage_out', 'attr_watts_out','attr_firmware_version'], 
+    'Flybarless Controller': ['attr_voltage_in','attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port', 'attr_protocol','attr_firmware_version' ], 
     'Electrical': ['attr_amps_in','attr_voltage_in','attr_amps_out','attr_voltage_out'], 
     'Switch': ['attr_switch_type','attr_voltage_in'], 
     'Winch': ['attr_voltage_in', 'attr_num_turns'], 
-    'Other': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out'],
+    'Other': ['attr_amps_in', 'attr_amps_out', 'attr_voltage_in','attr_voltage_out', 'attr_watts_in', 'attr_watts_out','attr_firmware_version'],
     'Retracts': ['attr_voltage_in'],
     'Pump': ['attr_voltage_in','attr_amps_in','attr_amps_out', 'attr_pump_type'],
-    'Sensor': ['attr_voltage_in','attr_amps_in'],
+    'Sensor': ['attr_voltage_in','attr_amps_in','attr_firmware_version'],
     'Tire': ['attr_model_scale'],
     'Shock': ['attr_travel'],
 }

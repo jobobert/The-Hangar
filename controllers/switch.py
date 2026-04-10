@@ -128,39 +128,47 @@ def listswitches():
     transmitter_id = VerifyTableID('transmitter', request.args(0))
 
     # Get the switches excluding those not associated with the specified transmitter
-    switches = db(db.switch.model).select().exclude(lambda row: (row.model.transmitter.id == transmitter_id) & (row.model.modelstate.id > 1))
+    try:
+        if transmitter_id:
+            switches = db(db.switch.model).select().exclude(lambda row: (row.model.transmitter.id == transmitter_id) & (row.model.modelstate.id > 1))
 
-    # Prepare the content for the view
-    switch_names = sorted(set(s.switch for s in switches))
-    model_names = sorted(set(s.model.name for s in switches))
+            # Prepare the content for the view
+            switch_names = sorted(set(s.switch for s in switches))
+            model_names = sorted(set(s.model.name for s in switches))
 
-    # Build a lookup: {(model_name, switch_name): purpose}
-    table_data = {}
-    model_data = {}
-    for s in switches:
-        key = (s.model.name, s.switch)
-        table_data[key] = s.purpose
+            # Build a lookup: {(model_name, switch_name): purpose}
+            table_data = {}
+            model_data = {}
+            for s in switches:
+                key = (s.model.name, s.switch)
+                table_data[key] = s.purpose
 
-        # add the model protocol to the end of the row
-        model_data[(s.model.name, "protocol")] = s.model.protocol.name if s.model.protocol else "No Protocol"
-        # add a link to the model page for editing
-        # 
-        model_data[(s.model.name, "actions")] = A("Go", _href=URL('model', 'index', args=[s.model.id]), _class="btn btn-primary btn-sm")
-   
-    
-    # Prepare rows for the table
-    rows = []
-    for model in model_names:
+                # add the model protocol to the end of the row
+                model_data[(s.model.name, "protocol")] = s.model.protocol.name if s.model.protocol else "No Protocol"
+                # add a link to the model page for editing
+                # 
+                model_data[(s.model.name, "actions")] = A("Go", _href=URL('model', 'index', args=[s.model.id]), _class="btn btn-primary btn-sm")
         
-        row = [model]
-        for switch in switch_names:
-            row.append(table_data.get((model, switch), ""))
-        row.append(model_data.get((model, "protocol"), "No Protocol"))
-        row.append(model_data.get((model, "actions"), ""))
-        
-        rows.append(row)
-    
-    # Pass headers and rows to the view
-    headers = ["Model"] + switch_names + ["Protocol"] + ["Actions"]
+            
+            # Prepare rows for the table
+            rows = []
+            for model in model_names:
+                
+                row = [model]
+                for switch in switch_names:
+                    row.append(table_data.get((model, switch), ""))
+                row.append(model_data.get((model, "protocol"), "No Protocol"))
+                row.append(model_data.get((model, "actions"), ""))
+                
+                rows.append(row)
+            
+            # Pass headers and rows to the view
+            headers = ["Model"] + switch_names + ["Protocol"] + ["Actions"]
+        else:
+            response.view = 'rendercarderror.load'
+            return dict(content='Unable to locate this transmitter')
+    except Exception as e:
+        response.view = 'rendercarderror.load'
+        return dict(content='An error occurred while fetching switches: ' + str(e), controller=None, title=None)
     
     return dict(headers=headers, rows=rows)

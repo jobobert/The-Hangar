@@ -19,12 +19,22 @@ Your submitted form contains the following errors:
     <div class="row">
         {{=makeFormField(form, "name", FormFieldType.COLUMNS)}}
     </div>
+        <div class="row">
+        {{=makeFormField(form, "manufacturer", FormFieldType.COLUMNS, columns=6)}}
+        {{=makeFormField(form, "model", FormFieldType.COLUMNS, columns=6)}}
+    </div>
     <div class="row">
         {{=makeFormField(form, "nickname", FormFieldType.COLUMNS, columns=6)}}
         {{=makeFormField(form, "serial", FormFieldType.COLUMNS, columns=6)}}
     </div>
     <div class="row">
         {{=makeFormField(form, "os", FormFieldType.COLUMNS, columns=6)}}
+        
+        {{=makeFormField(form, "radio_firmware", FormFieldType.COLUMNS, columns=6)}}
+    </div>
+
+    <div class="row">
+        {{=makeFormField(form, "processor", FormFieldType.COLUMNS, columns=6)}}
         {{=makeFormField(form, "protocol", FormFieldType.COLUMNS, columns=6)}}
     </div>
     <div class="row">

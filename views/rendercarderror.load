@@ -1,8 +1,10 @@
+{{if controller and title:}}
 <div class="card" role="alert" aria-live="polite">
     <div class="card-header">
         <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon(controller, 25)}}</span>{{=title}}</h5>
 
     </div>
+    {{pass}}
     <div class="card-body">
         {{=content}}
     </div>

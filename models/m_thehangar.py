@@ -348,7 +348,7 @@ def show_icon(iconname:str, size:int=0, alt:str="icon"):
     
 ############################################
 ## UTILITIES
-
+import inspect
 def VerifyTableID(table:str, rowID:int|str):
     #print(f'{table} -- {rowID}:  {type(rowID)}')
 
@@ -360,10 +360,12 @@ def VerifyTableID(table:str, rowID:int|str):
         integer_value = int(rowID)
     except ValueError:
         print(f"VerifyTableID: Error: Could not convert '{rowID}' to an integer. Invalid input.")
+        print(inspect.stack()[1][3])
         response.flash = "Record not found!"
         return None
     except TypeError:
         print(f"VerifyTableID: Error: Cannot convert type '{type(rowID).__name__}' to an integer.")
+        print(inspect.stack()[1][3])
         response.flash = "Record not found!"
         return None
 
