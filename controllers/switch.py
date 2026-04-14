@@ -20,8 +20,7 @@ def add():
 def renderswitches():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate this model', controller='model', title='Models')
+        return render_card_error('Unable to locate this model', 'model', 'Models')
     render_card = request.args(1) #or True
 
     switchList = {}
@@ -51,8 +50,7 @@ def renderswitches():
 def renderswitchtable(): 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate this model', controller='model', title='Models')
+        return render_card_error('Unable to locate this model', 'model', 'Models')
 
     switchList = {}
     x  = 0
@@ -87,7 +85,7 @@ def update():
     form = SQLFORM(db.switch, switch_id, upload=URL(
         'default', 'download'), fields=fields,showid=False, deletable=True)
     if form.process().accepted:
-        session.flash = "Switch Updated"
+        response.flash = "Switch Updated"
     elif form.errors:
         response.flash = "Error Updating Switch"
 
@@ -165,10 +163,8 @@ def listswitches():
             # Pass headers and rows to the view
             headers = ["Model"] + switch_names + ["Protocol"] + ["Actions"]
         else:
-            response.view = 'rendercarderror.load'
-            return dict(content='Unable to locate this transmitter')
+            return render_card_error('Unable to locate this transmitter')
     except Exception as e:
-        response.view = 'rendercarderror.load'
-        return dict(content='An error occurred while fetching switches: ' + str(e), controller=None, title=None)
+        return render_card_error('An error occurred while fetching switches: ' + str(e))
     
     return dict(headers=headers, rows=rows)

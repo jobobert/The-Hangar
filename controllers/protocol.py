@@ -26,9 +26,7 @@ def update():
     response.title = 'Add/Update Protocol'
 
     form = SQLFORM(db.protocol, request.args(0), upload=URL('default', 'download'), _id='protocolform', showid=False, deletable=True)
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
     if form.process().accepted:
         session.flash = "Protocol Added/Updated"
         redirect(URL('protocol', 'index', extension="html"))

@@ -11,7 +11,7 @@ def rendercard():
     form = SQLFORM(db.activity, fields=fields, formstyle="divs")
     form.vars.model = model_id
     if form.process().accepted:
-        session.flash = "Activity Updated"
+        response.flash = "Activity Updated"
     elif form.errors:
         response.flash = "Error Adding New Activity "
     activity_query = db(db.activity.model == model_id)
@@ -76,9 +76,7 @@ def index():
 
 def addactivity():
     form = SQLFORM(db.activity)
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     if len(request.args) == 0:
         fields = ['activitydate', 'model', 'activitytype',
@@ -144,8 +142,7 @@ def modelactivities():
 def renderactivities():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='activity', title='Activity')
+        return render_card_error('Unable to locate the associated model', 'activity', 'Activity')
 
 
     activity_query = db(db.activity.model == model_id)
@@ -157,8 +154,7 @@ def renderactivities():
 def rendernotes():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='activity', title='Notes')
+        return render_card_error('Unable to locate the associated model', 'activity', 'Notes')
 
     activity_query = db((db.activity.model == model_id) &
                         (db.activity.activitytype == 'Note'))
@@ -166,8 +162,7 @@ def rendernotes():
     fields = (db.activity.notes)
 
     form = SQLFORM(db.activity, submit_button='Add')
-    for s in form.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
     form.vars.model = model_id
     form.vars.activitytype = "Note"
     form.vars.activitydate = request.now
@@ -184,13 +179,9 @@ def rendernotes():
 def addflight():
 
     if request.args(0):
-        activitydate = request.now
-        activitytype = 'Flight'
         modelid = request.args(0)
-
-        db.activity.insert(activitydate=activitydate,
-                           activitytype=activitytype, model=modelid)
-        response.flash = "Flight Logged"
+        log_activity(modelid, 'Flight')
+        session.flash = "Flight Logged"
 
     return redirect(session.ReturnHere or URL('component', 'listview'))
 
@@ -198,30 +189,18 @@ def addflight():
 def addcrash():
 
     if request.args(0):
-        activitydate = request.now
-        activitytype = 'Crash'
-        
-        model_id = VerifyTableID('model', request.args(0)) 
+        model_id = VerifyTableID('model', request.args(0))
         if not model_id:
             return redirect(session.ReturnHere or URL('component', 'listview'))
 
-        db.activity.insert(activitydate=activitydate,
-                           activitytype=activitytype, model=model_id)
+        log_activity(model_id, 'Crash')
         response.flash = "Crash Logged"
 
-        model = db.model(model_id)
         new_modelstate = db.modelstate(6)
-
         db(db.model.id == model_id).update(modelstate=new_modelstate)
 
-        notes = "State changed to **{}**".format(
-            new_modelstate.name)
-
-        # Add ModelState Activity into the Activity table
-        db.activity.insert(
-            activitydate=request.now.today(), model=model  # db(db.model.id == model_id)
-            , activitytype='StateChange', notes=notes
-        )
+        notes = "State changed to **{}**".format(new_modelstate.name)
+        log_activity(model_id, 'StateChange', notes)
 
     return redirect(session.ReturnHere or URL('component', 'listview'))
 
@@ -229,8 +208,7 @@ def renderexport():
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'            
-        return dict(content='Unable to locate the associated model', controller='activity', title='Activities')
+        return render_card_error('Unable to locate the associated model', 'activity', 'Activities')
     
     activities = db(db.activity.model == model_id).select(orderby=~db.activity.activitydate | ~db.activity.id)
     torender = {

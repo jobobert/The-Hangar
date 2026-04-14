@@ -3,8 +3,7 @@ def rendercard():
     model_id = request.args[0]
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='supportitem', title='Support Items')
+        return render_card_error('Unable to locate the associated model', 'supportitem', 'Support Items')
 
     si_query = db(db.supportitem.model == model_id)
 
@@ -12,8 +11,7 @@ def rendercard():
 
     fields = ['item']
     addform = SQLFORM(db.supportitem, fields=fields, formstyle='bootstrap4_inline', submit_button='Add')
-    for s in addform.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(addform)
     addform.vars.model = model_id
     if addform.process(session=None, formname='siform').accepted:
         response.flash = "New Support Item Added"
@@ -45,7 +43,7 @@ def remove():
         response.flash = "Support item removed successfully"
 
     else:
-        response.flash = "Invalid support item ID"      
+        session.flash = "Invalid support item ID"      
         
     redirect(session.ReturnHere or URL('supportitem', 'index', args=item_id, extension="html"))
 
@@ -54,8 +52,7 @@ def renderexport():
     model_id = request.args[0]
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='supportitem', title='Support Items')
+        return render_card_error('Unable to locate the associated model', 'supportitem', 'Support Items')
 
     supportitems = db(db.supportitem.model == model_id).select()
 

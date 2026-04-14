@@ -29,9 +29,7 @@ def update():
         message_onsuccess='Rig %s' % ('updated' if request.args else 'added'),
         next=(URL('sailrig', 'index', args=request.vars.id, extension='html'))
     )
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     return dict(form=form)
 
@@ -40,7 +38,7 @@ def delete():
     sailrig_id = VerifyTableID('sailrig', request.args(0)) or redirect(URL('sailrig', 'listview'))
 
     db(db.sailrig.id == sailrig_id).delete()
-    response.flash = "Deleted"
+    session.flash = "Deleted"
     return redirect(session.ReturnHere or URL('sailrig', 'listview'))
 
 
@@ -48,8 +46,7 @@ def rendercard():
     modelid = request.args(0)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='sailrig', title='Sail Rigs')
+        return render_card_error('Unable to locate the associated model', 'sailrig', 'Sail Rigs')
 
     newFields = ['rigname', 'notes']
     newform = SQLFORM(db.sailrig, fields=newFields,
@@ -80,8 +77,7 @@ def renderexport():
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='sailrig', title='Sail Rig Export')
+        return render_card_error('Unable to locate the associated model', 'sailrig', 'Sail Rig Export')
 
     sailrigs = db(db.sailrig.model == model_id).select() or None
 

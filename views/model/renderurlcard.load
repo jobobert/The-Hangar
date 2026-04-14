@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header">
-        <h5 class="card-title" style="display: inline-block;">{{=urlcount}} URLS</h5>
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('url', 25)}}</span>{{=urlcount}} URLs</h5>
     </div>
     <div class="card-body">
         {{=deleteform.custom.begin}}
@@ -10,7 +10,7 @@
                 {{=A(url.notes if url.notes else url.url, _href=url.url, _target='blank', _title=url.url)}}
             </div>
             <div class="col-2">
-                <button class="btn btn-danger" type="submit" value="remove" name="{{=url.id}}">{{=action_icon('delete', 16)}}</button>
+                <button class="btn btn-danger" type="submit" value="Remove" name="{{=url.id}}">{{=action_icon('delete', 16)}}</button>
             </div>
         </div>
         {{pass}}

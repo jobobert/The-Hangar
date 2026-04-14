@@ -38,9 +38,7 @@ def update():
         redirect(URL('transmitter', 'index', args=form.vars.id,
                  extension="html") or session.ReturnHere)
 
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     return dict(form=form)
 
@@ -48,15 +46,13 @@ def renderexport():
     transmitter_id = VerifyTableID('transmitter', request.args(0))
 
     if not transmitter_id:
-            response.view = 'rendercarderror.load'
-            return dict(content='Unable to locate the associated transmitter', controller='transmitter', title='Transmitter')
+            return render_card_error('Unable to locate the associated transmitter', 'transmitter', 'Transmitter')
 
     if transmitter_id:
         transmitter = db(db.transmitter.id == transmitter_id).select().first() or None
 
     if not transmitter:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated transmitter', controller='transmitter', title='Transmitter')
+        return render_card_error('Unable to locate the associated transmitter', 'transmitter', 'Transmitter')
 
     torender = {
         'title': 'Transmitter',

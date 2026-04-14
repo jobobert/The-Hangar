@@ -10,9 +10,7 @@ def update():
     response.title = 'Add/Update Tag'
 
     form = SQLFORM(db.tag, request.args(0), upload=URL('default', 'download'), _id='tagform', showid=False, deletable=True)
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
     if form.process().accepted:
         session.flash = "Tag Added/Updated"
         redirect(URL('tag', 'listview', extension="html"))
@@ -30,7 +28,7 @@ def delete():
         response.flash = "Tag deleted"
         db(db.tag.id == tag_id).delete()
     else:
-        response.flash = "Could not delete: tag not found"
+        session.flash = "Could not delete: tag not found"
     
     redirect(session.ReturnHere or URL('tag', 'listview'))
 

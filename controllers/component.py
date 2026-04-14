@@ -128,24 +128,20 @@ def update():
         redirect(URL('component', 'index', args=form.vars.id,
                  extension="html") or session.ReturnHere)
 
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     return dict(form=form, component_attribs=json.dumps(component_attribs))
 
 def rendercard_grid():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='component', title='Components')
+        return render_card_error('Unable to locate the associated model', 'component', 'Components')
     
     newcomponentname = ""
 
     newform = SQLFORM(db.component, showid=False,
                       formstyle='bootstrap4_inline')
-    for s in newform.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(newform)
     if newform.process(session=None, formname='newcomponent').accepted:
         newcomponentname = newform.vars.name
     elif newform.errors:
@@ -193,36 +189,43 @@ def rendercard():
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='component', title='Components')
+        return render_card_error('Unable to locate the associated model', 'component', 'Components')
     
-    newcomponentname = ""
-
-
     addform = SQLFORM(db.model_component, fields=[
                       "component", "purpose", "channel"], comments=False)
     addform.vars.model = request.args(0)
-    for s in addform.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(addform)
     if addform.process(session=None, formname='addcomponent').accepted:
         response.flash = "New Component Added"
     elif addform.errors:
         response.flash = "Error Adding Component"
 
-
-    newform = SQLFORM(db.component, showid=False,
-                      formstyle='bootstrap4_inline')
-    for s in newform.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    newform = SQLFORM(db.component, fields=[
+        'name', 'componenttype', 'componentsubtype', 'significantdetail', 'serial',
+        'manufacturer', 'ownedcount', 'storedat',
+        'attr_length', 'attr_width', 'attr_height', 'attr_weight_oz',
+        'attr_channel_count', 'attr_telemetry_port', 'attr_sbus_port', 'attr_pwr_port',
+        'attr_protocol', 'attr_gear_type', 'attr_amps_in', 'attr_amps_out',
+        'attr_torque', 'attr_switch_type', 'attr_displacement_cc', 'attr_motor_kv',
+        'attr_voltage_in', 'attr_voltage_out', 'attr_num_turns', 'attr_watts_in',
+        'attr_watts_out', 'attr_pump_type', 'attr_travel', 'attr_model_scale',
+        'attr_firmware_version',
+    ], showid=False, formstyle='divs')
+    disable_autocomplete(newform)
     if newform.process(session=None, formname='newcomponent').accepted:
-        newcomponentname = newform.vars.name
+        try:
+            channel = int(request.vars.newcomponent_channel) if request.vars.newcomponent_channel else None
+        except (ValueError, TypeError):
+            channel = None
         db.model_component.insert(
-            model=model_id, component=newform.vars.id
+            model=model_id,
+            component=newform.vars.id,
+            purpose=request.vars.newcomponent_purpose or '',
+            channel=channel,
         )
-        redirect(request.env.http_web2py_component_location, client_side=True)
+        response.flash = "Component added to model"
     elif newform.errors:
         response.flash = "Error Creating New Component"
-
 
     del_id = 0
     deleteform = SQLFORM.factory()
@@ -238,7 +241,9 @@ def rendercard():
     component_count = db(db.model_component.model == model_id).count()
     components = models_and_components(db.model.id == model_id).iterselect()
 
-    return dict(components=components, model_id=model_id, component_count=component_count, options=request.args(1), addform=addform, newform=newform, deleteform=deleteform, newcomponentname=newcomponentname, is_mobile= is_mobile)
+    return dict(components=components, model_id=model_id, component_count=component_count,
+                options=request.args(1), addform=addform, newform=newform, deleteform=deleteform,
+                component_attribs=json.dumps(component_attribs), is_mobile=is_mobile)
 
 def export():
     component_id = VerifyTableID('component', request.args(0))
@@ -288,8 +293,7 @@ def export():
 def renderexport_formodel():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='component', title='Components')
+        return render_card_error('Unable to locate the associated model', 'component', 'Components')
     
     components = models_and_components(
         db.model.id == model_id).select() or None
@@ -337,8 +341,7 @@ def addtomodel():
     form = SQLFORM(db.model_component)
     form.vars.model = request.args(0)
 
-    for s in form.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
     if form.process(next=(URL('default', 'index', extension="html"))).accepted:
         response.flash = "New Component Added"
     elif form.errors:
@@ -368,10 +371,9 @@ def updatemodelrelation():
 
     form = SQLFORM(db.model_component, relationship_id, fields=fields, showid=False)
 
-    for s in form.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
     if form.process().accepted:
-        response.flash = "Relationship Updated"
+        session.flash = "Relationship Updated"
         redirect(session.ReturnHere or URL(
             'default', 'index', extension="html"))
     elif form.errors:
@@ -390,16 +392,16 @@ def delete():
 
     #if db(db.model_component.component == component_id).count() > 0:
     if db(db.model_component.component == component_id).select(db.model_component.id, limitby=(0,1)).first():
-        response.flash = "Cannot delete: component is assigned to models!"
+        session.flash = "Cannot delete: component is assigned to models!"
         redirect(session.ReturnHere or URL('component', 'listview'))
 
     #if db(db.eflite_time.motor == component_id).count() > 0:
     if db(db.eflite_time.motor == component_id).select(db.eflite_time.id, limitby=(0,1)).first():
-        response.flash = "Cannot delete: component is assigned to a flight time!"
+        session.flash = "Cannot delete: component is assigned to a flight time!"
         redirect(session.ReturnHere or URL('component', 'listview'))
 
     if component_id:
         db(db.component.id == component_id).delete()
-        response.flash = "Deleted"
+        session.flash = "Deleted"
         
     return redirect(session.ReturnHere or URL('component', 'listview'))

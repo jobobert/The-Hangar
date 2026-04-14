@@ -214,9 +214,7 @@ def update():
         message_onsuccess='Packing Item %s' % ('updated' if request.args else 'added'),
         next=(URL('packingitems', 'allitems', extension="html"))
     )
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     return dict(form=form)
 

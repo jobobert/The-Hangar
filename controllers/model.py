@@ -10,12 +10,32 @@ def index():
     details_form = SQLFORM(db.model, model.id, fields=[
                            'notes'], showid=False, formstyle='divs')
 
-    if details_form.process().accepted:
+    if details_form.process(formname='detailsform').accepted:
         session.flash = "Model Updated"
         redirect(URL('model', 'index', args=details_form.vars.id, extension="html"))
     elif details_form.errors:
-        response.flash = "Error Adding New Model"
+        response.flash = "Error Updating Details"
 
+    fieldnotes_form = SQLFORM(db.model, model.id, fields=[
+                              'fieldnotes'], showid=False, formstyle='divs')
+
+    if fieldnotes_form.process(formname='fieldnotesform').accepted:
+        session.flash = "Field Notes Updated"
+        redirect(URL('model', 'index', args=fieldnotes_form.vars.id, extension="html"))
+    elif fieldnotes_form.errors:
+        response.flash = "Error Updating Field Notes"
+
+    rotor_form = SQLFORM(db.model, model.id, fields=[
+                         'attr_multi_rotor_count', 'attr_copter_blade_count',
+                         'attr_copter_mainrotor_length', 'attr_copter_tailrotor_blade_count',
+                         'attr_copter_tailrotor_span', 'attr_copter_tailrotor_drive'],
+                         showid=False, formstyle='divs')
+
+    if rotor_form.process(formname='rotorform').accepted:
+        session.flash = "Rotors Updated"
+        redirect(URL('model', 'index', args=rotor_form.vars.id, extension="html"))
+    elif rotor_form.errors:
+        response.flash = "Error Updating Rotors"
 
     response.title = 'Model: ' + model.name
     session.ReturnHere = URL(
@@ -23,25 +43,13 @@ def index():
 
     session.index = "index ready"
 
-    match model.modelcategory:
-        case 'Dynamic':
-            response.view = 'model/index_dynamic.html'
-        case 'Remote Control':
-            response.view = 'model/index_remotecontrol.html'
-        case 'Static':
-            response.view = 'model/index_static.html'
-        case 'Non-Model': 
-            response.view = 'model/index_nonmodel.html'
-        case _:
-            response.view = 'model/index_remotecontrol.html'
-
-    return dict(model=model, details_form=details_form)
+    return dict(model=model, details_form=details_form, fieldnotes_form=fieldnotes_form,
+                rotor_form=rotor_form)
 
 def wishlist():
     
     addform = SQLFORM(db.wishlist, formstyle='bootstrap4_inline', submit_button='Add')
-    for s in addform.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(addform)
     if addform.process(session=None, formname='wishlistadd').accepted:
         response.flash = "Added"
     elif addform.errors:
@@ -60,11 +68,7 @@ def wishlist():
                     modelcategory=item.modelcategory,
                     havekit=True
                 )
-                db.activity.insert(
-                    activitydate = request.now.date(),
-                    model=new_id,
-                    activitytype='Purchase'
-                )
+                log_activity(new_id, 'Purchase')
                 
                 # remove the item
                 db(db.wishlist.id == item.id).delete()
@@ -177,22 +181,9 @@ def exporthardware():
 def rendercard():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate this model', controller='model', title='Models')
+        return render_card_error('Unable to locate this model', 'model', 'Models')
 
     model = db.model(model_id) or None
-
-    match model.modelcategory:
-        case 'Dynamic':
-            response.view = 'model/rendercard_dynamic.load'
-        case 'Remote Control':
-            response.view = 'model/rendercard_remotecontrol.load'
-        case 'Static':
-            response.view = 'model/rendercard_static.load'
-        case 'Non-Model': 
-            response.view = 'model/rendercard_nonmodel.load'
-        case _:
-            response.view = 'model/rendercard_remotecontrol.load'
 
     return dict(model=model)
 
@@ -200,8 +191,7 @@ def renderurlcard():
     model_id = VerifyTableID('model', request.args(0))
 
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate associated model', controller='model', title='URLs')
+        return render_card_error('Unable to locate associated model', 'model', 'URLs')
 
     addform = SQLFORM(db.url, fields=['url', 'notes'], formstyle='bootstrap4_inline', submit_button='Add')
     addform.vars.model = model_id
@@ -214,7 +204,7 @@ def renderurlcard():
     deleteform = SQLFORM.factory()
     if deleteform.process(session=None, formname='urldeleteform').accepted:
         for y, z in request.vars.items():
-            if z == "remove":
+            if z == "Remove":
                 del_id = y
                 db(db.url.id == del_id).delete()
                 response.flash = "URL removed"
@@ -230,16 +220,14 @@ def renderurlcard():
 def printcard():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate this model', controller='model', title='Models')
+        return render_card_error('Unable to locate this model', 'model', 'Models')
 
     return dict(model_id=model_id)
 
 def renderpackinglistcard():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate this model', controller='model', title='Models')
+        return render_card_error('Unable to locate this model', 'model', 'Models')
     
     model = db.model(model_id)
     batteries = db(db.model_battery.model == model_id).select()
@@ -254,8 +242,7 @@ def renderpackinglistcard():
 def renderhass():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate this model', controller='model', title='Models')
+        return render_card_error('Unable to locate this model', 'model', 'Models')
 
     model = db.model(model_id)
 
@@ -323,8 +310,7 @@ def renderdashboard():
     model_id = VerifyTableID('model', request.args(0))
 
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate this model', controller='model', title='Models')
+        return render_card_error('Unable to locate this model', 'model', 'Models')
     
     model = db.model(model_id)
     
@@ -346,17 +332,6 @@ def renderdashboard():
         "switch": switch_count
     }
 
-    note_form = SQLFORM.factory(Field(
-        'note', type='text', label='Note'), formstyle='divs', table_name='note_form')
-    if note_form.process().accepted:
-        db.activity.insert(
-            activitydate=request.now.today(), model=model.id, activitytype='Note', notes=note_form.vars.note
-        )
-        session.flash = "Note Added"
-        redirect(URL('default', 'index', args=note_form.vars.id, extension="html"))
-    elif note_form.errors:
-        response.flash = "Error Adding Note"
-
     details_form = SQLFORM(db.model, model.id, fields=[
                            'notes'], showid=False, formstyle='divs')
     if details_form.process().accepted:
@@ -366,7 +341,7 @@ def renderdashboard():
     elif details_form.errors:
         response.flash = "Error Updating Details"
 
-    return dict(model=model, details_form=details_form, note_form=note_form, options=opts)
+    return dict(model=model, details_form=details_form, options=opts)
 
 def listview():
     response.title = 'Model List'
@@ -416,15 +391,11 @@ def update():
     form = SQLFORM(db.model, request.args(0), upload=URL(
         'default', 'download'), _id='modelform')
     form.custom.widget.attr_covering['_class'] = "form-control"
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
     if form.process().accepted:
         response.flash = 'Model %s' % ('Updated' if request.args else 'Added')
         if (not request.args):
-            db.activity.insert(
-                activitydate=request.now.today(), model=form.vars.id, activitytype='Other', notes="Model Created"
-            )
+            log_activity(form.vars.id, 'Other', 'Model Created')
 
         redirect(URL( 'model', 'index', args=form.vars.id, extension="html") or session.ReturnHere)
     elif form.errors:
@@ -434,10 +405,6 @@ def update():
         #response.flash = "something happened"
 
     return dict(form=form, modeltype_hide_attribs=json.dumps(modeltype_hide_attribs), modelcategory_hide_attribs=json.dumps(modelcategory_hide_attribs))
-
-def addnote():
-    # Add the note and return. Use GET for the text
-    pass
 
 def deleteconfig():
     # Delete the radio config
@@ -466,11 +433,7 @@ def updatestate():
     notes = "State changed from **{}** to **{}**".format(
         old_modelstate.name, new_modelstate.name)
 
-    # Add ModelState Activity into the Activity table
-    db.activity.insert(
-        activitydate=request.now.today(), model=model.id  # db(db.model.id == model_id)
-        , activitytype='StateChange', notes=notes
-    )
+    log_activity(model.id, 'StateChange', notes)
 
     return redirect(session.ReturnHere or URL('model', 'index.html', args=model_id))
 
@@ -591,8 +554,7 @@ def updateflighttime():
 def renderflighttimes():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate this model', controller='model', title='Models')
+        return render_card_error('Unable to locate this model', 'model', 'Models')
     
     model = db.model(model_id)
     motor = model.get_motor() or None
@@ -662,12 +624,7 @@ def retire():
             else:
                 pass
 
-        db.activity.insert(
-            activitydate=request.now.today(), 
-            model=model_id, 
-            activitytype='Retirement', 
-            notes=reason
-        )
+        log_activity(model_id, 'Retirement', reason)
         db(db.model.id == model_id).update(modelstate=1)
 
         redirect(URL('model', 'index', args=model_id))
@@ -747,13 +704,11 @@ def renderhardware():
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='model', title='Hardware')
+        return render_card_error('Unable to locate the associated model', 'model', 'Hardware')
 
     fields = ['hardwaretype', 'diameter', 'length_mm', 'purpose', 'quantity']
     addform = SQLFORM(db.hardware, fields=fields, formstyle='bootstrap4_inline', submit_button='Submit')
-    for s in addform.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(addform)
     addform.vars.model = model_id
     if addform.process(session=None, formname='hwform').accepted:
         response.flash = "New Hardware Added"

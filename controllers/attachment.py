@@ -3,15 +3,12 @@ def rendercard():
     
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='attachment', title='Attachments')
+        return render_card_error('Unable to locate the associated model', 'attachment', 'Attachments')
 
     fields = ["name", "attachmenttype", "attachment"]
 
     form = SQLFORM(db.attachment, model=model_id, fields=fields, comments=False)
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
     form.vars.model = model_id
     if form.process(formname='attachmentform').accepted:
         response.flash = "New Attachment Added"
@@ -41,12 +38,10 @@ def new():
     model_id = request.args[0]
 
     form = SQLFORM(db.attachment, model=model_id)
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
     form.vars.model = model_id
     if form.process(formname='attachmentform').accepted:
-        response.flash = "New Attachment Added"
+        session.flash = "New Attachment Added"
 
         #redirect(URL('default', 'breadcrumb_back'))
         redirect(session.ReturnHere or URL('model', 'index', args=model_id))
@@ -68,9 +63,7 @@ def update():
         message_onsuccess='Document %s' % (
             'updated' if request.args else 'added'), next=(URL('attachment', 'index', args=request.vars.id, extension="html"))
     )
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     response.view = 'content.html'
     return dict(content=form)

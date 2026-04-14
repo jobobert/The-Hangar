@@ -33,8 +33,7 @@ def rendercard():
     todo_count = todo_query.count()
 
     form = SQLFORM(db.todo, submit_button='Add')
-    for s in form.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
     form.vars.model = model_id
     if form.process(session=None, formname='todoform').accepted:
         response.flash = "New Todo Added"
@@ -93,9 +92,7 @@ def update():
         next=(URL('todo', 'listview', args=request.vars.id, extension="html"))
     )
 
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     return dict(form=form)
 
@@ -110,17 +107,14 @@ def newmodal():
         #,next=(URL('todo', 'listview', args=request.vars.id, extension="html"))
     )
 
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     return dict(content=form)
 
 def renderexport():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-            response.view = 'rendercarderror.load'
-            return dict(content='Unable to locate the associated model', controller='todo', title='Todos')
+            return render_card_error('Unable to locate the associated model', 'todo', 'Todos')
 
     todos = db((db.todo.model == model_id) &
             (db.todo.complete == False)).select() or None

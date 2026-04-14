@@ -3,22 +3,26 @@
     <h5>Model Not Found</h5>
 </div>
 {{else:}}
-<div class="card model-card mb-2">
+{{cat = model.modelcategory.lower().replace('-','') if model.modelcategory else 'dynamic'}}
+<div class="card model-card mb-2 model_category_border_{{=cat}}">
     <div style="position:absolute; top: 0px; left: 0px; display: inline-block; width:48px; float:left;">
         {{=model_type_icon(model, 48) }}
     </div>
+    {{if model.modelcategory == 'Dynamic':}}
     {{if model.get_radio_config_backedup() == 'No':}}
     <div style="position:absolute; top: 0px; left: 270px; display: inline-block; width:48px; float:right;">
         {{=action_icon('warning', 32, alt='Config not Backed Up') }}
     </div>
     {{pass}}
+    {{pass}}
 
-    <h4 class="card-header text-center"><a href="{{=URL('model','index',args=model.id,extension='html')}}" style="text-decoration: none; color: inherit;">{{=model.name}}</a></h4>
+    <h4 class="card-header text-center{{if model.modelcategory == 'Non-Model':}} text-truncate{{pass}}"><a href="{{=URL('model','index',args=model.id,extension='html')}}" style="text-decoration: none; color: inherit;">{{=model.name}}</a></h4>
     <div class="">
         <h6 class="text-right p-1 modelstate_bg_{{=model.modelstate if model.modelstate else 'none'}}">
             {{=model.modelstate.name if model.modelstate else 'Unknown State'}}
         </h6>
     </div>
+    <div class="model_category_row_{{=cat}}">{{=model.modelcategory}}</div>
     <div class="card-body">
         <a href="{{=URL('model','index',args=model.id,extension='html')}}" style="text-decoration: none; color: inherit;">
             <img class="card-img-top default-model-image" src="{{=URL('default', 'download', args=model.img)}}" alt="Card image cap" />
@@ -27,6 +31,7 @@
             <li class="nav-item">
                 {{=model.get_major_dimension()}}
             </li>
+            {{if model.modelcategory == 'Dynamic':}}
             <li class="nav-item">
                 {{try:}}
                 {{if model.powerplant:}}
@@ -43,6 +48,7 @@
                 ---
                 {{pass}}
                 {{except:}}---{{pass}}</li>
+            {{pass}}
             <li class="nav-item">{{=LOAD('model','selected.load', args=[model.id,'card'], ajax=True, content='...')}}</li>
         </ul>
         <div class="pl-1 mt-0">
@@ -53,6 +59,7 @@
     </div>
     <div>
         <div class="model_detail_row">
+            {{if model.modelcategory == 'Dynamic':}}
             {{if model.transmitter:}}
             {{try:}}
             <span class="pl-1 pr-1 m-0">
@@ -67,6 +74,10 @@
                 {{=controller_icon('battery', 20)}}
                 {{=" | ".join(model.get_batterylist())}}
             </span>
+            {{pass}}
+            {{elif model.modelcategory == 'Static':}}
+            <span class="pl-1 pr-1 m-0">{{=model.manufacturer}}</span>
+            <span class="pl-1 pr-1 m-0">{{=model.kitnumber}}</span>
             {{pass}}
         </div>
     </div>

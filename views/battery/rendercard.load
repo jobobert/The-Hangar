@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-header">
         <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('battery', 25)}}</span>{{=battery_count}} Batteries</h5>
-        <a href="#" data-toggle="modal" data-target="#modal_newbattery" class="card-link th-new-link">New</a>
+        {{=renderModal('newbattery', 'New Battery', newform)}}
     </div>
     <div class="card-body">
         {{=deleteform.custom.begin}}
@@ -29,21 +29,5 @@
             {{=makeFormField(addform, "submit", FormFieldType.COLUMNS, columns=2)}}
         </div>
         {{=addform.custom.end}}
-    </div>
-</div>
- 
-<div class="modal fade" id="modal_newbattery" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
-    <div class="modal-dialog" role="document" style="max-width: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal_newbattery_title">New Battery</h5>
-            </div>
-            <div class="modal-body">
-                {{=newform}}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
     </div>
 </div>

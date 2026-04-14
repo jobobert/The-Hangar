@@ -172,7 +172,7 @@ db.define_table('article'
                 )
 
 db.article.showAttachmentPopup = Field.Method(
-    lambda row: AttachPopup(row.article.attachment)  # AttachPopup(row.name)
+    lambda row: AttachPopup(row.article.attachment)
 )
 db.article.showAttachmentPopup.label = 'Attachment'
 
@@ -728,7 +728,7 @@ db.component.get_remainingcount = Field.Method(
 db.component.get_remainingcount.label = 'Remaining Count'
 
 db.component.showAttachmentPopup = Field.Method(
-    lambda row: AttachPopup(row.component.attachment) 
+    lambda row: AttachPopup(row.component.attachment)
 )
 db.component.showAttachmentPopup.label = 'Attachment'
 

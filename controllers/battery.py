@@ -58,9 +58,7 @@ def update():
         next=(URL('battery', 'index', args=form.vars.id, extension="html"))
     )
     
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     return dict(form=form)
 
@@ -69,8 +67,7 @@ def rendercard():
    
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='battery', title='Batteries')
+        return render_card_error('Unable to locate the associated model', 'battery', 'Batteries')
 
     fields = ['battery', 'quantity']
     addform = SQLFORM(db.model_battery, fields=fields,
@@ -81,12 +78,21 @@ def rendercard():
     elif addform.errors:
         response.flash = "Error adding battery to model"
 
-    newform = SQLFORM(db.battery, showid=False, formstyle='bootstrap4_inline')
-    for s in newform.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    newform = SQLFORM.factory(
+        db.battery.cellcount, db.battery.mah, db.battery.chemistry,
+        db.battery.crating, db.battery.ownedcount,
+        db.model_battery.quantity,
+        formstyle='divs'
+    )
+    disable_autocomplete(newform)
     if newform.process(session=None, formname='newbattery').accepted:
-        db.model_battery.insert(model=model_id, battery=newform.vars.id)
-        redirect(request.env.http_web2py_component_location, client_side=True)
+        new_id = db.battery.insert(
+            cellcount=newform.vars.cellcount, mah=newform.vars.mah,
+            chemistry=newform.vars.chemistry, crating=newform.vars.crating,
+            ownedcount=newform.vars.ownedcount
+        )
+        db.model_battery.insert(model=model_id, battery=new_id, quantity=newform.vars.quantity)
+        response.flash = "Battery added to model"
     elif newform.errors:
         response.flash = "Error Creating New Battery"
 
@@ -114,16 +120,16 @@ def delete():
 
     #if db(db.model_battery.battery == battery_id).count() > 0:
     if db(db.model_battery.battery == battery_id).select(db.model_battery.id, limitby=(0,1)).first():
-        response.flash = "Cannot delete: battery is assigned to models!"
+        session.flash = "Cannot delete: battery is assigned to models!"
         redirect(session.ReturnHere or URL('battery', 'listview'))
 
     #if db(db.eflite_time.battery == battery_id).count() > 0:
     if db(db.eflite_time.battery == battery_id).select(db.model_battery.id, limitby=(0,1)).first():
-        response.flash = "Cannot delete: battery is assigned to flight time record!"
+        session.flash = "Cannot delete: battery is assigned to flight time record!"
         redirect(session.ReturnHere or URL('battery', 'listview'))
 
     db(db.battery.id == battery_id).delete()
-    response.flash = "Deleted"
+    session.flash = "Deleted"
     redirect(session.ReturnHere or URL('battery', 'listview'))
 
 def removefrommodel():
@@ -139,8 +145,7 @@ def renderexport():
     
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='battery', title='Batteries')
+        return render_card_error('Unable to locate the associated model', 'battery', 'Batteries')
 
     batteries = db(db.model_battery.model == model_id).select() or None
 

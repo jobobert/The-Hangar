@@ -38,9 +38,7 @@ def update():
         redirect(URL('tool', 'index', args=form.vars.id,
                  extension="html") or session.ReturnHere)
 
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     return dict(form=form)
 
@@ -48,8 +46,7 @@ def rendercard():
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='tool', title='Tools')
+        return render_card_error('Unable to locate the associated model', 'tool', 'Tools')
 
     addfields = ['tool', 'purpose']
     addform = SQLFORM(db.model_tool, fields=addfields,
@@ -60,14 +57,20 @@ def rendercard():
     elif addform.errors:
         response.flash = "Error adding tool to model"
 
-    newform = SQLFORM(db.tool, showid=False, formstyle='bootstrap4_inline')
-    inputs = newform.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    newform = SQLFORM.factory(
+        db.tool.name, db.tool.tooltype, db.tool.notes, db.tool.img, db.tool.attachment,
+        db.model_tool.purpose,
+        formstyle='divs'
+    )
+    disable_autocomplete(newform)
     if newform.process(session=None, formname='newtool').accepted:
-        # add to model_tool
-        db.model_tool.insert(model=model_id, tool=newform.vars.id)
-        redirect(request.env.http_web2py_component_location, client_side=True)
+        new_id = db.tool.insert(
+            name=newform.vars.name, tooltype=newform.vars.tooltype,
+            notes=newform.vars.notes, img=newform.vars.img,
+            attachment=newform.vars.attachment
+        )
+        db.model_tool.insert(model=model_id, tool=new_id, purpose=newform.vars.purpose)
+        response.flash = "Tool added to model"
     elif newform.errors:
         response.flash = "Error Creating New Tool"
 
@@ -95,8 +98,7 @@ def renderexport():
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='tool', title='Tools')
+        return render_card_error('Unable to locate the associated model', 'tool', 'Tools')
     
     tools = db(db.model_tool.model == model_id).select() or None
 
@@ -142,9 +144,9 @@ def delete():
 
     #if db(db.model_tool.tool == tool_id).count() > 0:
     if db(db.model_tool.tool == tool_id).select(db.model_tool.id, limitby=(0,1)).first():
-        response.flash = "Cannot delete: tool is assigned to models!"
+        session.flash = "Cannot delete: tool is assigned to models!"
         redirect(session.ReturnHere or URL('tool', 'listview'))
 
     db(db.tool.id == tool_id).delete()
-    response.flash = "Deleted"
+    session.flash = "Deleted"
     redirect(session.ReturnHere or URL('tool', 'listview'))

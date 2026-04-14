@@ -2,8 +2,7 @@ def rendercard():
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='propeller', title='Propellers')
+        return render_card_error('Unable to locate the associated model', 'propeller', 'Propellers')
 
     si_query = db(db.propeller.model == model_id)
 
@@ -11,8 +10,7 @@ def rendercard():
 
     fields = ['item']
     addform = SQLFORM(db.propeller, fields=fields, formstyle='bootstrap4_inline', submit_button='Add')
-    for s in addform.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(addform)
     addform.vars.model = model_id
     if addform.process(session=None, formname='propelleraddform').accepted:
         response.flash = "New Propeller Added"
@@ -58,8 +56,7 @@ def renderexport():
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='propeller', title='Propellers')
+        return render_card_error('Unable to locate the associated model', 'propeller', 'Propellers')
 
     propellers = db(db.propeller.model == model_id).select()
 

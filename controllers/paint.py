@@ -24,9 +24,7 @@ def update():
         next=(URL('paint', 'index', args=request.vars.id, extension="html"))
     )
     
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     return dict(form=form)
 
@@ -44,14 +42,14 @@ def delete():
     paint_id = VerifyTableID('paint', request.args(0)) or redirect(URL('paint', 'listview'))
 
     if db(db.model_paint.paint == paint_id).count() > 0:
-        response.flash = "Cannot delete: paint is assigned to models!"
+        session.flash = "Cannot delete: paint is assigned to models!"
         return redirect(session.ReturnHere or URL('paint', 'listview'))
     
     if paint_id:
         db(db.paint.id == paint_id).delete()
         response.flash = 'Paint Deleted'    
     else:
-        response.flash = "Cannot delete: paint not found"
+        session.flash = "Cannot delete: paint not found"
         
     return redirect(session.ReturnHere or URL('paint', 'listview'))
 
@@ -65,26 +63,30 @@ def removefrommodel():
 def rendercard():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='paint', title='Paint')
+        return render_card_error('Unable to locate the associated model', 'paint', 'Paint')
 
-    new_id = 0
-    newform = SQLFORM(db.paint, showid=False, formstyle='bootstrap4_inline')
-    for s in newform.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    newform = SQLFORM.factory(
+        db.paint.manufacturer, db.paint.brand, db.paint.color,
+        db.paint.colorid, db.paint.colorhex, db.paint.notes, db.paint.img,
+        db.model_paint.purpose,
+        formstyle='divs'
+    )
+    disable_autocomplete(newform)
     if newform.process(session=None, formname='newpaintform').accepted:
-        new_id = newform.vars.id
-        
-        redirect(request.env.http_web2py_component_location, client_side=True)
+        new_id = db.paint.insert(
+            manufacturer=newform.vars.manufacturer, brand=newform.vars.brand,
+            color=newform.vars.color, colorid=newform.vars.colorid,
+            colorhex=newform.vars.colorhex, notes=newform.vars.notes,
+            img=newform.vars.img
+        )
+        db.model_paint.insert(model=model_id, paint=new_id, purpose=newform.vars.purpose)
+        response.flash = 'Paint added to model'
     elif newform.errors:
         response.flash = 'Error creating new paint'
-
 
     addfields = ['paint', 'purpose']
     addform = SQLFORM(db.model_paint, fields=addfields, formstyle='bootstrap4_inline', submit_button='Add')
     addform.vars.model = model_id
-    if new_id:
-        addform.vars.paint = new_id
     if addform.process(session=None, formname='addpaintform').accepted:
         response.flash = 'Paint added to model'
     elif addform.errors:
@@ -111,8 +113,7 @@ def rendercard():
 def renderexport():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='paint', title='Paint')
+        return render_card_error('Unable to locate the associated model', 'paint', 'Paint')
 
     paints = db(db.model_paint.model == model_id).select() or None
 

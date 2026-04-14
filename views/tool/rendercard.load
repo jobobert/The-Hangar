@@ -8,7 +8,7 @@
 <div class="card">
     <div class="card-header">
         <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('tool', 25)}}</span>{{=tool_count}} Tools</h5>
-        <a href="#" data-toggle="modal" data-target="#modal_newtool" class="card-link th-new-link">New</a>
+        {{=renderModal('newtool', 'New Tool', newform)}}
     </div>
     <div class="card-body">
         {{=deleteform.custom.begin}}
@@ -35,20 +35,4 @@
         </div>
         {{=addform.custom.end}}
     </div>
-</div>
-<div class="modal fade" id="modal_newtool" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
-    <div class="modal-dialog" role="document" style="max-width: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal_newtool_title">New Tool</h5>
-            </div>
-            <div class="modal-body">
-                {{=newform}}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div> 
-{{pass}}
+</div>{{pass}}

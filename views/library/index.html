@@ -67,7 +67,7 @@
         <div class="col-sm-1">
             {{if article['attachment']:}}
             {{if isimage(article['attachment']):}}
-            {{=AttachPopup(article['attachment'], True)}}
+            {{=AttachPopup(article['attachment'])}}
             {{else:}}
             <a class="d-inline-block" href="{{=URL('default', 'download', args=article['attachment'])}}">{{=filetype_icon(article['attachment'], 32) }}</a>
             {{pass}}

@@ -87,12 +87,10 @@ def update():
 
     form = SQLFORM(db.article, request.args(0), upload=URL(
         'default', 'download'), deletable=True, showid=False, buttons=buttons, _id='articleform')
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     if form.process().accepted:
-        response.flash = 'Article %s' % (
+        session.flash = 'Article %s' % (
             'updated' if request.args else 'added')
         redirect(URL('library', 'read', args=form.vars.id,
                  extension="html") or session.ReturnHere)

@@ -22,17 +22,13 @@
 <div class="card">
     <div class="card-header">
         <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('component', 25)}}</span>{{=component_count}} Components</h5>
-        <!--<a class="card-link th-new-link" href="{{=URL('component','update')}}">New</a>-->
-        <a href="#" data-toggle="modal" data-target="#modal_newcomponent" class="card-link th-new-link">New</a>
-        {{if newcomponentname != "":}}
-        <div>{{=newcomponentname}} created, add to model below</div>
-        {{pass}}
+        <button type="button" class="card-link th-new-link btn btn-link" popovertarget="newcomponent_popover">New</button>
     </div>
     <div class="card-body">
 
         {{=deleteform.custom.begin}}
         {{for component in components:}}
-        <div class="container component-item">
+        <div class="component-item w-100">
 
             <div class="row">
                 <div class="col-2 component-item-image"><img class="component-item-image" src="{{=URL('default', 'download', args=component.model_component.component.img)}}" /></div>
@@ -129,24 +125,81 @@
                 </div>
             </div>
         </div>
-
-        <!--<a class="btn btn-primary" href="{{=URL('component','addtomodel.html',args=[model_id])}}">Add</a>-->
     </div>
 </div>
 
-<div class="modal fade" id="modal_newcomponent" tabindex="-1" role="dialog" aria-labelledby="title" aria-hidden="true">
-    <div class="modal-dialog" role="document" style="max-width: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modal_newtcomponent_title">New Component</h5>
-            </div>
-            <div class="modal-body">
-                {{=newform}}
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
+<div id="newcomponent_popover" popover="manual" style="position:fixed;top:5vh;left:50%;transform:translateX(-50%);padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;min-width:60vw;max-height:90vh;overflow-y:auto;">
+    <button type="button" popovertarget="newcomponent_popover" popovertargetaction="hide" style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>
+    <h5>New Component</h5>
+    {{=newform.custom.begin}}
+
+    <div style="display:flex;flex-wrap:wrap;gap:0 1rem;">
+        <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "name", FormFieldType.ROWS)}}</div>
+        <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "componenttype", FormFieldType.ROWS)}}</div>
+        <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "componentsubtype", FormFieldType.ROWS)}}</div>
+        <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "serial", FormFieldType.ROWS)}}</div>
+        <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "significantdetail", FormFieldType.ROWS)}}</div>
+        <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "manufacturer", FormFieldType.ROWS)}}</div>
+        <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "ownedcount", FormFieldType.ROWS)}}</div>
+        <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "storedat", FormFieldType.ROWS)}}</div>
     </div>
+
+    <hr>
+    <h6>Dimensions &amp; Weight</h6>
+    <div style="display:flex;flex-wrap:wrap;gap:0 1rem;">
+        <div style="flex:1;min-width:10rem;">{{=makeFormField(newform, "attr_length", FormFieldType.ROWS)}}</div>
+        <div style="flex:1;min-width:10rem;">{{=makeFormField(newform, "attr_width", FormFieldType.ROWS)}}</div>
+        <div style="flex:1;min-width:10rem;">{{=makeFormField(newform, "attr_height", FormFieldType.ROWS)}}</div>
+        <div style="flex:1;min-width:10rem;">{{=makeFormField(newform, "attr_weight_oz", FormFieldType.ROWS)}}</div>
+    </div>
+
+    {{for key in newform.custom.label:}}
+    {{if key.startswith('attr_') and key not in ['attr_length', 'attr_width', 'attr_height', 'attr_weight_oz']:}}
+    {{=makeFormField(newform, key, FormFieldType.ROWS, columns=12, fieldid=key)}}
+    {{pass}}
+    {{pass}}
+
+    <hr>
+    <h6>On this model</h6>
+    <div class="form-group">
+        <label for="newcomponent_purpose">{{=db.model_component.purpose.label}}</label>
+        <input type="text" id="newcomponent_purpose" name="newcomponent_purpose" class="form-control string" autocomplete="off" />
+        <small class="form-text text-muted">{{=db.model_component.purpose.comment or ''}}</small>
+    </div>
+    <div class="form-group">
+        <label for="newcomponent_channel">{{=db.model_component.channel.label}}</label>
+        <input type="number" id="newcomponent_channel" name="newcomponent_channel" class="form-control integer" />
+        <small class="form-text text-muted">{{=db.model_component.channel.comment or ''}}</small>
+    </div>
+
+    <div class="mt-2">{{=makeFormSubmitbutton(newform)}}</div>
+    {{=newform.custom.end}}
 </div>
+
+<script>
+function newcomponentTypeChange() {
+    var type = document.getElementById("component_componenttype").value;
+    var component_attribs = JSON.parse('{{=XML(component_attribs)}}');
+    var exclude = ['component_attr_length', 'component_attr_width', 'component_attr_height', 'component_attr_weight_oz'];
+    var attrs = document.querySelectorAll('[id^="component_attr_"]');
+    for (var i = 0; i < attrs.length; i++) {
+        if (!exclude.includes(attrs[i].id)) {
+            var attr_name = attrs[i].id.slice(10);
+            var wrapper = document.getElementById(attr_name);
+            if (wrapper) {
+                if (component_attribs[type] && component_attribs[type].includes(attr_name)) {
+                    wrapper.style.display = '';
+                } else {
+                    wrapper.style.display = 'none';
+                }
+            }
+        }
+    }
+}
+var compTypeEl = document.getElementById("component_componenttype");
+if (compTypeEl) {
+    compTypeEl.addEventListener("change", newcomponentTypeChange);
+    jQuery(document).ready(newcomponentTypeChange);
+}
+</script>
 {{pass}}

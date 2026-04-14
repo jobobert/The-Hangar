@@ -40,6 +40,10 @@ def makeFormDeleteButton(form):
     else:
         return ''
 
+def disable_autocomplete(form):
+    for s in form.elements('input', _type='text'):
+        s['_autocomplete'] = 'off'
+
 def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0, fieldid:str = "", divClass:str = ""):
     isSubmit = False
     field = None
@@ -311,28 +315,22 @@ def library_type_icon(article, size):
 
     return show_icon(folder + iconname, size=32, alt=test)
 
-def model_flowchart(model):
-    return DIV('flowchart')
+
+def _file_ext(attachment):
+    try:
+        if hasattr(attachment, 'attachment'):
+            return attachment.attachment.split('.')[-1].lower()
+        return attachment.split('.')[-1].lower()
+    except (AttributeError, TypeError, IndexError):
+        return None
 
 def filetype_icon(attachment, size):
-    folder = 'attachment_filetype/'
-    try:
-        ext = attachment.attachment.split('.')[-1].lower()
-    except:
-        ext = attachment.split('.')[-1].lower()
-
-    return show_icon(folder + ext + '.png', size, ext)
+    ext = _file_ext(attachment) or 'nopicture'
+    return show_icon('attachment_filetype/' + ext + '.png', size, ext)
 
 def filename_filetype_icon(filename:str, size:int):
-    folder = 'attachment_filetype/'
-    try:
-        ext = filename.split('.')[-1].lower()
-    except (AttributeError, TypeError, IndexError) as e:
-        # Fallback to a generic icon if filename is invalid
-        ext = 'nopicture'
-        folder = '/'
-
-    return show_icon(folder + ext + '.png', size, ext)
+    ext = _file_ext(filename) or 'nopicture'
+    return show_icon('attachment_filetype/' + ext + '.png', size, ext)
 
 def show_icon(iconname:str, size:int=0, alt:str="icon"):
     thename = 'icons/' + iconname
@@ -349,6 +347,10 @@ def show_icon(iconname:str, size:int=0, alt:str="icon"):
 ############################################
 ## UTILITIES
 import inspect
+def render_card_error(content, controller=None, title=None):
+    response.view = 'rendercarderror.load'
+    return dict(content=content, controller=controller, title=title)
+
 def VerifyTableID(table:str, rowID:int|str):
     #print(f'{table} -- {rowID}:  {type(rowID)}')
 
@@ -385,37 +387,33 @@ def ZeroDecimal(number):
         return 0
     return "{:.0f}".format(number)
 
-def AttachPopup2(attachment):
-    # This doesn't work, it doesn't start with the dialog hidden
-    rnd = random.randint(0, 100)
-    
+def AttachPopup(attachment):
+    rnd = random.randint(0, 999999)
+
     if isimage(attachment):
         attach = attachment
         if hasattr(attachment, "attachment"):
             attach = attachment.attachment
-        x = XML(f'<button popovertarget="img_{rnd}">{action_icon("OpenTab", 16)}</button><dialog id="img_{rnd}" popover="manual"><button popovertarget="img_{rnd}" popovertargetaction="hide">X</button><img class="" src="{URL("default", "download", args=attach)}"/></dialog>')
+        x = XML(f'<button type="button" popovertarget="img_{rnd}">{action_icon("OpenTab", 16)}</button><div id="img_{rnd}" popover="manual" style="padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;"><button type="button" popovertarget="img_{rnd}" popovertargetaction="hide" style="display:block;margin-bottom:.5rem;">&#x2715; Close</button><img src="{URL("default", "download", args=attach)}" style="max-width:90vw;max-height:80vh;"/></div>')
     else:
         return ""
 
     return x
 
-def AttachPopup(attachment, useicon = False):
-    if isimage(attachment):
-        attach = attachment
-        if hasattr(attachment, "attachment"):
-            attach = attachment.attachment
-        attributes = {
-            '_data-toggle': 'modal',
-            '_data-target': '#mainModal',
-            '_data-whatever': '<img class="card-img-top" src=' + URL("default", "download", args=attach) + '>',
-            '_class': 'btn'
-        }
-        if useicon:
-            return A(filetype_icon(attach, 32), **attributes)
-        else:    
-            return A(action_icon("OpenTab", 16), **attributes)
-    else:
-        return ""
+def renderModal(modal_id, title, form, label='New'):
+    style = (
+        'position:fixed;top:5vh;left:50%;transform:translateX(-50%);'
+        'padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;'
+        'min-width:40vw;max-height:90vh;overflow-y:auto;'
+    )
+    return XML(
+        f'<button type="button" class="card-link th-new-link btn btn-link"'
+        f' popovertarget="{modal_id}">{label}</button>'
+        f'<div id="{modal_id}" popover="manual" style="{style}">'
+        f'<button type="button" popovertarget="{modal_id}" popovertargetaction="hide"'
+        f' style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>'
+        f'<h5>{title}</h5>{str(form)}</div>'
+    )
 
 def ConvertMeasurementField(table, row, FieldName, seperator=" | "):
     if not hasattr(db[table][FieldName], "extra"):
@@ -439,45 +437,27 @@ def ConvertMeasurementField(table, row, FieldName, seperator=" | "):
             return ""
 
 def isimage(attachment):
-
-    if hasattr(attachment, "attachment"):
-        ext = attachment.attachment.split('.')[-1]
-    elif hasattr(attachment, "split"):
-        ext = attachment.split('.')[-1]
-    elif isinstance(attachment, str):
-        ext = attachment.split('.')[-1]
-    else:        return False
-
-    imageExtensions = {
-        'jpeg': True,
-        'jpg': True,
-        'gif': True,
-        'png': True,
-        'bmp': True,
-    }
-    
-    return imageExtensions.get(ext, False)
+    return _file_ext(attachment) in {'jpeg', 'jpg', 'gif', 'png', 'bmp'}
 
 def ispdf(attachment):
-    
-    if hasattr(attachment, "attachment"):
-        ext = attachment.attachment.split('.')[-1]
-    elif hasattr(attachment, "split"):
-        ext = attachment.split('.')[-1]
-    #elif type(attachment) == 'str':
-    elif isinstance(attachment, str):
-        ext = attachment.split('.')[-1]
-    else:
-        return False
-
-    return (ext == 'pdf')
+    return _file_ext(attachment) == 'pdf'
         
+def log_activity(model_id, activitytype, notes=''):
+    model_id = VerifyTableID('model', model_id)
+    if not model_id:
+        return
+    db.activity.insert(
+        activitydate=request.now.date(),
+        model=model_id,
+        activitytype=activitytype,
+        notes=notes
+    )
+
 def underConstructionModels():
     models = db((db.model.modelstate == 3) | (db.model.modelstate == 6)).select(
         db.model.id, db.model.name, db.model.img, db.model.description).as_list()
 
-    m = []
-    for i, model in enumerate(models):
+    for model in models:
         model['img'] = IMG(_src=URL('default', 'download', args=model['img'], scheme=True, host=True))
 
     return models
@@ -486,10 +466,8 @@ def activeModels():
     models = db((db.model.modelstate == 4) | (db.model.modelstate == 5)).select(
         db.model.id, db.model.name, db.model.img, db.model.description).as_list()
 
-    m = []
-    for i, model in enumerate(models):
+    for model in models:
         model['img'] = IMG(_src=URL('default', 'download', args=model['img'], scheme=True, host=True))
-        #m = m + [model['img']]
 
     return models
 
@@ -497,8 +475,7 @@ def selectedModels():
     models = db(db.model.selected == True).select(
         db.model.name, db.model.img, db.model.description).as_list()
 
-    m = []
-    for i, model in enumerate(models):
+    for model in models:
         model['img'] = IMG(_src=URL('default', 'download', args=model['img'], scheme=True, host=True))
     
     return models
@@ -509,7 +486,7 @@ def theHangarStats():
     # Get the States
     states = db(db.model).select(db.model.modelstate,
                                  db.model.id.count(), groupby=db.model.modelstate)
-    for i, state in enumerate(states):
+    for state in states:
         state['stateid'] = state['model'].modelstate
         state['statename'] = state['model'].modelstate.name
         del state['model']
@@ -526,7 +503,7 @@ def theHangarStats():
         db.todo.model, db.todo.todo
     ).exclude(lambda row: row.model.modelstate != 1)
 
-    for i, todo in enumerate(critical_todos):
+    for todo in critical_todos:
 
         m = todo['model']
         todo['m'] = m.img

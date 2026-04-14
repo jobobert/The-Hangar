@@ -23,8 +23,7 @@ def rendercard():
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='wtc', title='Water Tight Cylinder')
+        return render_card_error('Unable to locate the associated model', 'wtc', 'Water Tight Cylinder')
     
     addform = SQLFORM(db.model_wtc, fields=["wtc", "notes"], comments=False)
     addform.vars.model = model_id
@@ -36,8 +35,7 @@ def rendercard():
 
     newform = SQLFORM(db.wtc, showid=False,
                       formstyle='bootstrap4_inline')
-    for s in newform.elements('input', _type='text'):
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(newform)
     if newform.process(session=None, formname='newwtc').accepted:
         pass
         #newwtcname = newform.vars.name
@@ -75,9 +73,7 @@ def update():
     if form.accepted:
         redirect(URL('wtc', 'index', args=form.vars.id, extension="html") or session.ReturnHere)
 
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     return dict(form=form)
 
@@ -94,11 +90,11 @@ def delete():
     wtc_id = VerifyTableID('wtc', request.args(0)) or redirect(URL('wtc', 'listview'))
 
     if db(db.model_wtc.wtc == wtc_id).select(db.model_wtc.id, limitby=(0,1)).first():
-        response.flash = "Cannot delete: WTC is assigned to models!"        
+        session.flash = "Cannot delete: WTC is assigned to models!"        
         redirect(session.ReturnHere or URL('wtc', 'listview'))
 
     db(db.wtc.id == wtc_id).delete()
-    response.flash = "Deleted"
+    session.flash = "Deleted"
     redirect(session.ReturnHere or URL('wtc', 'listview'))
 
 def renderexport():
@@ -108,8 +104,7 @@ def renderexport():
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        response.view = 'rendercarderror.load'
-        return dict(content='Unable to locate the associated model', controller='wtc', title='Water Tight Cylinder Export')
+        return render_card_error('Unable to locate the associated model', 'wtc', 'Water Tight Cylinder Export')
     
     wtcs = models_and_wtcs(db.model.id == model_id).select() or None
 

@@ -6,9 +6,7 @@ def index():
     fields.append(Field('text', labels={'text':''}))#, widget=widget))
 
     form = SQLFORM.factory(*fields, formstyle='ul', keepvalues=True, _class='form-inline')#, table_name='tag-filter')
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
 
     queries = []
 
@@ -31,9 +29,7 @@ def update():
     response.title = 'Add/Update Image'
 
     form = SQLFORM(db.images, request.args(0), upload=URL('default', 'download'), _id='imageform')
-    inputs = form.elements('input', _type='text')
-    for s in inputs:
-        s['_autocomplete'] = 'off'
+    disable_autocomplete(form)
     if form.process().accepted:
         session.flash = "Image Added/Updated"
         redirect(URL('image', 'index', extension="html"))
