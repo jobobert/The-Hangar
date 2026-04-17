@@ -1,0 +1,33 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title"><span class="card-icon">{{=controller_icon('hardware', 25)}}</span>Hardware</h5>
+    </div>
+    <div class="card-body">
+        {{=deleteform.custom.begin}}
+
+        <ul class="list-group">
+            {{ for item in hardware: }}
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col">
+                        ({{=item.quantity}}) {{=item.hardwaretype}} {{=B(item.diameter)}}x{{=B(item.length_mm)}} <div class="d-none d-md-inline-block">for {{=item.purpose}}</div>
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-sm btn-danger d-inline" type="submit" value="Remove" name="{{=item.id}}">{{=action_icon('delete', 16)}}</button>
+                    </div>
+                </div>
+            </li>
+            {{pass}}
+        </ul>
+
+        {{=deleteform.custom.end}}
+    </div>
+    <div class="card-footer">
+        <div class="m-2">
+            <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_hw" role="button" aria-expanded="false" aria-controls="collapseform_hw">Add</a>
+        </div>
+        <div class="m-2 collapse" id="collapseform_hw">
+            {{=addform}}
+        </div>
+    </div>
+</div>

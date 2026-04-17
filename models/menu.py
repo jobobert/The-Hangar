@@ -23,6 +23,7 @@ response.menu = [
     (T('List'), False, '#', [
         (DIV(controller_icon('model',       icon_size), ' Model'       ), False, URL('model', 'listview')),
         (DIV(controller_icon('component',   icon_size), ' Component'   ), False, URL('component', 'listview')),
+        (DIV(controller_icon('component',   icon_size), ' Component Usage'), False, URL('component', 'usage')),
         (DIV(controller_icon('wtc',         icon_size), ' WTC'         ), False, URL('wtc', 'listview')),
         
         (DIV(_class='dropdown-divider'), False, '#'),

@@ -77,32 +77,17 @@ def find_unreferenced_uploads():
 def index():
 
     response.title = 'The Hangar: Models'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
+    session.ReturnHere = URL(args=request.args, vars=request.get_vars, host=True)
 
     if 'ui' not in request.cookies:
         request.cookies['ui'] = 'list'
 
-    parse_success = False
     state_number = 4
     state_plus = True
-    the_filters = {
-                 'modeltype': ''
-                , 'controltype': ''
-                , 'powerplant': ''
-                , 'plankit': ''
-                , 'transmitter': ''
-                , 'subjecttype': ''
-                , 'selected': ''
-                }
     filter_text = {
-                 'modeltype': ''
-                , 'controltype': ''
-                , 'powerplant': ''
-                , 'plankit': ''
-                , 'transmitter': ''
-                , 'subjecttype': ''
-                , 'selected': ''}
+        'modeltype': '', 'controltype': '', 'powerplant': '',
+        'plankit': '', 'transmitter': '', 'subjecttype': '', 'selected': ''
+    }
 
     states = db(db.modelstate).select(db.modelstate.id, db.modelstate.name)
     filterstatelist = []
@@ -112,58 +97,42 @@ def index():
     wasFormUsed = False
     modelCategory = None
     if 'ui' in request.cookies and request.cookies['ui'].value != 'dashboard':
-        # Setting up the model category.
-        # Step 1: set default
-        # Step 2: check the URL
-        # Step 3: check the session
-        # Step 4: verify or set to known state
-        # Step 5: do the filtering
         viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
         modelCategory = viableOptions[2]
-
-        if session.modelcategory:
-            modelCategory = session.modelcategory
-
-        if request.vars['c']:
-            modelCategory = request.vars['c'] 
-
-        if modelCategory not in viableOptions:
-            modelCategory = viableOptions[2]
-
-        session.modelcategory = modelCategory
+        if request.vars.get('c') in viableOptions:
+            modelCategory = request.vars['c']
         queries.append(db.model.modelcategory == modelCategory)
 
     for s in states:
-        the_filters[s.name] = ''
         filter_text[s.name] = ''
 
     if 's' in request.vars:
         state = request.vars['s']
-        if len(str(state)) == 2:
-            if isinstance(int(state[0]), int) and state[1] == '*':
+        try:
+            if len(str(state)) == 2 and state[1] == '*':
                 state_number = int(state[0])
                 state_plus = True
-                parse_success = True
-        elif isinstance(int(state), int):
-            state_number = int(state)
-            state_plus = False
-            parse_success = True
+            else:
+                state_number = int(state)
+                state_plus = False
+        except (ValueError, IndexError):
+            pass
 
-    if parse_success:
-        session.state = state_number
-        session.stateplus = state_plus
-    else:
-        if not session.state:
-            session.state = state_number
-            session.stateplus = state_plus
+    state_param = str(state_number) + ('*' if state_plus else '')
 
-    if session.filters:
-        filters = session.filters
-    else:
-        filters = the_filters
+    # Read filter values from GET params
+    filters = {
+        'modeltype':   request.vars.get('modeltype',   '') or '',
+        'controltype': request.vars.get('controltype', '') or '',
+        'powerplant':  request.vars.get('powerplant',  '') or '',
+        'plankit':     request.vars.get('plankit',     '') or '',
+        'transmitter': request.vars.get('transmitter', '') or '',
+        'subjecttype': request.vars.get('subjecttype', '') or '',
+        'isselected':  request.vars.get('isselected',  '') or '',
+    }
+    fstates_param = request.vars.get('fstates', '') or ''
 
     fields = []
-
     fields.append(Field('modeltype', label=db.model.modeltype.label,
                         requires=IS_EMPTY_OR(db.model.modeltype.requires), required=False))
     fields.append(Field('controltype', label=db.model.controltype.label,
@@ -176,49 +145,45 @@ def index():
                         requires=IS_EMPTY_OR(db.model.transmitter.requires), required=False))
     fields.append(Field('subjecttype', label=db.model.subjecttype.label,
                         requires=IS_EMPTY_OR(db.model.subjecttype.requires), required=False))
-    fields.append(Field('isselected', 'boolean',
-                        label='Is Selected', required=False))
-
+    fields.append(Field('isselected', 'boolean', label='Is Selected', required=False))
     for s in states:
-        selected = True
-        if s.id <= 2:
-            selected = False
         fields.append(Field('s' + str(s.id), 'boolean',
-                            label=s.name, default=selected, required=False))
+                            label=s.name, default=(s.id > 2), required=False))
 
     selectform = SQLFORM.factory(
         *fields, formstyle='divs', keepvalues=True, _class='filterform', table_name='filter_form')
 
     if selectform.process(message_onsuccess=None).accepted:
-        wasFormUsed = True
+        # POST-redirect-GET: encode form values as URL params and redirect
+        rvars = {}
+        if modelCategory: rvars['c'] = modelCategory
+        if request.vars.get('s'): rvars['s'] = request.vars['s']
+        for key in ['modeltype', 'controltype', 'powerplant', 'plankit', 'transmitter', 'subjecttype']:
+            if selectform.vars.get(key): rvars[key] = selectform.vars[key]
+        if selectform.vars.get('isselected'): rvars['isselected'] = 'on'
+        checked = [str(s.id) for s in states if selectform.vars.get('s' + str(s.id))]
+        if checked: rvars['fstates'] = ','.join(checked)
+        redirect(URL('default', 'index', vars=rvars))
 
-        response.flash = ''
-
-        filters['modeltype'] = selectform.vars.modeltype
-
-        filters['controltype'] = selectform.vars.controltype
-
-        filters['powerplant'] = selectform.vars.powerplant
-
-        filters['plankit'] = selectform.vars.plankit
-
-        filters['transmitter'] = selectform.vars.transmitter
-
-        filters['subjecttype'] = selectform.vars.subjecttype
-
-        filters['isselected'] = selectform.vars.selected
-
+    # Pre-populate form display from GET params
+    for key in ['modeltype', 'controltype', 'powerplant', 'plankit', 'transmitter', 'subjecttype', 'isselected']:
+        selectform.vars[key] = filters.get(key, '')
+    if fstates_param:
+        fstates_set = set(fstates_param.split(','))
         for s in states:
-            filters['s' + str(s.id)] = selectform.vars['s' + str(s.id)]
-            if filters['s' + str(s.id)]:
-                filterstatelist.append(s.id)
+            selectform.vars['s' + str(s.id)] = str(s.id) in fstates_set
 
-        session.filters = filters
+    if request.vars.get('clear'):
+        rvars = {}
+        if modelCategory: rvars['c'] = modelCategory
+        rvars['s'] = state_param
+        redirect(URL('default', 'index', vars=rvars))
 
-    if request.vars['clear']:
-        session.filters = filters = the_filters
-        wasFormUsed = False
-        redirect(URL(args=request.args, host=True))
+    # Apply filter queries from GET params
+    wasFormUsed = bool(
+        any(filters.get(k) for k in ['modeltype', 'controltype', 'powerplant', 'plankit', 'transmitter', 'subjecttype', 'isselected'])
+        or fstates_param
+    )
 
     if filters['modeltype']:
         queries.append(db.model.modeltype == filters['modeltype'])
@@ -237,70 +202,61 @@ def index():
         filter_text['subjecttype'] = filters['subjecttype']
 
     if filters['plankit']:
-
-        if filters['plankit'] == 'Plan':
+        pk = filters['plankit']
+        if pk == 'Plan':
             queries.append(db.model.haveplans == True)
-        if filters['plankit'] == 'Kit':
+        elif pk == 'Kit':
             queries.append(db.model.havekit == True)
-        if filters['plankit'] == 'Both':
-            queries.append((db.model.haveplans == True)
-                           & (db.model.havekit == True))
-        if filters['plankit'] == 'Neither':
-            queries.append((db.model.haveplans == False)
-                           & (db.model.havekit == False))
-        filter_text['plankit'] = filters['plankit']
+        elif pk == 'Both':
+            queries.append((db.model.haveplans == True) & (db.model.havekit == True))
+        elif pk == 'Neither':
+            queries.append((db.model.haveplans == False) & (db.model.havekit == False))
+        filter_text['plankit'] = pk
 
     if filters['transmitter']:
         queries.append(db.model.transmitter == filters['transmitter'])
         filter_text['transmitter'] = db.transmitter[filters['transmitter']].name
 
-    if filters['selected'] == True:
-        queries.append(db.model.selected == filters['selected'])
-        filter_text['selected'] = "Selected"
+    if filters['isselected'] == 'on':
+        queries.append(db.model.selected == True)
+        filter_text['selected'] = 'Selected'
 
-    if len(filterstatelist) > 0:
-        queries.append(db.model.modelstate.belongs(filterstatelist))
-
-        for s in states:
-            for f in filterstatelist:
-                if s.id == f:
+    if fstates_param:
+        filterstatelist = [int(x) for x in fstates_param.split(',') if x.strip().isdigit()]
+        if filterstatelist:
+            queries.append(db.model.modelstate.belongs(filterstatelist))
+            for s in states:
+                if s.id in filterstatelist:
                     filter_text[s.name] = s.name
 
     if not wasFormUsed:
-        if 'ui' in request.cookies:
-            if request.cookies['ui'].value == 'dashboard':
-                queries.append((db.model.selected == True) & (db.model.modelstate > 1))
-        if 'ui' not in request.cookies or request.cookies['ui'].value != 'dashboard':
-            if session.stateplus:
-                queries.append(db.model.modelstate >= session.state)
+        if 'ui' in request.cookies and request.cookies['ui'].value == 'dashboard':
+            queries.append((db.model.selected == True) & (db.model.modelstate > 1))
+        else:
+            if state_plus:
+                queries.append(db.model.modelstate >= state_number)
             else:
-                queries.append(db.model.modelstate == session.state)
+                queries.append(db.model.modelstate == state_number)
 
     query = reduce(lambda a, b: (a & b), queries)
-
     models = db(query).select(db.model.ALL, orderby=db.model.name)
 
     selected = None
-    selectedModel = None
+    selectedmodel = None
     if request.args:
         selected = VerifyTableID('model', request.args(0))
         if selected:
             selectedmodel = db(db.model.id == selected).select().first()
-            
     if selected is None:
         selected = -1
         selectedmodel = None
 
-    #print(f'selected = {selected}')
+    if 'ui' in request.cookies and request.cookies['ui'].value == 'dashboard':
+        response.view = 'default/dashboard.html'
 
-    if 'ui' in request.cookies:
-        if request.cookies['ui'].value == 'dashboard':
-            response.view = 'default/dashboard.html'
-        elif request.cookies['ui'].value == 'list':
-            pass
-
-    session.ft = filter_text
-    return dict(models=models, form=selectform, filters=filter_text, selected=selected, selectedmodel=selectedmodel, log=log, modelCategory=modelCategory)
+    return dict(models=models, form=selectform, filters=filter_text, selected=selected,
+                selectedmodel=selectedmodel, log=log, modelCategory=modelCategory,
+                state_number=state_number, state_plus=state_plus, state_param=state_param)
 
 
 def setui():

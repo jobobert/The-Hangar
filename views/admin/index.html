@@ -52,6 +52,24 @@
         <a href="{{=URL('admin', 'controller_matrix')}}" class="btn btn-sm btn-outline-primary">View</a>
     </div>
 </div>
+<div class="row border-bottom my-1 align-items-center pl-4">
+    <div class="col">Component Attributes Matrix
+        <br><small class="text-muted">Which attributes are shown per component type</small>
+    </div>
+    <div class="col-2"></div>
+    <div class="col-2">
+        <a href="{{=URL('admin', 'component_matrix')}}" class="btn btn-sm btn-outline-primary">View</a>
+    </div>
+</div>
+<div class="row border-bottom my-1 align-items-center pl-4">
+    <div class="col">Data Integrity Report
+        <br><small class="text-muted">Models with empty important fields (configured per model type)</small>
+    </div>
+    <div class="col-2"></div>
+    <div class="col-2">
+        <a href="{{=URL('admin', 'integrity_report')}}" class="btn btn-sm btn-outline-primary">View</a>
+    </div>
+</div>
 
 {{for table_name, categories in groups:}}
 

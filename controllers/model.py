@@ -140,44 +140,6 @@ def exportflighttimes():
     response.view = 'renderexport.load'
     return dict(content=torender)
 
-def exporthardware():
-    model_id = VerifyTableID('model', request.args(0)) or None
-
-    hardware = db(db.hardware.model == model_id).select() or None
-
-    torender = {
-        'title': 'Hardware',
-        'items': None,
-        'emptymsg': 'No hardware is associated with this model',
-        'controller': None,
-        'header': None,
-    }
-
-    if hardware:
-        table = TABLE(_class="table export-table")
-        header = [
-            TH(getattr(db.hardware,'hardwaretype').label, _class="col export-field_name"),
-            TH(getattr(db.hardware,'diameter').label, _class="col export-field_name"),
-            TH(getattr(db.hardware,'length_mm').label, _class="col export-field_name"),
-            TH(getattr(db.hardware,'purpose').label, _class="col export-field_name"),
-            TH(getattr(db.hardware,'quantity').label, _class="col export-field_name"),
-        ]
-        table.append(TR(*header, _class="row export-row"))
-        for h in hardware or []:
-            row = [
-                TD(h.hardwaretype, _class="col export-field_value"),
-                TD(h.diameter, _class="col export-field_value"),
-                TD(h.length_mm, _class="col export-field_value"),
-                TD(h.purpose, _class="col export-field_value"),
-                TD(h.quantity, _class="col export-field_value"),
-            ]
-            table.append(TR(*row, _class="row export-row"))
-
-        torender['items'] = table
-
-    response.view = 'renderexport.load'
-    return dict(content=torender)
-
 def rendercard():
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
@@ -698,38 +660,6 @@ def atthefield():
     #DIV(A("Flying", _href="", _class="btn btn-secondary"), A("Boating", _href="", _class="btn btn-secondary"))
 
     return dict(content=models, filter=filter)
-
-#@mobilize
-def renderhardware():
-
-    model_id = VerifyTableID('model', request.args(0))
-    if not model_id:
-        return render_card_error('Unable to locate the associated model', 'model', 'Hardware')
-
-    fields = ['hardwaretype', 'diameter', 'length_mm', 'purpose', 'quantity']
-    addform = SQLFORM(db.hardware, fields=fields, formstyle='bootstrap4_inline', submit_button='Submit')
-    disable_autocomplete(addform)
-    addform.vars.model = model_id
-    if addform.process(session=None, formname='hwform').accepted:
-        response.flash = "New Hardware Added"
-    elif addform.errors:
-        response.flash = "Error Adding New Hardware"
-
-    del_id = 0
-    deleteform = SQLFORM.factory()
-    if deleteform.process(session=None, formname='hwdeleteform').accepted:
-        for y, z in request.vars.items():
-            if z == "Remove":
-                del_id = y
-                db(db.hardware.id == del_id).delete()
-                response.flash = "Removal Success"
-                
-    elif deleteform.errors:
-        response.flash = "Removal Failure"
-
-    hardware = db(db.hardware.model == model_id).select()
-
-    return dict(hardware=hardware, addform=addform, deleteform=deleteform)
 
 def updatemodelbattery():
     response.title = "Update Model/Battery"

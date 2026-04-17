@@ -1,0 +1,114 @@
+{{extend 'layout.html'}}
+
+<ul class="nav nav-tabs mb-2">
+    {{for t in types:}}
+    <li class="nav-item">
+        <a class="nav-link {{=' active ' if requestedtype == t else ''}}"
+           href="{{=URL('component', 'usage', vars=(dict(c=t, g=groupby) if groupby == 'model' else dict(c=t)))}}">{{=t}}</a>
+    </li>
+    {{pass}}
+</ul>
+
+<div class="mb-3">
+    <a href="{{=URL('component', 'usage', vars=dict(c=requestedtype))}}"
+       class="btn btn-sm {{='btn-success' if groupby == 'component' else 'btn-outline-secondary'}}">By Component</a>
+    <a href="{{=URL('component', 'usage', vars=dict(c=requestedtype, g='model'))}}"
+       class="btn btn-sm {{='btn-success' if groupby == 'model' else 'btn-outline-secondary'}}">By Model</a>
+</div>
+
+<h2>{{=controller_icon('component', 48)}} {{=requestedtype}} Usage</h2>
+
+{{if not requestedtype:}}
+<div class="text-muted mt-4 ml-2">Choose a component type above.</div>
+
+{{elif not groups:}}
+<div class="text-muted mt-4 ml-2">No models are using any {{=requestedtype}} components.</div>
+
+{{elif groupby == 'component':}}
+{{# --- By Component: one card per component, models listed inside --- }}
+<div class="card-columns" style="column-count:2;">
+{{for grp in groups:}}
+{{comp = grp['component']}}
+<div class="card mb-3">
+    <div class="card-header d-flex align-items-center">
+        {{if comp.img:}}
+        <img src="{{=URL('default','download',args=comp.img)}}" height="32" class="mr-2 rounded">
+        {{pass}}
+        <div>
+            <strong><a href="{{=URL('component', 'index', args=comp.id, extension='html')}}">{{=comp.name}}</a></strong>
+            {{if comp.significantdetail:}}
+            <small class="text-muted ml-1">{{=comp.significantdetail}}</small>
+            {{pass}}
+        </div>
+    </div>
+    <ul class="list-group list-group-flush">
+        {{for entry in grp['entries']:}}
+        {{model = entry['model']}}
+        {{mc = entry['mc']}}
+        <li class="list-group-item py-1">
+            <div class="d-flex align-items-center">
+                {{if model.img:}}
+                <img src="{{=URL('default','download',args=model.img)}}" height="28" class="mr-2 rounded">
+                {{pass}}
+                <div>
+                    <a href="{{=URL('model','index',args=model.id,extension='html')}}">{{=model.name}}</a>
+                    <span class="badge badge-secondary ml-1" style="font-size:0.7em;">{{=model.modelstate.name if model.modelstate else ''}}</span>
+                    {{if mc.purpose:}}
+                    <small class="text-muted ml-1">— {{=mc.purpose}}</small>
+                    {{pass}}
+                    {{if mc.channel:}}
+                    <small class="text-muted ml-1">ch{{=mc.channel}}</small>
+                    {{pass}}
+                </div>
+            </div>
+        </li>
+        {{pass}}
+    </ul>
+</div>
+{{pass}}
+</div>
+
+{{else:}}
+{{# --- By Model: one card per model, components listed inside --- }}
+<div class="card-columns" style="column-count:2;">
+{{for grp in groups:}}
+{{model = grp['model']}}
+<div class="card mb-3">
+    <div class="card-header d-flex align-items-center">
+        {{if model.img:}}
+        <img src="{{=URL('default','download',args=model.img)}}" height="32" class="mr-2 rounded">
+        {{pass}}
+        <div>
+            <strong><a href="{{=URL('model','index',args=model.id,extension='html')}}">{{=model.name}}</a></strong>
+            <span class="badge badge-secondary ml-1" style="font-size:0.7em;">{{=model.modelstate.name if model.modelstate else ''}}</span>
+        </div>
+    </div>
+    <ul class="list-group list-group-flush">
+        {{for entry in grp['entries']:}}
+        {{comp = entry['component']}}
+        {{mc = entry['mc']}}
+        <li class="list-group-item py-1">
+            <div class="d-flex align-items-center">
+                {{if comp.img:}}
+                <img src="{{=URL('default','download',args=comp.img)}}" height="28" class="mr-2 rounded">
+                {{pass}}
+                <div>
+                    <a href="{{=URL('component','index',args=comp.id,extension='html')}}">{{=comp.name}}</a>
+                    {{if comp.significantdetail:}}
+                    <small class="text-muted ml-1">{{=comp.significantdetail}}</small>
+                    {{pass}}
+                    {{if mc.purpose or mc.channel:}}
+                    <div>
+                        {{if mc.purpose:}}<small class="text-muted">— {{=mc.purpose}}</small>{{pass}}
+                        {{if mc.channel:}}<small class="text-muted ml-1">ch{{=mc.channel}}</small>{{pass}}
+                    </div>
+                    {{pass}}
+                </div>
+            </div>
+        </li>
+        {{pass}}
+    </ul>
+</div>
+{{pass}}
+</div>
+{{pass}}

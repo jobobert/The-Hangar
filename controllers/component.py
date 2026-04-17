@@ -35,8 +35,6 @@ def index():
     return dict(component=component, flitetimes=flitetimes, modelCount=modelCount, modelIDs=modelIDs, addform=addform)
 
 def listview():
-    
-    other = ""
 
     response.title = 'Component List'
     session.ReturnHere = URL(
@@ -79,15 +77,54 @@ def listview():
         comp = db(db.component.componenttype == request.vars['c'])
 
         if available:
-            other = "available!"
-            comp = comp.select().find(lambda row: row.get_remainingcount() > 0)
+            available_ids = [r.id for r in comp.select() if r.get_remainingcount() > 0]
+            comp = db(db.component.id.belongs(available_ids))
 
         components = SQLFORM.grid(
-            comp, orderby=db.component.componenttype | db.component.name, args=request.args[:1], user_signature=False, editable=False, deletable=False, details=False, maxtextlength=255, create=False, links=links, fields=fields, _class='itemlist-grid'
+            comp, orderby=db.component.componenttype | db.component.name, args=request.args[:1], user_signature=False, editable=False, deletable=False, details=False, maxtextlength=255, create=False, links=links, fields=fields, _class='itemlist-grid', searchable=False
         )
 
     #response.view = 'content.html'
-    return dict(components=components, types=types, requestedtype=requestedtype, active=active,other=other)
+    return dict(components=components, types=types, requestedtype=requestedtype, active=active, available=available)
+
+
+def usage():
+    session.ReturnHere = URL(args=request.args, vars=request.get_vars, host=True)
+
+    types = [y for x, y in db.component.componenttype.requires.options() if y != '']
+    requestedtype = request.vars.get('c', '') if request.vars.get('c', '') in types else ''
+    groupby = 'model' if request.vars.get('g') == 'model' else 'component'
+
+    groups = []
+    if requestedtype:
+        rows = models_and_components(
+            db.component.componenttype == requestedtype
+        ).select(
+            db.component.id, db.component.name, db.component.significantdetail, db.component.img,
+            db.model.id, db.model.name, db.model.img, db.model.modelstate,
+            db.model_component.purpose, db.model_component.channel,
+            orderby=db.component.name | db.model.name
+        )
+
+        if groupby == 'model':
+            seen = {}
+            for row in rows:
+                mid = row.model.id
+                if mid not in seen:
+                    seen[mid] = {'model': row.model, 'entries': []}
+                seen[mid]['entries'].append({'component': row.component, 'mc': row.model_component})
+            groups = list(seen.values())
+        else:
+            seen = {}
+            for row in rows:
+                cid = row.component.id
+                if cid not in seen:
+                    seen[cid] = {'component': row.component, 'entries': []}
+                seen[cid]['entries'].append({'model': row.model, 'mc': row.model_component})
+            groups = list(seen.values())
+
+    return dict(types=types, requestedtype=requestedtype, groupby=groupby, groups=groups)
+
 
 def addcount():
 

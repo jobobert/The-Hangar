@@ -198,7 +198,7 @@
 
     {{if cat in ('Dynamic', 'Non-Model'):}}
     <div class="col-12 col-md-6 mb-3">
-        {{=LOAD('model', 'renderhardware.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Hardware"))}}
+        {{=LOAD('hardware', 'rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Hardware"))}}
     </div>
     {{pass}}
 

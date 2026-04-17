@@ -107,7 +107,7 @@
 
 {{=LOAD('tool', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Tools"))}}
 
-{{=LOAD('model', 'exporthardware.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Hardware"))}}
+{{=LOAD('hardware', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Hardware"))}}
 
 {{=LOAD('battery', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Batteries"))}}
 

@@ -1,0 +1,42 @@
+{{extend 'layout.html'}}
+
+{{lasttype = None}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('hardware', 48)}} Hardware</h2>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col th-listview-header">{{=db.hardware.hardwaretype.label}}</div>
+    <div class="col th-listview-header">{{=db.hardware.diameter.label}} / {{=db.hardware.length_mm.label}}</div>
+    <div class="col th-listview-header">{{=db.hardware.purpose.label}}</div>
+    <div class="col th-listview-header">Actions</div>
+</div>
+
+{{if hardware:}}
+{{for hw in hardware:}}
+{{if hw.hardwaretype != lasttype:}}
+{{lasttype = hw.hardwaretype}}
+<div class="row th-listview-subheader my-2">{{=hw.hardwaretype}}</div>
+{{pass}}
+<div class="row border-bottom my-2">
+    <div class="col">{{=hw.diameter}}</div>
+    <div class="col">{{=hw.length_mm}}</div>
+    <div class="col">{{=hw.purpose}}</div>
+    <div class="col">
+        {{=viewButton('hardware', 'index', [hw.id])}}
+        {{=editButton('hardware', 'update', [hw.id])}}
+    </div>
+</div>
+{{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No hardware found {{=newButton('hardware', 'update', '')}}</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=newButton('hardware', 'update', '')}}
+</div>

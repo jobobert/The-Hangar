@@ -131,11 +131,10 @@
 
   <div class="container-fluid">
 
-    <div class="breakcrumb d-print-none">
-      {{if session.ReturnHere != URL(args=request.args, vars=request.get_vars, host=True):}}
-      <a href="{{=session.ReturnHere}}">&lt;- Go Back</a>
-      {{pass}}
+    <div class="breakcrumb d-print-none" id="go-back-wrap" style="display:none">
+      <a href="#" id="go-back-link" onclick="history.back(); return false;">&lt;- Go Back</a>
     </div>
+    <script>if (history.length > 1) { document.getElementById('go-back-wrap').style.display = ''; }</script>
 
     <div class="container-fluid main-container">
       {{include}}

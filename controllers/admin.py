@@ -119,12 +119,14 @@ _MODEL_FIELD_GROUPS = [
     ]),
 ]
 
-# Grouped component attr_ fields for the componenttype attrs editor.
+# Physical component attributes are universal — always shown for every component type.
+_PHYSICAL_ATTRS = [
+    'attr_length', 'attr_width', 'attr_height', 'attr_weight_oz',
+    'attr_travel', 'attr_model_scale',
+]
+
+# Grouped component attr_ fields for the per-type attrs editor (physical excluded — always shown).
 _COMPONENT_ATTR_GROUPS = [
-    ('Physical', [
-        'attr_length', 'attr_width', 'attr_height', 'attr_weight_oz',
-        'attr_travel', 'attr_model_scale',
-    ]),
     ('Electrical', [
         'attr_voltage_in', 'attr_voltage_out',
         'attr_amps_in', 'attr_amps_out',
@@ -160,17 +162,24 @@ def _component_attr_options():
     return _grouped_options(_COMPONENT_ATTR_GROUPS, db.component)
 
 
+def _physical_attr_options():
+    """Return [(fieldname, label)] for the always-shown physical attrs."""
+    return [(f, db.component[f].label) for f in _PHYSICAL_ATTRS if f in db.component.fields]
+
+
 def _build_metadata_json(category, post_vars):
     """Build a JSON metadata string from the category-specific POST vars."""
     if category == 'modeltype':
         return json.dumps({
             'hide':        post_vars.getlist('meta_hide')        or [],
             'controllers': post_vars.getlist('meta_controllers') or [],
+            'important':   post_vars.getlist('meta_important')   or [],
         })
     elif category == 'modelcategory':
         return json.dumps({
             'hide':        post_vars.getlist('meta_hide')        or [],
             'controllers': post_vars.getlist('meta_controllers') or [],
+            'important':   post_vars.getlist('meta_important')   or [],
         })
     elif category == 'chemistry':
         try:
@@ -192,10 +201,16 @@ def _build_meta_config(category, meta):
             for grp, fields in _model_hide_options()
         ]
         ctrl_set = set(meta.get('controllers', []))
+        imp_set = set(meta.get('important', []))
+        imp_groups = [
+            (grp, [(f, lbl, f in imp_set) for f, lbl in fields])
+            for grp, fields in _model_hide_options()
+        ]
         return {
             'type':        category,
             'hide_groups': hide_groups,
             'controllers': [(c, c in ctrl_set) for c in _CARD_CONTROLLERS],
+            'imp_groups':  imp_groups,
         }
     elif category == 'chemistry':
         return {'type': 'chemistry', 'volt': meta.get('volt', 3.7)}
@@ -479,6 +494,7 @@ def componenttype_update():
         form=form,
         old_row=old_row,
         attr_groups=attr_groups,
+        physical_attrs=_physical_attr_options(),
         edge_options=_opts,
         edge_attribs_json=json.dumps(_ea),
         diagram_shape=old_row.diagram_shape if old_row else '',
@@ -676,3 +692,76 @@ def controller_matrix():
 
     return dict(rows=rows, categories=categories,
                 all_controllers=sorted(_ALL_CONTROLLERS))
+
+
+# ---------------------------------------------------------------------------
+# Component Attributes Matrix (read-only reference view)
+# ---------------------------------------------------------------------------
+
+def component_matrix():
+    ct_rows = db(db.componenttype.id > 0).select(
+        orderby=db.componenttype.sort_order | db.componenttype.name)
+
+    # Build flat ordered list of (fieldname, label) for all non-physical attrs.
+    all_attrs = []
+    seen = set()
+    for _grp, _fields in _COMPONENT_ATTR_GROUPS:
+        for f in _fields:
+            if f not in seen and f in db.component.fields:
+                all_attrs.append((f, db.component[f].label))
+                seen.add(f)
+
+    physical = _physical_attr_options()
+
+    rows = []
+    for r in ct_rows:
+        attrs_set = set(r.attrs or [])
+        cells = [(f, f in attrs_set) for f, _lbl in all_attrs]
+        rows.append({'name': r.name, 'is_system': r.is_system, 'cells': cells})
+
+    return dict(rows=rows, all_attrs=all_attrs, physical_attrs=physical)
+
+
+# ---------------------------------------------------------------------------
+# Data Integrity Report
+# ---------------------------------------------------------------------------
+
+def integrity_report():
+    # Build field label lookup
+    field_labels = {
+        f: db.model[f].label
+        for grp, fields in _MODEL_FIELD_GROUPS
+        for f in fields
+        if f in db.model.fields
+    }
+
+    # Gather important field sets per modeltype and modelcategory.
+    # Effective important fields = modeltype.important ∩ modelcategory.important
+    mt_important = {}
+    for r in db(db.lookup.category == 'modeltype').select():
+        m = _parse_metadata(r.metadata)
+        mt_important[r.name] = set(m.get('important', []))
+
+    cat_important = {}
+    for r in db(db.lookup.category == 'modelcategory').select():
+        m = _parse_metadata(r.metadata)
+        cat_important[r.name] = set(m.get('important', []))
+
+    models = db(db.model).select(orderby=db.model.name)
+    flagged = []
+    for model in models:
+        mt_imp = mt_important.get(model.modeltype, set())
+        cat_imp = cat_important.get(model.modelcategory, set())
+        # Only flag if both type AND category mark the field as important
+        eff_important = mt_imp & cat_imp
+        if not eff_important:
+            continue
+        missing = [
+            (f, field_labels.get(f, f))
+            for f in sorted(eff_important)
+            if not model[f]
+        ]
+        if missing:
+            flagged.append({'model': model, 'missing': missing})
+
+    return dict(flagged=flagged, total=len(models))

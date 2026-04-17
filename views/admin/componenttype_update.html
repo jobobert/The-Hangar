@@ -43,6 +43,24 @@ Your submitted form contains the following errors:
     {{=makeFormField(form, 'sort_order', FormFieldType.ROWS)}}
     {{=makeFormField(form, 'is_system', FormFieldType.ROWS)}}
 
+    {{# --- Always-Shown Physical Attributes --------------------------------- }}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card border-secondary">
+                <div class="card-header bg-light"><strong>Always Shown</strong> <span class="text-muted fw-normal">(physical &mdash; universal to all component types)</span></div>
+                <div class="card-body">
+                <div class="row">
+                    {{for fieldname, label in physical_attrs:}}
+                    <div class="col-md-4 col-sm-6">
+                        <span class="text-muted">&#10003; {{=label}} <small>({{=fieldname}})</small></span>
+                    </div>
+                    {{pass}}
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{# --- Attribute Fields ------------------------------------------------ }}
     <div class="row mt-3">
         <div class="col">

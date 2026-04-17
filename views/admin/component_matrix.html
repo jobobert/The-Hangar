@@ -1,0 +1,49 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('tag', 48)}} Component Attributes Matrix</h2>
+        <a href="{{=URL('admin', 'index')}}" class="btn btn-sm btn-outline-secondary mb-2">&larr; Admin</a>
+        <p class="text-muted mt-2 mb-1">
+            Which attribute fields are shown in the component edit form for each component type.
+            Physical attributes are always shown for all types.
+        </p>
+    </div>
+</div>
+
+<div class="mb-3">
+    <strong>Always shown (physical):</strong>
+    {{for fname, label in physical_attrs:}}
+    <span class="badge badge-secondary mr-1">{{=label}}</span>
+    {{pass}}
+</div>
+
+<div class="table-responsive">
+<table class="table table-bordered table-sm" style="font-size:0.82rem;">
+    <thead class="thead-light">
+        <tr>
+            <th style="min-width:9rem;">Component Type</th>
+            {{for fname, label in all_attrs:}}
+            <th style="min-width:5rem; writing-mode:vertical-rl; transform:rotate(180deg); height:8rem; vertical-align:bottom; white-space:nowrap;">
+                {{=label}}<br><small class="text-muted">{{=fname}}</small>
+            </th>
+            {{pass}}
+        </tr>
+    </thead>
+    <tbody>
+        {{for row in rows:}}
+        <tr>
+            <td>
+                <strong>{{=row['name']}}</strong>
+                {{if row['is_system']:}}<span class="badge badge-info ml-1" style="font-size:0.7em;">sys</span>{{pass}}
+            </td>
+            {{for fname, checked in row['cells']:}}
+            <td class="text-center {{='table-success' if checked else ''}}">
+                {{='&#10003;' if checked else ''}}
+            </td>
+            {{pass}}
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+</div>

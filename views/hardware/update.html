@@ -1,0 +1,39 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+
+<div class="update-page">
+    <div class="row">
+        <h2 class="">{{=controller_icon('hardware', 48)}} Hardware</h2>
+    </div>
+
+    <div class="row">
+        {{=makeFormField(form, "model", FormFieldType.COLUMNS)}}
+        {{=makeFormField(form, "hardwaretype", FormFieldType.COLUMNS)}}
+    </div>
+    <div class="row">
+        {{=makeFormField(form, "diameter", FormFieldType.COLUMNS)}}
+        {{=makeFormField(form, "length_mm", FormFieldType.COLUMNS)}}
+    </div>
+    <div class="row">
+        {{=makeFormField(form, "purpose", FormFieldType.COLUMNS)}}
+        {{=makeFormField(form, "quantity", FormFieldType.COLUMNS)}}
+    </div>
+</div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=makeFormSubmitbutton(form)}}
+    {{=makeFormDeleteButton(form)}}
+</div>
+
+{{=form.custom.end}}

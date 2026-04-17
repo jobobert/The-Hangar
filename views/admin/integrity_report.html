@@ -1,0 +1,52 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('model', 48)}} Data Integrity Report</h2>
+        <a href="{{=URL('admin', 'index')}}" class="btn btn-sm btn-outline-secondary mb-2">&larr; Admin</a>
+        <p class="text-muted mt-2 mb-1">
+            Models with empty <strong>important</strong> fields. A field is considered important only when flagged in
+            <strong>both</strong> the model&rsquo;s type <em>and</em> its category (intersection).
+            Configure important fields in the
+            <a href="{{=URL('admin', 'category', args='modeltype')}}">Model Type</a> and
+            <a href="{{=URL('admin', 'category', args='modelcategory')}}">Model Category</a> admin editors.
+        </p>
+    </div>
+</div>
+
+{{if not flagged:}}
+<div class="alert alert-success">
+    All {{=total}} models have their important fields filled in. No issues found.
+</div>
+{{else:}}
+<div class="alert alert-warning">
+    {{=len(flagged)}} of {{=total}} models have missing important fields.
+</div>
+
+<div class="table-responsive">
+<table class="table table-bordered table-sm">
+    <thead class="thead-light">
+        <tr>
+            <th>Model</th>
+            <th>Type</th>
+            <th>Missing Fields</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for entry in flagged:}}
+        <tr>
+            <td>
+                <a href="{{=URL('model', 'index', args=entry['model'].id, extension='html')}}">{{=entry['model'].name}}</a>
+            </td>
+            <td><span class="badge badge-secondary">{{=entry['model'].modeltype}}</span></td>
+            <td>
+                {{for fname, label in entry['missing']:}}
+                <span class="badge badge-danger mr-1 mb-1">{{=label}}</span>
+                {{pass}}
+            </td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+</div>
+{{pass}}

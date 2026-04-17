@@ -1,4 +1,18 @@
 {{extend 'layout.html'}}
+{{block head}}
+<script>
+(function() {
+    var KEY = 'thehangar_index_qs';
+    var qs = location.search;
+    if (qs && qs.length > 1) {
+        sessionStorage.setItem(KEY, qs);
+    } else {
+        var saved = sessionStorage.getItem(KEY);
+        if (saved) { location.replace(location.pathname + saved); }
+    }
+})();
+</script>
+{{end}}
 
 <!--<div class="d-print-none alert alert-secondary" role="alert">Todo: </div>-->
 <style>
@@ -51,7 +65,7 @@
   {{for x, category in db.model.modelcategory.requires.options():}}
   {{if category != "":}}
   <li class="nav-item">
-    <a class="nav-link {{=' active ' if modelCategory == category else ''}}" href="{{= URL('default', 'index') }}?c={{=category}}">{{=category}}</a>
+    <a class="nav-link {{=' active ' if modelCategory == category else ''}}" href="{{=URL('default', 'index', vars=dict(c=category, s=state_param))}}">{{=category}}</a>
   </li>
   {{pass}}
   {{pass}}
@@ -59,10 +73,14 @@
 
 <div class="row mb-2 d-print-none">
   <div class="col-sm-12">
-    <a class="btn btn-secondary" href="{{=URL('default','index', vars=dict(s='1*'))}}">Show All</a>
-    <a class="btn btn-secondary" href="{{=URL('default','index', vars=dict(s='4*'))}}">Show Active</a>
-    <button class="btn btn-secondary" data-toggle="collapse" data-target="#todos">Todos</button>
-    <button class="btn btn-primary" data-toggle="collapse" data-target="#filters">More</button>
+    {{any_filter_active = any(filters[f] for f in filters)}}
+    <a class="btn {{='btn-success' if state_number == 1 and state_plus else 'btn-outline-secondary'}}"
+       href="{{=URL('default','index', vars=dict(s='1*', c=modelCategory))}}">Show All</a>
+    <a class="btn {{='btn-success' if state_number >= 4 and state_plus else 'btn-outline-secondary'}}"
+       href="{{=URL('default','index', vars=dict(s='4*', c=modelCategory))}}">Show Active</a>
+    <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#todos">Todos</button>
+    <button class="btn {{='btn-success' if any_filter_active else 'btn-outline-secondary'}}"
+            data-toggle="collapse" data-target="#filters">Filters{{=' \u2713' if any_filter_active else ''}}</button>
   </div>
   <div id="filters" class="collapse">
     {{=form}}

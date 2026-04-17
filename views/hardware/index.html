@@ -1,0 +1,32 @@
+{{extend 'layout.html'}}
+
+<div class="index-page">
+    <div class="row">
+        <h2>{{=controller_icon('hardware', 48)}} {{=item.hardwaretype}} <span class="badge badge-secondary">{{=item.diameter}}</span></h2>
+    </div>
+
+    <table class="table">
+        <tr><th>{{=db.hardware.hardwaretype.label}}</th><td>{{=item.hardwaretype}}</td></tr>
+        <tr><th>{{=db.hardware.diameter.label}}</th><td>{{=item.diameter}}</td></tr>
+        <tr><th>{{=db.hardware.length_mm.label}}</th><td>{{=item.length_mm}}</td></tr>
+        <tr><th>{{=db.hardware.purpose.label}}</th><td>{{=item.purpose}}</td></tr>
+        <tr><th>{{=db.hardware.quantity.label}}</th><td>{{=item.quantity}}</td></tr>
+    </table>
+
+    {{if model:}}
+    <div class="card assoc-card mt-3">
+        <div class="card-header">
+            <h5 class="card-title">Model</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {{=modelListItem(model, img=True)}}
+            </ul>
+        </div>
+    </div>
+    {{pass}}
+
+    <div class="row bg-light fixed-bottom pl-5 p-2">
+        {{=editButton('hardware', 'update', item.id, 24)}}
+    </div>
+</div>

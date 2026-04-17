@@ -1456,6 +1456,13 @@ if not _migration_applied('diagramedge_seed_v1'):
         diagram_edge_attribs = {r.name: r.dot_attribs for r in db(db.diagramedge.id > 0).select(orderby=db.diagramedge.sort_order | db.diagramedge.name)}
     _mark_migration('diagramedge_seed_v1')
 
+_BUILTIN_CT = {
+    'Engine', 'Servo', 'Receiver', 'Motor', 'ESC', 'BEC', 'Regulator',
+    'Flight Controller', 'Gyro', 'Battery Charger', 'Flybarless Controller',
+    'Electrical', 'Switch', 'Winch', 'Other', 'Retracts', 'Pump',
+    'Sensor', 'Tire', 'Shock',
+}
+
 if not _migration_applied('componenttype_seed_v1'):
     _COMPONENTTYPE_DIAGRAM = {
         'Engine':                {'shape': 'invhouse',      'color': '#efefef', 'edge': '5v Servo'},
@@ -1495,7 +1502,7 @@ if not _migration_applied('componenttype_seed_v1'):
             db.componenttype.insert(
                 name               = _name,
                 sort_order         = _sort or _i,
-                is_system          = False,
+                is_system          = _name in _BUILTIN_CT,
                 attrs              = _lm.get('attrs') or component_attribs.get(_name, []),
                 diagram_shape      = _lm.get('diagram_shape') or _diag.get('shape', ''),
                 diagram_color      = _diag.get('color', '#efefef'),
@@ -1504,6 +1511,15 @@ if not _migration_applied('componenttype_seed_v1'):
     # Remove lookup componenttype rows now that db.componenttype is the authority.
     db(db.lookup.category == 'componenttype').delete()
     _mark_migration('componenttype_seed_v1')
+
+# Built-in component types are system-locked to prevent deletion/renaming of core types.
+# This corrects an earlier seed that left all types with is_system=False.
+if not _migration_applied('componenttype_system_v1'):
+    for _row in db(db.componenttype.id > 0).select():
+        _want = _row.name in _BUILTIN_CT
+        if _row.is_system != _want:
+            _row.update_record(is_system=_want)
+    _mark_migration('componenttype_system_v1')
 
 # itemtype: Standard is the only system type (always included); all others are optional.
 for _row in db(db.lookup.category == 'itemtype').select():
@@ -1566,10 +1582,19 @@ db.battery.chemistry.requires = IS_IN_SET(
     [r.name for r in db(db.chemistry.id > 0).select(orderby=db.chemistry.sort_order | db.chemistry.name)],
     sort=False)
 
+_PHYSICAL_ATTR_NAMES = [
+    'attr_length', 'attr_width', 'attr_height', 'attr_weight_oz',
+    'attr_travel', 'attr_model_scale',
+]
+
 component_attribs = {}
 componenttype_diagram = {}
 for _row in db(db.componenttype.id > 0).select():
-    component_attribs[_row.name] = list(_row.attrs or [])
+    _type_attrs = list(_row.attrs or [])
+    for _pa in _PHYSICAL_ATTR_NAMES:
+        if _pa not in _type_attrs:
+            _type_attrs.append(_pa)
+    component_attribs[_row.name] = _type_attrs
     if _row.diagram_shape:
         componenttype_diagram[_row.name] = {
             'shape': _row.diagram_shape,

@@ -105,6 +105,38 @@ Your submitted form contains the following errors:
         </div>
     </div>
 
+    {{# --- Important Fields card (modeltype + modelcategory) ---------------- }}
+    {{if meta_config.get('imp_groups'):}}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header"><strong>Important Fields</strong></div>
+                <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">Checked fields are flagged as important. A field must be checked in <strong>both</strong> the model type and the model category to be considered important (intersection). Models with these empty will appear in the Data Integrity Report.</p>
+                {{for group_name, fields in meta_config['imp_groups']:}}
+                <h6 class="mt-3 mb-1 border-bottom pb-1">{{=group_name}}</h6>
+                <div class="row mb-1">
+                    {{for fieldname, label, checked in fields:}}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="meta_important" value="{{=fieldname}}"
+                                   id="imp_{{=fieldname}}"
+                                   {{='checked' if checked else ''}}>
+                            <label class="form-check-label" for="imp_{{=fieldname}}">
+                                {{=label}} <small class="text-muted">({{=fieldname}})</small>
+                            </label>
+                        </div>
+                    </div>
+                    {{pass}}
+                </div>
+                {{pass}}
+                </div>{{# end card-body}}
+            </div>{{# end card}}
+        </div>
+    </div>
+    {{pass}}
+
     {{elif meta_config['type'] == 'chemistry':}}
     {{# --- Per-cell Voltage (chemistry) ----------------------------------- }}
     <div class="row mt-3">

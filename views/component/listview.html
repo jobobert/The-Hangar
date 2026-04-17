@@ -1,14 +1,40 @@
 {{extend 'layout.html'}}
-
-{{=other}}
+{{block head}}
+<link rel="stylesheet" href="{{=URL('static','css/dataTables.bootstrap4.min.css')}}">
+{{end}}
 
 <ul class="nav nav-tabs mb-2">
     {{for t in types:}}
     <li class="nav-item">
-        <a class="nav-link {{=' active ' if active == t else ''}}" href="{{= URL('component', 'listview') }}?c={{=t}}">{{=t}}</a>
+        <a class="nav-link {{=' active ' if active == t else ''}}"
+           href="{{= URL('component', 'listview', vars=(dict(c=t, a='1') if available else dict(c=t))) }}">{{=t}}</a>
     </li>
     {{pass}}
 </ul>
 
+<div class="mb-2">
+{{if available:}}
+<a href="{{=URL('component', 'listview', vars=dict(c=requestedtype))}}"
+   class="btn btn-sm btn-success">&#10003; Available Only &mdash; Show All</a>
+{{else:}}
+<a href="{{=URL('component', 'listview', vars=dict(c=requestedtype, a='1'))}}"
+   class="btn btn-sm btn-outline-secondary">Show Available Only</a>
+{{pass}}
+</div>
+
 <h2>{{=controller_icon('component', 48)}} {{=requestedtype}} Components</h2>
 {{=components}}
+
+{{block page_js}}
+<script src="{{=URL('static','js/jquery.dataTables.min.js')}}"></script>
+<script src="{{=URL('static','js/dataTables.bootstrap4.min.js')}}"></script>
+<script>
+$(document).ready(function() {
+    $('.itemlist-grid table').DataTable({
+        paging: false,
+        info: false,
+        order: []
+    });
+});
+</script>
+{{end}}
