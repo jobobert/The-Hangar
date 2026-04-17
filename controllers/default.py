@@ -283,6 +283,11 @@ def download():
     return response.download(request, db)
 
 
+def inline():
+    """serves uploaded files inline (for browser-native PDF/image viewing)"""
+    return response.download(request, db, attachment=False)
+
+
 def test():
     query = db(db.model_component.model == 12)
     left = db.component.on(db.component.id == db.model_component.component)

@@ -62,7 +62,7 @@
                         {{(filename, file) = db.component.attachment.retrieve(comp.attachment)}}
                         <li>
                             <div class="d-inline-block attachment_icon">{{=filetype_icon(comp.attachment, 32) }}</div>
-                            <div class="d-inline-block attachment_name"><a href="{{=URL('default', 'download', args=comp.attachment)}}">{{=filename}}</a> </div>
+                            <div class="d-inline-block attachment_name"><a href="{{=URL('default', 'inline' if ispdf(comp.attachment) else 'download', args=comp.attachment)}}" target="_blank">{{=filename}}</a></div>
                             <div class="d-inline-block">{{=comp.showAttachmentPopup()}}</div>
                         </li>
                     </ul>

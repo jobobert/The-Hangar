@@ -22,8 +22,10 @@
         <div class="row border-bottom mt-1 mb-1 pt-1">
             <div class="col">
                 <div class="d-inline-block attachment_icon">{{=filetype_icon(attachment, 32) }}</div>
-                <div class="d-inline-block attachment_name"><a href="{{=URL('default', 'download.html', args=attachment.attachment)}}" target="_blank">{{=attachment.name}}</a></div>
-                {{if isimage(attachment):}}
+                <div class="d-inline-block attachment_name">
+                    <a href="{{=URL('default', 'inline' if ispdf(attachment) else 'download.html', args=attachment.attachment)}}" target="_blank">{{=attachment.name}}</a>
+                </div>
+                {{if isimage(attachment) or ispdf(attachment):}}
                 {{=AttachPopup(attachment)}}
                 {{pass}}
             </div>

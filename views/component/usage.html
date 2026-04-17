@@ -16,6 +16,60 @@
        class="btn btn-sm {{='btn-success' if groupby == 'model' else 'btn-outline-secondary'}}">By Model</a>
 </div>
 
+{{if filter_specs:}}
+<div class="mb-2">
+    <button class="btn btn-sm {{='btn-success' if filter_active else 'btn-outline-secondary'}}"
+            data-toggle="collapse" data-target="#usage-filters">
+        Filters{{=' \u2713' if filter_active else ''}}</button>
+    {{if filter_active:}}
+    <a href="{{=URL('component','usage',vars=dict(c=requestedtype, g=groupby))}}"
+       class="btn btn-sm btn-outline-secondary ml-1">Clear</a>
+    {{pass}}
+</div>
+<div id="usage-filters" class="collapse{{=' show' if filter_active else ''}}">
+    <form method="GET" action="{{=URL('component','usage')}}"
+          class="p-2 mb-3 border rounded" style="background:#f8f9fa;">
+        <input type="hidden" name="c" value="{{=requestedtype}}">
+        <input type="hidden" name="g" value="{{=groupby}}">
+        <div class="d-flex flex-wrap align-items-end">
+        {{for spec in filter_specs:}}
+        <div class="mr-3 mb-2">
+            <label class="d-block mb-1 small font-weight-bold">{{=spec['label']}}</label>
+            {{if spec['kind'] == 'boolean':}}
+            <select name="f_{{=spec['name']}}" class="form-control form-control-sm">
+                <option value="">Any</option>
+                <option value="yes" {{if spec['value']=='yes':}}selected{{pass}}>Yes</option>
+                <option value="no"  {{if spec['value']=='no':}}selected{{pass}}>No</option>
+            </select>
+            {{elif spec['kind'] == 'range':}}
+            <div class="d-flex align-items-center">
+                <input type="number" name="f_{{=spec['name']}}_min" value="{{=spec['min']}}"
+                       step="{{=spec['step']}}" placeholder="min"
+                       class="form-control form-control-sm" style="width:75px;">
+                <span class="mx-1">–</span>
+                <input type="number" name="f_{{=spec['name']}}_max" value="{{=spec['max']}}"
+                       step="{{=spec['step']}}" placeholder="max"
+                       class="form-control form-control-sm" style="width:75px;">
+            </div>
+            {{elif spec['kind'] == 'select':}}
+            <select name="f_{{=spec['name']}}" class="form-control form-control-sm">
+                <option value="">Any</option>
+                {{for val, lbl in spec['options']:}}
+                <option value="{{=val}}" {{if spec['value']==val:}}selected{{pass}}>{{=lbl}}</option>
+                {{pass}}
+            </select>
+            {{else:}}
+            <input type="text" name="f_{{=spec['name']}}" value="{{=spec['value']}}"
+                   class="form-control form-control-sm" style="width:130px;">
+            {{pass}}
+        </div>
+        {{pass}}
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+    </form>
+</div>
+{{pass}}
+
 <h2>{{=controller_icon('component', 48)}} {{=requestedtype}} Usage</h2>
 
 {{if not requestedtype:}}

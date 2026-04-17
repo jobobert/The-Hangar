@@ -95,11 +95,88 @@ def usage():
     requestedtype = request.vars.get('c', '') if request.vars.get('c', '') in types else ''
     groupby = 'model' if request.vars.get('g') == 'model' else 'component'
 
+    filter_specs = []
+    filter_active = False
+
+    if requestedtype:
+        for attrname in component_attribs.get(requestedtype, []):
+            field = db.component[attrname]
+            ftype = field.type
+            label = field.label
+
+            if ftype == 'boolean':
+                val = request.vars.get('f_' + attrname, '') or ''
+                filter_specs.append({'name': attrname, 'label': label, 'kind': 'boolean', 'value': val})
+                if val:
+                    filter_active = True
+
+            elif ftype in ('double', 'integer'):
+                vmin = request.vars.get('f_' + attrname + '_min', '') or ''
+                vmax = request.vars.get('f_' + attrname + '_max', '') or ''
+                filter_specs.append({'name': attrname, 'label': label, 'kind': 'range',
+                                     'step': 'any' if ftype == 'double' else '1',
+                                     'min': vmin, 'max': vmax})
+                if vmin or vmax:
+                    filter_active = True
+
+            elif ftype.startswith('reference '):
+                ref_table = ftype.split(' ')[1]
+                options = [(str(r.id), r.name) for r in db(db[ref_table]).select()]
+                val = request.vars.get('f_' + attrname, '') or ''
+                filter_specs.append({'name': attrname, 'label': label, 'kind': 'select',
+                                     'options': options, 'value': val})
+                if val:
+                    filter_active = True
+
+            else:  # string
+                req = field.requires
+                if isinstance(req, (list, tuple)) and req:
+                    req = req[0]
+                if isinstance(req, IS_EMPTY_OR):
+                    req = req.other
+                options = list(req.theset) if isinstance(req, IS_IN_SET) else None
+                val = request.vars.get('f_' + attrname, '') or ''
+                if options is None:
+                    rows_d = db(
+                        (db.component.componenttype == requestedtype) &
+                        (db.component[attrname] != None) &
+                        (db.component[attrname] != '')
+                    ).select(db.component[attrname], distinct=True, orderby=db.component[attrname])
+                    options = [r[attrname] for r in rows_d]
+                filter_specs.append({'name': attrname, 'label': label, 'kind': 'select',
+                                     'options': [(o, o) for o in options], 'value': val})
+                if val:
+                    filter_active = True
+
     groups = []
     if requestedtype:
-        rows = models_and_components(
-            db.component.componenttype == requestedtype
-        ).select(
+        q = models_and_components(db.component.componenttype == requestedtype)
+
+        for spec in filter_specs:
+            fname = spec['name']
+            kind = spec['kind']
+            if kind == 'range':
+                if spec['min']:
+                    try: q = q(db.component[fname] >= float(spec['min']))
+                    except (ValueError, TypeError): pass
+                if spec['max']:
+                    try: q = q(db.component[fname] <= float(spec['max']))
+                    except (ValueError, TypeError): pass
+            elif kind == 'boolean':
+                if spec['value'] == 'yes':
+                    q = q(db.component[fname] == True)
+                elif spec['value'] == 'no':
+                    q = q((db.component[fname] == False) | (db.component[fname] == None))
+            elif kind == 'select' and spec.get('value'):
+                if db.component[fname].type.startswith('reference '):
+                    try: q = q(db.component[fname] == int(spec['value']))
+                    except (ValueError, TypeError): pass
+                else:
+                    q = q(db.component[fname] == spec['value'])
+            elif kind == 'text' and spec.get('value'):
+                q = q(db.component[fname].contains(spec['value']))
+
+        rows = q.select(
             db.component.id, db.component.name, db.component.significantdetail, db.component.img,
             db.model.id, db.model.name, db.model.img, db.model.modelstate,
             db.model_component.purpose, db.model_component.channel,
@@ -123,7 +200,8 @@ def usage():
                 seen[cid]['entries'].append({'model': row.model, 'mc': row.model_component})
             groups = list(seen.values())
 
-    return dict(types=types, requestedtype=requestedtype, groupby=groupby, groups=groups)
+    return dict(types=types, requestedtype=requestedtype, groupby=groupby, groups=groups,
+                filter_specs=filter_specs, filter_active=filter_active)
 
 
 def addcount():

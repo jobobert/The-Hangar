@@ -292,72 +292,42 @@ Your submitted form contains the following errors:
 <script>
 
     function typeChange() {
-        var ctrl = document.getElementById("model_modeltype");
-        var type = ctrl.value;
+        var type = document.getElementById("model_modeltype").value;
+        var cat  = document.getElementById("model_modelcategory").value;
 
-        var ctrlCat = document.getElementById("model_modelcategory");
-        var cat = ctrlCat.value;
-
-        // First we expand/collapse groups
-        // Key = dropdown value : Value = div id
-        var types = {
-            "Airplane": "airplane",
-            "Boat": "boat",
-            "Car": "car",
-            "Helicopter": "copter",
-            "Multirotor": "copter",
-            "Rocket": "rocket",
-            "Autogyro": "copter",
-            "Submarine": "boat"
-        }
-
-        // First we collapse them all
-        for (var index in types) {
-            $elem = document.getElementById("collapse_" + types[index]);
-            $elem.classList.remove('show');
-        }
-
-        // Then we open the one we want
-        for (var index in types) {
-            $elem = document.getElementById("collapse_" + types[index]);
-            if (index == type) {
-                $elem.classList.add('show');
-            }
-        }
-
-        //// Next we disable any applicable fields, based on modeltype and then by modelcategory
         let modeltype_hide_attribs;
         try {
             modeltype_hide_attribs = JSON.parse('{{=XML(modeltype_hide_attribs)}}');
-        } catch (e) {
-            console.error('Failed to parse modeltype_hide_attribs:', e);
-            return;
-        }
+        } catch (e) { console.error('Failed to parse modeltype_hide_attribs:', e); return; }
 
         let modelcategory_hide_attribs;
         try {
             modelcategory_hide_attribs = JSON.parse('{{=XML(modelcategory_hide_attribs)}}');
-        }
-        catch (e) {
-            console.error('Failed to parse modelcategory_hide_attribs:', e);
-            return;
+        } catch (e) { console.error('Failed to parse modelcategory_hide_attribs:', e); return; }
+
+        // Apply disabled state to every model_ field.
+        // Use startsWith to handle list:string widgets which render as
+        // model_fieldname_0, model_fieldname_1, etc.
+        function isHidden(attr_name, hide_list) {
+            return hide_list.some(h => attr_name === h || attr_name.startsWith(h + '_'));
         }
 
         let attrs = document.querySelectorAll('[id^="model_"]');
         for (let i = 0; i < attrs.length; i++) {
             let attr_name = attrs[i].id.slice(6);
-            document.getElementById(attrs[i].id).disabled = false;
-            if (type in modeltype_hide_attribs) {
-                if (modeltype_hide_attribs[type].includes(attr_name)) {
-                    document.getElementById(attrs[i].id).disabled = true;
-                }
-            }
-            if (cat in modelcategory_hide_attribs) {
-                if (modelcategory_hide_attribs[cat].includes(attr_name)) {
-                    document.getElementById(attrs[i].id).disabled = true;
-                }
-            }
+            attrs[i].disabled = false;
+            if (type in modeltype_hide_attribs && isHidden(attr_name, modeltype_hide_attribs[type]))
+                attrs[i].disabled = true;
+            if (cat in modelcategory_hide_attribs && isHidden(attr_name, modelcategory_hide_attribs[cat]))
+                attrs[i].disabled = true;
         }
+
+        // Open collapsible sections that have at least one enabled field; close the rest
+        document.querySelectorAll('.card-body.collapse').forEach(function(section) {
+            var fields = section.querySelectorAll('[id^="model_"]');
+            var anyEnabled = Array.from(fields).some(function(f) { return !f.disabled; });
+            section.classList.toggle('show', anyEnabled);
+        });
     }
 
     document.getElementById("model_modeltype").addEventListener("change", typeChange);

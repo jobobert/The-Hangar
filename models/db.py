@@ -651,43 +651,24 @@ modeltype_controller_mapping = {
 }
 
 # Fields that are not editable when a modeltype is selected
-# This list must be updated if a new modeltype is added
+# This list seeds new modeltype DB entries only — the admin is the source of truth.
 modeltype_hide_attribs = {
-    'Airplane' : [] ,
-    'Rocket' : [
-        'controltype', 
-        'attr_covering'
-        ], 
-    'Boat' : ['attr_covering'], 
-    'Helicopter' : ['attr_covering'], 
-    'Multirotor' : ['attr_covering'], 
-    'Robot' : ['attr_covering'], 
-    'Experimental' : [], 
-    'Car' : ['attr_cog', 'attr_covering'], 
-    'Autogyro' : [] ,
-    'Submarine' : ['attr_covering'],
-    'Non-Model' : [
-        'controltype', 
-        'powerplant', 
-        'attr_flight_timer', 
-        'attr_cog', 
-        'attr_covering', 
-        'configbackup', 
-        'transmitter', 
-        'protocol'
-        ],
-    'Miniature' : [
-        'controltype', 
-        'powerplant', 
-        'attr_flight_timer', 
-        'attr_cog', 
-        'attr_covering', 
-        'configbackup', 
-        'transmitter', 
-        'protocol'
-        ],
-    'Train' : ['attr_cog', 'attr_covering', 'configbackup'],
-    'Other' : []
+    'Airplane'    : [],
+    'Rocket'      : ['controltype', 'attr_covering'],
+    'Boat'        : ['attr_covering'],
+    'Helicopter'  : ['attr_covering'],
+    'Multirotor'  : ['attr_covering'],
+    'Robot'       : ['attr_covering'],
+    'Experimental': [],
+    'Car'         : ['attr_cog', 'attr_covering'],
+    'Autogyro'    : [],
+    'Submarine'   : ['attr_covering'],
+    'Non-Model'   : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog',
+                     'attr_covering', 'configbackup', 'transmitter', 'protocol'],
+    'Miniature'   : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog',
+                     'attr_covering', 'configbackup', 'transmitter', 'protocol'],
+    'Train'       : ['attr_cog', 'attr_covering', 'configbackup'],
+    'Other'       : [],
 }
 
 # Fields that are not editable when a modelcategory is selected

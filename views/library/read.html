@@ -65,10 +65,12 @@
     <div class="row">
         
         {{if isimage(article.attachment):}}
-        <img class="img-thumbnail rounded"
+        <img class="img-thumbnail rounded w-100"
              src="{{=URL('default', 'download', args=article.attachment)}}" alt="Attachment" />
         {{elif ispdf(article.attachment):}}
-        <iframe src="http://docs.google.com/gview?url={{=URL('default', 'download', args=article.attachment, scheme=True, host=True)}}&embedded=true" frameborder="0"></iframe>
+        <embed src="{{=URL('default', 'inline', args=article.attachment)}}"
+               type="application/pdf" width="100%" height="900px"
+               style="min-height:500px;">
         {{pass}}
         
         

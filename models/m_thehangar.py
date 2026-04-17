@@ -158,12 +158,14 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
   
         theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">{field.label or field.name} {"(" + originalText + ")" if originalText else ""} {theHelpIcon if helpText else ""}</label>')
         theInput = form.custom.widget[fieldname]
+        if isinstance(theInput, str):
+            theInput = XML(theInput)
         theComment = XML(f'<small class="form-text text-muted d-none d-sm-block">{field.comment or ""}</small>')
 
-        if inputType:
+        if inputType and hasattr(theInput, 'attributes'):
             theInput.attributes['_type'] = inputType
-        
-        if '_type' in theInput.attributes:
+
+        if hasattr(theInput, 'attributes') and '_type' in theInput.attributes:
             #print(theInput.attributes['_type'] )
 
             if theInput.attributes['_type'] == 'text':
@@ -389,16 +391,40 @@ def ZeroDecimal(number):
 
 def AttachPopup(attachment):
     rnd = random.randint(0, 999999)
+    attach = attachment
+    if hasattr(attachment, "attachment"):
+        attach = attachment.attachment
 
-    if isimage(attachment):
-        attach = attachment
-        if hasattr(attachment, "attachment"):
-            attach = attachment.attachment
-        x = XML(f'<button type="button" popovertarget="img_{rnd}">{action_icon("OpenTab", 16)}</button><div id="img_{rnd}" popover="manual" style="padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;"><button type="button" popovertarget="img_{rnd}" popovertargetaction="hide" style="display:block;margin-bottom:.5rem;">&#x2715; Close</button><img src="{URL("default", "download", args=attach)}" style="max-width:90vw;max-height:80vh;"/></div>')
-    else:
-        return ""
-
-    return x
+    if isimage(attach):
+        return XML(
+            f'<button type="button" popovertarget="img_{rnd}">{action_icon("OpenTab", 16)}</button>'
+            f'<div id="img_{rnd}" popover="manual" style="padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;">'
+            f'<button type="button" popovertarget="img_{rnd}" popovertargetaction="hide" style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>'
+            f'<img src="{URL("default","download",args=attach)}" style="max-width:90vw;max-height:80vh;"/>'
+            f'</div>'
+        )
+    elif ispdf(attach):
+        inline_url = URL("default", "inline", args=attach)
+        download_url = URL("default", "download", args=attach)
+        return XML(
+            # mobile: open in new tab
+            f'<a href="{inline_url}" target="_blank" class="btn btn-sm btn-outline-primary ml-1 d-md-none">'
+            f'{action_icon("OpenTab", 16)} View</a>'
+            # desktop: open in popover
+            f'<button type="button" popovertarget="pdf_{rnd}" class="btn btn-sm btn-outline-primary ml-1 d-none d-md-inline-block">'
+            f'{action_icon("OpenTab", 16)} View</button>'
+            f'<div id="pdf_{rnd}" popover="manual" style="position:fixed;top:2vh;left:2vw;width:96vw;height:96vh;'
+            f'background:white;border:1px solid #ccc;border-radius:4px;overflow:hidden;">'
+            f'<div style="display:flex;flex-direction:column;height:100%;padding:0.75rem 1rem;">'
+            f'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;flex-shrink:0;">'
+            f'<a href="{download_url}" class="btn btn-sm btn-outline-secondary">&#x2B07; Download</a>'
+            f'<button type="button" popovertarget="pdf_{rnd}" popovertargetaction="hide" class="btn btn-sm btn-outline-secondary">&#x2715; Close</button>'
+            f'</div>'
+            f'<embed src="{inline_url}" type="application/pdf" style="flex:1;width:100%;min-height:0;"/>'
+            f'</div>'
+            f'</div>'
+        )
+    return ""
 
 def renderModal(modal_id, title, form, label='New'):
     style = (
