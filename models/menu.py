@@ -17,6 +17,8 @@ response.menu = [
     (T('Activity'), False, '#', [
         (DIV(controller_icon('packingitem', icon_size), ' Pack'        ), False, URL('packinglist', 'select')),
         (DIV(controller_icon('component',   icon_size), ' Inventory'   ), False, URL('default', 'inventory')),
+        (DIV(_class='dropdown-divider'), False, '#'),
+        (DIV(controller_icon('tag',         icon_size), ' Admin'       ), False, URL('admin', 'index')),
     ]),
     (T('List'), False, '#', [
         (DIV(controller_icon('model',       icon_size), ' Model'       ), False, URL('model', 'listview')),

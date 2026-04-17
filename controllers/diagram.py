@@ -84,13 +84,7 @@ default_components = {
     'Switch': f'"switch" [label="Switch"; shape="{components["Switch"]["shape"]}" {components["Switch"]["attribs"]};];',
 }
 
-edge_attribs = {
-    'default': 'color = "#efefef";',
-    '5v Servo': 'color = "#a8700f";',
-    '5v Signal': 'color = "#a8700f"; style = dashed;',
-    '12v 12gauge': 'color = "#2430d3"; penwidth = 4;',
-    '12v 20gauge': 'color = "#2430d3"; penwidth = 2;',
-}
+edge_attribs = diagram_edge_attribs
 
 legend = f"""
 // Legend
@@ -134,6 +128,21 @@ def creatediagramfromcomponents(model_id):
         comptype = row.component.componenttype
         compname = row.component.diagramname if row.component.diagramname else row.component.name
         
+        if comptype not in components:
+            _diag = componenttype_diagram.get(comptype)
+            if not _diag or not _diag.get('shape'):
+                continue  # no diagram_shape set in admin — skip
+            _comp_id = ''.join(c for c in comptype.lower() if c.isalpha())[:8] + str(id)
+            nodes.append(
+                f'"{_comp_id}" [label="{compname}\\n{row.purpose or ""}"; '
+                f'shape="{_diag["shape"]}"; style="filled"; fillcolor="{_diag["color"]}";];'
+            )
+            edges.append(
+                f'{"receiver:f" + str(row.channel) if row.channel else "default"} -- '
+                f'{_comp_id} [{edge_attribs[_diag["edge"]]}];'
+            )
+            continue
+
         if row.component.customdot:
             theID = components[comptype]["id"] + str(id)
             customReplacement = row.component.customdot.replace('{id}', str(id)).replace('{name}', compname).replace('{purpose}', row.purpose if row.purpose else '')

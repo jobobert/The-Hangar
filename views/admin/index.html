@@ -1,0 +1,91 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('tag', 48)}} Lookup Admin</h2>
+    </div>
+</div>
+
+<div class="row mt-2 mb-1">
+    <div class="col">
+        <h5 class="text-muted border-bottom pb-1">Dedicated Tables</h5>
+    </div>
+</div>
+<div class="row border-bottom mb-1 pl-4">
+    <div class="col th-listview-header">Table</div>
+    <div class="col-2 th-listview-header">Values</div>
+    <div class="col-2 th-listview-header">Actions</div>
+</div>
+<div class="row border-bottom my-1 align-items-center pl-4">
+    <div class="col">Component Types</div>
+    <div class="col-2">{{=ct_count}}</div>
+    <div class="col-2">
+        <a href="{{=URL('admin', 'componenttype_list')}}" class="btn btn-sm btn-outline-primary">Manage</a>
+    </div>
+</div>
+<div class="row border-bottom my-1 align-items-center pl-4">
+    <div class="col">Diagram Edge Types</div>
+    <div class="col-2">{{=de_count}}</div>
+    <div class="col-2">
+        <a href="{{=URL('admin', 'diagramedge_list')}}" class="btn btn-sm btn-outline-primary">Manage</a>
+    </div>
+</div>
+<div class="row border-bottom my-1 align-items-center pl-4">
+    <div class="col">Battery Chemistries</div>
+    <div class="col-2">{{=chem_count}}</div>
+    <div class="col-2">
+        <a href="{{=URL('admin', 'chemistry_list')}}" class="btn btn-sm btn-outline-primary">Manage</a>
+    </div>
+</div>
+
+<div class="row mt-4 mb-1">
+    <div class="col">
+        <h5 class="text-muted border-bottom pb-1">Tools</h5>
+    </div>
+</div>
+<div class="row border-bottom my-1 align-items-center pl-4">
+    <div class="col">Controller Matrix
+        <br><small class="text-muted">Effective controllers per modeltype &times; modelcategory</small>
+    </div>
+    <div class="col-2"></div>
+    <div class="col-2">
+        <a href="{{=URL('admin', 'controller_matrix')}}" class="btn btn-sm btn-outline-primary">View</a>
+    </div>
+</div>
+
+{{for table_name, categories in groups:}}
+
+<div class="row mt-4 mb-1">
+    <div class="col">
+        <h5 class="text-muted border-bottom pb-1">{{=table_name}}</h5>
+    </div>
+</div>
+
+<div class="row border-bottom mb-1 pl-4">
+    <div class="col th-listview-header">Field</div>
+    <div class="col-2 th-listview-header">Values</div>
+    <div class="col-2 th-listview-header">Actions</div>
+</div>
+
+{{for item in categories:}}
+<div class="row border-bottom my-1 align-items-center pl-4">
+    <div class="col">
+        {{=item['label']}}
+        {{if item['comment']:}}
+        <br><small class="text-muted">{{=item['comment']}}</small>
+        {{pass}}
+    </div>
+    <div class="col-2">{{=item['count']}}</div>
+    <div class="col-2">
+        <a href="{{=URL('admin', 'category', args=[item['cat']])}}" class="btn btn-sm btn-outline-primary">Manage</a>
+    </div>
+</div>
+{{pass}}
+
+{{pass}}
+
+{{if not groups:}}
+<div class="row border-bottom my-2">
+    <div class="col">No lookup categories found.</div>
+</div>
+{{pass}}

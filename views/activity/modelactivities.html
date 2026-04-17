@@ -18,7 +18,7 @@
         <tbody>
             {{for activity in activities:}}
             <tr>
-                <td class=" activitytype_{{=activity.activitytype}}" style="border-left-width: 10px;">{{=activity.activitydate}}</td>
+                <td style="border-left: solid 10px {{=activitytype_colors.get(activity.activitytype, '#cccccc')}}">{{=activity.activitydate}}</td>
                 <td>{{=activity.activitytype}}</td>
                 <td>{{=activity.duration}}</td>
                 <td>{{=activity.activitylocation}}</td>

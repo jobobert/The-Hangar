@@ -6,14 +6,14 @@
         {{if activities:}}
         {{for activity in activities:}}
         <div class="row">
-            <div class="col-9 d-block activitytype_{{=activity.activitytype}}" style="border-left-width: 10px;">{{=B(activity.activitydate)}}<br />{{=activity.activitytype}}</div>
+            <div class="col-9 d-block" style="border-left: solid 10px {{=activitytype_colors.get(activity.activitytype, '#cccccc')}}">{{=B(activity.activitydate)}}<br />{{=activity.activitytype}}</div>
             <div class="col-3 d-block">
                 <!--<a class="btn btn-primary" href="{{=URL('activity','update',args=activity.id,extension='html')}}">Edit</a>-->
                 {{=editButton('activity', 'update.html', activity.id)}}
             </div>
         </div>
         <div class="row mb-1 border-bottom">
-            <div class="col-12 d-xs-none d-lg-block activitytype_{{=activity.activitytype}}" style="border-left-width: 10px;">{{=MARKMIN(activity.notes)}}</div>
+            <div class="col-12 d-xs-none d-lg-block" style="border-left: solid 10px {{=activitytype_colors.get(activity.activitytype, '#cccccc')}}">{{=MARKMIN(activity.notes)}}</div>
         </div>
         {{pass}}
         {{else:}}

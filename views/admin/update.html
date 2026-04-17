@@ -1,0 +1,162 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+
+<div class="update-page">
+    <div class="row">
+        <h2 class="">{{=controller_icon('tag', 48)}} Lookup Value</h2>
+    </div>
+
+    {{if old_row and old_row.is_system:}}
+    <div class="row mb-2">
+        <div class="col">
+            <div class="alert alert-warning py-1">
+                This is a system value. The value name cannot be changed.
+            </div>
+        </div>
+    </div>
+    {{pass}}
+
+    {{if old_row and old_row.is_system:}}
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">{{=db.lookup.name.label}}</label>
+        <div class="col-sm-10">
+            <input type="hidden" name="name" value="{{=old_row.name}}">
+            <p class="form-control-plaintext"><strong>{{=old_row.name}}</strong> <span class="text-muted">(system — cannot rename)</span></p>
+        </div>
+    </div>
+    {{else:}}
+    {{=makeFormField(form, 'name', FormFieldType.ROWS)}}
+    {{pass}}
+
+    {{=makeFormField(form, 'sort_order', FormFieldType.ROWS)}}
+    {{=makeFormField(form, 'is_system', FormFieldType.ROWS)}}
+
+    {{# ------------------------------------------------------------------ }}
+    {{# Structured metadata editors — only shown for categories that use it }}
+    {{# ------------------------------------------------------------------ }}
+
+    {{if meta_config:}}
+
+    {{# Flat if/elif — no nesting — avoids web2py template elif-attachment ambiguity }}
+
+    {{if meta_config['type'] in ('modeltype', 'modelcategory'):}}
+    {{# --- Fields to Hide card -------------------------------------------- }}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header"><strong>Fields to Hide</strong></div>
+                <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">Checked fields will be hidden in the model edit form</p>
+                {{for group_name, fields in meta_config['hide_groups']:}}
+                <h6 class="mt-3 mb-1 border-bottom pb-1">{{=group_name}}</h6>
+                <div class="row mb-1">
+                    {{for fieldname, label, checked in fields:}}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="meta_hide" value="{{=fieldname}}"
+                                   id="hide_{{=fieldname}}"
+                                   {{='checked' if checked else ''}}>
+                            <label class="form-check-label" for="hide_{{=fieldname}}">
+                                {{=label}} <small class="text-muted">({{=fieldname}})</small>
+                            </label>
+                        </div>
+                    </div>
+                    {{pass}}
+                </div>
+                {{pass}}
+                </div>{{# end card-body}}
+            </div>{{# end card}}
+        </div>
+    </div>
+    {{# --- Cards to Show card --------------------------------------------- }}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header"><strong>Cards to Show</strong></div>
+                <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">Checked cards will appear as tabs on the model detail page</p>
+                <div class="row">
+                    {{for controller, checked in meta_config['controllers']:}}
+                    <div class="col-md-3 col-sm-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="meta_controllers" value="{{=controller}}"
+                                   id="ctrl_{{=controller}}"
+                                   {{='checked' if checked else ''}}>
+                            <label class="form-check-label" for="ctrl_{{=controller}}">{{=controller}}</label>
+                        </div>
+                    </div>
+                    {{pass}}
+                </div>
+                </div>{{# end card-body}}
+            </div>{{# end card}}
+        </div>
+    </div>
+
+    {{elif meta_config['type'] == 'chemistry':}}
+    {{# --- Per-cell Voltage (chemistry) ----------------------------------- }}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header"><strong>Metadata</strong></div>
+                <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">Per-cell nominal voltage used to calculate pack voltage</p>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="meta_volt">Voltage per cell (V)</label>
+                    <div class="col-sm-3">
+                        <input class="form-control" type="number" step="0.01" min="0"
+                               name="meta_volt" id="meta_volt"
+                               value="{{=meta_config['volt']}}">
+                    </div>
+                </div>
+                </div>{{# end card-body}}
+            </div>{{# end card}}
+        </div>
+    </div>
+
+    {{elif meta_config['type'] == 'activitytype':}}
+    {{# --- Activity Color (activitytype) ---------------------------------- }}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header"><strong>Metadata</strong></div>
+                <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">Color used for the activity type indicator in activity lists</p>
+                <div class="form-group row align-items-center">
+                    <label class="col-sm-3 col-form-label" for="meta_color">Color</label>
+                    <div class="col-sm-2">
+                        <input type="color" class="form-control form-control-color"
+                               name="meta_color" id="meta_color"
+                               value="{{=meta_config['color'] or '#cccccc'}}">
+                    </div>
+                    <div class="col-sm-4">
+                        <small class="text-muted">{{=meta_config['color'] or 'none set'}}</small>
+                    </div>
+                </div>
+                </div>{{# end card-body}}
+            </div>{{# end card}}
+        </div>
+    </div>
+
+    {{pass}}{{# end metadata type if/elif}}
+    {{pass}}{{# end if meta_config}}
+
+</div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=makeFormSubmitbutton(form)}}
+</div>
+
+{{=form.custom.end}}

@@ -7,7 +7,7 @@
 import os
 import datetime
 #from plugin_thumbnails.thumbnails import thumbnails
-from gluon.contrib.appconfig import AppConfig 
+from gluon.contrib.appconfig import AppConfig
 # from gluon.tools import Auth
 
 # -------------------------------------------------------------------------
@@ -157,6 +157,116 @@ db.define_table('tag',
                 format='%(name)s')
 
 ###############################################
+## MIGRATIONS
+# Tracks which one-time migration steps have been applied.
+# Check with _migration_applied(name); record with _mark_migration(name).
+
+db.define_table('migrations',
+    Field('name',       type='string',   label='Migration',  required=True),
+    Field('applied_on', type='datetime', label='Applied On',
+          default=lambda: datetime.datetime.now(datetime.timezone.utc)),
+    format=lambda r: r.name
+)
+
+def _migration_applied(name):
+    return db(db.migrations.name == name).count() > 0
+
+def _mark_migration(name):
+    if not _migration_applied(name):
+        db.migrations.insert(name=name)
+
+###############################################
+## DIAGRAM EDGE
+
+db.define_table('diagramedge',
+    Field('name',        type='string',  label='Edge Type',      required=True),
+    Field('dot_attribs', type='string',  label='DOT Attributes', default=''),
+    Field('sort_order',  type='integer', label='Sort Order',     default=0),
+    format=lambda r: r.name
+)
+
+diagram_edge_attribs = {
+    r.name: r.dot_attribs
+    for r in db(db.diagramedge.id > 0).select(
+        orderby=db.diagramedge.sort_order | db.diagramedge.name)
+}
+
+###############################################
+## BATTERY CHEMISTRY
+
+db.define_table('chemistry',
+    Field('name',       type='string',  label='Chemistry',        required=True),
+    Field('volt',       type='double',  label='Voltage per Cell', default=0.0),
+    Field('sort_order', type='integer', label='Sort Order',       default=0),
+    format=lambda r: r.name
+)
+
+###############################################
+## COMPONENT TYPE
+
+db.define_table('componenttype',
+    Field('name',               type='string',      label='Type',          required=True),
+    Field('sort_order',         type='integer',     label='Sort Order',    default=0),
+    Field('is_system',          type='boolean',     label='System',        default=False),
+    Field('attrs',              type='list:string', label='Attributes',    default=[]),
+    Field('diagram_shape',      type='string',      label='Diagram Shape', default=''),
+    Field('diagram_color',      type='string',      label='Diagram Color', default='#efefef'),
+    Field('diagram_edgeattrib', type='string',      label='Diagram Edge',  default='default'),
+    format=lambda r: r.name
+)
+
+###############################################
+## LOOKUP
+
+db.define_table('lookup',
+    Field('category',   type='string',  label='Category',   required=True),
+    Field('name',       type='string',  label='Value',      required=True),
+    Field('sort_order', type='integer', label='Sort Order', default=0),
+    Field('is_system',  type='boolean', label='System',     default=False),
+    Field('metadata',   type='text',    label='Metadata',   default='',
+          comment='JSON metadata (e.g. {"hide": [...]} for modelcategory)'),
+    format=lambda r: r.name
+)
+
+class lookup_set:
+    """Lazy validator backed by the lookup table.
+    Values are queried at validation/options time, not at construction time,
+    so the validator is correct even on the very first request to a fresh DB
+    (before the seed block has populated db.lookup).
+    Exposes .options() so callers can enumerate valid values (e.g. for
+    building category tab lists in controllers)."""
+
+    multiple = False  # required by SQLFORM's field.requires.multiple check
+
+    def __init__(self, category, empty_ok=False):
+        self.category  = category
+        self.empty_ok  = empty_ok
+
+    def _vals(self):
+        rows = db(db.lookup.category == self.category).select(
+            db.lookup.name,
+            orderby=db.lookup.sort_order | db.lookup.name
+        )
+        return [r.name for r in rows]
+
+    def __call__(self, value):
+        if self.empty_ok and value in ('', None):
+            return (value, None)
+        return IS_IN_SET(self._vals(), zero=None)(value)
+
+    def options(self):
+        """Return [(value, label), ...] — matches IS_IN_SET.options() contract."""
+        return [(v, v) for v in self._vals()]
+
+    def formatter(self, value):
+        return value
+
+# Some web2py versions omit IS_EMPTY_OR.multiple; add it if absent so SQLFORM
+# doesn't raise AttributeError when wrapping a validator in IS_EMPTY_OR.
+if not hasattr(IS_EMPTY_OR, 'multiple'):
+    IS_EMPTY_OR.multiple = False
+
+###############################################
 ## ARTICLE
 
 db.define_table('article'
@@ -176,8 +286,7 @@ db.article.showAttachmentPopup = Field.Method(
 )
 db.article.showAttachmentPopup.label = 'Attachment'
 
-db.article.articletype.requires = IS_IN_SET(
-    ('Article', 'Book', 'Idea'), sort=True)
+db.article.articletype.requires = lookup_set('articletype')
 
 db.article.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 
@@ -491,34 +600,20 @@ db.model.attr_copter_mainrotor_length.extra = {'measurement': 'mm'}
 db.model.attr_copter_tailrotor_span.extra = {'measurement': 'mm'}
 db.model.attr_car_wheelbase.extra = {'measurement': 'mm'}
 
-db.model.modelcategory.requires = IS_IN_SET(
-    ('Static', 'Non-Model', 'Dynamic'), sort=True)
-db.model.modeltype.requires = IS_IN_SET(
-    ('Airplane', 'Rocket', 'Boat', 'Helicopter', 'Multirotor', 'Robot', 'Experimental', 'Car', 'Autogyro', 'Submarine', 'Non-Model', 'Miniature', 'Other', 'Train'), sort=True)
-db.model.modelorigin.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Plan', 'Kit', 'ARF', 'RTF', 'Unknown'), sort=True))
-db.model.controltype.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Radio Control', 'Free Flight', 'Control Line', 'Other'), sort=True))
-db.model.powerplant.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Electric', 'Internal Combustion', 'Rocket', 'Rubber', 'Sail', 'None'), sort=True))
-db.model.attr_construction.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Balsa', 'Foam', 'Plastic', 'Composite', 'Other', 'Resin', 'Wood', 'Carbon Fiber'), sort=True))
+db.model.modelcategory.requires = lookup_set('modelcategory')
+db.model.modeltype.requires = lookup_set('modeltype')
+db.model.modelorigin.requires = lookup_set('modelorigin', empty_ok=True)
+db.model.controltype.requires = lookup_set('controltype', empty_ok=True)
+db.model.powerplant.requires = lookup_set('powerplant', empty_ok=True)
+db.model.attr_construction.requires = lookup_set('attr_construction', empty_ok=True)
 db.model.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
-db.model.attr_copter_headtype.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Collective Pitch', 'Collective Pitch - Flybar', 'Fixed Pitch'), sort=True))
-db.model.attr_copter_tailrotor_drive.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Direct', 'Belt', 'Shaft'), sort=True))
-db.model.subjecttype.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Scale', 'Semi-Scale', 'Fantasy', 'Sport'), sort=True))
-db.model.attr_car_bodystyle.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Truggy', 'Car', 'Truck', 'Buggy', 'Other'), sort=True))
-db.model.attr_car_drive.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('2 Wheel', '4 Wheel', 'All Wheel', 'Other'), sort=True))
-db.model.attr_car_drivetrain.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Shaft Drive', 'Belt Drive', 'Gear-Reduction', 'Direct Drive'), sort=True))
-db.model.attr_sub_ballast.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Piston Tank','SAS - Semi-Aspirated','RCABS - Recirculating Compressed Air Ballast', 'Vented Low-Pressure', 'Compressed Gas', 'Pressure Pump', 'Dynamic'), sort=True
-))
+db.model.attr_copter_headtype.requires = lookup_set('attr_copter_headtype', empty_ok=True)
+db.model.attr_copter_tailrotor_drive.requires = lookup_set('attr_copter_tailrotor_drive', empty_ok=True)
+db.model.subjecttype.requires = lookup_set('subjecttype', empty_ok=True)
+db.model.attr_car_bodystyle.requires = lookup_set('attr_car_bodystyle', empty_ok=True)
+db.model.attr_car_drive.requires = lookup_set('attr_car_drive', empty_ok=True)
+db.model.attr_car_drivetrain.requires = lookup_set('attr_car_drivetrain', empty_ok=True)
+db.model.attr_sub_ballast.requires = lookup_set('attr_sub_ballast', empty_ok=True)
 
 db.model.notes.format = lambda model: MARKMIN(model.notes)
 
@@ -531,21 +626,28 @@ db.model.attr_covering.widget = SQLFORM.widgets.autocomplete(
 db.model.manufacturer.widget = SQLFORM.widgets.autocomplete(
     request, db.model.manufacturer, limitby=(0, 10), min_length=2, distinct=True)
 
+# Full set of card controllers. Used as the pass-through default when a
+# modeltype has no controllers configured (empty list = no type-level restriction).
+_ALL_CONTROLLERS = frozenset([
+    'attachment', 'battery', 'component', 'diagram', 'paint',
+    'propeller', 'rotor', 'sailrig', 'supportitem', 'switch', 'tool', 'wtc',
+])
+
 modeltype_controller_mapping = {
-    'Airplane' : ['propeller'] ,
-    'Rocket' : [], 
-    'Boat' : ['propeller', 'sailrig'], 
-    'Helicopter' : ['rotor'], 
-    'Multirotor' : ['rotor'], 
-    'Robot' : [], 
-    'Experimental' : ['propeller', 'rotor', 'wtc', 'sailrig'], 
-    'Car' : [], 
-    'Autogyro' : ['propeller', 'rotor'] ,
-    'Submarine' : ['propeller', 'wtc'],
-    'Non-Model' : [],
-    'Miniature' : [],
-    'Train' : [],
-    'Other' : []
+    'Airplane'    : ['attachment', 'battery', 'component', 'diagram', 'paint', 'propeller', 'supportitem', 'switch', 'tool'],
+    'Rocket'      : ['attachment', 'component', 'diagram', 'paint', 'supportitem', 'tool'],
+    'Boat'        : ['attachment', 'battery', 'component', 'diagram', 'paint', 'propeller', 'sailrig', 'supportitem', 'switch', 'tool'],
+    'Helicopter'  : ['attachment', 'battery', 'component', 'diagram', 'paint', 'rotor', 'supportitem', 'switch', 'tool'],
+    'Multirotor'  : ['attachment', 'battery', 'component', 'diagram', 'paint', 'rotor', 'supportitem', 'switch', 'tool'],
+    'Robot'       : ['attachment', 'battery', 'component', 'diagram', 'paint', 'supportitem', 'switch', 'tool'],
+    'Experimental': ['attachment', 'battery', 'component', 'diagram', 'paint', 'propeller', 'rotor', 'sailrig', 'supportitem', 'switch', 'tool', 'wtc'],
+    'Car'         : ['attachment', 'battery', 'component', 'diagram', 'paint', 'supportitem', 'switch', 'tool'],
+    'Autogyro'    : ['attachment', 'battery', 'component', 'diagram', 'paint', 'propeller', 'rotor', 'supportitem', 'switch', 'tool'],
+    'Submarine'   : ['attachment', 'battery', 'component', 'diagram', 'paint', 'propeller', 'supportitem', 'switch', 'tool', 'wtc'],
+    'Non-Model'   : ['attachment', 'component', 'supportitem', 'tool'],
+    'Miniature'   : ['attachment', 'battery', 'component', 'paint', 'supportitem', 'tool'],
+    'Train'       : ['attachment', 'battery', 'component', 'diagram', 'paint', 'supportitem', 'switch', 'tool'],
+    'Other'       : ['attachment', 'battery', 'component', 'diagram', 'paint', 'supportitem', 'switch', 'tool'],
 }
 
 # Fields that are not editable when a modeltype is selected
@@ -651,8 +753,7 @@ db.define_table('activity',
                 format=lambda row: 'Unknown' if row is None else row.name
                 )
 
-db.activity.activitytype.requires = IS_IN_SET(
-    ('Flight', 'Crash', 'Repair', 'Purchase', 'Retirement', 'Note', 'StateChange', 'Other', 'Reconfiguration'), sort=True)
+db.activity.activitytype.requires = lookup_set('activitytype')
 db.activity.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1500, 1500)))
 
 db.activity.activitylocation.widget = SQLFORM.widgets.autocomplete(
@@ -742,15 +843,12 @@ db.component.attr_travel.extra = {'measurement': 'mm'}
 db.component.img.default = os.path.join(
     request.folder, 'static', 'images', 'defaultUpload.png')
 
-db.component.attr_pump_type.requires = IS_EMPTY_OR(IS_IN_SET((
-    'Diaphragm', 'Centrifugal', 'Peristaltic', 'Gear', 'Piston', 'Other'), sort=True))
+db.component.attr_pump_type.requires = lookup_set('attr_pump_type', empty_ok=True)
 
-# REMEMBER: 
-#  If you add a new component type:
-#  - update the component_attribs dictionary below
-#  - update controllers/diagram.py -> rendermodelexport to handle the new component type
-db.component.componenttype.requires = IS_IN_SET((
-    'Engine', 'Servo', 'Receiver', 'Motor', 'ESC', 'BEC', 'Regulator', 'Flight Controller', 'Gyro', 'Battery Charger', 'Flybarless Controller', 'Electrical', 'Switch', 'Winch', 'Other', 'Retracts', 'Pump', 'Sensor', 'Tire', 'Shock'), sort=True)
+db.component.componenttype.requires = IS_IN_SET(
+    [r.name for r in db(db.componenttype.id > 0).select(
+        db.componenttype.name, orderby=db.componenttype.sort_order | db.componenttype.name)],
+    zero=None)
 
 component_attribs = {
     'Engine': ['attr_displacement_cc'], 
@@ -826,8 +924,7 @@ db.define_table('tool',
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='Manual'), format=lambda row: 'Unknown' if row is None else row.tooltype + ': ' + row.name
                 )
 
-db.tool.tooltype.requires = IS_IN_SET(
-    ('Hand Tool', 'Fuel Tool', 'Power Tool', 'Electric Tool', 'Other'), sort=True)
+db.tool.tooltype.requires = lookup_set('tooltype')
 db.tool.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 
 db.tool.notes.format = lambda tool: MARMIN(tool.notes)
@@ -877,13 +974,14 @@ db.battery.get_maxamps = Field.Method(
 )
 db.battery.get_maxamps.label = 'Max Amps'
 
+# Initial fallback — overridden at end of db.py after db.chemistry is populated.
 db.battery.chemistry.requires = IS_IN_SET(
     ('LiPo', 'LiFE', 'NiMH', 'NiCad', 'Li-Ion', 'Alkaline', 'SLA'), sort=True)
 
-# This dict must contain the same keys as the IS_IN_SET of the chemistry .requires
+# Initial fallback — overridden at end of db.py after db.chemistry is populated.
 chem_volt = {'LiPo': 3.7, 'LiFE': 3.3, 'NiMH': 1.2, 'NiCad': 1.2, 'Li-Ion': 3.7, 'Alkaline': 1.5, 'SLA': 2.0}
 db.battery.voltage = Field.Virtual(
-    lambda row: row.battery.cellcount*chem_volt[row.battery.chemistry])
+    lambda row: row.battery.cellcount * chem_volt.get(row.battery.chemistry, 0))
 db.battery.voltage.label = 'Voltage'
 
 db.battery.name = Field.Virtual(
@@ -1009,8 +1107,7 @@ db.define_table('attachment',
                 Field('attachment', uploadseparate=True, type='upload', autodelete=True, label='Attachment', comment='The attachment')
                 )
 
-db.attachment.attachmenttype.requires = IS_IN_SET(
-    ('Image', 'Manual', 'Diagram', 'Plan', 'Article', 'Configuration', 'Checklist', 'Transmitter Image'), sort=True)
+db.attachment.attachmenttype.requires = lookup_set('attachmenttype')
 
 
 
@@ -1022,8 +1119,7 @@ db.define_table('packingitems',
                 Field('itemtype', type='string', label='Type', required=True)
                 )
 
-db.packingitems.itemtype.requires = IS_IN_SET(
-    ('Standard', 'Overnight', 'Event', 'Plane Event', 'Boat Event', 'Sub Event', 'Night Event', 'Heli Event'))
+db.packingitems.itemtype.requires = lookup_set('itemtype')
 
 
 ###############################################
@@ -1094,9 +1190,7 @@ db.define_table('hardware',
                 )
 db.hardware.length_mm.extra = {'measurement': 'mm'}
 
-db.hardware.hardwaretype.requires = IS_IN_SET(
-    ('Wood Screw, Pan Head', 'Wood Screw, Flat Head', 'Bolt, Socket Head', 'Servo Screw', 'Grub Screw', 'Nylon Bolt'), sort=True
-)
+db.hardware.hardwaretype.requires = lookup_set('hardwaretype')
 db.hardware.diameter.widget = SQLFORM.widgets.autocomplete(
     request, db.hardware.diameter, limitby=(0, 10), min_length=1, distinct=True)
 db.hardware.purpose.widget = SQLFORM.widgets.autocomplete(
@@ -1168,9 +1262,7 @@ db.define_table('switch'
                 , Field('purpose',type='string', label='Purpose')
                 , format=lambda row: row.model.name + " : " + row.purpose)
 
-db.switch.switchtype.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('3-Position', '2-Position', '6-Position', 'Momentary', 'Rotary', 'Slider', 'Gimbal-Left-Horizontal','Gimbal-Left-Vertical','Gimbal-Right-Horizontal','Gimbal-Right-Vertical','Trim_Horizontal','Trim-Vertical', 'Latching'), sort=True
-))
+db.switch.switchtype.requires = lookup_set('switchtype', empty_ok=True)
 
 db.define_table('switch_position'
                 , Field('switch', type='reference switch', label='Switch')
@@ -1178,9 +1270,7 @@ db.define_table('switch_position'
                 , Field('func', type='string', label='Function')
                 )
 
-db.switch_position.pos.requires = IS_EMPTY_OR(IS_IN_SET(
-    ('Back', 'Middle', 'Forward', 'Up', 'Down', 'Left', 'Right', 'Position 1', 'Position 2'), sort=True
-))
+db.switch_position.pos.requires = lookup_set('pos', empty_ok=True)
 
 switches_and_positions = db(
     (db.switch.id == db.switch_position.switch)
@@ -1215,8 +1305,277 @@ if db(db.tag.id > 0).count() == 0:
     db.tag.insert(name='Electronics')
     db.tag.insert(name='Scale')
 
+if db(db.lookup.id > 0).count() == 0:
+    _seed = [
+        ('articletype',                 ['Article', 'Book', 'Idea']),
+        ('modelcategory',               ['Static', 'Non-Model', 'Dynamic']),
+        ('modeltype',                   ['Airplane', 'Rocket', 'Boat', 'Helicopter', 'Multirotor',
+                                         'Robot', 'Experimental', 'Car', 'Autogyro', 'Submarine',
+                                         'Non-Model', 'Miniature', 'Other', 'Train']),
+        ('modelorigin',                 ['Plan', 'Kit', 'ARF', 'RTF', 'Unknown']),
+        ('controltype',                 ['Radio Control', 'Free Flight', 'Control Line', 'Other']),
+        ('powerplant',                  ['Electric', 'Internal Combustion', 'Rocket', 'Rubber', 'Sail', 'None']),
+        ('attr_construction',           ['Balsa', 'Foam', 'Plastic', 'Composite', 'Other', 'Resin', 'Wood', 'Carbon Fiber']),
+        ('attr_copter_headtype',        ['Collective Pitch', 'Collective Pitch - Flybar', 'Fixed Pitch']),
+        ('attr_copter_tailrotor_drive', ['Direct', 'Belt', 'Shaft']),
+        ('subjecttype',                 ['Scale', 'Semi-Scale', 'Fantasy', 'Sport']),
+        ('attr_car_bodystyle',          ['Truggy', 'Car', 'Truck', 'Buggy', 'Other']),
+        ('attr_car_drive',              ['2 Wheel', '4 Wheel', 'All Wheel', 'Other']),
+        ('attr_car_drivetrain',         ['Shaft Drive', 'Belt Drive', 'Gear-Reduction', 'Direct Drive']),
+        ('attr_sub_ballast',            ['Piston Tank', 'SAS - Semi-Aspirated',
+                                         'RCABS - Recirculating Compressed Air Ballast',
+                                         'Vented Low-Pressure', 'Compressed Gas', 'Pressure Pump', 'Dynamic']),
+        ('activitytype',                ['Flight', 'Crash', 'Repair', 'Purchase', 'Retirement',
+                                         'Note', 'StateChange', 'Other', 'Reconfiguration']),
+        ('attr_pump_type',              ['Diaphragm', 'Centrifugal', 'Peristaltic', 'Gear', 'Piston', 'Other']),
+        ('tooltype',                    ['Hand Tool', 'Fuel Tool', 'Power Tool', 'Electric Tool', 'Other']),
+        ('chemistry',                   ['LiPo', 'LiFE', 'NiMH', 'NiCad', 'Li-Ion', 'Alkaline', 'SLA']),
+        ('attachmenttype',              ['Image', 'Manual', 'Diagram', 'Plan', 'Article',
+                                         'Configuration', 'Checklist', 'Transmitter Image']),
+        ('itemtype',                    ['Standard', 'Overnight', 'Event', 'Plane Event', 'Boat Event',
+                                         'Sub Event', 'Night Event', 'Heli Event']),
+        ('hardwaretype',                ['Wood Screw, Pan Head', 'Wood Screw, Flat Head', 'Bolt, Socket Head',
+                                         'Servo Screw', 'Grub Screw', 'Nylon Bolt']),
+        ('switchtype',                  ['3-Position', '2-Position', '6-Position', 'Momentary', 'Rotary',
+                                         'Slider', 'Gimbal-Left-Horizontal', 'Gimbal-Left-Vertical',
+                                         'Gimbal-Right-Horizontal', 'Gimbal-Right-Vertical',
+                                         'Trim_Horizontal', 'Trim-Vertical', 'Latching']),
+        ('pos',                         ['Back', 'Middle', 'Forward', 'Up', 'Down', 'Left', 'Right',
+                                         'Position 1', 'Position 2']),
+    ]
+    for category, values in _seed:
+        for i, v in enumerate(values, 1):
+            db.lookup.insert(category=category, name=v, sort_order=i, is_system=False)
+
 ##############################################
 ## Migration Steps
+
+# Populate lookup.metadata for modeltype and modelcategory rows from hardcoded dicts.
+# Runs once per row — skips any row that already has metadata set.
+import json as _json
+
+# Comprehensive modeltype sync: seeds 'hide' and 'controllers' from hardcoded dicts
+# only when those keys are absent. Once a key exists (admin has saved it), it is
+# never touched — the admin is the source of truth for existing rows.
+for _row in db(db.lookup.category == 'modeltype').select():
+    try:
+        _meta = _json.loads(_row.metadata or '{}')
+    except (ValueError, TypeError):
+        _meta = {}
+    _changed = False
+    if 'hide' not in _meta:
+        _meta['hide'] = modeltype_hide_attribs.get(_row.name, [])
+        _changed = True
+    if 'controllers' not in _meta:
+        _meta['controllers'] = modeltype_controller_mapping.get(_row.name, [])
+        _changed = True
+    if _changed:
+        _row.update_record(metadata=_json.dumps(_meta))
+
+_MODELCATEGORY_CONTROLLERS = {
+    'Dynamic':   ['attachment', 'battery', 'component', 'diagram', 'paint',
+                  'propeller', 'rotor', 'sailrig', 'supportitem', 'switch', 'tool', 'wtc'],
+    'Static':    ['attachment', 'component', 'paint'],
+    'Non-Model': ['attachment', 'component', 'supportitem', 'tool'],
+}
+for _row in db(db.lookup.category == 'modelcategory').select():
+    try:
+        _meta = _json.loads(_row.metadata or '{}')
+    except (ValueError, TypeError):
+        _meta = {}
+    _updates = {}
+    if 'hide' not in _meta:
+        # 'Remote Control' was renamed to 'Dynamic'; fall back to Dynamic's list
+        _hide = modelcategory_hide_attribs.get(_row.name) \
+                or modelcategory_hide_attribs.get('Dynamic', [])
+        _meta['hide'] = _hide
+        _updates['metadata'] = _json.dumps(_meta)
+    if 'controllers' not in _meta:
+        _meta['controllers'] = _MODELCATEGORY_CONTROLLERS.get(_row.name, [])
+        _updates['metadata'] = _json.dumps(_meta)
+    if not _row.is_system:
+        _updates['is_system'] = True
+    if _updates:
+        _row.update_record(**_updates)
+
+# One-time forced reseed of modelcategory controllers metadata.
+# Needed because the admin UI was exercised before defaults were finalized,
+# leaving controllers: [] in some rows. Runs exactly once per DB.
+if not _migration_applied('modelcategory_controllers_v1'):
+    _MC_CTRL_DEFAULTS = {
+        'Dynamic':   sorted(_ALL_CONTROLLERS),
+        'Static':    ['attachment', 'component', 'paint'],
+        'Non-Model': ['attachment', 'component', 'supportitem', 'tool'],
+    }
+    for _row in db(db.lookup.category == 'modelcategory').select():
+        try:
+            _meta = _json.loads(_row.metadata or '{}')
+        except (ValueError, TypeError):
+            _meta = {}
+        _meta['controllers'] = _MC_CTRL_DEFAULTS.get(_row.name, sorted(_ALL_CONTROLLERS))
+        _row.update_record(metadata=_json.dumps(_meta))
+    _mark_migration('modelcategory_controllers_v1')
+
+# Activitytype: mark system values is_system=True and seed color metadata from CSS values.
+_ACTIVITY_COLORS = {
+    'Flight':          '#24a718',
+    'Crash':           '#e4274a',
+    'Repair':          '#2435d1',
+    'Purchase':        '#830c83',
+    'Reconfiguration': '#379aa5',
+    'Retirement':      '#4c4d49',
+    'Note':            '#108aa0',
+    'StateChange':     '#f52397',
+    'Other':           '#bff52b',
+}
+_ACTIVITY_SYSTEM = frozenset(['Flight', 'Crash', 'Note', 'StateChange', 'Reconfiguration'])
+for _row in db(db.lookup.category == 'activitytype').select():
+    _updates = {}
+    if _row.name in _ACTIVITY_SYSTEM and not _row.is_system:
+        _updates['is_system'] = True
+    try:
+        _m = _json.loads(_row.metadata or '{}')
+    except (ValueError, TypeError):
+        _m = {}
+    if not _m.get('color') and _row.name in _ACTIVITY_COLORS:
+        _m['color'] = _ACTIVITY_COLORS[_row.name]
+        _updates['metadata'] = _json.dumps(_m)
+    if _updates:
+        _row.update_record(**_updates)
+
+if not _migration_applied('diagramedge_seed_v1'):
+    if db(db.diagramedge.id > 0).count() == 0:
+        for _i, (_name, _attribs) in enumerate([
+            ('default',     'color = "#efefef";'),
+            ('5v Servo',    'color = "#a8700f";'),
+            ('5v Signal',   'color = "#a8700f"; style = dashed;'),
+            ('12v 12gauge', 'color = "#2430d3"; penwidth = 4;'),
+            ('12v 20gauge', 'color = "#2430d3"; penwidth = 2;'),
+        ], 1):
+            db.diagramedge.insert(name=_name, dot_attribs=_attribs, sort_order=_i)
+        diagram_edge_attribs = {r.name: r.dot_attribs for r in db(db.diagramedge.id > 0).select(orderby=db.diagramedge.sort_order | db.diagramedge.name)}
+    _mark_migration('diagramedge_seed_v1')
+
+if not _migration_applied('componenttype_seed_v1'):
+    _COMPONENTTYPE_DIAGRAM = {
+        'Engine':                {'shape': 'invhouse',      'color': '#efefef', 'edge': '5v Servo'},
+        'Servo':                 {'shape': 'trapezium',     'color': '#efefef', 'edge': '5v Servo'},
+        'Receiver':              {'shape': 'record',        'color': '#ffffff', 'edge': '5v Servo'},
+        'Motor':                 {'shape': 'cylinder',      'color': '#cc33ff', 'edge': '12v 12gauge'},
+        'ESC':                   {'shape': 'polygon',       'color': '#336600', 'edge': '5v Servo'},
+        'BEC':                   {'shape': 'box3d',         'color': '#668cff', 'edge': '5v Servo'},
+        'Regulator':             {'shape': 'box3d',         'color': '#efefef', 'edge': '5v Servo'},
+        'Flight Controller':     {'shape': 'Msquare',       'color': '#df80ff', 'edge': '5v Servo'},
+        'Gyro':                  {'shape': 'Mcircle',       'color': '#ff0066', 'edge': '5v Servo'},
+        'Battery Charger':       {'shape': 'rect',          'color': '#efefef', 'edge': '12v 12gauge'},
+        'Flybarless Controller': {'shape': 'tripleoctagon', 'color': '#9900cc', 'edge': '5v Servo'},
+        'Electrical':            {'shape': 'cds',           'color': '#efefef', 'edge': 'default'},
+        'Switch':                {'shape': 'septagon',      'color': '#efefef', 'edge': '5v Servo'},
+        'Winch':                 {'shape': 'component',     'color': '#efefef', 'edge': '5v Servo'},
+        'Other':                 {'shape': 'component',     'color': '#efefef', 'edge': 'default'},
+        'Retracts':              {'shape': 'parallelogram', 'color': '#666699', 'edge': '5v Servo'},
+        'Pump':                  {'shape': 'hexagon',       'color': '#efefef', 'edge': '12v 12gauge'},
+        'Sensor':                {'shape': 'cds',           'color': '#797979', 'edge': '5v Servo'},
+    }
+    if db(db.componenttype.id > 0).count() == 0:
+        _lookup_ct = {}
+        for _r in db(db.lookup.category == 'componenttype').select():
+            try: _lm = _json.loads(_r.metadata or '{}')
+            except (ValueError, TypeError): _lm = {}
+            _lookup_ct[_r.name] = (_r.sort_order, _lm)
+        _ct_names = list(_lookup_ct.keys()) if _lookup_ct else [
+            'Engine', 'Servo', 'Receiver', 'Motor', 'ESC', 'BEC', 'Regulator',
+            'Flight Controller', 'Gyro', 'Battery Charger', 'Flybarless Controller',
+            'Electrical', 'Switch', 'Winch', 'Other', 'Retracts', 'Pump',
+            'Sensor', 'Tire', 'Shock',
+        ]
+        for _i, _name in enumerate(_ct_names, 1):
+            _sort, _lm = _lookup_ct.get(_name, (_i, {}))
+            _diag = _COMPONENTTYPE_DIAGRAM.get(_name, {})
+            db.componenttype.insert(
+                name               = _name,
+                sort_order         = _sort or _i,
+                is_system          = False,
+                attrs              = _lm.get('attrs') or component_attribs.get(_name, []),
+                diagram_shape      = _lm.get('diagram_shape') or _diag.get('shape', ''),
+                diagram_color      = _diag.get('color', '#efefef'),
+                diagram_edgeattrib = _diag.get('edge', 'default'),
+            )
+    # Remove lookup componenttype rows now that db.componenttype is the authority.
+    db(db.lookup.category == 'componenttype').delete()
+    _mark_migration('componenttype_seed_v1')
+
+# itemtype: Standard is the only system type (always included); all others are optional.
+for _row in db(db.lookup.category == 'itemtype').select():
+    _want_system = (_row.name == 'Standard')
+    if _row.is_system != _want_system:
+        _row.update_record(is_system=_want_system)
+
+# chemistry: one-time seed of db.chemistry from lookup rows; delete lookup rows after.
+if not _migration_applied('chemistry_seed_v1'):
+    _CHEM_VOLT_SEED = {'LiPo': 3.7, 'LiFE': 3.3, 'NiMH': 1.2, 'NiCad': 1.2,
+                       'Li-Ion': 3.7, 'Alkaline': 1.5, 'SLA': 2.0}
+    if db(db.chemistry.id > 0).count() == 0:
+        _lookup_chem = {r.name: (r.sort_order, r.metadata) for r in db(db.lookup.category == 'chemistry').select()}
+        _chem_names = list(_lookup_chem.keys()) if _lookup_chem else list(_CHEM_VOLT_SEED.keys())
+        for _i, _name in enumerate(_chem_names, 1):
+            _sort, _lmeta = _lookup_chem.get(_name, (_i, None))
+            try: _lm = _json.loads(_lmeta or '{}')
+            except (ValueError, TypeError): _lm = {}
+            db.chemistry.insert(
+                name       = _name,
+                volt       = _lm.get('volt') or _CHEM_VOLT_SEED.get(_name, 0.0),
+                sort_order = _sort or _i,
+            )
+    # Remove lookup chemistry rows now that db.chemistry is the authority.
+    db(db.lookup.category == 'chemistry').delete()
+    _mark_migration('chemistry_seed_v1')
+
+# Load runtime dicts from lookup metadata (overrides the hardcoded dicts above).
+# These run after all migration/sync steps so they reflect current DB state.
+modeltype_controller_mapping = {}
+modeltype_hide_attribs = {}
+for _row in db(db.lookup.category == 'modeltype').select():
+    try:
+        _m = _json.loads(_row.metadata or '{}')
+    except (ValueError, TypeError):
+        _m = {}
+    modeltype_controller_mapping[_row.name] = _m.get('controllers', [])
+    modeltype_hide_attribs[_row.name] = _m.get('hide', [])
+
+modelcategory_hide_attribs = {}
+modelcategory_controllers = {}
+for _row in db(db.lookup.category == 'modelcategory').select():
+    try:
+        _m = _json.loads(_row.metadata or '{}')
+    except (ValueError, TypeError):
+        _m = {}
+    modelcategory_hide_attribs[_row.name] = _m.get('hide', [])
+    modelcategory_controllers[_row.name] = _m.get('controllers', [])
+
+activitytype_colors = {}
+for _row in db(db.lookup.category == 'activitytype').select():
+    try:
+        _m = _json.loads(_row.metadata or '{}')
+    except (ValueError, TypeError):
+        _m = {}
+    activitytype_colors[_row.name] = _m.get('color', '')
+
+chem_volt = {r.name: (r.volt or 0) for r in db(db.chemistry.id > 0).select()}
+db.battery.chemistry.requires = IS_IN_SET(
+    [r.name for r in db(db.chemistry.id > 0).select(orderby=db.chemistry.sort_order | db.chemistry.name)],
+    sort=False)
+
+component_attribs = {}
+componenttype_diagram = {}
+for _row in db(db.componenttype.id > 0).select():
+    component_attribs[_row.name] = list(_row.attrs or [])
+    if _row.diagram_shape:
+        componenttype_diagram[_row.name] = {
+            'shape': _row.diagram_shape,
+            'color': _row.diagram_color or '#efefef',
+            'edge':  _row.diagram_edgeattrib or 'default',
+        }
 
 # set all modelcategory from 'Remote Control' to 'Dynamic'
 #db(db.model.modelcategory == 'Remote Control').update(modelcategory='Dynamic')

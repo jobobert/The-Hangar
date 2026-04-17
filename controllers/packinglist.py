@@ -6,39 +6,44 @@ def select():
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
+    # Load itemtype rows: system types (Standard) are always included, others get checkboxes.
+    _itemtypes = db(db.lookup.category == 'itemtype').select(orderby=db.lookup.sort_order)
+    _optional_types = [r for r in _itemtypes if not r.is_system]
+    _opt_names = [r.name for r in _optional_types]  # capture for lambda closure
+
     fields = [db.model.id, db.model.img, db.model.name, db.model.powerplant]
     query = db(db.model.modelstate.belongs((4, 5)))
 
     models = SQLFORM.grid(
-        # db.model
         query,
         fields=fields,
-        selectable=lambda ids: redirect(URL('packinglist', 'thelist', vars=dict(
+        selectable=lambda ids, _opt=_opt_names: redirect(URL('packinglist', 'thelist', vars=dict(
             id=ids,
-            event=request.vars.chk_event,
-            overnight=request.vars.chk_overnight,
-            nightevent=request.vars.chk_nightevent,
-            planeevent=request.vars.chk_planeevent,
-            boatevent=request.vars.chk_boatevent,
-            helievent=request.vars.chk_helievent,
-            subevent=request.vars.chk_subevent))),
-        selectable_submit_button='Choose', csv=False, _class='packinglist_select', paginate=200, orderby=db.model.modeltype | db.model.name
+            **{n: request.vars.get(n) for n in _opt}
+        ))),
+        selectable_submit_button='Choose', csv=False, _class='packinglist_select',
+        paginate=200, orderby=db.model.modeltype | db.model.name
+    )
+
+    # Build JS checkbox injections (reversed so prependTo builds correct top-to-bottom order)
+    _chk_tpl = (
+        "$('<div style=\"display: inline-block; margin-right: 1rem;\">"
+        "<label for=\"{n}\"><input style=\"padding-left: .5rem\" type=\"checkbox\" "
+        "id=\"{n}\" name=\"{n}\"/>{name}</label></div>').prependTo(formstart);"
+    )
+    _chk_js = '\n    '.join(
+        _chk_tpl.format(n=r.name, name=r.name)
+        for r in reversed(_optional_types)
     )
 
     js = """
     <script>
     var formstart = $(".web2py_htmltable");
     $('<h2>Models</h2>').prependTo(formstart);
-    $('<div style="display: inline-block; margin-right: 1rem;"><label for="chk_subevent"><input style="padding-left: .5rem" type="checkbox" id="chk_subevent" name="chk_subevent"/>Sub Event</label></div>').prependTo(formstart);
-    $('<div style="display: inline-block; margin-right: 1rem;"><label for="chk_boatevent"><input style="padding-left: .5rem" type="checkbox" id="chk_boatevent" name="chk_boatevent"/>Boat Event</label></div>').prependTo(formstart);
-    $('<div style="display: inline-block; margin-right: 1rem;"><label for="chk_helievent"><input style="padding-left: .5rem" type="checkbox" id="chk_helievent" name="chk_helievent"/>Heli Event</label></div>').prependTo(formstart);
-    $('<div style="display: inline-block; margin-right: 1rem;"><label for="chk_planeevent"><input style="padding-left: .5rem" type="checkbox" id="chk_planeevent" name="chk_planeevent"/>Plane Event</label></div>').prependTo(formstart);
-    $('<div style="display: inline-block; margin-right: 1rem;"><label for="chk_nightevent"><input style="padding-left: .5rem" type="checkbox" id="chk_nightevent" name="chk_nightevent"/>Night Event</label></div>').prependTo(formstart);
-    $('<div style="display: inline-block; margin-right: 1rem;"><label for="chk_overnight"><input style="padding-left: .5rem" type="checkbox" id="chk_overnight" name="chk_overnight"/>Overnight</label></div>').prependTo(formstart);
-    //$('<div style="display: inline-block; margin-right: 1rem;"><label for="chk_event"><input style="padding-left: .5rem" type="checkbox" id="chk_event" name="chk_event"/>Event</label></div>').prependTo(formstart);
+    {chk_js}
     $('<h2>Trip Extras</h2>').prependTo(formstart);
     </script>
-    """
+    """.format(chk_js=_chk_js)
 
     return dict(content=models, extra=XML(js))
 
@@ -120,59 +125,13 @@ def thelist():
         if si.item not in si_list:
             si_list.append(si.item)
     
-    items = db(db.packingitems.itemtype == 'Standard').select()
-    for item in items:
-        if item not in si_list:
-            si_list.append(item.name)
-
-    if request.vars.overnight == 'on':
-        items = db(db.packingitems.itemtype == 'Overnight').select()
-        for item in items:
-            if item not in si_list:
-                si_list.append(item.name)
-
-    is_event = False
-
-    if request.vars.nightevent == 'on':
-        is_event = True
-        items = db(db.packingitems.itemtype == 'Night Event').select()
-        for item in items:
-            if item not in si_list:
-                si_list.append(item.name)
-
-    if request.vars.planeevent == 'on':
-        is_event = True
-        items = db(db.packingitems.itemtype == 'Plane Event').select()
-        for item in items:
-            if item not in si_list:
-                si_list.append(item.name)
-
-    if request.vars.boatevent == 'on':
-        is_event = True
-        items = db(db.packingitems.itemtype == 'Boat Event').select()
-        for item in items:
-            if item not in si_list:
-                si_list.append(item.name)
-
-    if request.vars.helievent == 'on':
-        is_event = True
-        items = db(db.packingitems.itemtype == 'Heli Event').select()
-        for item in items:
-            if item not in si_list:
-                si_list.append(item.name)
-
-    if request.vars.subevent == 'on':
-        is_event = True
-        items = db(db.packingitems.itemtype == 'Sub Event').select()
-        for item in items:
-            if item not in si_list:
-                si_list.append(item.name)
-
-    if is_event == True:  # request.vars.event == 'on':
-        items = db(db.packingitems.itemtype == 'Event').select()
-        for item in items:
-            if item not in si_list:
-                si_list.append(item.name)
+    # System types (e.g. Standard) are always included; optional types load if checked.
+    _itemtypes = db(db.lookup.category == 'itemtype').select(orderby=db.lookup.sort_order)
+    for _itype in _itemtypes:
+        if _itype.is_system or request.vars.get(_itype.name) == 'on':
+            for _item in db(db.packingitems.itemtype == _itype.name).select():
+                if _item.name not in si_list:
+                    si_list.append(_item.name)
 
     if len(si_list) > 0:
         si_list = sorted([item for item in si_list if item is not None])

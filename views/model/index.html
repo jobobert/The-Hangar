@@ -119,28 +119,35 @@
         {{=LOAD('todo', 'rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Todos"))}}
     </div>
 
+    {{allowed_controllers = modeltype_controller_mapping.get(model.modeltype, [])}}
+    {{_mt_controllers = set(allowed_controllers) if allowed_controllers else _ALL_CONTROLLERS}}
+    {{category_controllers = set(modelcategory_controllers.get(cat, []))}}
+    {{final_controllers = category_controllers & _mt_controllers}}
+
     {{if cat == 'Dynamic':}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('model','renderflighttimes.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Flight Times"))}}
     </div>
 
+    {{if 'switch' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('switch', 'renderswitches.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Switches"))}}
     </div>
+    {{pass}}
 
+    {{if 'battery' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('battery','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')), "Batteries"))}}
     </div>
+    {{pass}}
 
-    {{allowed_controllers = modeltype_controller_mapping.get(model.modeltype, [])}}
-
-    {{if 'propeller' in allowed_controllers:}}
+    {{if 'propeller' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('propeller','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Propellers"))}}
     </div>
     {{pass}}
 
-    {{if 'rotor' in allowed_controllers:}}
+    {{if 'rotor' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
         <div class="card">
             <div class="card-header">
@@ -164,34 +171,42 @@
     </div>
     {{pass}}
 
-    {{if 'wtc' in allowed_controllers:}}
+    {{if 'wtc' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('wtc','rendercard.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True,content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Water Tight Cylinder"))}}
     </div>
     {{pass}}
 
-    {{if 'sailrig' in allowed_controllers:}}
+    {{if 'sailrig' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('sailrig','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')), "Sail Rigs"))}}
     </div>
     {{pass}}
     {{pass}}
 
-    {{if cat in ('Dynamic', 'Non-Model'):}}
+    {{if 'tool' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('tool','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Tools"))}}
     </div>
+    {{pass}}
+
+    {{if 'supportitem' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('supportitem','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Support Items"))}}
     </div>
+    {{pass}}
+
+    {{if cat in ('Dynamic', 'Non-Model'):}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('model', 'renderhardware.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Hardware"))}}
     </div>
     {{pass}}
 
+    {{if 'attachment' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('attachment','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Attachments"))}}
     </div>
+    {{pass}}
 
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('model','renderurlcard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"URL"))}}
@@ -264,7 +279,7 @@
         </div>
     </div>
 
-    {{if cat != 'Non-Model':}}
+    {{if 'paint' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
         {{=LOAD('paint','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Paint"))}}
     </div>
@@ -289,11 +304,13 @@
         </div>
     </div>
 </div>
+{{if 'component' in final_controllers:}}
 <div class="row">
     <div class="col mb-3">
         {{=LOAD('component','rendercard.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True,content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Components"))}}
     </div>
 </div>
+{{pass}}
 <div class="row">
     <div class="col mb-3">
         <div class="card shadow mb-3 rounded">
@@ -311,7 +328,7 @@
         </div>
     </div>
 </div>
-{{if cat != 'Static':}}
+{{if 'diagram' in final_controllers:}}
 <div class="row">
     <div class="col mb-3">
         {{=LOAD('diagram','rendermodeldiagram.load', args=[model.id,request.user_agent().is_mobile], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')), "Wiring Diagram"))}}

@@ -1,0 +1,37 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('tag', 48)}} Battery Chemistries</h2>
+        <a href="{{=URL('admin', 'index')}}" class="btn btn-sm btn-outline-secondary mb-2">&larr; Admin</a>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col th-listview-header">Name</div>
+    <div class="col-2 th-listview-header">Voltage per Cell</div>
+    <div class="col-1 th-listview-header">Sort</div>
+    <div class="col-3 th-listview-header">Actions</div>
+</div>
+
+{{if rows:}}
+{{for row in rows:}}
+<div class="row border-bottom my-2 align-items-center">
+    <div class="col"><strong>{{=row.name}}</strong></div>
+    <div class="col-2">{{=row.volt}} V</div>
+    <div class="col-1">{{=row.sort_order}}</div>
+    <div class="col-3">
+        {{=editButton('admin', 'chemistry_update', [row.id])}}
+        {{=deleteButton('admin', 'chemistry_delete', [row.id])}}
+    </div>
+</div>
+{{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No chemistries found.</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    <a href="{{=URL('admin', 'chemistry_update')}}" class="btn btn-success">+ Add Chemistry</a>
+</div>

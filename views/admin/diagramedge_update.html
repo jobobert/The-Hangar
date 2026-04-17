@@ -1,0 +1,41 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+
+<div class="update-page">
+    <div class="row">
+        <h2>{{=controller_icon('tag', 48)}} Diagram Edge Type</h2>
+    </div>
+    <a href="{{=URL('admin', 'diagramedge_list')}}" class="btn btn-sm btn-outline-secondary mb-3">&larr; Edge Types</a>
+
+    {{=makeFormField(form, 'name', FormFieldType.ROWS)}}
+
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="diagramedge_dot_attribs">{{=db.diagramedge.dot_attribs.label}}</label>
+        <div class="col-sm-7">
+            {{=form.custom.widget.dot_attribs}}
+            <small class="form-text text-muted">
+                Raw Graphviz edge attributes, e.g. <code>color="#cc0000"; style=dashed; penwidth=2;</code>
+            </small>
+        </div>
+    </div>
+
+    {{=makeFormField(form, 'sort_order', FormFieldType.ROWS)}}
+
+</div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=makeFormSubmitbutton(form)}}
+</div>
+
+{{=form.custom.end}}

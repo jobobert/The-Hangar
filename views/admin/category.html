@@ -1,0 +1,50 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('tag', 48)}} {{=table_name}} &mdash; {{=label}}</h2>
+        {{if cat_comment:}}<p class="text-muted mb-1">{{=cat_comment}}</p>{{pass}}
+        <a href="{{=URL('admin', 'index')}}" class="btn btn-sm btn-outline-secondary mb-2">&larr; All Categories</a>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col th-listview-header">Value</div>
+    <div class="col-2 th-listview-header">In Use</div>
+    <div class="col-2 th-listview-header">Sort</div>
+    <div class="col-2 th-listview-header">System</div>
+    <div class="col-3 th-listview-header">Actions</div>
+</div>
+
+{{if rows_with_counts:}}
+{{for row, count in rows_with_counts:}}
+<div class="row border-bottom my-2 align-items-center">
+    <div class="col">
+        {{=row.name}}
+    </div>
+    <div class="col-2">
+        {{=count if count else XML('&mdash;')}}
+    </div>
+    <div class="col-2">
+        {{=row.sort_order}}
+    </div>
+    <div class="col-2">
+        {{if row.is_system:}}<span class="badge badge-warning">system</span>{{else:}}{{=XML('&mdash;')}}{{pass}}
+    </div>
+    <div class="col-3">
+        {{=editButton('admin', 'update', [row.id])}}
+        {{if not row.is_system:}}
+        {{=deleteButton('admin', 'delete', [row.id])}}
+        {{pass}}
+    </div>
+</div>
+{{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No values found.</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    <a href="{{=URL('admin', 'update', vars=dict(category=category))}}" class="btn btn-success">+ Add Value</a>
+</div>

@@ -1,0 +1,41 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+
+<div class="update-page">
+    <div class="row">
+        <h2>{{=controller_icon('tag', 48)}} Battery Chemistry</h2>
+    </div>
+    <a href="{{=URL('admin', 'chemistry_list')}}" class="btn btn-sm btn-outline-secondary mb-3">&larr; Chemistries</a>
+
+    {{=makeFormField(form, 'name', FormFieldType.ROWS)}}
+
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="chemistry_volt">{{=db.chemistry.volt.label}}</label>
+        <div class="col-sm-3">
+            {{=form.custom.widget.volt}}
+            <small class="form-text text-muted">
+                Per-cell nominal voltage (V), e.g. LiPo = 3.7, LiFE = 3.3, NiMH = 1.2
+            </small>
+        </div>
+    </div>
+
+    {{=makeFormField(form, 'sort_order', FormFieldType.ROWS)}}
+
+</div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=makeFormSubmitbutton(form)}}
+</div>
+
+{{=form.custom.end}}

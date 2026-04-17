@@ -5,7 +5,7 @@
     <div class="card-body">
         {{for activity in activities:}}
         <div class="row">
-            <div class="col-4 d-block activitytype_{{=activity.activitytype}} font-weight-bold" style="border-left-width: 10px;">{{=activity.activitydate}}</div>
+            <div class="col-4 d-block font-weight-bold" style="border-left: solid 10px {{=activitytype_colors.get(activity.activitytype, '#cccccc')}}">{{=activity.activitydate}}</div>
             <div class="col-4 d-block">{{=activity.activitytype}}</div>
             <div class="col-4 d-xs-none d-lg-block">{{=activity.activitylocation}}</div>
         </div>

@@ -1,0 +1,187 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+
+<div class="update-page">
+    <div class="row">
+        <h2>{{=controller_icon('tag', 48)}} Component Type</h2>
+    </div>
+    <a href="{{=URL('admin', 'componenttype_list')}}" class="btn btn-sm btn-outline-secondary mb-3">&larr; Component Types</a>
+
+    {{if old_row and old_row.is_system:}}
+    <div class="row mb-2">
+        <div class="col">
+            <div class="alert alert-warning py-1">
+                This is a system value. The type name cannot be changed.
+            </div>
+        </div>
+    </div>
+    {{pass}}
+
+    {{if old_row and old_row.is_system:}}
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">{{=db.componenttype.name.label}}</label>
+        <div class="col-sm-10">
+            <input type="hidden" name="name" value="{{=old_row.name}}">
+            <p class="form-control-plaintext"><strong>{{=old_row.name}}</strong> <span class="text-muted">(system — cannot rename)</span></p>
+        </div>
+    </div>
+    {{else:}}
+    {{=makeFormField(form, 'name', FormFieldType.ROWS)}}
+    {{pass}}
+
+    {{=makeFormField(form, 'sort_order', FormFieldType.ROWS)}}
+    {{=makeFormField(form, 'is_system', FormFieldType.ROWS)}}
+
+    {{# --- Attribute Fields ------------------------------------------------ }}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header"><strong>Attribute Fields to Show</strong></div>
+                <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">Checked fields are shown in the component edit form when this type is selected</p>
+                {{for group_name, fields in attr_groups:}}
+                <h6 class="mt-3 mb-1 border-bottom pb-1">{{=group_name}}</h6>
+                <div class="row mb-1">
+                    {{for fieldname, label, checked in fields:}}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="meta_attrs" value="{{=fieldname}}"
+                                   id="attr_{{=fieldname}}"
+                                   {{='checked' if checked else ''}}>
+                            <label class="form-check-label" for="attr_{{=fieldname}}">
+                                {{=label}} <small class="text-muted">({{=fieldname}})</small>
+                            </label>
+                        </div>
+                    </div>
+                    {{pass}}
+                </div>
+                {{pass}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{# --- Wiring Diagram -------------------------------------------------- }}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header"><strong>Wiring Diagram</strong></div>
+                <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">
+                    Controls how this component appears in wiring diagrams.
+                    Leave Shape blank to exclude from diagrams entirely.
+                </p>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="meta_diagram_shape">Shape</label>
+                    <div class="col-sm-4">
+                        <input class="form-control" type="text"
+                               name="meta_diagram_shape" id="meta_diagram_shape"
+                               placeholder="e.g. box, ellipse, cylinder, hexagon"
+                               value="{{=diagram_shape}}">
+                    </div>
+                    <div class="col-sm-5 d-flex align-items-center">
+                        <small class="text-muted">Leave blank to exclude from diagrams.</small>
+                    </div>
+                </div>
+                <div class="form-group row align-items-center">
+                    <label class="col-sm-3 col-form-label" for="meta_diagram_color">Fill Color</label>
+                    <div class="col-sm-2">
+                        <input type="color" class="form-control form-control-color"
+                               name="meta_diagram_color" id="meta_diagram_color"
+                               value="{{=diagram_color or '#efefef'}}">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="meta_diagram_edgeattrib">Edge Type</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" name="meta_diagram_edgeattrib" id="meta_diagram_edgeattrib">
+                            {{for opt in edge_options:}}
+                            <option value="{{=opt}}" {{='selected' if opt == diagram_edgeattrib else ''}}>{{=opt}}</option>
+                            {{pass}}
+                        </select>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{# --- Diagram Preview ------------------------------------------------- }}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header"><strong>Diagram Preview</strong></div>
+                <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">Live preview of the node and edge based on the settings above</p>
+                <div id="diagram-preview" class="border rounded p-2 bg-white" style="min-height:120px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=makeFormSubmitbutton(form)}}
+</div>
+
+{{=form.custom.end}}
+
+<script src="{{=URL('static','js/viz-global.js')}}"></script>
+<script>
+(function () {
+    // Embed JSON directly as a JS object — avoids quote-escaping issues with JSON.parse('...')
+    var edgeAttribs = {{=XML(edge_attribs_json)}};
+
+    function buildDot() {
+        var shapeEl = document.getElementById('meta_diagram_shape');
+        var colorEl = document.getElementById('meta_diagram_color');
+        var edgeEl  = document.getElementById('meta_diagram_edgeattrib');
+        var nameEl  = document.getElementById('componenttype_name');
+
+        var shape = (shapeEl && shapeEl.value.trim()) || 'box';
+        var color = (colorEl && colorEl.value)        || '#efefef';
+        var edge  = (edgeEl  && edgeEl.value)         || 'default';
+        var label = (nameEl  && nameEl.value.trim())  || 'Component';
+        var ea    = edgeAttribs[edge]                 || 'color="#efefef";';
+
+        // Mirror the exact node/edge syntax used by diagram.py
+        return 'graph preview {\n'
+             + '  "default" [label="Default"; shape="rect";];\n'
+             + '  "comp" [label="' + label.replace(/"/g, '\\"') + '"; shape="' + shape + '"; style="filled"; fillcolor="' + color + '";];\n'
+             + '  "default" -- "comp" [' + ea + '];\n'
+             + '}';
+    }
+
+    function renderPreview() {
+        Viz.instance().then(function (viz) {
+            var svg = viz.renderSVGElement(buildDot());
+            svg.style.maxWidth = '100%';
+            document.getElementById('diagram-preview').replaceChildren(svg);
+        }).catch(function (err) {
+            document.getElementById('diagram-preview').textContent = 'Preview error: ' + err;
+        });
+    }
+
+    ['meta_diagram_shape', 'meta_diagram_color', 'meta_diagram_edgeattrib', 'componenttype_name'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('change', renderPreview);
+        el.addEventListener('input', renderPreview);
+    });
+
+    renderPreview();
+})();
+</script>
