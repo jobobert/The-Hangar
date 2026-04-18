@@ -81,10 +81,15 @@
           {{pass}}
 
           <li class="nav-item">
-            <form class="form-inline my-2 my-lg-0" action="{{=URL('default','search')}}" method="get">
-              <input style="border: none; width: 200px; height:40px; padding-right: 50px;" class="form-inline form-control mr-sm-2" name="s" type="text" autocomplete="off" placeholder="Search">
-              <button style="border: none; margin-left: -50px; height: 40px; width:50px;" class="form-inline form-control btn  my-2 my-sm-0" type="submit">Go</button>
-            </form>
+            <div class="d-flex align-items-center my-2">
+              <form class="form-inline" action="{{=URL('default','quick_search')}}" method="get">
+                <input style="border: none; width: 200px; height:40px; padding-right: 50px;" class="form-control" name="s" type="text" autocomplete="off" placeholder="Search">
+                <button style="border: none; margin-left: -50px; height: 40px; width:50px;" class="btn" type="submit">Go</button>
+              </form>
+              <a href="{{=URL('default','search')}}" class="btn btn-secondary btn-sm ml-1" title="Advanced Search" style="height:40px; width:40px; display:flex; align-items:center; justify-content:center;">
+                <i class="fa fa-sliders"></i>
+              </a>
+            </div>
           </li>
       </ul>
       {{if 'auth' in globals():}}

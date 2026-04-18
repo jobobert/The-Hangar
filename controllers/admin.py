@@ -252,16 +252,18 @@ def index():
         tablename = tables[0][0]._tablename
         if tablename not in table_groups:
             table_groups[tablename] = []
+        _priority = cat in ('modeltype', 'modelcategory')
         table_groups[tablename].append(dict(
             cat=cat,
             label=CATEGORY_LABELS.get(cat, cat),
             comment=CATEGORY_COMMENTS.get(cat, ''),
             count=counts.get(cat, 0),
+            priority=_priority,
         ))
 
-    # Sort categories within each table by label, tables by display name
+    # Sort categories within each table: priority first, then alphabetical
     for cats in table_groups.values():
-        cats.sort(key=lambda x: x['label'])
+        cats.sort(key=lambda x: (not x['priority'], x['label']))
     groups = sorted(
         [(_table_display_name(t), cats) for t, cats in table_groups.items()],
         key=lambda x: x[0]
@@ -664,13 +666,15 @@ def controller_matrix():
             'name':        r.name,
             'controllers': set(m.get('controllers', [])),
             'hide':        set(m.get('hide', [])),
+            'important':   set(m.get('important', [])),
         })
 
     rows = []
     for r in mt_rows:
         m = _parse_metadata(r.metadata)
-        mt_ctrl = set(m.get('controllers', [])) or _ALL_CONTROLLERS
-        mt_hide = set(m.get('hide', []))
+        mt_ctrl      = set(m.get('controllers', [])) or _ALL_CONTROLLERS
+        mt_hide      = set(m.get('hide', []))
+        mt_important = set(m.get('important', []))
         cells = []
         for cat in categories:
             cat_hide = cat['hide']
@@ -684,9 +688,16 @@ def controller_matrix():
                 else:
                     src = 'cat'
                 hidden.append((f, field_labels.get(f, f), src))
+            # Important = intersection of type important and category important
+            important = sorted(
+                mt_important & cat['important'],
+                key=lambda f: field_labels.get(f, f)
+            )
+            important_labeled = [(f, field_labels.get(f, f)) for f in important]
             cells.append({
                 'controllers': sorted(mt_ctrl & cat['controllers']),
                 'hidden':      hidden,
+                'important':   important_labeled,
             })
         rows.append({'name': r.name, 'cells': cells})
 

@@ -3,6 +3,114 @@
 import random
 import urllib
 import os
+import json as _json
+
+
+def quick_search():
+    """Simple text search across model, component, article, and tag names."""
+    s = (request.vars.get('s') or '').strip()
+    results = []
+    if s:
+        pat = '%' + s + '%'
+
+        # Models by name
+        for row in db(db.model.name.like(pat)).select(
+                db.model.id, db.model.name, db.model.img,
+                db.model.modeltype, orderby=db.model.name):
+            results.append({'controller': 'model', 'name': row.name,
+                            'img': row.img, 'sub': row.modeltype or '',
+                            'url': URL('model', 'index', args=row.id)})
+
+        # Components by name + models that use each matching component
+        seen_models = set(r['url'] for r in results)
+        for crow in db(db.component.name.like(pat)).select(
+                db.component.id, db.component.name, db.component.img,
+                db.component.componenttype, orderby=db.component.name):
+            results.append({'controller': 'component', 'name': crow.name,
+                            'img': crow.img, 'sub': crow.componenttype or '',
+                            'url': URL('component', 'index', args=crow.id)})
+            for mc in db(db.model_component.component == crow.id).select(db.model_component.model):
+                mrow = db.model(mc.model)
+                if mrow:
+                    mu = URL('model', 'index', args=mrow.id)
+                    if mu not in seen_models:
+                        seen_models.add(mu)
+                        results.append({'controller': 'model',
+                                        'name': mrow.name,
+                                        'img': mrow.img,
+                                        'sub': 'has: ' + crow.name,
+                                        'url': mu})
+
+        # Articles by name
+        for row in db(db.article.name.like(pat)).select(
+                db.article.id, db.article.name, db.article.img,
+                db.article.articletype, orderby=db.article.name):
+            results.append({'controller': 'article', 'name': row.name,
+                            'img': row.img, 'sub': row.articletype or '',
+                            'url': URL('library', 'read', args=row.id)})
+
+        # Tags by name + articles that have each matching tag
+        seen_articles = set()
+        for trow in db(db.tag.name.like(pat)).select(
+                db.tag.id, db.tag.name, orderby=db.tag.name):
+            results.append({'controller': 'tag', 'name': trow.name,
+                            'img': None, 'sub': '',
+                            'url': URL('tag', 'listview')})
+            for arow in db(db.article.tags.contains(trow.id)).select(
+                    db.article.id, db.article.name, db.article.img,
+                    db.article.articletype, orderby=db.article.name):
+                au = URL('library', 'read', args=arow.id)
+                if au not in seen_articles:
+                    seen_articles.add(au)
+                    results.append({'controller': 'article',
+                                    'name': arow.name,
+                                    'img': arow.img,
+                                    'sub': 'tagged: ' + trow.name,
+                                    'url': au})
+        if len(results) == 1:
+            redirect(results[0]['url'])
+    return dict(s=s, results=results)
+
+
+def search():
+    """Advanced QueryBuilder search across models and related tables."""
+    session.ReturnHere = URL(args=request.args, vars=request.get_vars, host=True)
+
+    rules_json   = request.vars.get('q', '')
+    results      = []
+    result_count = 0
+    search_error = None
+    search_sql   = None
+
+    # Pre-build modelstate name lookup so the view doesn't need extra queries
+    state_names = {r.id: r.name for r in db().select(db.modelstate.id, db.modelstate.name)}
+
+    if rules_json:
+        try:
+            rules     = _json.loads(rules_json)
+            condition = parse_search_query(rules)
+            if condition is not None:
+                results      = db(condition).select(
+                    db.model.id, db.model.name, db.model.img,
+                    db.model.modeltype, db.model.modelstate, db.model.modelcategory,
+                    orderby=db.model.name)
+                result_count = len(results)
+                search_sql   = db._lastsql
+        except Exception as e:
+            import traceback
+            search_error = str(e) + '\n' + traceback.format_exc()
+
+    fields_config = get_qb_field_config()
+
+    return dict(
+        fields_config = fields_config,
+        results       = results,
+        result_count  = result_count,
+        rules_json    = rules_json,
+        search_error  = search_error,
+        search_sql    = search_sql,
+        state_names   = state_names,
+    )
 # try:
 #    import response
 #    import request
@@ -319,58 +427,6 @@ def test():
     return dict(form=form)
 
 
-def search():
-
-    finalresults = []
-
-    # Model Query
-    query = (db.model.name.like('%' + request.vars.s + '%')
-             | db.model.description.like('%' + request.vars.s + '%')
-             | db.model.notes.like('%' + request.vars.s + '%')
-             )
-
-    results = db(query).select(db.model.id, db.model.img, db.model.name,
-                               db.model.description, db.model.modelstate, orderby=db.model.name)
-
-    for res in results:
-        finalresults.append({
-            # , "img": IMG(_src=URL('default', 'download', args=res.img), _alt='Image', _width='65px', _onerror="this.src = '" + URL('static', 'icons/nopicture.png') + "'")
-            # , "desc": " ".join(res.description.split()[:30])
-            "type": "model", "name": res.name, "url": URL('model', 'index', args=res.id), "img": IMG(_src=URL('default', 'download', args=res.img), _alt='Image', _width='65px'), "desc": "" if res.description is None else " ".join(res.description.split()[:30]), "state": res.modelstate, "tag": ""
-        })
-
-    # Component Query
-    query = (db.component.name.like('%' + request.vars.s + '%')
-             | db.component.notes.like('%' + request.vars.s + '%')
-             )
-
-    results = db(query).select(db.component.id, db.component.img, db.component.name,
-                               db.component.notes, db.component.componenttype, orderby=db.component.name)
-
-    for res in results:
-        finalresults.append({
-            "type": "component", "name": res.name, "url": URL('component', 'index', args=res.id), "img": IMG(_src=URL('default', 'download', args=res.img), _alt='Image', _width='65px', _onerror="this.src = '" + URL('static', 'icons/nopicture.png') + "'"), "desc": "" if res.notes == None else " ".join(res.notes.split()[:30]), "state": "", "tag": res.componenttype
-        })
-
-    # Library Query
-    query = (db.article.name.like('%' + request.vars.s + '%')
-             | db.article.summary.like('%' + request.vars.s + '%')
-             | db.article.notes.like('%' + request.vars.s + '%')
-             )
-
-    results = db(query).select(db.article.id, db.article.img, db.article.name,
-                               db.article.summary, db.article.articletype, orderby=db.article.name)
-
-    for res in results:
-        finalresults.append({
-            "type": "article", "name": res.name, "url": URL('library', 'read', args=res.id), "img": IMG(_src=URL('default', 'download', args=res.img), _alt='Image', _width='65px', _onerror="this.src = '" + URL('static', 'icons/nopicture.png') + "'"), "desc": "" if res.summary == None else " ".join(res.summary.split()[:30]), "state": "", "tag": res.articletype
-        })
-
-    # response.view = 'content.html'
-    if len(finalresults) == 1:  # Auto redirect if there is only 1 result
-        redirect(finalresults[0]['url'])
-    else:
-        return dict(searchtext=request.vars.s, finalresults=finalresults)
 
 
 @request.restful()

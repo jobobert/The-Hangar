@@ -1,0 +1,43 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-2">
+    <div class="col">
+        <h4>
+            Search results for <em>{{=s}}</em>
+            <a href="{{=URL('default','search')}}" class="btn btn-sm btn-outline-secondary ml-2">Advanced Search</a>
+        </h4>
+    </div>
+</div>
+
+{{if not s:}}
+<p class="text-muted">Enter a search term in the box above.</p>
+{{elif not results:}}
+<div class="alert alert-secondary">No results found for <strong>{{=s}}</strong>.</div>
+{{else:}}
+<ul class="list-group">
+    {{for r in results:}}
+    <a href="{{=r['url']}}" class="list-group-item list-group-item-action d-flex align-items-center">
+        <div class="mr-2" style="width:32px; text-align:center; flex-shrink:0;">
+            {{=controller_icon(r['controller'], 24)}}
+        </div>
+        <div class="mr-3" style="width:48px; height:48px; flex-shrink:0;">
+            {{if r['img']:}}
+            <img src="{{=URL('default','download',args=r['img'])}}"
+                 width="48" height="48" class="img-thumbnail"
+                 onerror="this.src='{{=URL('static','icons/nopicture.png')}}'">
+            {{else:}}
+            <img src="{{=URL('static','icons/nopicture.png')}}" width="48" height="48" class="img-thumbnail">
+            {{pass}}
+        </div>
+        <div class="flex-grow-1 mr-3">
+            {{=r['name']}}
+        </div>
+        <div class="ml-auto">
+            {{if r['sub']:}}
+            <span class="badge badge-secondary px-2 py-1">{{=r['sub']}}</span>
+            {{pass}}
+        </div>
+    </a>
+    {{pass}}
+</ul>
+{{pass}}

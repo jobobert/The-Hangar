@@ -13,7 +13,8 @@
             Hidden field source:
             <span class="badge badge-info">T</span> type &nbsp;
             <span class="badge badge-warning">C</span> category &nbsp;
-            <span class="badge badge-dark">B</span> both
+            <span class="badge badge-dark">B</span> both &nbsp;&nbsp;
+            <span class="badge badge-success">&#9733;</span> important (type &cap; category intersection)
         </p>
     </div>
 </div>
@@ -43,6 +44,15 @@
                 {{pass}}
                 {{else:}}
                 <span class="text-muted">&mdash;</span>
+                {{pass}}
+                {{if cell['important']:}}
+                <div class="mt-1 pt-1 border-top">
+                {{for fname, label in cell['important']:}}
+                <span class="mr-1 mb-1" style="font-size:0.75em; white-space:nowrap;">
+                    {{=label}}<span class="badge badge-success ml-1" style="font-size:0.7em;">&#9733;</span>
+                </span>
+                {{pass}}
+                </div>
                 {{pass}}
                 {{if cell['hidden']:}}
                 <div class="mt-1 pt-1 border-top">

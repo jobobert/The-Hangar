@@ -333,4 +333,12 @@ Your submitted form contains the following errors:
     document.getElementById("model_modeltype").addEventListener("change", typeChange);
     document.getElementById("model_modelcategory").addEventListener("change", typeChange);
     jQuery(document).ready(typeChange);
+
+    // Re-enable hidden (disabled) fields before submit so their existing values
+    // are included in the POST and web2py does not NULL them out on update.
+    document.getElementById("modelform").addEventListener("submit", function() {
+        this.querySelectorAll('[disabled]').forEach(function(el) {
+            el.disabled = false;
+        });
+    });
 </script>

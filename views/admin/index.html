@@ -86,11 +86,14 @@
 </div>
 
 {{for item in categories:}}
-<div class="row border-bottom my-1 align-items-center pl-4">
+<div class="row border-bottom my-1 align-items-center pl-4{{=' bg-light font-weight-bold' if item['priority'] else ''}}">
     <div class="col">
         {{=item['label']}}
+        {{if item['priority']:}}
+        <span class="badge badge-warning ml-1">critical</span>
+        {{pass}}
         {{if item['comment']:}}
-        <br><small class="text-muted">{{=item['comment']}}</small>
+        <br><small class="text-muted font-weight-normal">{{=item['comment']}}</small>
         {{pass}}
     </div>
     <div class="col-2">{{=item['count']}}</div>
