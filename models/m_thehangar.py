@@ -158,6 +158,10 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
   
         theLabel = XML(f'<label class="form-text {"col-sm-2 col-form-label" if fieldType == FormFieldType.ROWS else ""} {labelClass}" for="{inputID}">{field.label or field.name} {"(" + originalText + ")" if originalText else ""} {theHelpIcon if helpText else ""}</label>')
         theInput = form.custom.widget[fieldname]
+        if isinstance(theInput, SELECT):
+            first = theInput.components[0] if theInput.components else None
+            if not (isinstance(first, OPTION) and str(first['_value'] or '') == ''):
+                theInput.insert(0, OPTION('', _value=''))
         if isinstance(theInput, str):
             theInput = XML(theInput)
         theComment = XML(f'<small class="form-text text-muted d-none d-sm-block">{field.comment or ""}</small>')

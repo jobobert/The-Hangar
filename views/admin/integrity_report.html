@@ -27,6 +27,7 @@
 <table class="table table-bordered table-sm">
     <thead class="thead-light">
         <tr>
+            <th></th>
             <th>Model</th>
             <th>Type</th>
             <th>Missing Fields</th>
@@ -34,7 +35,8 @@
     </thead>
     <tbody>
         {{for entry in flagged:}}
-        <tr>
+        <tr class="modelstate_border-left_{{=entry['model'].modelstate}}">
+            <td class="text-center" style="width:48px"><img src="{{=URL('default', 'download', args=entry['model'].img)}}" height="32"></td>
             <td>
                 <a href="{{=URL('model', 'index', args=entry['model'].id, extension='html')}}">{{=entry['model'].name}}</a>
             </td>

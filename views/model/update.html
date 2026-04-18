@@ -336,7 +336,15 @@ Your submitted form contains the following errors:
 
     // Re-enable hidden (disabled) fields before submit so their existing values
     // are included in the POST and web2py does not NULL them out on update.
+    // For new records, clear disabled selects first so they submit as NULL
+    // rather than defaulting to the first option.
+    var isNew = {{='true' if not request.args(0) else 'false'}};
     document.getElementById("modelform").addEventListener("submit", function() {
+        if (isNew) {
+            this.querySelectorAll('select[disabled]').forEach(function(el) {
+                el.value = '';
+            });
+        }
         this.querySelectorAll('[disabled]').forEach(function(el) {
             el.disabled = false;
         });
