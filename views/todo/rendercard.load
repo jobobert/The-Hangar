@@ -47,7 +47,6 @@ No Todos
                         The complete button just needs to complete it and reload the list -->
             <div class="col"><a href="{{=URL('todo', 'update.html', args=[todo.id])}}"><span class="{{='todo_critical' if todo.critical == True else ''}}">{{=todo.todo}}</span></a></div>
             <div class="col-2">
-                <!--<a class="btn btn-primary" href="{{=URL('todo','complete',args=[model_id,todo.id])}}">Done</a>-->
                 <button class="btn btn-light" type="submit" value="Remove" name="{{=todo.id}}">{{=action_icon('checked', 16)}}</button>
             </div>
         </div>

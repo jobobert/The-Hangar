@@ -23,7 +23,6 @@
 <div class="card">
     <div class="card-header">
         <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('component', 25)}}</span>{{=component_count}} Components</h5>
-        <!--<a class="card-link th-new-link" href="{{=URL('component','update')}}">New</a>-->
         <a href="#" data-toggle="modal" data-target="#modal_newcomponent" class="card-link th-new-link">New</a>
         {{if newcomponentname != "":}}
         <div>{{=newcomponentname}} created, add to model below</div>
@@ -145,7 +144,6 @@
             </div>
         </div>
 
-        <!--<a class="btn btn-primary" href="{{=URL('component','addtomodel.html',args=[model_id])}}">Add</a>-->
     </div>
 </div>
  

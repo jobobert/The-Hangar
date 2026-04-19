@@ -43,7 +43,6 @@ def delete():
 
 
 def rendercard():
-    modelid = request.args(0)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate the associated model', 'sailrig', 'Sail Rigs')
@@ -57,9 +56,13 @@ def rendercard():
     elif newform.errors:
         response.flash = newform.errors
 
-    delid = 0
+    del_id = 0
     deleteform = SQLFORM.factory()
     if deleteform.process(session=None, formname='deleteform').accepted:
+        for y, z in request.vars.items():
+            if z == "Remove":
+                del_id = y
+                db(db.sailrig.id == del_id).delete()
         response.flash = 'Removal Success'
     elif deleteform.errors:
         response.flash = 'Removal Failure'

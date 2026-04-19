@@ -9,7 +9,8 @@ def index():
     tagname = "all"
     if request.vars.t:
          query = (db.article.tags.contains(request.vars.t))
-         tagname = db(db.tag.id == request.vars.t).select().first().name
+         tag_id = VerifyTableID('tag', request.vars.t) or redirect(URL('library', 'index'))
+         tagname = db.tag(tag_id).name
          includeComponents = False
     if request.vars.b:
         query = (db.article.articletype == 'Book')

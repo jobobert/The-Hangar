@@ -206,23 +206,21 @@ def usage():
 
 def addcount():
 
-    # session.forget(response)
-
-    if request.args(0):
-        row = db(db.component.id == request.args(0)).select().first()
-        if row.ownedcount == None:
-            row.update_record(ownedcount=(1))
-        else:
-            row.update_record(ownedcount=(row.ownedcount + 1))
+    component_id = VerifyTableID('component', request.args(0)) or redirect(session.ReturnHere or URL('component', 'listview'))
+    row = db.component(component_id)
+    if row.ownedcount == None:
+        row.update_record(ownedcount=(1))
+    else:
+        row.update_record(ownedcount=(row.ownedcount + 1))
 
     return redirect(session.ReturnHere or URL('component', 'listview'))
 
 def subtractcount():
 
-    if request.args(0):
-        row = db(db.component.id == request.args(0)).select().first()
-        if row.ownedcount > 0:
-            row.update_record(ownedcount=(row.ownedcount - 1))
+    component_id = VerifyTableID('component', request.args(0)) or redirect(session.ReturnHere or URL('component', 'listview'))
+    row = db.component(component_id)
+    if row.ownedcount > 0:
+        row.update_record(ownedcount=(row.ownedcount - 1))
     return redirect(session.ReturnHere or URL('component', 'listview'))
 
 def update():
@@ -230,10 +228,6 @@ def update():
     response.title = 'Add/Update Component'
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
-
-    # form = SQLFORM(db.component, request.args(0), deletable=True, showid=False).process(
-    #    message_onsuccess='Document %s' % (
-    #        'updated' if request.args else 'added'), next=(URL('component', 'index', args=request.vars.id, extension="html")))
 
     form = SQLFORM(db.component, request.args(0), upload=URL(
         'default', 'download'), deletable=True, showid=False).process(
@@ -390,6 +384,7 @@ def export():
         (getattr(db.component,'ownedcount').label, comp.ownedcount),
         (getattr(db.component,'storedat').label, comp.storedat),
     ]
+    # Append any populated type-specific attribute fields (stored as attr_* columns)
     for key in comp.__dict__:
         if key.startswith('attr_') and comp[key]:
             name = getattr(db.component, key).label

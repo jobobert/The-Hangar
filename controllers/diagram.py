@@ -112,6 +112,13 @@ subgraph cluster_legend {{
     """
 
 def creatediagramfromcomponents(model_id):
+    """Build a Graphviz DOT graph string for the given model.
+
+    Returns a partial DOT body (nodes + edges, no digraph wrapper) ready to
+    embed in the diagram template.  Each component type in the match/case
+    block gets its own node shape and edge style; unknown types fall back to
+    the admin-configured componenttype_diagram settings.
+    """
     model_components = db(db.model_component.model == model_id).select()
     model_battery = db(db.model_battery.model == model_id).select()
 

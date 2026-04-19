@@ -1,6 +1,6 @@
-from collections import deque
+
 import os, random, math
-from typing import Literal
+
 from enum import Enum
 
 class FormFieldType(Enum):
@@ -45,6 +45,12 @@ def disable_autocomplete(form):
         s['_autocomplete'] = 'off'
 
 def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0, fieldid:str = "", divClass:str = ""):
+    """Render a single form field as a Bootstrap grid row.
+
+    Returns a DIV containing a label column (col1) and an input column (col2).
+    Pass columns=0 to auto-size based on field type; otherwise the value sets
+    the Bootstrap column width of the input half.
+    """
     isSubmit = False
     field = None
     inputID = ""
@@ -102,6 +108,8 @@ def makeFormField(form, fieldname:str, fieldType:FormFieldType, columns:int = 0,
         # Process field extra attributes
         if hasattr(field, 'extra'):
             if 'measurement' in field.extra:
+                # Values are stored in metric (mm, g, dm²) but shown with a live
+                # JS converter button so the user can toggle to imperial units.
                 hasConverter = True
                 func = None # the func javascript function must be declared in layout.html!!
                 match field.extra['measurement']:
@@ -394,7 +402,7 @@ def ZeroDecimal(number):
     return "{:.0f}".format(number)
 
 def AttachPopup(attachment):
-    rnd = random.randint(0, 999999)
+    rnd = random.randint(0, 999999)  # unique suffix so multiple popups on the same page don't share DOM IDs
     attach = attachment
     if hasattr(attachment, "attachment"):
         attach = attachment.attachment
@@ -445,24 +453,24 @@ def renderModal(modal_id, title, form, label='New'):
         f'<h5>{title}</h5>{str(form)}</div>'
     )
 
-def ConvertMeasurementField(table, row, FieldName, seperator=" | "):
+def ConvertMeasurementField(table, row, FieldName, separator=" | "):
     if not hasattr(db[table][FieldName], "extra"):
         return ""
 
     match getattr(db[table], FieldName).extra['measurement']:
         case 'mm':
-            return seperator + str(TwoDecimal((row[FieldName] or 0) / 25.4)) + " in"
+            return separator + str(TwoDecimal((row[FieldName] or 0) / 25.4)) + " in"
         case 'oz':
             if (row[FieldName] or 0) >= 16:
-                return seperator + str(TwoDecimal((row[FieldName] or 0) / 16)) + " lbs"
+                return separator + str(TwoDecimal((row[FieldName] or 0) / 16)) + " lbs"
             else:
-                return seperator + str(TwoDecimal((row[FieldName] or 0) * 28.35)) + " g"
+                return separator + str(TwoDecimal((row[FieldName] or 0) * 28.35)) + " g"
         case 'dm2':
-            return seperator + str(TwoDecimal((row[FieldName] or 0) * 15.5)) + " sqin"
+            return separator + str(TwoDecimal((row[FieldName] or 0) * 15.5)) + " sqin"
         case 'sqin':
-            return seperator + str(TwoDecimal((row[FieldName] or 0) / 15.5)) + " dm2"
+            return separator + str(TwoDecimal((row[FieldName] or 0) / 15.5)) + " dm2"
         case 'cc':
-            return seperator + str(TwoDecimal((row[FieldName] or 0) / 1000)) + " liters"
+            return separator + str(TwoDecimal((row[FieldName] or 0) / 1000)) + " liters"
         case _:
             return ""
 

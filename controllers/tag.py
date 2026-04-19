@@ -31,6 +31,3 @@ def delete():
         session.flash = "Could not delete: tag not found"
     
     redirect(session.ReturnHere or URL('tag', 'listview'))
-
-def rendertags():
-    pass

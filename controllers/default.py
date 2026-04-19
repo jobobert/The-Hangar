@@ -346,6 +346,7 @@ def index():
             else:
                 queries.append(db.model.modelstate == state_number)
 
+    # Combine all active filter conditions with AND into a single DAL query
     query = reduce(lambda a, b: (a & b), queries)
     models = db(query).select(db.model.ALL, orderby=db.model.name)
 

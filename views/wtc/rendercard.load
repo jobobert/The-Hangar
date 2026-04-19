@@ -2,7 +2,6 @@
 <div class="card">
     <div class="card-header">
         <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('wtc', 25)}}</span>Water Tight Cylinder</h5>
-        <!--<a href="#" data-toggle="modal" data-target="#modal_newwtc" class="card-link th-new-link">New</a>-->
 
     </div>
     <div class="card-body">

@@ -420,15 +420,11 @@ db.define_table('model'
                 , format=lambda row: row.name
                 )
 
-db.model.get_wingspan = Field.Method(
-    lambda row: TwoDecimal(row.model.attr_plane_wingspan_in)
-)
-db.model.get_wingspan.label = 'Wingspace (in)'
 
-db.model.get_wingspan0 = Field.Method(
+db.model.get_wingspan = Field.Method(
     lambda row: ZeroDecimal(row.model.attr_plane_wingspan_mm)
 )
-db.model.get_wingspan0.label = 'Wingspan (mm)'
+db.model.get_wingspan.label = 'Wingspan (mm)'
 
 db.model.get_length = Field.Method(
     lambda row: ZeroDecimal(row.model.attr_length)
@@ -633,6 +629,8 @@ _ALL_CONTROLLERS = frozenset([
     'propeller', 'rotor', 'sailrig', 'supportitem', 'switch', 'tool', 'wtc',
 ])
 
+# Which nav-tab controllers are shown for each model type.
+# Seeds new modeltype DB entries only — the admin UI is the source of truth for existing rows.
 modeltype_controller_mapping = {
     'Airplane'    : ['attachment', 'battery', 'component', 'diagram', 'paint', 'propeller', 'supportitem', 'switch', 'tool'],
     'Rocket'      : ['attachment', 'component', 'diagram', 'paint', 'supportitem', 'tool'],
@@ -717,7 +715,7 @@ db.define_table('todo',
                 Field('complete', type='boolean', label="Complete?", default=False), 
                 format=lambda row: 'Unknown' if row is None else row.todo)
 
-db.todo.notes.format = lambda tool: MARMIN(tool.notes)
+db.todo.notes.format = lambda tool: MARKMIN(tool.notes)
 
 
 ###############################################
@@ -727,7 +725,7 @@ db.define_table('activity',
                 Field('activitydate', type='date', label='Date', required=True, default=request.now), 
                 Field('model', type='reference model', label='Model'), 
                 Field('activitytype', type='string', label='Type'), 
-                Field('duration', type='double', Label='Duration (min)', comment='The duration, in minutes', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')), 
+                Field('duration', type='double', label='Duration (min)', comment='The duration, in minutes', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')), 
                 Field('activitylocation', type='string', label='Location'), 
                 Field('notes', type='text', label='Notes', comment='Notes about the event'), 
                 Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the activity (1500px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), 
@@ -908,7 +906,7 @@ db.define_table('tool',
 db.tool.tooltype.requires = lookup_set('tooltype')
 db.tool.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 
-db.tool.notes.format = lambda tool: MARMIN(tool.notes)
+db.tool.notes.format = lambda tool: MARKMIN(tool.notes)
 
 
 ###############################################
@@ -1037,12 +1035,12 @@ db.eflite_time.get_minutes = Field.Method(
 )
 db.eflite_time.get_minutes.label = 'Flight Minutes'
 
-def g_wpp(row):
-    if (not row.eflite_time.model.attr_weight_lbs):
+def get_watts_per_pound(row):
+    if (not row.eflite_time.model.attr_weight_oz):
         return "No Weight Set"
-    return TwoDecimal(row.eflite_time.watts / row.eflite_time.model.attr_weight_lbs)
+    return TwoDecimal(row.eflite_time.watts / (row.eflite_time.model.attr_weight_oz * 16))
 db.eflite_time.get_wattsperpound = Field.Method(
-    lambda row: g_wpp(
+    lambda row: get_watts_per_pound(
         row)
 )
 db.eflite_time.get_wattsperpound.label = 'Watts/Pound'
@@ -1056,7 +1054,7 @@ db.eflite_time.is_overrating.label = 'Is Overrating'
 ## SUPPORT ITEM
 
 db.define_table('supportitem', 
-                Field('item', type='string', Label='Support Item'), 
+                Field('item', type='string', label='Support Item'), 
                 Field('model', type='reference model', label='Model'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
                 Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the support item (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), 
@@ -1071,7 +1069,7 @@ db.supportitem.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
 ## PROPELLER
 
 db.define_table('propeller', 
-                Field('item', type='string', Label='Propeller', required=True), 
+                Field('item', type='string', label='Propeller', required=True), 
                 Field('model', type='reference model'), format=lambda row: row.item
                 )
 db.propeller.item.widget = SQLFORM.widgets.autocomplete(
@@ -1549,6 +1547,9 @@ for _row in db(db.lookup.category == 'modelcategory').select():
         _m = {}
     modelcategory_hide_attribs[_row.name] = _m.get('hide', [])
     modelcategory_controllers[_row.name] = _m.get('controllers', [])
+
+# Override the hardcoded component_attribs with the live DB values so admin edits take effect.
+component_attribs = {_row.name: (_row.attrs or []) for _row in db(db.componenttype.id > 0).select()}
 
 activitytype_colors = {}
 for _row in db(db.lookup.category == 'activitytype').select():

@@ -1,6 +1,5 @@
 def rendercard():
     
-    model_id = request.args[0]
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate the associated model', 'supportitem', 'Support Items')
@@ -49,7 +48,6 @@ def remove():
 
 def renderexport():
     
-    model_id = request.args[0]
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate the associated model', 'supportitem', 'Support Items')

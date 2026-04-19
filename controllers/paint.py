@@ -100,7 +100,7 @@ def rendercard():
                 del_id = VerifyTableID('model_paint', y)
                 if del_id and db.model_paint[del_id].model == model_id:
                     db(db.model_paint.id == del_id).delete()
-                    response.flash = 'Removal Sucess'
+                    response.flash = 'Removal Success'
     elif deleteform.errors:
         response.flash = "Removal Failure"
 

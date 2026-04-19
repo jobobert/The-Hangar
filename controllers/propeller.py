@@ -45,7 +45,6 @@ def listview():
 def delete():
     
     item_id = VerifyTableID('propeller', request.args(0)) or redirect(URL('default', 'index'))
-    response.flash = item_id
     
     if item_id:
         db(db.propeller.id == item_id).delete()

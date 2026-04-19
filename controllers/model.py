@@ -1,5 +1,5 @@
-
 from gluon.contrib.user_agent_parser import mobilize
+
 import json
 
 def index(): 
@@ -55,7 +55,6 @@ def index():
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
-    session.index = "index ready"
 
     return dict(model=model, details_form=details_form, fieldnotes_form=fieldnotes_form,
                 rotor_form=rotor_form, attrs_form=attrs_form, attr_edit_fields=attr_edit_fields)

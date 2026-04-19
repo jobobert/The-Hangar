@@ -49,7 +49,6 @@ def select():
 
 
 def thelist():
-    print("in thelist", request.vars)
     response.title = 'The List'
     if type(request.vars.id) is not list:
         model_ids = [request.vars.id]
@@ -141,22 +140,6 @@ def thelist():
     return dict(
         models=model_list, tools=tool_list, supportitems=si_list, batteries=battery_list, propellers=propeller_list, rocketmotors=rm_list, transmitters=transmitter_list, todos=todo_list, model_ids=model_ids
     )
-
-
-# def allitems():
-
-#     response.title = 'Packing Items'
-
-#     links = [
-#         lambda row: editButton('packinglist', 'update', [row.id])
-#     ]
-
-#     form = SQLFORM.grid(
-#         db.packingitems, links=links, details=False, editable=False, csv=False, create=True, _class='itemlist-grid', user_signature=False)
-
-#     response.view = 'content.html'
-
-#     return dict(content=form, header=response.title)
 
 def listview():
 

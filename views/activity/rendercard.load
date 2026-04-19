@@ -8,7 +8,6 @@
         <div class="row">
             <div class="col-9 d-block" style="border-left: solid 10px {{=activitytype_colors.get(activity.activitytype, '#cccccc')}}">{{=B(activity.activitydate)}}<br />{{=activity.activitytype}}</div>
             <div class="col-3 d-block">
-                <!--<a class="btn btn-primary" href="{{=URL('activity','update',args=activity.id,extension='html')}}">Edit</a>-->
                 {{=editButton('activity', 'update.html', activity.id)}}
             </div>
         </div>
