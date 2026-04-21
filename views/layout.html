@@ -137,9 +137,51 @@
   <div class="container-fluid">
 
     <div class="breakcrumb d-print-none" id="go-back-wrap" style="display:none">
-      <a href="#" id="go-back-link" onclick="history.back(); return false;">&lt;- Go Back</a>
+      <a href="#" id="go-back-link">&lt;- Go Back</a>
     </div>
-    <script>if (history.length > 1) { document.getElementById('go-back-wrap').style.display = ''; }</script>
+    <script>
+    (function () {
+        var path = window.location.pathname;
+        var currentUrl = path + window.location.search;
+        // Pages whose function name starts with update/add/edit are edit pages — never push to stack
+        var isEditPage = /\/(update|add|edit[^/]*)(\/|$)/.test(path);
+
+        var stack = [];
+        try { stack = JSON.parse(sessionStorage.getItem('hangar_nav_stack') || '[]'); } catch (e) {}
+
+        if (!isEditPage) {
+            if (stack.length === 0 || stack[stack.length - 1] !== currentUrl) {
+                stack.push(currentUrl);
+                if (stack.length > 30) stack.shift();
+                try { sessionStorage.setItem('hangar_nav_stack', JSON.stringify(stack)); } catch (e) {}
+            }
+        }
+
+        // Show Go Back if there is somewhere to go back to
+        var canGoBack = isEditPage ? stack.length > 0 : stack.length > 1;
+        if (canGoBack) document.getElementById('go-back-wrap').style.display = '';
+
+        document.getElementById('go-back-link').onclick = function (e) {
+            e.preventDefault();
+            var s = [];
+            try { s = JSON.parse(sessionStorage.getItem('hangar_nav_stack') || '[]'); } catch (e) {}
+            if (isEditPage) {
+                // Navigate to the last view page without popping (so back still works there)
+                if (s.length > 0) window.location.href = s[s.length - 1];
+                else history.back();
+            } else {
+                // Pop current page, navigate to the one before it
+                if (s[s.length - 1] === currentUrl) s.pop();
+                if (s.length > 0) {
+                    try { sessionStorage.setItem('hangar_nav_stack', JSON.stringify(s)); } catch (e) {}
+                    window.location.href = s[s.length - 1];
+                } else {
+                    history.back();
+                }
+            }
+        };
+    })();
+    </script>
 
     <div class="container-fluid main-container">
       {{include}}
@@ -200,7 +242,7 @@
   {{block page_js}}{{end page_js}}
   <script type="text/javascript">
     $(document).ready(function () {
-      $("textarea").markItUp(mySettings);
+      $("textarea:not(.no-markitup)").markItUp(mySettings);
       //alert(jQuery.fn.jquery);
       $('img').on("error", function () {
         $(this).attr('src', "{{=URL('static', 'icons/nopicture_light.png') }}");

@@ -2,99 +2,835 @@
 
 <h1>Edit Model Diagram for {{=model_name}}</h1>
 
-<div class="row">
-    <div class="col-lg-12 col-xl-6">
-        {{=form.custom.begin}}
+{{=form.custom.begin}}
 
-        <div class="row bg-light fixed-bottom pl-5 p-2">
-            {{=form.custom.submit}}
-        </div>
-
-        {{=form.custom.widget.diagram}}
-
-        <div class="model_form_comment">{{=form.custom.comment.diagram}}</div>
-        
-        {{=form.custom.end}}
-
-
-    </div>
-
-    <div class="col-lg-12 col-xl-6 border-left">
-        <div class="row mb-3">
-            <div class="col">
-                <button class="btn btn-secondary" onclick="setDefaultDot()">Use default dot code</button>
-                <button class="btn btn-secondary" onclick="setComponentDot()">Use component dot code</button>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <h5 class="col d-block">Attributes</h5>
-            </div>
-        </div>
-        <div class="row">
-            {{for k,v in edge_attribs.items():}}
-            <div class="d-inline-block m-1">
-                <div class="d-inline"><button class="btn btn-sm btn-secondary" onclick="insertText('{{=v}}')">{{=k}}</button></div>
-            </div>
-            {{pass}}
-        </div>
-        <div class="row">
-            <div class="col">
-                <h5>Components</h5>
-            </div>
-        </div>
-        <div class="row">
-            {{for comp in components:}}
-            <div class="d-inline-block m-1">
-                <div class="d-inline"><button class="btn btn-sm btn-secondary" onclick="insertText('{{=comp[1]}}')">{{=comp[0]}}</button></div>
-            </div>
-            {{pass}}
-        </div>
-    </div>
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=form.custom.submit}}
 </div>
-<div class="row mt-3">
-    <div class="col-md-6 border-left">
-        <div id="graph-container"></div>
+
+<div class="row mb-2">
+    <div class="col">
+        <button type="button" class="btn btn-secondary" onclick="if(confirm('Rebuild from components?\n\nThis will replace all nodes and connections with auto-generated content from the model. Any custom wiring will be lost.')) refreshNodes();">Rebuild from Components</button>
+        <button type="button" class="btn btn-secondary" onclick="setDefaultDot()">Use default dot code</button>
     </div>
 </div>
 
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <div>
+            <strong>Connections</strong>
+            <button type="button" class="btn btn-sm btn-outline-secondary ml-2"
+                    onclick="openWireTypesModal()">Wire Types</button>
+        </div>
+        <div class="d-flex" style="gap:4px">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addConnectorAndLine()">+ Add Connector</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addConnectionRow()">+ Add Line</button>
+        </div>
+    </div>
+    <div class="card-body p-2">
+        <table class="table table-sm table-bordered mb-1" id="conn-table">
+            <thead class="thead-light"><tr>
+                <th>From</th>
+                <th style="width:7em">Port</th>
+                <th>To</th>
+                <th>Wire Type</th>
+                <th style="width:2.5em"></th>
+            </tr></thead>
+            <tbody id="conn-tbody"></tbody>
+        </table>
+        <small class="text-muted">Port is optional — use e.g. <code>f1</code> for receiver port 1, <code>l1</code>/<code>r1</code> for connector ports.</small>
+    </div>
+</div>
+
+<div class="mb-4">
+    <h5>{{=model_name}} Wiring Diagram</h5>
+    <div id="graph-container"></div>
+</div>
+
+<div class="accordion mb-5" id="dotAccordion">
+    <div class="card">
+        <div class="card-header p-1 d-flex align-items-center">
+            <button type="button" class="btn btn-link btn-sm collapsed"
+                    data-toggle="collapse" data-target="#dotCollapse" aria-expanded="false">
+                ▶ Advanced: DOT Code
+            </button>
+            <small class="text-muted ml-2">Editor <a href="https://dreampuf.github.io/GraphvizOnline/" target="_blank">here</a></small>
+        </div>
+        <div id="dotCollapse" class="collapse" data-parent="#dotAccordion">
+            <div class="card-body">
+                {{=form.custom.widget.diagram}}
+                <script>document.getElementById('model_diagram').classList.add('no-markitup');</script>
+                <div class="model_form_comment">{{=form.custom.comment.diagram}}</div>
+                <div class="mt-3">
+                    <strong>Attributes</strong>
+                    <div class="mt-1">
+                    {{for k,v in edge_attribs.items():}}
+                        <button type="button" class="btn btn-sm btn-secondary m-1" onclick="insertText('{{=v}}')">{{=k}}</button>
+                    {{pass}}
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <strong>Components</strong>
+                    <div class="mt-1">
+                    {{for comp in components:}}
+                        <button type="button" class="btn btn-sm btn-secondary m-1" onclick="insertText('{{=comp[1]}}')">{{=comp[0]}}</button>
+                    {{pass}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Wire Types Modal -->
+<div class="modal fade" id="wireTypesModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Wire Types</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-sm table-bordered mb-2" id="wt-table">
+                    <thead class="thead-light"><tr>
+                        <th>Name</th>
+                        <th>DOT Attributes</th>
+                        <th style="width:4em">Sort</th>
+                        <th style="width:7em"></th>
+                    </tr></thead>
+                    <tbody id="wt-tbody"></tbody>
+                </table>
+                <button type="button" class="btn btn-sm btn-success mb-3" onclick="editWireType(null)">+ Add Wire Type</button>
+
+                <div id="wt-form" style="display:none" class="border rounded p-3 bg-light">
+                    <input type="hidden" id="wt-id">
+                    <div class="form-group row mb-2">
+                        <label class="col-sm-2 col-form-label col-form-label-sm">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="wt-name" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label class="col-sm-2 col-form-label col-form-label-sm">DOT Attributes</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="wt-attribs" class="form-control form-control-sm"
+                                   placeholder='color="#cc0000"; style=dashed; penwidth=2;'>
+                            <small class="form-text text-muted">Raw Graphviz edge attributes.</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label class="col-sm-2 col-form-label col-form-label-sm">Sort Order</label>
+                        <div class="col-sm-4">
+                            <input type="number" id="wt-sort" class="form-control form-control-sm" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label class="col-sm-2 col-form-label col-form-label-sm">Preview</label>
+                        <div class="col-sm-10" id="wt-preview"></div>
+                    </div>
+                    <div id="wt-error" class="alert alert-danger py-1 mb-2" style="display:none"></div>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="saveWireType()">Save</button>
+                    <button type="button" class="btn btn-sm btn-secondary ml-1" onclick="cancelWireTypeEdit()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Connectors Modal -->
+<div class="modal fade" id="connectorsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Wire Connectors</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="dc-add-line-hint" class="alert alert-info py-1 mb-2" style="display:none">
+                    Click <strong>Insert</strong> to add the connector to the diagram and start a new connection.
+                </div>
+                <table class="table table-sm table-bordered mb-2" id="dc-table">
+                    <thead class="thead-light"><tr>
+                        <th>Name</th>
+                        <th>Left</th>
+                        <th>Right</th>
+                        <th>Labels</th>
+                        <th style="width:4em">Sort</th>
+                        <th style="width:10em"></th>
+                    </tr></thead>
+                    <tbody id="dc-tbody"></tbody>
+                </table>
+                <button type="button" class="btn btn-sm btn-success mb-3" onclick="editConnector(null)">+ Add Connector Type</button>
+
+                <div id="dc-form" style="display:none" class="border rounded p-3 bg-light">
+                    <input type="hidden" id="dc-id">
+                    <div class="form-group row mb-2">
+                        <label class="col-sm-3 col-form-label col-form-label-sm">Name</label>
+                        <div class="col-sm-9">
+                            <input type="text" id="dc-name" class="form-control form-control-sm"
+                                   placeholder="e.g. XT-60" oninput="previewConnector()">
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label class="col-sm-3 col-form-label col-form-label-sm">Left Terminals</label>
+                        <div class="col-sm-3">
+                            <input type="number" id="dc-left-count" class="form-control form-control-sm"
+                                   value="1" min="0" oninput="previewConnector()">
+                        </div>
+                        <label class="col-sm-3 col-form-label col-form-label-sm">Left Label</label>
+                        <div class="col-sm-3">
+                            <input type="text" id="dc-left-label" class="form-control form-control-sm"
+                                   placeholder="e.g. ♂ or In" oninput="previewConnector()">
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label class="col-sm-3 col-form-label col-form-label-sm">Right Terminals</label>
+                        <div class="col-sm-3">
+                            <input type="number" id="dc-right-count" class="form-control form-control-sm"
+                                   value="1" min="0" oninput="previewConnector()">
+                        </div>
+                        <label class="col-sm-3 col-form-label col-form-label-sm">Right Label</label>
+                        <div class="col-sm-3">
+                            <input type="text" id="dc-right-label" class="form-control form-control-sm"
+                                   placeholder="e.g. ♀ or Out" oninput="previewConnector()">
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label class="col-sm-3 col-form-label col-form-label-sm">Fill Color</label>
+                        <div class="col-sm-3">
+                            <input type="color" id="dc-fillcolor" class="form-control form-control-sm"
+                                   value="#d4c07a" oninput="previewConnector()">
+                        </div>
+                        <label class="col-sm-3 col-form-label col-form-label-sm">Sort Order</label>
+                        <div class="col-sm-3">
+                            <input type="number" id="dc-sort" class="form-control form-control-sm" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label class="col-sm-3 col-form-label col-form-label-sm">Custom DOT Label</label>
+                        <div class="col-sm-9">
+                            <textarea id="dc-custom-dot" class="form-control form-control-sm no-markitup" rows="3"
+                                      placeholder="Optional. If set, overrides all fields above. Enter a complete Graphviz label= value, e.g.&#10;&lt;&lt;table...&gt;&gt;" oninput="previewConnector()"></textarea>
+                            <small class="form-text text-muted">Leave blank to auto-generate from fields above.</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label class="col-sm-3 col-form-label col-form-label-sm">Preview</label>
+                        <div class="col-sm-9" id="dc-preview"></div>
+                    </div>
+                    <div id="dc-error" class="alert alert-danger py-1 mb-2" style="display:none"></div>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="saveConnector()">Save</button>
+                    <button type="button" class="btn btn-sm btn-secondary ml-1" onclick="cancelConnectorEdit()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{=form.custom.end}}
 
 <script src="{{=URL('static','js/viz-global.js')}}"></script>
-
 <script>
+const EDGE_ATTRIBS = {{=XML(edge_attribs_json)}};
+const NODE_OPTIONS = {{=XML(node_options_json)}};
+const REFRESH_NODES_DOT = {{=XML(model_nodes_dot_json)}};
 
-    const myTextarea = document.getElementById('model_diagram');
-    myTextarea.addEventListener('input', (event) => {
-        updateGraph();
+const textarea = document.getElementById('model_diagram');
+
+textarea.addEventListener('input', () => {
+    updateGraph();
+    renderConnectionsTable();
+});
+
+function insertText(text) {
+    textarea.setRangeText(text);
+    updateGraph();
+    renderConnectionsTable();
+    textarea.focus();
+}
+
+function setDefaultDot() {
+    textarea.value = `{{=XML(default_dot)}}`;
+    updateGraph();
+    renderConnectionsTable();
+}
+
+function refreshNodes() {
+    let dot = textarea.value;
+    const startMarker = '// Nodes';
+    const endMarker   = '// End Edges';
+    const si = dot.indexOf(startMarker);
+    const ei = dot.indexOf(endMarker);
+
+    if (si !== -1 && ei !== -1) {
+        // Replace everything from // Nodes through // End Edges; preserve legend before and title after
+        dot = dot.slice(0, si) + REFRESH_NODES_DOT + '\n' + dot.slice(ei + endMarker.length);
+    } else if (si !== -1) {
+        // Has nodes but no End Edges marker — replace to closing brace
+        const cb = dot.lastIndexOf('}');
+        dot = dot.slice(0, si) + REFRESH_NODES_DOT + '\n' + (cb !== -1 ? dot.slice(cb) : '}');
+    } else {
+        const graphOpen = dot.indexOf('{');
+        dot = graphOpen !== -1
+            ? dot.slice(0, graphOpen + 1) + '\n\n' + REFRESH_NODES_DOT + '\n' + dot.slice(graphOpen + 1)
+            : REFRESH_NODES_DOT + '\n' + dot;
+    }
+    textarea.value = dot;
+    updateGraph();
+    renderConnectionsTable();
+}
+
+// Parse edges from the // Edges section only (avoids matching legend edges)
+function parseDotEdges(dot) {
+    const marker = '// Edges';
+    const endMarker = '// End Edges';
+    const mi = dot.indexOf(marker);
+    if (mi === -1) return [];
+    const lineEnd = dot.indexOf('\n', mi) + 1;
+    const endIdx = dot.indexOf(endMarker, lineEnd);
+    const edgesText = endIdx !== -1 ? dot.slice(lineEnd, endIdx) : dot.slice(lineEnd);
+
+    const re = /"?([^"\s:;{}\[\]<>]+)"?(?::(\w+))?\s*(?:->|--)\s*"?([^"\s:;\[\]{}<>]+)"?(?::(\w+))?\s*\[([^\]]*)\]/g;
+    const edges = [];
+    let m;
+    while ((m = re.exec(edgesText)) !== null) {
+        edges.push({ from: m[1], fromPort: m[2]||'', to: m[3], attribs: m[5].trim() });
+    }
+    return edges;
+}
+
+// Get node IDs from NODE_OPTIONS + any custom nodes defined in // Nodes section
+function getAllNodeIds(dot) {
+    const nodeMap = new Map(NODE_OPTIONS.map(n => [n.id, n.label]));
+    const startMarker = '// Nodes';
+    const endMarker = '// End Nodes';
+    const si = dot.indexOf(startMarker);
+    if (si !== -1) {
+        const lineEnd = dot.indexOf('\n', si) + 1;
+        const endIdx = dot.indexOf(endMarker, lineEnd);
+        const edgesIdx = dot.indexOf('// Edges', lineEnd);
+        const nodesEnd = endIdx !== -1 ? endIdx : (edgesIdx !== -1 ? edgesIdx : dot.lastIndexOf('}'));
+        const nodesText = dot.slice(lineEnd, nodesEnd);
+        const re = /"([^"]+)"\s*\[label/g;
+        let m;
+        while ((m = re.exec(nodesText)) !== null) {
+            if (!nodeMap.has(m[1])) nodeMap.set(m[1], m[1]);
+        }
+    }
+    return [...nodeMap.entries()].map(([id, label]) => ({id, label}));
+}
+
+function findEdgeTypeName(attribs) {
+    const norm = s => s.replace(/\s+/g, '');
+    for (const [name, val] of Object.entries(EDGE_ATTRIBS)) {
+        if (norm(attribs) === norm(val)) return name;
+    }
+    return '(custom)';
+}
+
+function buildNodeSelect(cls, selectedId, nodes) {
+    const sel = document.createElement('select');
+    sel.className = 'form-control form-control-sm ' + cls;
+    sel.onchange = syncDotFromTable;
+    const blank = document.createElement('option');
+    blank.value = '';
+    blank.textContent = '— select —';
+    sel.appendChild(blank);
+    nodes.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n.id;
+        opt.textContent = n.label !== n.id ? n.label + ' (' + n.id + ')' : n.id;
+        if (n.id === selectedId) opt.selected = true;
+        sel.appendChild(opt);
+    });
+    return sel;
+}
+
+function buildTypeSelect(selectedType, edge) {
+    const sel = document.createElement('select');
+    sel.className = 'form-control form-control-sm conn-type';
+    sel.onchange = syncDotFromTable;
+    Object.keys(EDGE_ATTRIBS).forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        if (name === selectedType) opt.selected = true;
+        sel.appendChild(opt);
+    });
+    if (selectedType === '(custom)') {
+        const opt = document.createElement('option');
+        opt.value = '(custom)';
+        opt.textContent = '(custom — edit in DOT panel)';
+        opt.selected = true;
+        sel.appendChild(opt);
+        sel.dataset.origAttribs = (edge && edge.attribs) ? edge.attribs : '';
+        sel.disabled = true;
+    }
+    return sel;
+}
+
+// Track which connection row triggered "new wire type" so we can auto-select it
+let _newTypeTargetRow = null;
+
+function addConnectionRow(edge) {
+    const defaultType = Object.keys(EDGE_ATTRIBS)[0] || '';
+    const typeName = edge ? findEdgeTypeName(edge.attribs) : defaultType;
+    const nodes = getAllNodeIds(textarea.value);
+    const tbody = document.getElementById('conn-tbody');
+
+    const tr = document.createElement('tr');
+
+    const tdFrom = document.createElement('td');
+    tdFrom.appendChild(buildNodeSelect('conn-from', edge ? edge.from : '', nodes));
+
+    const tdPort = document.createElement('td');
+    const portInput = document.createElement('input');
+    portInput.type = 'text';
+    portInput.className = 'form-control form-control-sm conn-port';
+    portInput.value = (edge && edge.fromPort) ? edge.fromPort : '';
+    portInput.placeholder = 'f1';
+    portInput.oninput = syncDotFromTable;
+    tdPort.appendChild(portInput);
+
+    const tdTo = document.createElement('td');
+    tdTo.appendChild(buildNodeSelect('conn-to', edge ? edge.to : '', nodes));
+
+    const tdType = document.createElement('td');
+    const typeWrap = document.createElement('div');
+    typeWrap.style.cssText = 'display:flex; gap:3px;';
+    const typeSel = buildTypeSelect(typeName, edge);
+    typeSel.style.flex = '1';
+    const newWtBtn = document.createElement('button');
+    newWtBtn.type = 'button';
+    newWtBtn.className = 'btn btn-sm btn-outline-secondary';
+    newWtBtn.textContent = '+';
+    newWtBtn.title = 'New wire type';
+    newWtBtn.onclick = () => {
+        _newTypeTargetRow = tr;
+        openWireTypesModal(() => editWireType(null));
+    };
+    typeWrap.append(typeSel, newWtBtn);
+    tdType.appendChild(typeWrap);
+
+    const tdDel = document.createElement('td');
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn btn-sm btn-outline-danger';
+    delBtn.innerHTML = '&times;';
+    delBtn.type = 'button';
+    delBtn.onclick = function() { tr.remove(); syncDotFromTable(); };
+    tdDel.appendChild(delBtn);
+
+    tr.append(tdFrom, tdPort, tdTo, tdType, tdDel);
+    tbody.appendChild(tr);
+}
+
+function renderConnectionsTable() {
+    const edges = parseDotEdges(textarea.value);
+    document.getElementById('conn-tbody').innerHTML = '';
+    edges.forEach(e => addConnectionRow(e));
+}
+
+// Rebuild only the wire-type selects in existing rows (used after creating a new wire type
+// so we don't lose in-progress from/to selections)
+function rebuildAllTypeSelects(newTypeName, targetRow) {
+    document.querySelectorAll('#conn-tbody tr').forEach(tr => {
+        const oldSel = tr.querySelector('.conn-type');
+        if (!oldSel) return;
+        const currentType = (tr === targetRow && newTypeName) ? newTypeName : oldSel.value;
+        const origAttribs = oldSel.dataset.origAttribs;
+        const newSel = buildTypeSelect(currentType, origAttribs ? {attribs: origAttribs} : null);
+        oldSel.replaceWith(newSel);
+    });
+    if (newTypeName) syncDotFromTable();
+}
+
+function syncDotFromTable() {
+    let dot = textarea.value;
+    const rows = [...document.querySelectorAll('#conn-tbody tr')];
+    const edgeLines = [];
+
+    rows.forEach(row => {
+        const from = row.querySelector('.conn-from').value;
+        const port = row.querySelector('.conn-port').value.trim();
+        const to = row.querySelector('.conn-to').value;
+        const typeEl = row.querySelector('.conn-type');
+        const type = typeEl.value;
+        if (!from || !to) return;
+        const fromStr = port ? `"${from}":${port}` : `"${from}"`;
+        if (type === '(custom)') {
+            edgeLines.push(`    ${fromStr} -- "${to}" [${typeEl.dataset.origAttribs || ''}];`);
+        } else {
+            edgeLines.push(`    ${fromStr} -- "${to}" [${EDGE_ATTRIBS[type] || ''}];`);
+        }
     });
 
-    function insertText(text) {
-        const textArea = document.getElementById("model_diagram");
-        const textToInsert = text;
-        textArea.setRangeText(textToInsert);
-        updateGraph();
-        textArea.focus(); // Keep focus on the textarea after insertion
+    const marker = '// Edges';
+    const endMarker = '// End Edges';
+    const mi = dot.indexOf(marker);
+
+    if (mi !== -1) {
+        const lineEnd = dot.indexOf('\n', mi) + 1;
+        const endIdx = dot.indexOf(endMarker, lineEnd);
+        let tail;
+        if (endIdx !== -1) {
+            tail = dot.slice(endIdx);
+        } else {
+            const titleIdx = dot.indexOf('\n// Title', lineEnd);
+            const splitAt = titleIdx !== -1 ? titleIdx : dot.lastIndexOf('}');
+            tail = '// End Edges\n' + dot.slice(splitAt);
+        }
+        dot = dot.slice(0, lineEnd) + edgeLines.join('\n') + '\n' + tail;
+    } else {
+        const cb = dot.lastIndexOf('}');
+        dot = dot.slice(0, cb) + '// Edges\n' + edgeLines.join('\n') + '\n// End Edges\n}';
     }
+    textarea.value = dot;
+    updateGraph();
+}
 
-    function setDefaultDot() {
-        document.getElementById("model_diagram").value = `{{=XML(default_dot)}}`;
-        updateGraph();
+// ── Wire Types modal ─────────────────────────────────────────────────────────
+
+const DIAGRAMEDGE_JSON_URL = '{{=URL("diagram", "diagramedge_json")}}';
+
+async function openWireTypesModal(afterLoad) {
+    await loadWireTypes();
+    cancelWireTypeEdit();
+    if (afterLoad) afterLoad();
+    $('#wireTypesModal').modal('show');
+}
+
+async function loadWireTypes() {
+    const res = await fetch(DIAGRAMEDGE_JSON_URL);
+    const rows = await res.json();
+    const tbody = document.getElementById('wt-tbody');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+        const tdName = document.createElement('td');
+        const b = document.createElement('strong'); b.textContent = r.name; tdName.appendChild(b);
+
+        const tdAttribs = document.createElement('td');
+        const code = document.createElement('code'); code.textContent = r.dot_attribs; tdAttribs.appendChild(code);
+
+        const tdSort = document.createElement('td'); tdSort.textContent = r.sort_order;
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button'; editBtn.className = 'btn btn-sm btn-outline-primary mr-1';
+        editBtn.textContent = 'Edit'; editBtn.onclick = () => editWireType(r);
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button'; delBtn.className = 'btn btn-sm btn-outline-danger';
+        delBtn.textContent = '×'; delBtn.onclick = () => deleteWireType(r.id, r.name);
+
+        const tdActions = document.createElement('td');
+        tdActions.append(editBtn, delBtn);
+
+        const tr = document.createElement('tr');
+        tr.append(tdName, tdAttribs, tdSort, tdActions);
+        tbody.appendChild(tr);
+    });
+    Object.keys(EDGE_ATTRIBS).forEach(k => delete EDGE_ATTRIBS[k]);
+    rows.forEach(r => { EDGE_ATTRIBS[r.name] = r.dot_attribs; });
+    return rows;
+}
+
+// Refresh connection table when Wire Types modal closes
+$('#wireTypesModal').on('hidden.bs.modal', () => renderConnectionsTable());
+
+function editWireType(row) {
+    document.getElementById('wt-id').value      = row ? row.id : '';
+    document.getElementById('wt-name').value    = row ? row.name : '';
+    document.getElementById('wt-attribs').value = row ? row.dot_attribs : '';
+    document.getElementById('wt-sort').value    = row ? row.sort_order : 0;
+    document.getElementById('wt-error').style.display = 'none';
+    document.getElementById('wt-form').style.display = '';
+    previewWireAttribs(row ? row.dot_attribs : '');
+    document.getElementById('wt-name').focus();
+}
+
+function cancelWireTypeEdit() {
+    document.getElementById('wt-form').style.display = 'none';
+    document.getElementById('wt-preview').innerHTML = '';
+}
+
+async function saveWireType() {
+    const id         = document.getElementById('wt-id').value;
+    const name       = document.getElementById('wt-name').value.trim();
+    const dot_attribs = document.getElementById('wt-attribs').value.trim();
+    const sort_order = document.getElementById('wt-sort').value;
+    const errEl      = document.getElementById('wt-error');
+    errEl.style.display = 'none';
+    if (!name) { errEl.textContent = 'Name is required.'; errEl.style.display = ''; return; }
+
+    const body = new URLSearchParams({ action: 'save', name, dot_attribs, sort_order });
+    if (id) body.set('id', id);
+    const res  = await fetch(DIAGRAMEDGE_JSON_URL, { method: 'POST', body });
+    const data = await res.json();
+    if (data.error) { errEl.textContent = data.error; errEl.style.display = ''; return; }
+
+    cancelWireTypeEdit();
+    await loadWireTypes(); // rebuilds EDGE_ATTRIBS
+
+    const targetRow = _newTypeTargetRow;
+    _newTypeTargetRow = null;
+    if (targetRow) {
+        rebuildAllTypeSelects(name, targetRow);
+        $('#wireTypesModal').modal('hide');
     }
+    // renderConnectionsTable() fires on modal hidden.bs.modal event
+}
 
-    function setComponentDot() {
-        document.getElementById("model_diagram").value = `{{=XML(model_components_dot)}}`;
-        updateGraph();
+async function deleteWireType(id, name) {
+    if (!confirm(`Delete wire type "${name}"?`)) return;
+    const body = new URLSearchParams({ action: 'delete', id });
+    const res  = await fetch(DIAGRAMEDGE_JSON_URL, { method: 'POST', body });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    await loadWireTypes();
+}
+
+function previewWireAttribs(attribs) {
+    const dot = `graph { rankdir=LR; A [shape=plaintext label="A"]; B [shape=plaintext label="B"]; A -- B [${attribs}]; }`;
+    Viz.instance().then(viz => {
+        try {
+            const svg = viz.renderSVGElement(dot);
+            svg.setAttribute('width', '120'); svg.removeAttribute('height');
+            document.getElementById('wt-preview').replaceChildren(svg);
+        } catch(e) {
+            document.getElementById('wt-preview').textContent = '(invalid attributes)';
+        }
+    });
+}
+
+document.getElementById('wt-attribs').addEventListener('input', e => previewWireAttribs(e.target.value));
+
+// ── Connectors modal ──────────────────────────────────────────────────────────
+
+const DIAGRAM_CONNECTOR_JSON_URL = '{{=URL("diagram", "diagram_connector_json")}}';
+
+let _addConnectorAndLine = false;
+let _addConnectorNodeId  = null;
+
+// Called when user closes the connectors modal (Insert-and-connect flow completes here)
+$('#connectorsModal').on('hidden.bs.modal', () => {
+    _addConnectorAndLine = false;
+    if (_addConnectorNodeId) {
+        const nodeId = _addConnectorNodeId;
+        _addConnectorNodeId = null;
+        renderConnectionsTable();
+        addConnectionRow({ from: nodeId, fromPort: '', to: '', attribs: '' });
     }
+});
 
-    function updateGraph() {
+async function openConnectorsModal() {
+    await loadConnectors();
+    cancelConnectorEdit();
+    document.getElementById('dc-add-line-hint').style.display = _addConnectorAndLine ? '' : 'none';
+    $('#connectorsModal').modal('show');
+}
 
-        Viz.instance().then(viz => {
-            const svg = viz.renderSVGElement(document.getElementById("model_diagram").value);
+function addConnectorAndLine() {
+    _addConnectorAndLine = true;
+    openConnectorsModal();
+}
 
-            document.getElementById("graph-container").replaceChildren(svg);
-        });
+async function loadConnectors() {
+    const res = await fetch(DIAGRAM_CONNECTOR_JSON_URL);
+    const rows = await res.json();
+    const tbody = document.getElementById('dc-tbody');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+        const tdName = document.createElement('td');
+        const b = document.createElement('strong'); b.textContent = r.name; tdName.appendChild(b);
+
+        const tdL = document.createElement('td'); tdL.textContent = r.left_count;
+        const tdR = document.createElement('td'); tdR.textContent = r.right_count;
+
+        const tdLabels = document.createElement('td');
+        tdLabels.textContent = [r.left_label, r.right_label].filter(Boolean).join(' | ') || '—';
+
+        const tdSort = document.createElement('td'); tdSort.textContent = r.sort_order;
+
+        const insertBtn = document.createElement('button');
+        insertBtn.type = 'button'; insertBtn.className = 'btn btn-sm btn-outline-success mr-1';
+        insertBtn.textContent = 'Insert'; insertBtn.onclick = () => { insertConnectorNode(r); };
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button'; editBtn.className = 'btn btn-sm btn-outline-primary mr-1';
+        editBtn.textContent = 'Edit'; editBtn.onclick = () => editConnector(r);
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button'; delBtn.className = 'btn btn-sm btn-outline-danger';
+        delBtn.textContent = '×'; delBtn.onclick = () => deleteConnector(r.id, r.name);
+
+        const tdActions = document.createElement('td');
+        tdActions.append(insertBtn, editBtn, delBtn);
+
+        const tr = document.createElement('tr');
+        tr.append(tdName, tdL, tdR, tdLabels, tdSort, tdActions);
+        tbody.appendChild(tr);
+    });
+    return rows;
+}
+
+function editConnector(row) {
+    document.getElementById('dc-id').value           = row ? row.id : '';
+    document.getElementById('dc-name').value         = row ? row.name : '';
+    document.getElementById('dc-left-count').value   = row ? row.left_count : 1;
+    document.getElementById('dc-right-count').value  = row ? row.right_count : 1;
+    document.getElementById('dc-left-label').value   = row ? row.left_label : '';
+    document.getElementById('dc-right-label').value  = row ? row.right_label : '';
+    document.getElementById('dc-fillcolor').value    = row ? (row.fillcolor || '#d4c07a') : '#d4c07a';
+    document.getElementById('dc-custom-dot').value   = row ? row.custom_dot : '';
+    document.getElementById('dc-sort').value         = row ? row.sort_order : 0;
+    document.getElementById('dc-error').style.display = 'none';
+    document.getElementById('dc-form').style.display = '';
+    previewConnector();
+    document.getElementById('dc-name').focus();
+}
+
+function cancelConnectorEdit() {
+    document.getElementById('dc-form').style.display = 'none';
+    document.getElementById('dc-preview').innerHTML = '';
+}
+
+async function saveConnector() {
+    const id          = document.getElementById('dc-id').value;
+    const name        = document.getElementById('dc-name').value.trim();
+    const left_count  = document.getElementById('dc-left-count').value;
+    const right_count = document.getElementById('dc-right-count').value;
+    const left_label  = document.getElementById('dc-left-label').value.trim();
+    const right_label = document.getElementById('dc-right-label').value.trim();
+    const fillcolor   = document.getElementById('dc-fillcolor').value;
+    const custom_dot  = document.getElementById('dc-custom-dot').value.trim();
+    const sort_order  = document.getElementById('dc-sort').value;
+    const errEl       = document.getElementById('dc-error');
+    errEl.style.display = 'none';
+    if (!name) { errEl.textContent = 'Name is required.'; errEl.style.display = ''; return; }
+
+    const body = new URLSearchParams({ action: 'save', name, left_count, right_count,
+                                       left_label, right_label, fillcolor, custom_dot, sort_order });
+    if (id) body.set('id', id);
+    const res  = await fetch(DIAGRAM_CONNECTOR_JSON_URL, { method: 'POST', body });
+    const data = await res.json();
+    if (data.error) { errEl.textContent = data.error; errEl.style.display = ''; return; }
+
+    cancelConnectorEdit();
+    await loadConnectors();
+}
+
+async function deleteConnector(id, name) {
+    if (!confirm(`Delete connector type "${name}"?`)) return;
+    const body = new URLSearchParams({ action: 'delete', id });
+    const res  = await fetch(DIAGRAM_CONNECTOR_JSON_URL, { method: 'POST', body });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    await loadConnectors();
+}
+
+function generateConnectorNodeDot(ct, nodeId) {
+    if (ct.custom_dot) {
+        return `"${nodeId}" ${ct.custom_dot}`;
     }
+    const lc = Math.max(parseInt(ct.left_count) || 0, 0);
+    const rc = Math.max(parseInt(ct.right_count) || 0, 0);
+    const maxRows = Math.max(lc, rc, 1);
+    const ll = ct.left_label || '';
+    const rl = ct.right_label || '';
+    const fillcolor = ct.fillcolor || '#d4c07a';
 
+    let centerLabel = ct.name;
+    if (ll || rl) centerLabel += `<br/><font point-size="8">${ll}|${rl}</font>`;
+
+    let rows = [];
+    for (let i = 0; i < maxRows; i++) {
+        const leftCell  = lc > 0 ? (i < lc  ? `<td port="l${i+1}">${i+1}</td>` : '<td></td>') : '';
+        const rightCell = rc > 0 ? (i < rc  ? `<td port="r${i+1}">${i+1}</td>` : '<td></td>') : '';
+        if (i === 0) {
+            const spanAttr = maxRows > 1 ? ` rowspan="${maxRows}"` : '';
+            rows.push(`<tr>${leftCell}<td${spanAttr}>${centerLabel}</td>${rightCell}</tr>`);
+        } else {
+            rows.push(`<tr>${leftCell}${rightCell}</tr>`);
+        }
+    }
+    const table = `<table border="0" cellpadding="3" cellspacing="0" cellborder="1">${rows.join('')}</table>`;
+    return `"${nodeId}" [label=<${table}>; shape=plaintext; style="filled"; fillcolor="${fillcolor}";];`;
+}
+
+function insertConnectorNode(ct) {
+    let dot = textarea.value;
+
+    // Unique node ID: count existing conn* nodes
+    const connRe = /"conn(\d+)"/g;
+    let maxNum = 0, m;
+    while ((m = connRe.exec(dot)) !== null) maxNum = Math.max(maxNum, parseInt(m[1]));
+    const nodeId = `conn${maxNum + 1}`;
+
+    const nodeDot = generateConnectorNodeDot(ct, nodeId);
+
+    const endNodesMarker = '// End Nodes';
+    const nodesMarker = '// Nodes';
+    const ei = dot.indexOf(endNodesMarker);
+    const si = dot.indexOf(nodesMarker);
+
+    if (ei !== -1) {
+        textarea.value = dot.slice(0, ei) + nodeDot + '\n' + dot.slice(ei);
+    } else if (si !== -1) {
+        const lineEnd = dot.indexOf('\n', si) + 1;
+        textarea.value = dot.slice(0, lineEnd) + nodeDot + '\n' + dot.slice(lineEnd);
+    } else {
+        const graphOpen = dot.indexOf('{');
+        textarea.value = graphOpen !== -1
+            ? dot.slice(0, graphOpen + 1) + '\n' + nodeDot + '\n' + dot.slice(graphOpen + 1)
+            : nodeDot + '\n' + dot;
+    }
     updateGraph();
 
+    if (_addConnectorAndLine) {
+        _addConnectorNodeId = nodeId;
+        $('#connectorsModal').modal('hide');
+        // hidden.bs.modal handler calls renderConnectionsTable() + addConnectionRow()
+    } else {
+        renderConnectionsTable();
+    }
+}
+
+function previewConnector() {
+    const ct = {
+        name:        document.getElementById('dc-name').value || 'Connector',
+        left_count:  document.getElementById('dc-left-count').value,
+        right_count: document.getElementById('dc-right-count').value,
+        left_label:  document.getElementById('dc-left-label').value,
+        right_label: document.getElementById('dc-right-label').value,
+        fillcolor:   document.getElementById('dc-fillcolor').value || '#d4c07a',
+        custom_dot:  document.getElementById('dc-custom-dot').value,
+    };
+    const nodeDot = generateConnectorNodeDot(ct, 'preview');
+    const dot = `graph { ${nodeDot} }`;
+    Viz.instance().then(viz => {
+        try {
+            const svg = viz.renderSVGElement(dot);
+            svg.removeAttribute('width'); svg.removeAttribute('height');
+            svg.style.maxWidth = '280px';
+            document.getElementById('dc-preview').replaceChildren(svg);
+        } catch(e) {
+            document.getElementById('dc-preview').textContent = '(invalid)';
+        }
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+function updateGraph() {
+    Viz.instance().then(viz => {
+        try {
+            const svg = viz.renderSVGElement(textarea.value);
+            document.getElementById('graph-container').replaceChildren(svg);
+        } catch(e) {
+            // Invalid DOT — keep current SVG until it's valid again
+        }
+    });
+}
+
+updateGraph();
+renderConnectionsTable();
 </script>

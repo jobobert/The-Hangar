@@ -192,6 +192,39 @@ diagram_edge_attribs = {
 }
 
 ###############################################
+## DIAGRAM CONNECTOR
+
+db.define_table('diagram_connector',
+    Field('name',        type='string',  label='Name',            required=True),
+    Field('left_count',  type='integer', label='Left Terminals',  default=1),
+    Field('right_count', type='integer', label='Right Terminals', default=1),
+    Field('left_label',  type='string',  label='Left Label',      default=''),
+    Field('right_label', type='string',  label='Right Label',     default=''),
+    Field('fillcolor',   type='string',  label='Fill Color',      default='#d4c07a'),
+    Field('custom_dot',  type='text',    label='Custom DOT Label', default=''),
+    Field('sort_order',  type='integer', label='Sort Order',      default=0),
+    format=lambda r: r.name
+)
+
+if not _migration_applied('diagram_connector_seed_v1'):
+    if db(db.diagram_connector.id > 0).count() == 0:
+        for _i, (_name, _lc, _rc, _ll, _rl) in enumerate([
+            ('XT-60',  2, 2, '♂', '♀'),
+            ('XT-30',  2, 2, '♂', '♀'),
+            ('XT-90',  2, 2, '♂', '♀'),
+            ('JST',    2, 2, '♂', '♀'),
+            ('Deans',  2, 2, '♂', '♀'),
+            ('EC3',    2, 2, '♂', '♀'),
+            ('EC5',    2, 2, '♂', '♀'),
+        ], 1):
+            db.diagram_connector.insert(
+                name=_name, left_count=_lc, right_count=_rc,
+                left_label=_ll, right_label=_rl,
+                fillcolor='#d4c07a', sort_order=_i
+            )
+    _mark_migration('diagram_connector_seed_v1')
+
+###############################################
 ## BATTERY CHEMISTRY
 
 db.define_table('chemistry',

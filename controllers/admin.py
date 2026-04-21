@@ -758,7 +758,7 @@ def integrity_report():
         m = _parse_metadata(r.metadata)
         cat_important[r.name] = set(m.get('important', []))
 
-    models = db(db.model.modelstate > 2).select(orderby=db.model.name)
+    models = db(db.model.modelstate > 3).select(orderby=db.model.name)
     flagged = []
     for model in models:
         mt_imp = mt_important.get(model.modeltype, set())
