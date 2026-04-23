@@ -69,9 +69,13 @@ def renderexport():
             'details': [
                 (getattr(db.transmitter,'manufacturer').label, transmitter.manufacturer),
                 (getattr(db.transmitter,'model').label, transmitter.model),
-                (getattr(db.transmitter,'protocol').label, transmitter.get_protocollist()),
-                (getattr(db.transmitter,'os').label, transmitter.os),
                 (getattr(db.transmitter,'serial').label, transmitter.serial),
+                (getattr(db.transmitter,'protocol').label, transmitter.get_protocollist()),
+                (getattr(db.transmitter,'processor').label, transmitter.processor),
+                (getattr(db.transmitter,'os').label, transmitter.os),
+                (getattr(db.transmitter,'os_version').label, transmitter.os_version),
+                (getattr(db.transmitter,'radio_firmware').label, transmitter.radio_firmware),
+                (getattr(db.transmitter,'firmware_version').label, transmitter.firmware_version),
                 #(getattr(db.transmitter,'notes').label, MARKMIN(transmitter.notes)),
             ]
         }

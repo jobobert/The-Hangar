@@ -23,6 +23,7 @@
                     onclick="openWireTypesModal()">Wire Types</button>
         </div>
         <div class="d-flex" style="gap:4px">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openComponentsModal()">+ Add Component</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addConnectorAndLine()">+ Add Connector</button>
             <button type="button" class="btn btn-sm btn-outline-primary" onclick="addConnectionRow()">+ Add Line</button>
         </div>
@@ -227,6 +228,166 @@
     </div>
 </div>
 
+<!-- Components Modal -->
+<div class="modal fade" id="componentsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Component Node</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs mb-3" id="compModalTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="compTypesTabLink" data-toggle="tab"
+                           href="#compTypesPane" role="tab">Component Types</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="customCompTabLink" data-toggle="tab"
+                           href="#customCompPane" role="tab">Custom Components</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <!-- Tab 1: Component Types from DB -->
+                    <div class="tab-pane fade show active" id="compTypesPane" role="tabpanel">
+                        <table class="table table-sm table-bordered mb-2" id="ct-table">
+                            <thead class="thead-light"><tr>
+                                <th>Type</th>
+                                <th>Shape</th>
+                                <th>Color</th>
+                                <th style="width:6em"></th>
+                            </tr></thead>
+                            <tbody id="ct-tbody"></tbody>
+                        </table>
+                    </div>
+                    <!-- Tab 2: Custom Components -->
+                    <div class="tab-pane fade" id="customCompPane" role="tabpanel">
+                        <table class="table table-sm table-bordered mb-2" id="cc-table">
+                            <thead class="thead-light"><tr>
+                                <th>Name</th>
+                                <th>Shape</th>
+                                <th>Color</th>
+                                <th style="width:4em">Sort</th>
+                                <th style="width:9em"></th>
+                            </tr></thead>
+                            <tbody id="cc-tbody"></tbody>
+                        </table>
+                        <button type="button" class="btn btn-sm btn-success mb-3" onclick="editCustomComponent(null)">+ Add Custom Component</button>
+                        <div id="cc-form" style="display:none" class="border rounded p-3 bg-light">
+                            <input type="hidden" id="cc-id">
+                            <div class="form-group row mb-2">
+                                <label class="col-sm-3 col-form-label col-form-label-sm">Name</label>
+                                <div class="col-sm-9">
+                                    <input type="text" id="cc-name" class="form-control form-control-sm"
+                                           placeholder="e.g. VTX" oninput="previewCustomComponent()">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-2">
+                                <label class="col-sm-3 col-form-label col-form-label-sm">Shape</label>
+                                <div class="col-sm-9">
+                                    <select id="cc-shape" class="form-control form-control-sm" onchange="previewCustomComponent()">
+                                        <optgroup label="Basic">
+                                            <option value="box">box</option>
+                                            <option value="rect">rect</option>
+                                            <option value="square">square</option>
+                                            <option value="circle">circle</option>
+                                            <option value="ellipse">ellipse</option>
+                                            <option value="oval">oval</option>
+                                            <option value="diamond">diamond</option>
+                                            <option value="point">point</option>
+                                            <option value="plaintext">plaintext</option>
+                                            <option value="none">none</option>
+                                        </optgroup>
+                                        <optgroup label="Polygon">
+                                            <option value="triangle">triangle</option>
+                                            <option value="invtriangle">invtriangle</option>
+                                            <option value="trapezium">trapezium</option>
+                                            <option value="invtrapezium">invtrapezium</option>
+                                            <option value="parallelogram">parallelogram</option>
+                                            <option value="house">house</option>
+                                            <option value="invhouse">invhouse</option>
+                                            <option value="pentagon">pentagon</option>
+                                            <option value="hexagon">hexagon</option>
+                                            <option value="septagon">septagon</option>
+                                            <option value="octagon">octagon</option>
+                                            <option value="star">star</option>
+                                        </optgroup>
+                                        <optgroup label="Double / Triple">
+                                            <option value="doublecircle">doublecircle</option>
+                                            <option value="doubleoctagon">doubleoctagon</option>
+                                            <option value="tripleoctagon">tripleoctagon</option>
+                                            <option value="Mdiamond">Mdiamond</option>
+                                            <option value="Msquare">Msquare</option>
+                                            <option value="Mcircle">Mcircle</option>
+                                        </optgroup>
+                                        <optgroup label="3D / Special">
+                                            <option value="box3d">box3d</option>
+                                            <option value="cylinder">cylinder</option>
+                                            <option value="egg">egg</option>
+                                            <option value="component">component</option>
+                                            <option value="note">note</option>
+                                            <option value="tab">tab</option>
+                                            <option value="folder">folder</option>
+                                            <option value="polygon">polygon</option>
+                                        </optgroup>
+                                        <optgroup label="Bio / Signal">
+                                            <option value="cds">cds</option>
+                                            <option value="promoter">promoter</option>
+                                            <option value="rpromoter">rpromoter</option>
+                                            <option value="terminator">terminator</option>
+                                            <option value="utr">utr</option>
+                                            <option value="larrow">larrow</option>
+                                            <option value="rarrow">rarrow</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row mb-2">
+                                <label class="col-sm-3 col-form-label col-form-label-sm">Fill Color</label>
+                                <div class="col-sm-3">
+                                    <input type="color" id="cc-fillcolor" class="form-control form-control-sm"
+                                           value="#efefef" oninput="previewCustomComponent()">
+                                </div>
+                                <label class="col-sm-3 col-form-label col-form-label-sm">Sort Order</label>
+                                <div class="col-sm-3">
+                                    <input type="number" id="cc-sort" class="form-control form-control-sm" value="0">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-2">
+                                <label class="col-sm-3 col-form-label col-form-label-sm">Extra DOT Attribs</label>
+                                <div class="col-sm-9">
+                                    <input type="text" id="cc-dot-attribs" class="form-control form-control-sm"
+                                           placeholder='e.g. style=dashed; penwidth=2;' oninput="previewCustomComponent()">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-2">
+                                <label class="col-sm-3 col-form-label col-form-label-sm">Preview</label>
+                                <div class="col-sm-9" id="cc-preview"></div>
+                            </div>
+                            <div id="cc-error" class="alert alert-danger py-1 mb-2" style="display:none"></div>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="saveCustomComponent()">Save</button>
+                            <button type="button" class="btn btn-sm btn-secondary ml-1" onclick="cancelCustomComponentEdit()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Shared label prompt shown when Insert is clicked -->
+                <div id="comp-insert-prompt" style="display:none" class="border rounded p-3 bg-info bg-light mt-3">
+                    <strong>Node Label</strong>
+                    <p class="mb-1 text-muted small">Enter a label for this node (e.g. "Aileron Servo").</p>
+                    <div class="input-group input-group-sm">
+                        <input type="text" id="comp-label-input" class="form-control"
+                               placeholder="Label" onkeydown="if(event.key==='Enter') confirmInsertComponent()">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-success" onclick="confirmInsertComponent()">Insert</button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelInsertComponent()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{=form.custom.end}}
 
 <script src="{{=URL('static','js/viz-global.js')}}"></script>
@@ -234,6 +395,7 @@
 const EDGE_ATTRIBS = {{=XML(edge_attribs_json)}};
 const NODE_OPTIONS = {{=XML(node_options_json)}};
 const REFRESH_NODES_DOT = {{=XML(model_nodes_dot_json)}};
+const COMPONENT_TYPES = {{=XML(componenttype_nodes_json)}};
 
 const textarea = document.getElementById('model_diagram');
 
@@ -814,6 +976,212 @@ function previewConnector() {
             document.getElementById('dc-preview').replaceChildren(svg);
         } catch(e) {
             document.getElementById('dc-preview').textContent = '(invalid)';
+        }
+    });
+}
+
+// ── Components modal ─────────────────────────────────────────────────────────
+
+const DIAGRAM_COMPONENT_JSON_URL = '{{=URL("diagram", "diagram_component_json")}}';
+
+let _pendingInsert = null; // { shape, fillcolor, dotAttribs }
+
+async function openComponentsModal() {
+    renderComponentTypesTable();
+    await loadCustomComponents();
+    cancelCustomComponentEdit();
+    cancelInsertComponent();
+    document.getElementById('compTypesTabLink').click();
+    $('#componentsModal').modal('show');
+}
+
+$('#componentsModal').on('hidden.bs.modal', () => {
+    _pendingInsert = null;
+    renderConnectionsTable();
+});
+
+function renderComponentTypesTable() {
+    const tbody = document.getElementById('ct-tbody');
+    tbody.innerHTML = '';
+    const sorted = [...COMPONENT_TYPES].sort((a, b) => a.name.localeCompare(b.name));
+    sorted.forEach(ct => {
+        const tdName = document.createElement('td');
+        tdName.textContent = ct.name;
+
+        const tdShape = document.createElement('td');
+        tdShape.innerHTML = `<code>${ct.shape}</code>`;
+
+        const tdColor = document.createElement('td');
+        tdColor.innerHTML = `<span style="display:inline-block;width:1.2em;height:1.2em;background:${ct.color};border:1px solid #aaa;vertical-align:middle;"></span> <code>${ct.color}</code>`;
+
+        const insertBtn = document.createElement('button');
+        insertBtn.type = 'button'; insertBtn.className = 'btn btn-sm btn-outline-success';
+        insertBtn.textContent = 'Insert';
+        insertBtn.onclick = () => promptInsertComponent({ shape: ct.shape, fillcolor: ct.color, dotAttribs: '', defaultLabel: ct.name });
+
+        const tdActions = document.createElement('td');
+        tdActions.appendChild(insertBtn);
+
+        const tr = document.createElement('tr');
+        tr.append(tdName, tdShape, tdColor, tdActions);
+        tbody.appendChild(tr);
+    });
+}
+
+async function loadCustomComponents() {
+    const res = await fetch(DIAGRAM_COMPONENT_JSON_URL);
+    const rows = await res.json();
+    const tbody = document.getElementById('cc-tbody');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+        const tdName = document.createElement('td');
+        const b = document.createElement('strong'); b.textContent = r.name; tdName.appendChild(b);
+
+        const tdShape = document.createElement('td');
+        tdShape.innerHTML = `<code>${r.shape}</code>`;
+
+        const tdColor = document.createElement('td');
+        tdColor.innerHTML = `<span style="display:inline-block;width:1.2em;height:1.2em;background:${r.fillcolor};border:1px solid #aaa;vertical-align:middle;"></span>`;
+
+        const tdSort = document.createElement('td'); tdSort.textContent = r.sort_order;
+
+        const insertBtn = document.createElement('button');
+        insertBtn.type = 'button'; insertBtn.className = 'btn btn-sm btn-outline-success mr-1';
+        insertBtn.textContent = 'Insert';
+        insertBtn.onclick = () => promptInsertComponent({ shape: r.shape, fillcolor: r.fillcolor, dotAttribs: r.dot_attribs, defaultLabel: r.name });
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button'; editBtn.className = 'btn btn-sm btn-outline-primary mr-1';
+        editBtn.textContent = 'Edit'; editBtn.onclick = () => editCustomComponent(r);
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button'; delBtn.className = 'btn btn-sm btn-outline-danger';
+        delBtn.textContent = '×'; delBtn.onclick = () => deleteCustomComponent(r.id, r.name);
+
+        const tdActions = document.createElement('td');
+        tdActions.append(insertBtn, editBtn, delBtn);
+
+        const tr = document.createElement('tr');
+        tr.append(tdName, tdShape, tdColor, tdSort, tdActions);
+        tbody.appendChild(tr);
+    });
+}
+
+function promptInsertComponent(opts) {
+    _pendingInsert = opts;
+    const inp = document.getElementById('comp-label-input');
+    inp.value = opts.defaultLabel || '';
+    document.getElementById('comp-insert-prompt').style.display = '';
+    inp.focus();
+    inp.select();
+}
+
+function cancelInsertComponent() {
+    _pendingInsert = null;
+    document.getElementById('comp-insert-prompt').style.display = 'none';
+}
+
+function confirmInsertComponent() {
+    if (!_pendingInsert) return;
+    const label = document.getElementById('comp-label-input').value.trim() || _pendingInsert.defaultLabel || 'Component';
+    insertGenericNode(_pendingInsert.shape, _pendingInsert.fillcolor, _pendingInsert.dotAttribs, label);
+    cancelInsertComponent();
+    $('#componentsModal').modal('hide');
+}
+
+function insertGenericNode(shape, fillcolor, dotAttribs, label) {
+    let dot = textarea.value;
+
+    const genRe = /"gen(\d+)"/g;
+    let maxNum = 0, m;
+    while ((m = genRe.exec(dot)) !== null) maxNum = Math.max(maxNum, parseInt(m[1]));
+    const nodeId = `gen${maxNum + 1}`;
+
+    const extraAttribs = dotAttribs ? ' ' + dotAttribs.replace(/;?\s*$/, '') + ';' : '';
+    const nodeDot = `"${nodeId}" [label="${label.replace(/"/g, '\\"')}"; shape="${shape}"; style="filled"; fillcolor="${fillcolor}";${extraAttribs}];`;
+
+    const endNodesMarker = '// End Nodes';
+    const nodesMarker = '// Nodes';
+    const ei = dot.indexOf(endNodesMarker);
+    const si = dot.indexOf(nodesMarker);
+
+    if (ei !== -1) {
+        textarea.value = dot.slice(0, ei) + nodeDot + '\n' + dot.slice(ei);
+    } else if (si !== -1) {
+        const lineEnd = dot.indexOf('\n', si) + 1;
+        textarea.value = dot.slice(0, lineEnd) + nodeDot + '\n' + dot.slice(lineEnd);
+    } else {
+        const graphOpen = dot.indexOf('{');
+        textarea.value = graphOpen !== -1
+            ? dot.slice(0, graphOpen + 1) + '\n' + nodeDot + '\n' + dot.slice(graphOpen + 1)
+            : nodeDot + '\n' + dot;
+    }
+    updateGraph();
+}
+
+function editCustomComponent(row) {
+    document.getElementById('cc-id').value         = row ? row.id : '';
+    document.getElementById('cc-name').value       = row ? row.name : '';
+    document.getElementById('cc-shape').value      = row ? (row.shape || 'box') : 'box';
+    document.getElementById('cc-fillcolor').value  = row ? (row.fillcolor || '#efefef') : '#efefef';
+    document.getElementById('cc-sort').value       = row ? row.sort_order : 0;
+    document.getElementById('cc-dot-attribs').value = row ? (row.dot_attribs || '') : '';
+    document.getElementById('cc-error').style.display = 'none';
+    document.getElementById('cc-form').style.display = '';
+    previewCustomComponent();
+    document.getElementById('cc-name').focus();
+}
+
+function cancelCustomComponentEdit() {
+    document.getElementById('cc-form').style.display = 'none';
+    document.getElementById('cc-preview').innerHTML = '';
+}
+
+async function saveCustomComponent() {
+    const id          = document.getElementById('cc-id').value;
+    const name        = document.getElementById('cc-name').value.trim();
+    const shape       = document.getElementById('cc-shape').value.trim() || 'box';
+    const fillcolor   = document.getElementById('cc-fillcolor').value;
+    const dot_attribs = document.getElementById('cc-dot-attribs').value.trim();
+    const sort_order  = document.getElementById('cc-sort').value;
+    const errEl       = document.getElementById('cc-error');
+    errEl.style.display = 'none';
+    if (!name) { errEl.textContent = 'Name is required.'; errEl.style.display = ''; return; }
+
+    const body = new URLSearchParams({ action: 'save', name, shape, fillcolor, dot_attribs, sort_order });
+    if (id) body.set('id', id);
+    const res  = await fetch(DIAGRAM_COMPONENT_JSON_URL, { method: 'POST', body });
+    const data = await res.json();
+    if (data.error) { errEl.textContent = data.error; errEl.style.display = ''; return; }
+    cancelCustomComponentEdit();
+    await loadCustomComponents();
+}
+
+async function deleteCustomComponent(id, name) {
+    if (!confirm(`Delete custom component "${name}"?`)) return;
+    const body = new URLSearchParams({ action: 'delete', id });
+    const res  = await fetch(DIAGRAM_COMPONENT_JSON_URL, { method: 'POST', body });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    await loadCustomComponents();
+}
+
+function previewCustomComponent() {
+    const name      = document.getElementById('cc-name').value || 'Component';
+    const shape     = document.getElementById('cc-shape').value || 'box';
+    const fillcolor = document.getElementById('cc-fillcolor').value || '#efefef';
+    const extra     = document.getElementById('cc-dot-attribs').value || '';
+    const extraPart = extra ? ' ' + extra.replace(/;?\s*$/, '') + ';' : '';
+    const nodeDot = `"n" [label="${name}"; shape="${shape}"; style="filled"; fillcolor="${fillcolor}";${extraPart}];`;
+    const dot = `graph { ${nodeDot} }`;
+    Viz.instance().then(viz => {
+        try {
+            const svg = viz.renderSVGElement(dot);
+            svg.removeAttribute('width'); svg.removeAttribute('height');
+            svg.style.maxWidth = '200px';
+            document.getElementById('cc-preview').replaceChildren(svg);
+        } catch(e) {
+            document.getElementById('cc-preview').textContent = '(invalid shape)';
         }
     });
 }

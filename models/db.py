@@ -224,6 +224,17 @@ if not _migration_applied('diagram_connector_seed_v1'):
             )
     _mark_migration('diagram_connector_seed_v1')
 
+## DIAGRAM COMPONENT
+
+db.define_table('diagram_component',
+    Field('name',        type='string',  label='Name',        required=True),
+    Field('shape',       type='string',  label='Shape',       default='box'),
+    Field('fillcolor',   type='string',  label='Fill Color',  default='#efefef'),
+    Field('dot_attribs', type='string',  label='DOT Attribs', default=''),
+    Field('sort_order',  type='integer', label='Sort Order',  default=0),
+    format=lambda r: r.name
+)
+
 ###############################################
 ## BATTERY CHEMISTRY
 
@@ -336,9 +347,32 @@ db.define_table('protocol',
                 format=lambda row: row.name   
                 )
 
-db.define_table('transmitter', 
-                Field('name', type='string', label='Name', required=True), 
-                Field('nickname', type='string', label='Nickname'), 
+## SEMVER CUSTOM TYPE
+
+def _semver_encode(v):
+    if not v: return None
+    parts = str(v).strip().split('.')
+    while len(parts) < 3: parts.append('0')
+    try:
+        return '.'.join(f'{int(p):03d}' for p in parts[:3])
+    except (ValueError, TypeError):
+        return None
+
+def _semver_decode(v):
+    if not v: return None
+    parts = str(v).strip().split('.')
+    try:
+        return '.'.join(str(int(p)) for p in parts[:3])
+    except (ValueError, TypeError):
+        return str(v)
+
+from gluon.dal import SQLCustomType
+semver_type = SQLCustomType(type='string', native='varchar(11)',
+                            encoder=_semver_encode, decoder=_semver_decode)
+
+db.define_table('transmitter',
+                Field('name', type='string', label='Name', required=True),
+                Field('nickname', type='string', label='Nickname'),
                 Field('serial', type='string', label='Serial Number'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
                 Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the transmitter (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
@@ -347,14 +381,18 @@ db.define_table('transmitter',
                 Field('model', type='string', label='Model', comment='The model of the transmitter'),
                 Field('processor', type='string', label='Processor', comment='The processor in the transmitter'),
                 Field('radio_firmware', type='string', label='Radio Firmware', comment='The radio firmware running on the transmitter'),
-                Field('os', type='string', label='Operating System/Version'),
+                Field('os', type='string', label='Operating System', comment='The OS name (e.g. EdgeTX, OpenTX)'),
+                Field('os_version', type=semver_type, label='OS Version', comment='The OS version (e.g. 2.9.3)'),
+                Field('firmware_version', type=semver_type, label='Radio Firmware Version', comment='The firmware version (e.g. 1.2.3)'),
                 Field('protocol', type='list:reference protocol', label='Protocols Supported', comment='The protocols supported by this transmitter',
-                widget=SQLFORM.widgets.checkboxes.widget, 
+                widget=SQLFORM.widgets.checkboxes.widget,
                 represent=lambda v, r: ', '.join([p.name for p in db(db.protocol.id.belongs(v)).select()]) ),
                 format=lambda row: row.name
                 )
 
 db.transmitter.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
+db.transmitter.firmware_version.requires = IS_EMPTY_OR(
+    IS_MATCH(r'^\d+(\.\d+){0,2}$', error_message='Format: major.minor.patch (e.g. 1.2.3)'))
 
 db.transmitter.manufacturer.widget = SQLFORM.widgets.autocomplete(
     request, db.transmitter.manufacturer, limitby=(0, 10), min_length=2, distinct=True)
@@ -366,6 +404,15 @@ db.transmitter.radio_firmware.widget = SQLFORM.widgets.autocomplete(
     request, db.transmitter.radio_firmware, limitby=(0, 10), min_length=2, distinct=True)
 db.transmitter.os.widget = SQLFORM.widgets.autocomplete(
     request, db.transmitter.os, limitby=(0, 10), min_length=2, distinct=True)
+db.transmitter.os_version.requires = IS_EMPTY_OR(
+    IS_MATCH(r'^\d+(\.\d+){0,2}$', error_message='Format: major.minor.patch (e.g. 2.9.3)'))
+
+# Migrate transmitter.os: the field previously held "Operating System/Version"
+# as a single freeform string. The new schema splits this into os (name) and
+# os_version (semver). Existing os values are left intact; os_version stays
+# empty and can be filled in manually.
+if not _migration_applied('transmitter_split_os_version_v1'):
+    _mark_migration('transmitter_split_os_version_v1')
 
 db.transmitter.protocol.represent = lambda ids, row: ', '.join([db.protocol(id).name for id in ids if db.protocol(id)])
 def expandProtocols(list_of_ids):
@@ -815,7 +862,7 @@ db.define_table('component',
                 Field('attr_pump_type', type='string', label='Pump Type', comment='The type of pump'),
                 Field('attr_travel', type='double', label='Travel', comment='The travel distance', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
                 Field('attr_model_scale', type='string', label='Model Scale', comment='The model scale the component is for (1:x)?'),
-                Field('attr_firmware_version', type='string', label='Firmware Version', comment='The firmware version of the component'),
+                Field('attr_firmware_version', type=semver_type, label='Firmware Version', comment='The firmware version of the component (e.g. 1.2.3)'),
                 #
                 Field('manufacturer', type='string', label='Manufacturer', comment='Who made the component?'),
                 Field('model', type='string', label='Model', comment='The model of the component'),
@@ -886,6 +933,17 @@ component_attribs = {
 }
 
 db.component.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
+db.component.attr_firmware_version.requires = IS_EMPTY_OR(
+    IS_MATCH(r'^\d+(\.\d+){0,2}$', error_message='Format: major.minor.patch (e.g. 1.2.3)'))
+
+if not _migration_applied('semver_encode_component_version_v1'):
+    for _row in db((db.component.attr_firmware_version != None) &
+                   (db.component.attr_firmware_version != '')).select(
+                       db.component.id, db.component.attr_firmware_version):
+        _enc = _semver_encode(_row.attr_firmware_version)
+        if _enc and _enc != _row.attr_firmware_version:
+            db(db.component.id == _row.id).update(attr_firmware_version=_enc)
+    _mark_migration('semver_encode_component_version_v1')
 
 db.component.componentsubtype.widget = SQLFORM.widgets.autocomplete(
     request, db.component.componentsubtype, limitby=(0, 10), min_length=2, distinct=True)

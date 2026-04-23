@@ -17,7 +17,7 @@
 #   'id'       : str  — unique key; appears in the saved JSON rule tree
 #   'label'    : str  — shown in the QueryBuilder dropdown
 #   'group'    : str  — optgroup header (e.g. 'Model', 'Components')
-#   'type'     : str  — 'string' | 'integer' | 'double' | 'boolean' | 'date'
+#   'type'     : str  — 'string' | 'integer' | 'double' | 'boolean' | 'date' | 'version'
 #   'input'    : str  — 'text' | 'select' | 'radio' | 'number' | 'checkbox'
 #   'operators': list — QB operator names, or None to use QB type defaults
 #   'values'   : dict | callable | None
@@ -384,6 +384,15 @@ SEARCH_FIELDS = [
         'join': {'bridge': 'model_component', 'bridge_fk': 'component',
                  'bridge_model_fk': 'model', 'target': 'component'},
     },
+    {
+        'id': 'component_firmware_version', 'label': 'Component Firmware Version',
+        'group': 'Components', 'type': 'version', 'input': 'text',
+        'operators': ['equal', 'not_equal', 'greater', 'greater_or_equal',
+                      'less', 'less_or_equal', 'is_empty', 'is_not_empty'],
+        'values': None, 'table': 'component', 'field': 'attr_firmware_version',
+        'join': {'bridge': 'model_component', 'bridge_fk': 'component',
+                 'bridge_model_fk': 'model', 'target': 'component'},
+    },
 
     # =========================================================================
     # GROUP: Battery  (via model_battery bridge)
@@ -447,6 +456,14 @@ SEARCH_FIELDS = [
         'operators': ['contains', 'equal', 'is_empty', 'is_not_empty'],
         'values': None, 'table': 'protocol', 'field': 'name',
         'join': {'model_fk': 'protocol', 'target': 'protocol'},
+    },
+    {
+        'id': 'transmitter_firmware_version', 'label': 'Transmitter Firmware Version',
+        'group': 'Transmitter / Protocol', 'type': 'version', 'input': 'text',
+        'operators': ['equal', 'not_equal', 'greater', 'greater_or_equal',
+                      'less', 'less_or_equal', 'is_empty', 'is_not_empty'],
+        'values': None, 'table': 'transmitter', 'field': 'firmware_version',
+        'join': {'model_fk': 'transmitter', 'target': 'transmitter'},
     },
 
     # =========================================================================
@@ -632,9 +649,64 @@ def _build_rule_condition(rule):
     return None
 
 
+def _version_range(value_str):
+    """Parse a version string with optional wildcards into (v_min, v_max, is_wildcard).
+
+    Accepts '1.2.3', '1.2.*', '1.*', '1', '1.2' (short = implicit wildcard on trailing parts).
+    Values are zero-padded to 3 digits per component to match semver_type storage format.
+    Returns None on invalid input.
+    """
+    if not value_str:
+        return None
+    parts = str(value_str).strip().split('.')
+    min_parts, max_parts = [], []
+    is_wildcard = False
+    for p in parts[:3]:
+        p = p.strip()
+        if p == '*':
+            is_wildcard = True
+            break
+        try:
+            min_parts.append(f'{int(p):03d}')
+            max_parts.append(f'{int(p):03d}')
+        except ValueError:
+            return None
+    if len(min_parts) < 3:
+        is_wildcard = True
+    while len(min_parts) < 3: min_parts.append('000')
+    while len(max_parts) < 3: max_parts.append('999')
+    return '.'.join(min_parts), '.'.join(max_parts), is_wildcard
+
+
 def _apply_operator(field, operator, value, fdef):
     """Map a QueryBuilder operator string to a DAL expression."""
     ftype = fdef.get('type', 'string')
+
+    # Version comparison — uses zero-padded string storage for correct lexicographic order
+    if ftype == 'version':
+        if operator in ('is_empty', 'is_not_empty', 'is_null', 'is_not_null'):
+            pass  # handled by the standard ops dict below
+        else:
+            parsed = _version_range(value)
+            if parsed is None:
+                return None
+            v_min, v_max, is_wildcard = parsed
+            if is_wildcard:
+                if operator == 'equal':              return (field >= v_min) & (field <= v_max)
+                elif operator == 'not_equal':        return (field < v_min) | (field > v_max)
+                elif operator == 'greater':          return field > v_max
+                elif operator == 'greater_or_equal': return field >= v_min
+                elif operator == 'less':             return field < v_min
+                elif operator == 'less_or_equal':    return field <= v_max
+            else:
+                if operator == 'equal':              return field == v_min
+                elif operator == 'not_equal':        return field != v_min
+                elif operator == 'greater':          return field > v_min
+                elif operator == 'greater_or_equal': return field >= v_min
+                elif operator == 'less':             return field < v_min
+                elif operator == 'less_or_equal':    return field <= v_min
+            return None
+
     # Coerce value to the right Python type
     try:
         if ftype == 'integer':

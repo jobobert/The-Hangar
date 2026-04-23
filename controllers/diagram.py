@@ -203,6 +203,48 @@ def diagramedge_json():
     return json.dumps([{'id': r.id, 'name': r.name, 'dot_attribs': r.dot_attribs, 'sort_order': r.sort_order} for r in rows])
 
 
+def diagram_component_json():
+    """JSON endpoint for custom diagram component CRUD used by the diagram editor."""
+    import json
+    response.headers['Content-Type'] = 'application/json'
+
+    if request.env.request_method == 'POST':
+        action = (request.post_vars.get('action') or '').strip()
+
+        if action == 'save':
+            dc_id = VerifyTableID('diagram_component', request.post_vars.get('id')) if request.post_vars.get('id') else None
+            name = (request.post_vars.get('name') or '').strip()
+            if not name:
+                return json.dumps({'error': 'Name is required'})
+            shape      = (request.post_vars.get('shape')       or 'box').strip()
+            fillcolor  = (request.post_vars.get('fillcolor')   or '#efefef').strip()
+            dot_attribs = (request.post_vars.get('dot_attribs') or '').strip()
+            sort_order = int(request.post_vars.get('sort_order') or 0)
+            fields = dict(name=name, shape=shape, fillcolor=fillcolor, dot_attribs=dot_attribs, sort_order=sort_order)
+            if dc_id:
+                db(db.diagram_component.id == dc_id).update(**fields)
+            else:
+                dc_id = db.diagram_component.insert(**fields)
+            return json.dumps({'ok': True, 'id': int(dc_id)})
+
+        if action == 'delete':
+            dc_id = VerifyTableID('diagram_component', request.post_vars.get('id'))
+            if not dc_id:
+                return json.dumps({'error': 'Invalid ID'})
+            db(db.diagram_component.id == dc_id).delete()
+            return json.dumps({'ok': True})
+
+        return json.dumps({'error': 'Unknown action'})
+
+    rows = db(db.diagram_component.id > 0).select(orderby=db.diagram_component.sort_order | db.diagram_component.name)
+    return json.dumps([{
+        'id': r.id, 'name': r.name, 'shape': r.shape or 'box',
+        'fillcolor': r.fillcolor or '#efefef',
+        'dot_attribs': r.dot_attribs or '',
+        'sort_order': r.sort_order,
+    } for r in rows])
+
+
 def creatediagramfromcomponents(model_id):
     """Build a Graphviz DOT graph body string for the given model.
 
@@ -379,9 +421,16 @@ fontsize="10"
             batt_label = str(batt_row.battery) + (f' ({x})' if batt_count > 1 else '')
             node_options.append({'id': batt_id, 'label': batt_label})
 
+    componenttype_nodes = [
+        {'name': name, 'shape': info['shape'], 'color': info['color'], 'edge': info['edge']}
+        for name, info in componenttype_diagram.items()
+        if info.get('shape')
+    ]
+
     edge_attribs_json = json.dumps(edge_attribs)
     node_options_json = json.dumps(node_options)
     model_nodes_dot_json = json.dumps(model_nodes_dot)
+    componenttype_nodes_json = json.dumps(sorted(componenttype_nodes, key=lambda x: x['name']))
 
     if details_form.process().accepted:
         session.flash = "Model Updated"
@@ -400,4 +449,5 @@ fontsize="10"
         edge_attribs_json=edge_attribs_json,
         node_options_json=node_options_json,
         model_nodes_dot_json=model_nodes_dot_json,
+        componenttype_nodes_json=componenttype_nodes_json,
     )

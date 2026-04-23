@@ -184,14 +184,16 @@ Join path to models: `model.transmitter`
 | nickname       | Nickname            | string         | via:model.transmitter |  ✓  |
 | manufacturer   | Manufacturer        | string         | via:model.transmitter |      |
 | model          | Model               | string         | via:model.transmitter |      |
-| os             | Operating System    | string         |                       |  ✓  |
-| protocol       | Protocols Supported | list:reference | via:model.transmitter |  ✓  |
-| serial         | Serial Number       | string         |                       |      |
-| radio_firmware | Radio Firmware      | string         | via:model.transmitter |      |
-| processor      | Processor           | string         |                       |      |
-| notes          | Notes               | text           |                       |      |
-| img            | Picture             | upload         |                       |      |
-| attachment     | Manual              | upload         |                       |      |
+| os               | Operating System    | string         |                       |  ✓  |
+| os_version       | OS Version          | semver         | via:model.transmitter |      |
+| firmware_version | Firmware Version    | semver         | via:model.transmitter |      |
+| protocol         | Protocols Supported | list:reference | via:model.transmitter |  ✓  |
+| serial           | Serial Number       | string         |                       |      |
+| radio_firmware   | Radio Firmware      | string         | via:model.transmitter |      |
+| processor        | Processor           | string         |                       |      |
+| notes            | Notes               | text           |                       |      |
+| img              | Picture             | upload         |                       |      |
+| attachment       | Manual              | upload         |                       |      |
 
 ---
 

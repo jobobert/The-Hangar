@@ -24,10 +24,15 @@ def getDatabaseHelp(field) -> str:
         case 'transmitter.os':
             return """
             The operating system of the transmitter really only applies to newer
-            computer radios, but plays a significant role in understanding the 
-            capabilities of a transmitter. I suggest incuding version information
-            in this field as well due to the significant differences often found in
-            different versions.
+            computer radios, but plays a significant role in understanding the
+            capabilities of a transmitter (e.g. EdgeTX, OpenTX, ETHOS).
+            """
+
+        case 'transmitter.os_version':
+            return """
+            The version of the transmitter's operating system (e.g. 2.9.3).
+            Use the format major.minor.patch. Tracking the OS version is important
+            because significant capability differences often exist between versions.
             """
 
         case 'transmitter.protocol':

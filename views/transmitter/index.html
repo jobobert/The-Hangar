@@ -17,12 +17,6 @@
             <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=transmitter.img)}}" alt="Card image cap">
             {{pass}}
         </div>
-
-        <div class="col-9">
-            {{=MARKMIN(transmitter.notes)}}
-        </div>
-    </div>
-    <div class="row mb-3">
         <div class="card-deck">
             <div class="card assoc-card">
                 <div class="card-header">
@@ -30,9 +24,9 @@
                 </div>
                 <div class="card-body attribute-list">
                     <dl>
-
-
-
+        
+        
+        
                         <dt>{{=db.transmitter.manufacturer.label}}</dt>
                         <dd class="ml-1">{{=transmitter.manufacturer}}</dd>
                         <dt>{{=db.transmitter.model.label}}</dt>
@@ -45,6 +39,8 @@
                         <dd class="ml-1">{{=transmitter.serial}}</dd>
                         <dt>{{=db.transmitter.os.label}}</dt>
                         <dd class="ml-1">{{=transmitter.os}}</dd>
+                        <dt>{{=db.transmitter.os_version.label}}</dt>
+                        <dd class="ml-1">{{=transmitter.os_version}}</dd>
                         <dt class="d-block">Protocols</dt>
                         {{if transmitter.protocol:}}
                         {{for p in transmitter.protocol:}}
@@ -56,13 +52,13 @@
                     </dl>
                 </div>
             </div>
-
+        
             <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Associated Models</h5>
                 </div>
                 <div class="card-body">
-
+        
                     {{if models:}}
                     <ul class="list-group">
                         {{for model in models:}}
@@ -72,10 +68,10 @@
                     {{else:}}
                     No models use this protocol
                     {{pass}}
-
+        
                 </div>
             </div>
-
+        
             <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Attachment</h5>
@@ -83,7 +79,7 @@
                 <div class="card-body">
                     {{if transmitter.attachment:}}
                     {{(filename, file) = db.transmitter.attachment.retrieve(transmitter.attachment)}}
-
+        
                     <ul class="list-group">
                         {{=attachmentListItem(transmitter.attachment, True, filename)}}
                     </ul>
@@ -92,6 +88,13 @@
                     {{pass}}
                 </div>
             </div>
+        </div>
+
+        
+    </div>
+    <div class="row mb-3">
+        <div class="col-9">
+            {{=MARKMIN(transmitter.notes)}}
         </div>
     </div>
 

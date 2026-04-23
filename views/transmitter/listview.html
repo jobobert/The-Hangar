@@ -34,7 +34,7 @@
         {{=transmitter.name}}
     </div>
     <div class="col d-none d-md-block">
-        {{=transmitter.os}}
+        {{=transmitter.os}}{{if transmitter.os_version:}} {{=transmitter.os_version}}{{pass}}
     </div>
     <div class="col d-none d-md-block">
         {{if transmitter.protocol:}}

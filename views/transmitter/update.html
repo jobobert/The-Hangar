@@ -28,9 +28,10 @@ Your submitted form contains the following errors:
         {{=makeFormField(form, "serial", FormFieldType.COLUMNS, columns=6)}}
     </div>
     <div class="row">
-        {{=makeFormField(form, "os", FormFieldType.COLUMNS, columns=6)}}
-        
-        {{=makeFormField(form, "radio_firmware", FormFieldType.COLUMNS, columns=6)}}
+        {{=makeFormField(form, "os", FormFieldType.COLUMNS, columns=4)}}
+        {{=makeFormField(form, "os_version", FormFieldType.COLUMNS, columns=2)}}
+        {{=makeFormField(form, "radio_firmware", FormFieldType.COLUMNS, columns=4)}}
+        {{=makeFormField(form, "firmware_version", FormFieldType.COLUMNS, columns=2)}}
     </div>
 
     <div class="row">
