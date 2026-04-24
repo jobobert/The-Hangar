@@ -9,6 +9,7 @@
 <div class="d-inline-block">
     <h2>{{=model.name}}</h2>
 </div>
+<div style="overflow-x:auto">
 <table class="table export-table">
 
     <tr class="row export-row">
@@ -93,6 +94,7 @@
     </tr>
 
 </table>
+</div>
 
 
 {{=LOAD('transmitter', 'renderexport.load', args=[model.transmitter.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Transmitter Details"))}}

@@ -1,0 +1,64 @@
+{{extend 'layout.html'}}
+
+<div class="update-page">
+    <div class="row">
+        <h2>{{=controller_icon('switch', 48)}} Migrate Switches — {{=model.name}}</h2>
+    </div>
+
+    {{if already_migrated:}}
+    <div class="alert alert-success">
+        This model's switches have already been migrated to the new system.
+        <a href="{{=URL('model','index',args=[model_id],extension='html')}}">Return to model</a>
+    </div>
+    {{pass}}
+
+    {{if not old_with_positions:}}
+    <div class="alert alert-info">
+        No legacy switches found for this model.
+        <a href="{{=URL('model','index',args=[model_id],extension='html')}}">Return to model</a>
+    </div>
+    {{else:}}
+    <p class="lead">
+        Map each legacy switch to a transmitter switch definition, keep it as a freeform model switch,
+        or skip it entirely. Positions are copied automatically.
+    </p>
+    <form method="post" action="{{=URL('switch','migrate_model_switches',args=[model_id])}}">
+        <div style="overflow-x:auto">
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th>Legacy Switch</th>
+                    <th>Type</th>
+                    <th>Purpose</th>
+                    <th>Positions</th>
+                    <th>Map to</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{for s, positions in old_with_positions:}}
+                <tr>
+                    <td><strong>{{=s.switch}}</strong></td>
+                    <td>{{=switch_icon(s.switchtype, 20)}} {{=s.switchtype or ''}}</td>
+                    <td>{{=s.purpose or ''}}</td>
+                    <td>
+                        {{for p in positions:}}
+                        <div class="small">{{=p.pos}}: {{=p.func or ''}}</div>
+                        {{pass}}
+                    </td>
+                    <td>
+                        <select class="form-control form-control-sm" name="map_{{=s.id}}">
+                            {{for val, label in transmitter_switch_opts:}}
+                            <option value="{{=val}}">{{=label}}</option>
+                            {{pass}}
+                        </select>
+                    </td>
+                </tr>
+                {{pass}}
+            </tbody>
+        </table>
+        </div>
+        <button type="submit" class="btn btn-primary">Run Migration</button>
+        <a href="{{=URL('model','index',args=[model_id],extension='html')}}" class="btn btn-secondary ml-2">Cancel</a>
+    </form>
+    {{pass}}
+</div>

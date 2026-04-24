@@ -1347,6 +1347,46 @@ switches_and_positions = db(
 )
 
 ###############################################
+## TRANSMITTER SWITCH (v2 switch system)
+
+db.define_table('transmitter_switch',
+    Field('transmitter', 'reference transmitter', label='Transmitter', required=True),
+    Field('name',        'string',  label='Name',       comment='e.g. SA, SB, T1, T2'),
+    Field('switchtype',  'string',  label='Type'),
+    Field('x',           'double',  label='X (%)',      default=50.0,
+          comment='Horizontal position on layout canvas (0-100)'),
+    Field('y',           'double',  label='Y (%)',      default=50.0,
+          comment='Vertical position on layout canvas (0-100)'),
+    Field('sort_order',  'integer', label='Sort Order', default=0),
+    format=lambda r: r.name
+)
+db.transmitter_switch.switchtype.requires = lookup_set('switchtype', empty_ok=True)
+
+db.define_table('model_switch',
+    Field('model',              'reference model',              required=True),
+    Field('transmitter_switch', 'reference transmitter_switch'),
+    Field('name',               'string', label='Switch Name',
+          comment='Required when not linked to a transmitter switch'),
+    Field('switchtype',         'string', label='Type',
+          comment='Required when not linked to a transmitter switch'),
+    Field('purpose',            'string', label='Purpose'),
+    Field('notes',              'text',   label='Notes'),
+    format=lambda r: (r.transmitter_switch.name
+                      if r.transmitter_switch else r.name) if r else '?'
+)
+db.model_switch.switchtype.requires = IS_EMPTY_OR(lookup_set('switchtype', empty_ok=True))
+
+db.define_table('model_switch_position',
+    Field('model_switch', 'reference model_switch', required=True),
+    Field('pos',          'string', label='Position'),
+    Field('func',         'string', label='Function'),
+)
+db.model_switch_position.pos.requires = lookup_set('pos', empty_ok=True)
+
+if not _migration_applied('model_switch_v2_available'):
+    _mark_migration('model_switch_v2_available')
+
+###############################################
 ## WISH LIST
 
 db.define_table('wishlist'

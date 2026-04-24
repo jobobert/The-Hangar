@@ -8,7 +8,7 @@
     {{pass}}
 </ul>
 {{else:}}
-<table class="table table-sm">
+<div style="overflow-x:auto"><table class="table table-sm">
     <thead class="card-header">
         <tr>
             <td colspan="2">{{=todo_count}} Todos</td>
@@ -25,5 +25,5 @@
         {{pass}}
     </tbody>
 
-</table>
+</table></div>
 {{pass}}

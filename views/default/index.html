@@ -71,7 +71,7 @@
 </ul>
 
 <div class="row mb-2 d-print-none">
-  <div class="col-sm-12">
+  <div class="col-12">
     {{any_filter_active = any(filters[f] for f in filters)}}
     <a class="btn {{='btn-success' if state_number == 1 and state_plus else 'btn-outline-secondary'}}"
        href="{{=URL('default','index', vars=dict(s='1*', c=modelCategory))}}">Show All</a>
@@ -115,7 +115,7 @@
 <div class=" row mt-2">
   {{if not models:}}
 
-  <div class="col-sm-12 m-5">
+  <div class="col-12 m-5">
     <h3>No Models Found</h3>
     <i>Perhaps try a different state?</i>
   </div>
@@ -124,16 +124,16 @@
 
   {{else:}}
 
-  <div class="col-sm-12">
-    <div class="card-deck">
-      {{=LOAD('model','renderstatecounts.load', ajax_trap=True, content=DIV(IMG(_src=URL('static',
-      'images/waiting.gif')),"State Counts"))}}
-      {{for model in models:}}
-      {{=LOAD('model','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
-      'images/waiting.gif')),model.name))}}
-      {{pass}}
-    </div>
+  <div class="col-12 col-sm-auto mb-3">
+    {{=LOAD('model','renderstatecounts.load', ajax_trap=True, content=DIV(IMG(_src=URL('static',
+    'images/waiting.gif')),"State Counts"))}}
   </div>
+  {{for model in models:}}
+  <div class="col-12 col-sm-auto mb-3">
+    {{=LOAD('model','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+    'images/waiting.gif')),model.name))}}
+  </div>
+  {{pass}}
 
   {{pass}}
 </div> 

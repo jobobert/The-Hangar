@@ -8,7 +8,7 @@
     </div>
 
     <div class="row  mb-2">
-        <div class="col-4 ">
+        <div class="col-12 col-md-4 ">
             {{if model.transmitter:}}
             <h5 class="">Transmitter</h5>
             <div class="ml-2">
@@ -25,7 +25,7 @@
             <div class="ml-2">No Batteries</div>
             {{pass}}
         </div>
-        <div class="col-6 ">
+        <div class="col-12 col-md-6 ">
             {{if model.attr_plane_rem_wings or model.attr_plane_rem_wing_tube or model.attr_plane_rem_struts:}}
             <div class="row">
                 <h5 class="ml-3">Don't Forget</h5>
@@ -55,21 +55,21 @@
             </div>
             {{pass}}
         </div>
-        <div class="col-2 " id="qrcode-{{=model.id}}">
+        <div class="col-12 col-md-2 " id="qrcode-{{=model.id}}">
             <div id="qrcode" class=""></div>
         </div>
     </div>
 
     <div class="row  mb-2">
-        <div class="col-5 ">
+        <div class="col-12 col-md-5 ">
             <h5 class="">Switches</h5>
             <div class="ml-2">{{=LOAD('switch', 'renderswitches.load', args=[model.id, True], ajax=True, content='Getting Details...' )}}</div>
         </div>
 
-        <div class="col-7 ">
+        <div class="col-12 col-md-7 ">
             <div class="row mb-2">
                 {{if hardware:}}
-                <div class="col-8">
+                <div class="col-12 col-md-8">
                     <h5 class="">Hardware</h5>
                     {{for hw in hardware:}}
                     <div class="ml-2">
@@ -83,7 +83,7 @@
                 {{pass}}
 
                 {{if propellers:}}
-                <div class="col-4">
+                <div class="col-12 col-md-4">
                     <h5 class="">Propellers</h5>
                     {{for item in propellers:}}
                     <div class="ml-2">
@@ -97,7 +97,7 @@
 
 
                 {{if model.attr_multi_rotor_count and model.attr_multi_rotor_count > 0:}}
-                <div class="col-4">
+                <div class="col-12 col-md-4">
                     <h5 class="">Rotors</h5>
                     <div class="ml-2">
                         <div><b>({{=model.attr_multi_rotor_count * model.attr_copter_blade_count}})</b> {{=model.attr_copter_mainrotor_length}}mm main rotors</div>
@@ -108,7 +108,7 @@
                 {{pass}}
 
                 {{if rigs:}}
-                <div class="col-4">
+                <div class="col-12 col-md-4">
                     <h5 class="">Sail Rigs</h5>
                     {{for rig in rigs:}}
                     <div class="ml-2">
@@ -123,7 +123,7 @@
             </div>
             <div class="row mb-2">
                 {{if tools:}}
-                <div class="col-4">
+                <div class="col-12 col-md-4">
                     <h5 class="">Tools</h5>
                     {{for tool in tools:}}
                     <div class="ml-2">
@@ -136,7 +136,7 @@
                 {{pass}}
 
                 {{if support_items:}}
-                <div class="col-4">
+                <div class="col-12 col-md-4">
                     <h5 class="">Support Items</h5>
                     {{for item in support_items:}}
                     <div class="ml-2">

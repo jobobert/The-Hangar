@@ -1,0 +1,172 @@
+<div class="card mb-2">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+            <span class="card-icon">{{=controller_icon('switch', 25)}}</span>
+            Switch Layout ({{=len(switches)}} defined)
+        </h5>
+        {{=renderModal('add-txswitch', 'Add Switch', add_form, label='+ Add Switch')}}
+    </div>
+    <div class="card-body">
+        {{if not switches:}}
+        <p class="text-muted">No switches defined. Use <em>Add Switch</em> to define the physical switches on this transmitter.</p>
+        {{else:}}
+        <div style="overflow-x:auto;">
+        <div id="tx-canvas-{{=transmitter_id}}"
+             data-compact="30" data-expanded="56.25"
+             style="position:relative;min-width:600px;width:100%;padding-top:30%;
+                    background-color:#f8f9fa;
+                    background-image:
+                        linear-gradient(rgba(0,0,0,0.12) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,0,0,0.12) 1px, transparent 1px),
+                        linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+                    background-size: 10% 10%, 10% 10%, 2% 2%, 2% 2%;
+                    border:1px solid #dee2e6;border-top-left-radius:4px;border-top-right-radius:4px;
+                    overflow:visible;transition:padding-top 0.2s ease;">
+            {{for sw in switches:}}
+            <div class="tx-chip-wrapper"
+                 data-switch-id="{{=sw.id}}"
+                 data-popover-id="edit-txsw-{{=sw.id}}"
+                 style="position:absolute;left:{{=sw.x}}%;top:{{=sw.y}}%;
+                        transform:translate(-50%,-50%);z-index:10;cursor:grab;">
+                <button type="button"
+                        class="btn btn-light tx-switch-chip d-flex flex-column align-items-center p-1"
+                        style="min-width:48px;border:1px solid #6c757d;border-radius:6px;pointer-events:none;">
+                    {{=switch_icon(sw.switchtype, 28)}}
+                    <span class="badge badge-secondary mt-1" style="font-size:0.7rem;">{{=sw.name}}</span>
+                </button>
+                <div id="edit-txsw-{{=sw.id}}" popover="manual"
+                     style="position:fixed;top:5vh;left:50%;transform:translateX(-50%);
+                            padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;
+                            min-width:320px;max-height:90vh;overflow-y:auto;z-index:9999;">
+                    <button type="button" popovertarget="edit-txsw-{{=sw.id}}"
+                            popovertargetaction="hide"
+                            style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>
+                    <h5>Edit: {{=sw.name}}</h5>
+                    {{=edit_forms[sw.id]}}
+                </div>
+            </div>
+            {{pass}}
+        </div>
+        <button type="button" id="tx-expand-btn-{{=transmitter_id}}"
+                onclick="txToggleCanvas('{{=transmitter_id}}')"
+                style="display:block;min-width:600px;width:100%;padding:2px 0;font-size:0.7rem;
+                       background:#e9ecef;border:1px solid #dee2e6;border-top:none;
+                       border-bottom-left-radius:4px;border-bottom-right-radius:4px;
+                       cursor:pointer;color:#6c757d;line-height:1;">
+            &#9660; expand
+        </button>
+        </div>{{# end overflow-x wrapper }}
+        <p class="text-muted mt-2" style="font-size:0.8rem;">
+            Drag chips to reposition. Click a chip or the Edit button to change details.
+            Grid lines are at 10% intervals.
+        </p>
+        <div class="mt-2" style="overflow-x:auto">
+            <table class="table table-sm table-bordered">
+                <thead><tr><th>Name</th><th>Type</th><th>X</th><th>Y</th><th>Order</th><th></th></tr></thead>
+                <tbody id="tx-switch-table-{{=transmitter_id}}">
+                {{for sw in switches:}}
+                <tr id="tx-row-{{=sw.id}}">
+                    <td>{{=sw.name}}</td>
+                    <td>{{=switch_icon(sw.switchtype, 20)}} {{=sw.switchtype or ''}}</td>
+                    <td id="tx-x-{{=sw.id}}">{{=sw.x}}</td>
+                    <td id="tx-y-{{=sw.id}}">{{=sw.y}}</td>
+                    <td>{{=sw.sort_order}}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                onclick="document.getElementById('edit-txsw-{{=sw.id}}').showPopover()">Edit</button>
+                    </td>
+                </tr>
+                {{pass}}
+                </tbody>
+            </table>
+        </div>
+        {{pass}}
+    </div>
+</div>
+
+<script>
+function txToggleCanvas(tid) {
+    var canvas = document.getElementById('tx-canvas-' + tid);
+    var btn    = document.getElementById('tx-expand-btn-' + tid);
+    var isCompact = canvas.dataset.state !== 'expanded';
+    canvas.style.paddingTop = isCompact ? (canvas.dataset.expanded + '%') : (canvas.dataset.compact + '%');
+    canvas.dataset.state    = isCompact ? 'expanded' : 'compact';
+    btn.innerHTML = isCompact ? '&#9650; collapse' : '&#9660; expand';
+}
+
+(function () {
+    var canvas = document.getElementById('tx-canvas-{{=transmitter_id}}');
+    if (!canvas) return;
+    var moveUrl = '{{=URL("switch", "transmitter_switch_move")}}';
+
+    canvas.querySelectorAll('.tx-chip-wrapper').forEach(function (wrapper) {
+        var switchId = wrapper.dataset.switchId;
+        var popoverId = wrapper.dataset.popoverId;
+        var dragging = false;
+        var startClientX, startClientY;
+
+        wrapper.addEventListener('pointerdown', function (e) {
+            if (e.button !== 0) return;
+            // Don't intercept events that originate inside the popover
+            if (e.target.closest('[popover]')) return;
+            e.preventDefault();
+            wrapper.setPointerCapture(e.pointerId);
+            dragging = false;
+            startClientX = e.clientX;
+            startClientY = e.clientY;
+            wrapper.style.cursor = 'grabbing';
+            wrapper.style.zIndex = 20;
+        });
+
+        wrapper.addEventListener('pointermove', function (e) {
+            if (!wrapper.hasPointerCapture(e.pointerId)) return;
+            var dx = e.clientX - startClientX;
+            var dy = e.clientY - startClientY;
+            if (!dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) dragging = true;
+            if (!dragging) return;
+
+            var rect = canvas.getBoundingClientRect();
+            var newX = Math.max(0, Math.min(100, (e.clientX - rect.left) / rect.width * 100));
+            var newY = Math.max(0, Math.min(100, (e.clientY - rect.top)  / rect.height * 100));
+            wrapper.style.left = newX + '%';
+            wrapper.style.top  = newY + '%';
+        });
+
+        wrapper.addEventListener('pointerup', function (e) {
+            wrapper.style.cursor = 'grab';
+            wrapper.style.zIndex = 10;
+
+            if (!dragging) {
+                var popover = document.getElementById(popoverId);
+                if (popover) popover.showPopover();
+                return;
+            }
+
+            dragging = false;
+            var x = Math.round(parseFloat(wrapper.style.left));
+            var y = Math.round(parseFloat(wrapper.style.top));
+            wrapper.style.left = x + '%';
+            wrapper.style.top  = y + '%';
+
+            var xCell = document.getElementById('tx-x-' + switchId);
+            var yCell = document.getElementById('tx-y-' + switchId);
+            if (xCell) xCell.textContent = x;
+            if (yCell) yCell.textContent = y;
+
+            var body = 'switch_id=' + encodeURIComponent(switchId) +
+                       '&x=' + encodeURIComponent(x) +
+                       '&y=' + encodeURIComponent(y);
+            fetch(moveUrl, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: body
+            }).then(function (r) { return r.json(); }).then(function (data) {
+                if (!data.ok) alert('Could not save position: ' + (data.error || 'unknown error'));
+            }).catch(function () {
+                alert('Network error saving position');
+            });
+        });
+    });
+}());
+</script>

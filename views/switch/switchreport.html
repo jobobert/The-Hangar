@@ -1,0 +1,78 @@
+{{extend 'layout.html'}}
+
+<style>
+@media print {
+    .no-print, .fixed-bottom, nav, .navbar { display: none !important; }
+    .table { font-size: 0.75rem; }
+    a.btn { display: none !important; }
+}
+</style>
+
+<div class="row mb-2">
+    <div class="col">
+        <h2>{{=controller_icon('switch', 40)}} Switch Report</h2>
+    </div>
+    <div class="col-auto align-self-center no-print">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">Print</button>
+    </div>
+</div>
+
+{{# Filter form }}
+<form method="get" action="{{=URL('switch','switchreport')}}" class="no-print">
+    <div class="card mb-3">
+        <div class="card-header py-2">
+            <strong>Filter by Transmitter</strong>
+        </div>
+        <div class="card-body py-2">
+            <div class="d-flex flex-wrap">
+                {{for tx in all_transmitters:}}
+                <div class="form-check mr-4 mb-1">
+                    <input class="form-check-input" type="checkbox" name="transmitter"
+                           value="{{=tx.id}}" id="tx-{{=tx.id}}"
+                           {{='checked' if tx.id in selected_ids else ''}}>
+                    <label class="form-check-label" for="tx-{{=tx.id}}">{{=tx.name}}</label>
+                </div>
+                {{pass}}
+            </div>
+        </div>
+        <div class="card-footer py-2">
+            <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+            <a href="{{=URL('switch','switchreport')}}" class="btn btn-outline-secondary btn-sm ml-2">Clear</a>
+        </div>
+    </div>
+</form>
+
+{{if selected_ids:}}
+<p class="text-muted small">
+    Showing: {{=', '.join(t.name for t in all_transmitters if t.id in selected_ids)}}
+</p>
+{{pass}}
+
+{{if not rows:}}
+<p class="text-muted">No switch data found{{=' for the selected transmitters' if selected_ids else ''}}.</p>
+{{else:}}
+<div style="overflow-x:auto;">
+    <table class="table table-sm table-bordered table-hover">
+        <thead class="thead-light">
+            <tr>
+                {{for h in headers:}}
+                <th>{{=h}}</th>
+                {{pass}}
+            </tr>
+        </thead>
+        <tbody>
+            {{for row, is_legacy in rows:}}
+            <tr>
+                {{for i, cell in enumerate(row):}}
+                {{if i == 0 and is_legacy:}}
+                <td>{{=cell}} <span class="badge badge-warning" style="font-size:0.6rem;">legacy</span></td>
+                {{else:}}
+                <td>{{=cell}}</td>
+                {{pass}}
+                {{pass}}
+            </tr>
+            {{pass}}
+        </tbody>
+    </table>
+</div>
+{{pass}}

@@ -13,7 +13,7 @@
                 <span class="badge badge-light">{{=mt.quantity or 0}} / {{=mt.battery.ownedcount}}</span></div>
             </div>
 
-            <div class="col-3">
+            <div class="col-6 col-sm-3">
                 {{=editButton('model', 'updatemodelbattery.html', mt.id, 16)}}
                 <button class="btn btn-danger" type="submit" value="Remove" name="{{=mt.id}}">{{=action_icon('delete', 16)}}</button>
             </div>

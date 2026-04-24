@@ -18,7 +18,7 @@
                     <span>used for {{=mt.purpose}}</span>
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-6 col-sm-3">
                 {{=editButton('model', 'updatemodelpaint.html', mt.id, 16)}}
                 <button class="btn btn-danger" type="submit" value="Remove" name="{{=mt.id}}">{{=action_icon('delete', 16)}}</button>
             </div>

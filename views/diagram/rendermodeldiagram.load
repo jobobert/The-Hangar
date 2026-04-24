@@ -5,7 +5,7 @@
 <div>
     {{=A("Edit", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="btn btn-primary")}}
 
-    <div id="graph-container" class="col"></div>
+    <div style="overflow-x:auto"><div id="graph-container" class="col"></div></div>
 </div>
 
 {{else:}}
@@ -21,7 +21,7 @@
 
     <div class="card-body">
 
-        <div id="graph-container" class="col"></div>
+        <div style="overflow-x:auto"><div id="graph-container" class="col"></div></div>
 
     </div>
 

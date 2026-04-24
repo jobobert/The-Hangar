@@ -35,9 +35,9 @@
         </div>
     </a>
 
-    <div class="" style="height: 200px;">
+    <div class="d-flex flex-wrap">
 
-        <img class="card-img-top" style="max-height: 190px; max-width: 50%; float: left; margin: 5px" src="{{=URL('default', 'download', args=model.img)}}" alt="Card image cap" />
+        <img class="card-img-top" style="max-height: 190px; max-width: 50%; margin: 5px" src="{{=URL('default', 'download', args=model.img)}}" alt="Card image cap" />
 
         <p class="card-text">{{=model.description}}</p>
 

@@ -3,6 +3,7 @@
 <div class="container">
     <h2><a href="{{=URL('model','index',args=model_id,extension='html')}}">{{=model_name}} Activities</a></h2>
 
+    <div style="overflow-x:auto">
     <table class="table">
         <thead>
             <tr>
@@ -37,4 +38,5 @@
             {{pass}}
         </tbody>
     </table>
+    </div>
 </div>

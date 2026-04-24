@@ -19,7 +19,7 @@
                 <div class="tool_name"><a class="text-decoration-none" href="{{=URL('tool','index.html',args=[mt.tool])}}">{{=mt.tool.name}}</a></div>
                 <div class="tool_purpose">{{=mt.purpose or ''}}</div>
             </div>
-            <div class="col-2 mt-2">
+            <div class="col-3 col-sm-2 mt-2">
                 <button class="btn btn-danger" type="submit" value="Remove" name="{{=mt.id}}" >{{=action_icon('delete', 16)}}</button>
             </div>
         </div>

@@ -45,11 +45,11 @@
             <div class="d-flex align-items-center">
                 <input type="number" name="f_{{=spec['name']}}_min" value="{{=spec['min']}}"
                        step="{{=spec['step']}}" placeholder="min"
-                       class="form-control form-control-sm" style="width:75px;">
+                       class="form-control form-control-sm" style="width:75px; max-width:100%;">
                 <span class="mx-1">–</span>
                 <input type="number" name="f_{{=spec['name']}}_max" value="{{=spec['max']}}"
                        step="{{=spec['step']}}" placeholder="max"
-                       class="form-control form-control-sm" style="width:75px;">
+                       class="form-control form-control-sm" style="width:75px; max-width:100%;">
             </div>
             {{elif spec['kind'] == 'select':}}
             <select name="f_{{=spec['name']}}" class="form-control form-control-sm">
@@ -80,10 +80,10 @@
 
 {{elif groupby == 'component':}}
 {{# --- By Component: one card per component, models listed inside --- }}
-<div class="card-columns" style="column-count:2;">
+<div class="row">
 {{for grp in groups:}}
 {{comp = grp['component']}}
-<div class="card mb-3">
+<div class="col-12 col-md-6 mb-3"><div class="card mb-3">
     <div class="card-header d-flex align-items-center">
         {{if comp.img:}}
         <img src="{{=URL('default','download',args=comp.img)}}" height="32" class="mr-2 rounded">
@@ -118,16 +118,16 @@
         </li>
         {{pass}}
     </ul>
-</div>
+</div></div>
 {{pass}}
 </div>
 
 {{else:}}
 {{# --- By Model: one card per model, components listed inside --- }}
-<div class="card-columns" style="column-count:2;">
+<div class="row">
 {{for grp in groups:}}
 {{model = grp['model']}}
-<div class="card mb-3">
+<div class="col-12 col-md-6 mb-3"><div class="card mb-3">
     <div class="card-header d-flex align-items-center">
         {{if model.img:}}
         <img src="{{=URL('default','download',args=model.img)}}" height="32" class="mr-2 rounded">
@@ -162,7 +162,7 @@
         </li>
         {{pass}}
     </ul>
-</div>
+</div></div>
 {{pass}}
 </div>
 {{pass}}

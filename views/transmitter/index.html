@@ -17,16 +17,17 @@
             <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=transmitter.img)}}" alt="Card image cap">
             {{pass}}
         </div>
-        <div class="card-deck">
+        <div class="row">
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
             <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Properties</h5>
                 </div>
                 <div class="card-body attribute-list">
                     <dl>
-        
-        
-        
+
+
+
                         <dt>{{=db.transmitter.manufacturer.label}}</dt>
                         <dd class="ml-1">{{=transmitter.manufacturer}}</dd>
                         <dt>{{=db.transmitter.model.label}}</dt>
@@ -52,13 +53,15 @@
                     </dl>
                 </div>
             </div>
-        
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
             <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Associated Models</h5>
                 </div>
                 <div class="card-body">
-        
+
                     {{if models:}}
                     <ul class="list-group">
                         {{for model in models:}}
@@ -68,10 +71,12 @@
                     {{else:}}
                     No models use this protocol
                     {{pass}}
-        
+
                 </div>
             </div>
-        
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
             <div class="card assoc-card">
                 <div class="card-header">
                     <h5 class="card-title">Attachment</h5>
@@ -79,7 +84,7 @@
                 <div class="card-body">
                     {{if transmitter.attachment:}}
                     {{(filename, file) = db.transmitter.attachment.retrieve(transmitter.attachment)}}
-        
+
                     <ul class="list-group">
                         {{=attachmentListItem(transmitter.attachment, True, filename)}}
                     </ul>
@@ -88,11 +93,12 @@
                     {{pass}}
                 </div>
             </div>
+            </div>
         </div>
 
         
     </div>
-    <div class="row mb-3">
+    <div class="row mb-5">
         <div class="col-9">
             {{=MARKMIN(transmitter.notes)}}
         </div>
@@ -106,15 +112,24 @@
 
 {{pass}}
 
-<div class="row">
+<div class="row mt-3">
     <div class="col-12">
-        <div class="card ">
-            <div class="card-header">
-                <h5 class="card-title">Switch Usage</h5>
+        {{=LOAD('switch', 'transmitter_layout_canvas.load', args=[transmitter.id], ajax_trap=True,
+                content=DIV(IMG(_src=URL('static', 'images/waiting.gif'))))}}
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Switch Usage Across Models</h5>
+                <a href="{{=URL('switch','switchreport',vars=dict(transmitter=transmitter.id))}}"
+                   class="btn btn-outline-secondary btn-sm">View in Report</a>
             </div>
             <div class="card-body">
-                {{=LOAD('switch', 'listswitches.load', args=[transmitter.id], ajax=True, content=DIV(IMG(_src=URL('static',
-                'images/waiting.gif'))))}}
+                {{=LOAD('switch', 'listswitches.load', args=[transmitter.id], ajax=True,
+                        content=DIV(IMG(_src=URL('static', 'images/waiting.gif'))))}}
             </div>
         </div>
     </div>

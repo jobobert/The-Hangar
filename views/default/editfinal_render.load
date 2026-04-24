@@ -12,19 +12,19 @@ Your submitted form contains the following errors:
 
 <div class="row pb-1 pt-1" style="border-bottom: 1px #efefef solid;">
 
-    <div class="col-sm-1" style="vertical-align: middle;">
+    <div class="col-12 col-sm-1">
         <img class="" style="max-width: 50px;" src="{{=URL('default', 'download', args=model.img)}}" alt="Card image cap">
     </div>
-    <div class="col-sm-2" style="vertical-align: middle;">
+    <div class="col-12 col-sm-2">
         {{=B(model.name)}}
     </div>
-    <div class="col-sm-6" style="vertical-align: middle;">
+    <div class="col-12 col-sm-6">
         <div class=" model_form_field">{{=form.custom.widget.final_disposition}}</div>
     </div>
-    <div class="col-sm-2" style="vertical-align: middle;">
+    <div class="col-12 col-sm-2">
         <div class=" model_form_field">{{=form.custom.widget.final_value}}</div>
     </div>
-    <div class="col-sm-1" style="vertical-align: middle;">
+    <div class="col-12 col-sm-1">
         {{=form.custom.submit}}
     </div>
 </div>

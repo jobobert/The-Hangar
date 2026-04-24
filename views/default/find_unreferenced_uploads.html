@@ -14,7 +14,7 @@
         {{=A(file, _href=URL('default', 'download', args=file))}}
     </div>
     {{if isimage(file):}}
-    <div class="col-sm-2">
+    <div class="col-6 col-sm-2">
         <img class="" style="max-width: 50px;" src="{{=URL('default', 'download', args=file)}}" alt="{{=file}}">
     </div>
     {{pass}}

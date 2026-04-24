@@ -242,9 +242,12 @@ def controller_icon(controller:str, size: int):
     return show_icon(folder + controller.replace(" ", "").lower() + '.png', size, controller)
 
 def switch_icon(switchitem: str, size: int):
-    folder = 'switch/'
-
-    return show_icon(folder + switchitem + '.png', 32)
+    if switchitem:
+        row = db((db.lookup.category == 'switchtype') & (db.lookup.name == switchitem)).select(db.lookup.metadata).first()
+        svg = ((row.metadata or {}).get('svg') if row else None)
+        if svg:
+            return XML(f'<span class="switch-icon" style="width:{size}px;height:{size}px;display:inline-block;vertical-align:middle">{svg}</span>')
+    return show_icon('switch/' + (switchitem or 'nopicture') + '.png', size)
 
 def action_icon(action: str, size:int, alt:str=None):
     folder = 'action/'

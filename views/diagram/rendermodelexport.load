@@ -6,7 +6,7 @@
     {{=controller_icon('diagram', 25)}}
     Wiring Diagram
 </h3>
-<div id="graph-container" style=""></div>
+<div style="overflow-x:auto"><div id="graph-container" style=""></div></div>
 
 
 <script>
@@ -18,7 +18,7 @@
 
     Viz.instance().then(viz => {
         const svg = viz.renderSVGElement(dotGraph);
-
+        svg.style.maxWidth = '100%';
         document.getElementById("graph-container").appendChild(svg);
     });
 

@@ -19,7 +19,7 @@
     <div class="col d-none d-md-block th-listview-header">
         {{=db.activity.activitylocation.label}}
     </div>
-    <div class="col-sm-4 th-listview-header">
+    <div class="col-12 col-sm-4 th-listview-header">
         Actions
     </div>
 </div>
@@ -39,7 +39,7 @@
     <div class="col d-none d-md-block">
         {{=activity.activitylocation}}
     </div>
-    <div class="col-sm-4">
+    <div class="col-12 col-sm-4">
         {{=viewButton('activity', 'index', [activity.id])}}
         {{=editButton('activity', 'update', [activity.id])}}
     </div>
@@ -50,6 +50,8 @@
     <div class="col">No activities found {{=newButton('activity', 'update', '')}}</div>
 </div>
 {{pass}}
+
+<div class="row mb-5"></div>
 
 <div class="row bg-light fixed-bottom pl-5 p-2">
     {{=newButton('activity', 'update', '')}}

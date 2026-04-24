@@ -3,8 +3,8 @@
 {{if todos:}}
 {{for todo in todos:}}
 <div class="row border-top">
-    <div class="col-sm-2"><a class="btn btn-primary" href="{{=URL('todo','complete',args=[model_id,todo.id])}}">Done</a></div>
-    <div class="col-sm-10"><a href="{{=URL('todo', 'index.html', args=[todo.id])}}"><span class="{{='todo_critical' if todo.critical == True else ''}} align-middle">{{=todo.todo}}</span></a></div>
+    <div class="col-6 col-sm-2"><a class="btn btn-primary" href="{{=URL('todo','complete',args=[model_id,todo.id])}}">Done</a></div>
+    <div class="col-12 col-sm-10"><a href="{{=URL('todo', 'index.html', args=[todo.id])}}"><span class="{{='todo_critical' if todo.critical == True else ''}} align-middle">{{=todo.todo}}</span></a></div>
 </div>
 {{pass}}
 
@@ -15,10 +15,10 @@ No Todos
 <div class="row mt-3">
     <form action="#" enctype="multipart/form-data" method="post">
         <div class="form-group row" id="todo_todo__row">
-            <div class="col-sm-7">
+            <div class="col-12 col-sm-7">
                 <input autocomplete="off" class="form-control string" type="text" name="todo" />
             </div>
-            <div class="col-sm-2">
+            <div class="col-6 col-sm-2">
                 <label class="form-check-label" for="todo_critical" id="todo_critical__label">
                     <input class="form-check-input boolean" id="todo_critical" name="critical" type="checkbox" value="on" />
                     {{=db.todo.critical.label}}
@@ -56,16 +56,16 @@ No Todos
     <div class="card-footer">
         <form action="#" enctype="multipart/form-data" method="post">
             <div class="form-group row" id="todo_todo__row">
-                <div class="col-sm-7">
+                <div class="col-12 col-sm-7">
                     <input autocomplete="off" class="form-control string" type="text" name="todo" />
                 </div>
-                <div class="col-sm-2">
+                <div class="col-6 col-sm-2">
                     <label class="form-check-label" for="todo_critical" id="todo_critical__label">
                         <input class="form-check-input boolean" id="todo_critical" name="critical" type="checkbox" value="on">
                         {{=db.todo.critical.label}}
                     </label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-6 col-sm-3">
                     <input type="submit" class="btn btn-primary" />
                 </div>
                 <input type="hidden" name="_formname" value="todoform" />

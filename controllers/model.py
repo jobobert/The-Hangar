@@ -296,7 +296,8 @@ def renderdashboard():
     component_count = db((db.model_component.model == model.id)).count()
     tool_count = db((db.model_tool.model == model.id)).count()
     attachment_count = db((db.attachment.model == model.id)).count()
-    switch_count = db((db.switch.model == model.id)).count()
+    _new_sw = db(db.model_switch.model == model.id).count()
+    switch_count = _new_sw if _new_sw else db(db.switch.model == model.id).count()
 
     opts = {
         "todo": todo_count,

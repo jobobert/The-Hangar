@@ -29,7 +29,7 @@
         </div>
     </div>
     <div class="card-body p-2">
-        <table class="table table-sm table-bordered mb-1" id="conn-table">
+        <div style="overflow-x:auto"><table class="table table-sm table-bordered mb-1" id="conn-table">
             <thead class="thead-light"><tr>
                 <th>From</th>
                 <th style="width:7em">Port</th>
@@ -38,7 +38,7 @@
                 <th style="width:2.5em"></th>
             </tr></thead>
             <tbody id="conn-tbody"></tbody>
-        </table>
+        </table></div>
         <small class="text-muted">Port is optional — use e.g. <code>f1</code> for receiver port 1, <code>l1</code>/<code>r1</code> for connector ports.</small>
     </div>
 </div>
@@ -106,28 +106,28 @@
                 <div id="wt-form" style="display:none" class="border rounded p-3 bg-light">
                     <input type="hidden" id="wt-id">
                     <div class="form-group row mb-2">
-                        <label class="col-sm-2 col-form-label col-form-label-sm">Name</label>
-                        <div class="col-sm-10">
+                        <label class="col-12 col-sm-2 col-form-label col-form-label-sm">Name</label>
+                        <div class="col-12 col-sm-10">
                             <input type="text" id="wt-name" class="form-control form-control-sm">
                         </div>
                     </div>
                     <div class="form-group row mb-2">
-                        <label class="col-sm-2 col-form-label col-form-label-sm">DOT Attributes</label>
-                        <div class="col-sm-10">
+                        <label class="col-12 col-sm-2 col-form-label col-form-label-sm">DOT Attributes</label>
+                        <div class="col-12 col-sm-10">
                             <input type="text" id="wt-attribs" class="form-control form-control-sm"
                                    placeholder='color="#cc0000"; style=dashed; penwidth=2;'>
                             <small class="form-text text-muted">Raw Graphviz edge attributes.</small>
                         </div>
                     </div>
                     <div class="form-group row mb-2">
-                        <label class="col-sm-2 col-form-label col-form-label-sm">Sort Order</label>
-                        <div class="col-sm-4">
+                        <label class="col-12 col-sm-2 col-form-label col-form-label-sm">Sort Order</label>
+                        <div class="col-12 col-sm-4">
                             <input type="number" id="wt-sort" class="form-control form-control-sm" value="0">
                         </div>
                     </div>
                     <div class="form-group row mb-2">
-                        <label class="col-sm-2 col-form-label col-form-label-sm">Preview</label>
-                        <div class="col-sm-10" id="wt-preview"></div>
+                        <label class="col-12 col-sm-2 col-form-label col-form-label-sm">Preview</label>
+                        <div class="col-12 col-sm-10" id="wt-preview"></div>
                     </div>
                     <div id="wt-error" class="alert alert-danger py-1 mb-2" style="display:none"></div>
                     <button type="button" class="btn btn-sm btn-primary" onclick="saveWireType()">Save</button>
@@ -166,58 +166,58 @@
                 <div id="dc-form" style="display:none" class="border rounded p-3 bg-light">
                     <input type="hidden" id="dc-id">
                     <div class="form-group row mb-2">
-                        <label class="col-sm-3 col-form-label col-form-label-sm">Name</label>
-                        <div class="col-sm-9">
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Name</label>
+                        <div class="col-12 col-sm-9">
                             <input type="text" id="dc-name" class="form-control form-control-sm"
                                    placeholder="e.g. XT-60" oninput="previewConnector()">
                         </div>
                     </div>
                     <div class="form-group row mb-2">
-                        <label class="col-sm-3 col-form-label col-form-label-sm">Left Terminals</label>
-                        <div class="col-sm-3">
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Left Terminals</label>
+                        <div class="col-12 col-sm-3">
                             <input type="number" id="dc-left-count" class="form-control form-control-sm"
                                    value="1" min="0" oninput="previewConnector()">
                         </div>
-                        <label class="col-sm-3 col-form-label col-form-label-sm">Left Label</label>
-                        <div class="col-sm-3">
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Left Label</label>
+                        <div class="col-12 col-sm-3">
                             <input type="text" id="dc-left-label" class="form-control form-control-sm"
                                    placeholder="e.g. ♂ or In" oninput="previewConnector()">
                         </div>
                     </div>
                     <div class="form-group row mb-2">
-                        <label class="col-sm-3 col-form-label col-form-label-sm">Right Terminals</label>
-                        <div class="col-sm-3">
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Right Terminals</label>
+                        <div class="col-12 col-sm-3">
                             <input type="number" id="dc-right-count" class="form-control form-control-sm"
                                    value="1" min="0" oninput="previewConnector()">
                         </div>
-                        <label class="col-sm-3 col-form-label col-form-label-sm">Right Label</label>
-                        <div class="col-sm-3">
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Right Label</label>
+                        <div class="col-12 col-sm-3">
                             <input type="text" id="dc-right-label" class="form-control form-control-sm"
                                    placeholder="e.g. ♀ or Out" oninput="previewConnector()">
                         </div>
                     </div>
                     <div class="form-group row mb-2">
-                        <label class="col-sm-3 col-form-label col-form-label-sm">Fill Color</label>
-                        <div class="col-sm-3">
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Fill Color</label>
+                        <div class="col-12 col-sm-3">
                             <input type="color" id="dc-fillcolor" class="form-control form-control-sm"
                                    value="#d4c07a" oninput="previewConnector()">
                         </div>
-                        <label class="col-sm-3 col-form-label col-form-label-sm">Sort Order</label>
-                        <div class="col-sm-3">
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Sort Order</label>
+                        <div class="col-12 col-sm-3">
                             <input type="number" id="dc-sort" class="form-control form-control-sm" value="0">
                         </div>
                     </div>
                     <div class="form-group row mb-2">
-                        <label class="col-sm-3 col-form-label col-form-label-sm">Custom DOT Label</label>
-                        <div class="col-sm-9">
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Custom DOT Label</label>
+                        <div class="col-12 col-sm-9">
                             <textarea id="dc-custom-dot" class="form-control form-control-sm no-markitup" rows="3"
                                       placeholder="Optional. If set, overrides all fields above. Enter a complete Graphviz label= value, e.g.&#10;&lt;&lt;table...&gt;&gt;" oninput="previewConnector()"></textarea>
                             <small class="form-text text-muted">Leave blank to auto-generate from fields above.</small>
                         </div>
                     </div>
                     <div class="form-group row mb-2">
-                        <label class="col-sm-3 col-form-label col-form-label-sm">Preview</label>
-                        <div class="col-sm-9" id="dc-preview"></div>
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Preview</label>
+                        <div class="col-12 col-sm-9" id="dc-preview"></div>
                     </div>
                     <div id="dc-error" class="alert alert-danger py-1 mb-2" style="display:none"></div>
                     <button type="button" class="btn btn-sm btn-primary" onclick="saveConnector()">Save</button>
@@ -276,15 +276,15 @@
                         <div id="cc-form" style="display:none" class="border rounded p-3 bg-light">
                             <input type="hidden" id="cc-id">
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label col-form-label-sm">Name</label>
-                                <div class="col-sm-9">
+                                <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Name</label>
+                                <div class="col-12 col-sm-9">
                                     <input type="text" id="cc-name" class="form-control form-control-sm"
                                            placeholder="e.g. VTX" oninput="previewCustomComponent()">
                                 </div>
                             </div>
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label col-form-label-sm">Shape</label>
-                                <div class="col-sm-9">
+                                <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Shape</label>
+                                <div class="col-12 col-sm-9">
                                     <select id="cc-shape" class="form-control form-control-sm" onchange="previewCustomComponent()">
                                         <optgroup label="Basic">
                                             <option value="box">box</option>
@@ -343,26 +343,26 @@
                                 </div>
                             </div>
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label col-form-label-sm">Fill Color</label>
-                                <div class="col-sm-3">
+                                <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Fill Color</label>
+                                <div class="col-12 col-sm-3">
                                     <input type="color" id="cc-fillcolor" class="form-control form-control-sm"
                                            value="#efefef" oninput="previewCustomComponent()">
                                 </div>
-                                <label class="col-sm-3 col-form-label col-form-label-sm">Sort Order</label>
-                                <div class="col-sm-3">
+                                <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Sort Order</label>
+                                <div class="col-12 col-sm-3">
                                     <input type="number" id="cc-sort" class="form-control form-control-sm" value="0">
                                 </div>
                             </div>
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label col-form-label-sm">Extra DOT Attribs</label>
-                                <div class="col-sm-9">
+                                <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Extra DOT Attribs</label>
+                                <div class="col-12 col-sm-9">
                                     <input type="text" id="cc-dot-attribs" class="form-control form-control-sm"
                                            placeholder='e.g. style=dashed; penwidth=2;' oninput="previewCustomComponent()">
                                 </div>
                             </div>
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label col-form-label-sm">Preview</label>
-                                <div class="col-sm-9" id="cc-preview"></div>
+                                <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Preview</label>
+                                <div class="col-12 col-sm-9" id="cc-preview"></div>
                             </div>
                             <div id="cc-error" class="alert alert-danger py-1 mb-2" style="display:none"></div>
                             <button type="button" class="btn btn-sm btn-primary" onclick="saveCustomComponent()">Save</button>

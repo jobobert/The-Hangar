@@ -133,7 +133,7 @@
     <h5>New Component</h5>
     {{=newform.custom.begin}}
 
-    <div style="display:flex;flex-wrap:wrap;gap:0 1rem;">
+    <div style="overflow-x:auto"><div style="display:flex;flex-wrap:wrap;gap:0 1rem;">
         <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "name", FormFieldType.ROWS)}}</div>
         <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "componenttype", FormFieldType.ROWS)}}</div>
         <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "componentsubtype", FormFieldType.ROWS)}}</div>
@@ -142,16 +142,16 @@
         <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "manufacturer", FormFieldType.ROWS)}}</div>
         <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "ownedcount", FormFieldType.ROWS)}}</div>
         <div style="flex:1;min-width:16rem;">{{=makeFormField(newform, "storedat", FormFieldType.ROWS)}}</div>
-    </div>
+    </div></div>
 
     <hr>
     <h6>Dimensions &amp; Weight</h6>
-    <div style="display:flex;flex-wrap:wrap;gap:0 1rem;">
+    <div style="overflow-x:auto"><div style="display:flex;flex-wrap:wrap;gap:0 1rem;">
         <div style="flex:1;min-width:10rem;">{{=makeFormField(newform, "attr_length", FormFieldType.ROWS)}}</div>
         <div style="flex:1;min-width:10rem;">{{=makeFormField(newform, "attr_width", FormFieldType.ROWS)}}</div>
         <div style="flex:1;min-width:10rem;">{{=makeFormField(newform, "attr_height", FormFieldType.ROWS)}}</div>
         <div style="flex:1;min-width:10rem;">{{=makeFormField(newform, "attr_weight_oz", FormFieldType.ROWS)}}</div>
-    </div>
+    </div></div>
 
     {{for key in newform.custom.label:}}
     {{if key.startswith('attr_') and key not in ['attr_length', 'attr_width', 'attr_height', 'attr_weight_oz']:}}

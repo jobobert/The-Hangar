@@ -27,6 +27,17 @@
 </div>
 </div>
 
+{{if db(db.switch.model == model.id).count() > 0 and not _migration_applied(f'model_switch_migrated_{model.id}'):}}
+<div class="row ml-2 mb-2">
+    <div class="col-12">
+        <div class="alert alert-warning d-flex align-items-center justify-content-between mb-0" role="alert">
+            <span>This model has legacy switch data that can be migrated to the new switch system.</span>
+            <a href="{{=URL('switch','migrate_model_switches',args=[model.id])}}" class="btn btn-sm btn-warning ml-3">Migrate Switches</a>
+        </div>
+    </div>
+</div>
+{{pass}}
+
 <div class="row mb-3 ml-2 no-print">
     <div class=" col-sm-12">
         {{=LOAD('model','flowchart.load', args=[model.id], ajax=True, content='Loading Flowchart..')}}
@@ -131,7 +142,7 @@
 
     {{if 'switch' in final_controllers:}}
     <div class="col-12 col-md-6 mb-3">
-        {{=LOAD('switch', 'renderswitches.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Switches"))}}
+        {{=LOAD('switch', 'model_switch_card.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Switches"))}}
     </div>
     {{pass}}
 

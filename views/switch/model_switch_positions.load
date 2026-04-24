@@ -1,0 +1,27 @@
+<h6>Positions</h6>
+<div class="row font-weight-bold border-bottom mb-1">
+    <div class="col-3">Position</div>
+    <div class="col-7">Function</div>
+    <div class="col-2"></div>
+</div>
+{{=deleteform.custom.begin}}
+{{for p in positions:}}
+<div class="row border-bottom py-1">
+    <div class="col-3">
+        {{=switch_icon(p.pos, 20)}} {{=p.pos}}
+    </div>
+    <div class="col-7">{{=p.func or ''}}</div>
+    <div class="col-2">
+        <button class="btn btn-sm btn-outline-danger" type="submit"
+                value="Remove" name="{{=p.id}}">{{=action_icon('delete', 16)}}</button>
+    </div>
+</div>
+{{pass}}
+{{=deleteform.custom.end}}
+{{=addform.custom.begin}}
+<div class="row mt-2">
+    {{=makeFormField(addform, 'pos', fieldType=FormFieldType.COLUMNS, columns=3)}}
+    {{=makeFormField(addform, 'func', fieldType=FormFieldType.COLUMNS, columns=7)}}
+    {{=makeFormField(addform, 'submit', fieldType=FormFieldType.COLUMNS, columns=2)}}
+</div>
+{{=addform.custom.end}}

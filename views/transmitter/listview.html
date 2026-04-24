@@ -1,8 +1,13 @@
 {{extend 'layout.html'}}
 
 <div class="row mb-3">
-    <div class="col-md-12">
+    <div class="col">
         <h2>{{=controller_icon('transmitter', 48)}} Transmitter</h2>
+    </div>
+    <div class="col-auto align-self-center">
+        <a href="{{=URL('switch','switchreport')}}" class="btn btn-outline-secondary btn-sm">
+            {{=controller_icon('switch', 16)}} Switch Report
+        </a>
     </div>
 </div>
 

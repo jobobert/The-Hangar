@@ -10,7 +10,8 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-6">
+        <div class="col-12 col-sm-6">
+            <div style="overflow-x:auto">
             <table>
                 <tr>
                     <td><strong>{{=getattr(db.activity, 'activitydate').label}}</strong></td>
@@ -36,8 +37,9 @@
                     <td colspan="3">{{=MARKMIN(activity.notes)}}</td>
                 </tr>
             </table>
+            </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-12 col-sm-6">
             {{if activity.img:}}
             <img style="max-width: 400px;" class="card-img-top" src="{{=URL('default', 'download', args=activity.img)}}" alt="Activity Image">
             {{else:}}
@@ -47,6 +49,9 @@
 
     </div>
 
+
+    <div class="row pb-5">
+    </div>
 
     <div class=" row bg-light fixed-bottom pl-5 p-2">
         <a class="btn btn-primary" href="{{=URL('activity','update',args=activity.id,extension='html')}}">Edit</a>

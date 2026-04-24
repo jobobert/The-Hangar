@@ -16,7 +16,7 @@
     <div class="col d-none d-md-block th-listview-header">
         {{=db.todo.critical.label}}
     </div>
-    <div class="col-sm-3 d-none d-md-block text-truncate th-listview-header">
+    <div class="col-12 col-sm-3 d-none d-md-block text-truncate th-listview-header">
         {{=db.todo.notes.label}}
     </div>
     <div class="col th-listview-header">
@@ -36,7 +36,7 @@
     <div class="col d-none d-md-block">
         {{=todo.critical}}
     </div>
-    <div class="col-sm-3 d-none d-md-block text-truncate">
+    <div class="col-12 col-sm-3 d-none d-md-block text-truncate">
         {{=todo.notes}}
     </div>
     <div class="col">
@@ -50,6 +50,8 @@
     <div class="col">No todos found {{=newButton('todo', 'update', '')}}</div>
 </div>
 {{pass}}
+
+<div class="mb-5"></div>
 
 <div class="row bg-light fixed-bottom pl-5 p-2">
     {{=newButton('todo', 'update', '')}}

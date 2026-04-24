@@ -1,6 +1,7 @@
 {{if rows:}}
-<table class="table">
-    <thead>
+<div style="overflow-x:auto;">
+<table class="table table-sm table-bordered">
+    <thead class="thead-light">
         <tr>
             {{for h in headers:}}
             <th>{{=h}}</th>
@@ -10,14 +11,18 @@
     <tbody>
         {{for row in rows:}}
         <tr>
-            {{for cell in row:}}
+            {{for i, cell in enumerate(row):}}
+            {{if i == 0 and legacy_models and cell in legacy_models:}}
+            <td>{{=cell}} <span class="badge badge-warning" style="font-size:0.6rem;">legacy</span></td>
+            {{else:}}
             <td>{{=cell}}</td>
+            {{pass}}
             {{pass}}
         </tr>
         {{pass}}
     </tbody>
 </table>
-
+</div>
 {{else:}}
-No switches found for this transmitter.
+<p class="text-muted">No switch data for this transmitter.</p>
 {{pass}}

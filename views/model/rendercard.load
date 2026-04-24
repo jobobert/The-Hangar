@@ -10,7 +10,7 @@
     </div>
     {{if model.modelcategory == 'Dynamic':}}
     {{if model.get_radio_config_backedup() == 'No':}}
-    <div style="position:absolute; top: 0px; left: 270px; display: inline-block; width:48px; float:right;">
+    <div class="position-absolute d-inline-block" style="top: 0px; right: 0px; width:48px;">
         {{=action_icon('warning', 32, alt='Config not Backed Up') }}
     </div>
     {{pass}}
