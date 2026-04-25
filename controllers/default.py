@@ -380,6 +380,30 @@ def setui():
 
     return redirect(URL('default', 'index'))
 
+
+def dashboard_version():
+    """Lightweight fingerprint of dashboard data — used by the 30s auto-refresh poll."""
+    response.generic_patterns = ['json']
+    model_ids = [r.id for r in db(
+        (db.model.selected == True) & (db.model.modelstate > 1)
+    ).select(db.model.id)]
+
+    act_max = 0
+    todo_max = 0
+    if model_ids:
+        act = db(db.activity.model.belongs(model_ids)).select(
+            db.activity.id.max(), db.activity.id.count()
+        ).first()
+        act_max = (act[db.activity.id.max()] or 0) + (act[db.activity.id.count()] or 0)
+
+        td = db(db.todo.model.belongs(model_ids)).select(
+            db.todo.id.max(), db.todo.id.count()
+        ).first()
+        todo_max = (td[db.todo.id.max()] or 0) + (td[db.todo.id.count()] or 0)
+
+    fingerprint = '%d-%d-%d-%d' % (len(model_ids), act_max, todo_max, 0)
+    return dict(fingerprint=fingerprint)
+
 # ---- action to server uploaded static content (required) ---
 
 

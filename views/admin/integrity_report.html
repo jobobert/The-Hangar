@@ -14,6 +14,113 @@
     </div>
 </div>
 
+{{# ── Switch Migration ───────────────────────────────────────────────────── }}
+<h4>Switch Migration</h4>
+{{if not switch_pending:}}
+<div class="alert alert-success mb-4">All models have been migrated to the new switch system.</div>
+{{else:}}
+<div class="alert alert-warning">
+    <strong>{{=len(switch_pending)}} model{{='s' if len(switch_pending) != 1 else ''}}</strong>
+    have legacy switch records that have not been migrated to the new switch system.
+</div>
+<div class="table-responsive mb-4">
+<table class="table table-bordered table-sm">
+    <thead class="thead-light">
+        <tr>
+            <th></th>
+            <th>Model</th>
+            <th>Type</th>
+            <th class="text-center">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for model in switch_pending:}}
+        <tr class="modelstate_border-left_{{=model.modelstate}}">
+            <td class="text-center" style="width:48px"><img src="{{=URL('default', 'download', args=model.img)}}" height="32"></td>
+            <td><a href="{{=URL('model', 'index', args=model.id, extension='html')}}">{{=model.name}}</a></td>
+            <td><span class="badge badge-secondary">{{=model.modeltype}}</span></td>
+            <td class="text-center">
+                <a href="{{=URL('switch', 'migrate_model_switches', args=model.id)}}" class="btn btn-sm btn-warning">Migrate Switches</a>
+            </td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+</div>
+{{pass}}
+
+{{# ── Diagram Migration (existing diagrams needing review) ────────────────── }}
+<h4>Diagram Migration</h4>
+{{if not diagram_pending:}}
+<div class="alert alert-success mb-4">All existing diagrams have been reviewed.</div>
+{{else:}}
+<div class="alert alert-info">
+    <strong>{{=len(diagram_pending)}} model{{='s' if len(diagram_pending) != 1 else ''}}</strong>
+    have a wiring diagram that has not been reviewed in the new editor.
+</div>
+<div class="table-responsive mb-4">
+<table class="table table-bordered table-sm">
+    <thead class="thead-light">
+        <tr>
+            <th></th>
+            <th>Model</th>
+            <th>Type</th>
+            <th class="text-center">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for model in diagram_pending:}}
+        <tr class="modelstate_border-left_{{=model.modelstate}}">
+            <td class="text-center" style="width:48px"><img src="{{=URL('default', 'download', args=model.img)}}" height="32"></td>
+            <td><a href="{{=URL('model', 'index', args=model.id, extension='html')}}">{{=model.name}}</a></td>
+            <td><span class="badge badge-secondary">{{=model.modeltype}}</span></td>
+            <td class="text-center">
+                <a href="{{=URL('diagram', 'migrate_model_diagram', args=model.id)}}" class="btn btn-sm btn-info">Review Diagram</a>
+            </td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+</div>
+{{pass}}
+
+{{# ── Diagram Generation (models with components but no diagram) ──────────── }}
+<h4>Diagram Generation</h4>
+{{if not diagram_generation_pending:}}
+<div class="alert alert-success mb-4">All models with components have a wiring diagram.</div>
+{{else:}}
+<div class="alert alert-warning">
+    <strong>{{=len(diagram_generation_pending)}} model{{='s' if len(diagram_generation_pending) != 1 else ''}}</strong>
+    have components but no wiring diagram.
+</div>
+<div class="table-responsive mb-4">
+<table class="table table-bordered table-sm">
+    <thead class="thead-light">
+        <tr>
+            <th></th>
+            <th>Model</th>
+            <th>Type</th>
+            <th class="text-center">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for model in diagram_generation_pending:}}
+        <tr class="modelstate_border-left_{{=model.modelstate}}">
+            <td class="text-center" style="width:48px"><img src="{{=URL('default', 'download', args=model.img)}}" height="32"></td>
+            <td><a href="{{=URL('model', 'index', args=model.id, extension='html')}}">{{=model.name}}</a></td>
+            <td><span class="badge badge-secondary">{{=model.modeltype}}</span></td>
+            <td class="text-center">
+                <a href="{{=URL('diagram', 'migrate_model_diagram', args=model.id)}}" class="btn btn-sm btn-warning">Generate Diagram</a>
+            </td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+</div>
+{{pass}}
+
+{{# ── Missing Important Fields ────────────────────────────────────────────── }}
+<h4>Missing Important Fields</h4>
 {{if not flagged:}}
 <div class="alert alert-success">
     All {{=total}} models have their important fields filled in. No issues found.
@@ -22,7 +129,6 @@
 <div class="alert alert-warning">
     {{=len(flagged)}} of {{=total}} models have missing important fields.
 </div>
-
 <div class="table-responsive">
 <table class="table table-bordered table-sm">
     <thead class="thead-light">

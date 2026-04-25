@@ -38,6 +38,17 @@
 </div>
 {{pass}}
 
+{{if model.diagram and not _migration_applied(f'model_diagram_migrated_{model.id}'):}}
+<div class="row ml-2 mb-2">
+    <div class="col-12">
+        <div class="alert alert-info d-flex align-items-center justify-content-between mb-0" role="alert">
+            <span>This model has a wiring diagram that has not been reviewed in the new editor.</span>
+            <a href="{{=URL('diagram','migrate_model_diagram',args=[model.id])}}" class="btn btn-sm btn-info ml-3">Review Diagram</a>
+        </div>
+    </div>
+</div>
+{{pass}}
+
 <div class="row mb-3 ml-2 no-print">
     <div class=" col-sm-12">
         {{=LOAD('model','flowchart.load', args=[model.id], ajax=True, content='Loading Flowchart..')}}

@@ -17,6 +17,22 @@
             </div>
         </div>
         {{pass}}
+<br/>
+
+        {{for activity in activities:}}
+        <div class="row">
+            <div class="col-12 col-sm-4 d-block font-weight-bold" style="border-left: solid 10px {{=activitytype_colors.get(activity.activitytype, '#cccccc')}}">{{=activity.activitydate}}</div>
+            <div class="col-12 col-sm-4 d-block">{{=activity.activitytype}}</div>
+            <div class="col-12 col-sm-4 d-none d-lg-block">{{=activity.activitylocation}}</div>
+        </div>
+        <div class="row">
+            <div class="col-10">{{=MARKMIN(activity.notes)}}</div>
+        
+            <div class="col-12 col-sm-2 d-block">
+                <a class="btn btn-primary" href="{{=URL('activity','update',args=activity.id,extension='html')}}">Edit</a>
+            </div>
+        </div>
+        {{pass}}
 
     </div>
 </div>

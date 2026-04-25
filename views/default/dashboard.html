@@ -35,69 +35,59 @@
             </div>
         </div>
         <div class="row">
-            <button type="button" class="btn" data-toggle="modal" data-target="#todo">New Todo</button>
-            <!-- <button type="button" class="btn">New Event</button> -->
-        </div>
-        <div class="row">
-            {{=LOAD('activity', 'calendar.load')}}
+            <div class="col-12">
+                {{=LOAD('activity', 'calendar.load')}}
+            </div>
         </div>
         <div class="row" id="todorow">
             {{=LOAD('todo','renderlist.load', args=['dashboard'], ajax_trap=True, target='todorow', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')), 'Loading Todos'))}}
         </div>
 
-        <script>
-            $(function () {
-                $('#list li:first-child a').tab('show')
-            })
-        </script>
-
         {{elif selectedmodel:}}
 
-        <div class="container">
-            <div class="row mb-3 ml-2">
-                <div class="col-12">
-                    {{=LOAD('model','flowchart.load', args=[selectedmodel.id], ajax=True, content='Loading Flowchart..')}}
+        <div class="row mb-2 mx-1">
+            <div class="col-12">
+                {{=LOAD('model','flowchart.load', args=[selectedmodel.id], ajax=True, content='Loading Flowchart..')}}
+            </div>
+        </div>
+
+        <div class="row mx-1 mb-2">
+            <div class="col-12">
+                <div class="btn-group" role="group">
+                    <a class="btn btn-primary" href="{{=URL('model','index',args=selectedmodel.id,extension='html')}}">Details</a>
+                    <a class="btn btn-outline-primary" href="{{=URL('model','update',args=selectedmodel.id,extension='html')}}">Edit</a>
+                    {{=LOAD('model','selected.load', args=[selectedmodel.id], ajax=True, content='...')}}
+                    <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#todo">New Todo</button>
                 </div>
             </div>
+        </div>
 
-            <div class="row">
-                <div class="col-12">
-                    <div class="container">
-                        <div class="row">
-                            <div class="btn-group" role="group">
-                                <a class="btn btn-primary" href="{{=URL('model','index',args=selectedmodel.id,extension='html')}}">Details</a>
-                                <a class="btn btn-outline-primary" href="{{=URL('model','update',args=selectedmodel.id,extension='html')}}">Edit</a>
-                                {{=LOAD('model','selected.load', args=[selectedmodel.id], ajax=True, content='...')}}
-                            </div>
-                        </div>
+        <div class="row mx-1">
+            <div class="col-12">
+                <ul id="tab-list" class="nav nav-pills nav-fill border-bottom">
+                    <li class="nav-item"><a class="nav-link dashboard-tab active" data-toggle="tab" id="tabdesc" href="#tdescription">Description</a></li>
+                    <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabattr" href="#tattributes">Attributes</a></li>
+                    <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabnote" href="#tnotes">Notes</a></li>
+                    <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtodo" href="#ttodos">Todos</a></li>
+                    {{if selectedmodel.get_componentcount() > 0:}}
+                    <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabcomp" href="#tcomponents">Components</a></li>
+                    {{pass}}
+                    {{if selectedmodel.get_toolcount() > 0:}}
+                    <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtool" href="#ttools">Tools</a></li>
+                    {{pass}}
+                    {{if selectedmodel.get_attachmentcount() > 0:}}
+                    <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabatta" href="#tattachments">Attachments</a></li>
+                    {{pass}}
+                    {{if selectedmodel.get_switchcount() > 0:}}
+                    <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabswit" href="#tswitches">Switches</a></li>
+                    {{pass}}
+                    {{if selectedmodel.diagram:}}
+                    <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabdiag" href="#tdiagram">Diagram</a></li>
+                    {{pass}}
+                </ul>
 
-
-
-                        <div class="row p-2">
-                            <ul id="tab-list" class="nav nav-pills mt-3 border-bottom">
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabdesc" href="#tdescription">Description</a></li>
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabattr" href="#tattributes">Attributes</a></li>
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabnote" href="#tnotes">{{=selectedmodel.get_notecount()}} Notes</a></li>
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtodo" href="#ttodos">{{=selectedmodel.get_opentodocount()}} Todos</a></li>
-                                {{if selectedmodel.get_componentcount() > 0:}}
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabcomp" href="#tcomponents">{{=selectedmodel.get_componentcount()}} Components</a></li>
-                                {{pass}}
-                                {{if selectedmodel.get_toolcount() > 0:}}
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabtool" href="#ttools">{{=selectedmodel.get_toolcount()}} Tools</a></li>
-                                {{pass}}
-                                {{if selectedmodel.get_attachmentcount() > 0:}}
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabatta" href="#tattachments">{{=selectedmodel.get_attachmentcount()}} Attachments</a></li>
-                                {{pass}}
-                                {{if selectedmodel.get_switchcount() > 0:}}
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabswit" href="#tswitches">{{=selectedmodel.get_switchcount()}} Switches</a></li>
-                                {{pass}}
-                                {{if selectedmodel.diagram:}}
-                                <li class="nav-item"><a class="nav-link dashboard-tab" data-toggle="tab" id="tabdiag" href="#tdiagram">Diagram</a></li>
-                                {{pass}}
-                            </ul>
-
-                            <div class="col-12 tab-content m-2">
-                                <div id="tdescription" class="tab-pane">
+                <div class="tab-content mt-2">
+                                <div id="tdescription" class="tab-pane active">
                                     {{if selectedmodel.transmitter:}}
                                     <div class="mb-3 p-1 bg-light">
                                         <b>Transmitter:</b> {{=selectedmodel.transmitter.nickname or selectedmodel.transmitter.name}}
@@ -108,11 +98,11 @@
                                     {{pass}}
                                     {{=MARKMIN(selectedmodel.notes)}}
                                 </div>
-                                <div id="tnotes" class="tab-pane active">
-                                    {{=LOAD('activity','rendernotes.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='tnotes_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Reading Notes...'))}}
+                                <div id="tnotes" class="tab-pane">
+                                    <div id="tnotes_content"></div>
                                 </div>
                                 <div id="ttodos" class="tab-pane">
-                                    {{=LOAD('todo', 'rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='ttodos_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Loading Todos...'))}}
+                                    <div id="ttodos_content"></div>
                                 </div>
                                 <div id="tattributes" class="tab-pane attribute-list">
                                     <dl>
@@ -142,38 +132,91 @@
                                 </div>
                                 {{if selectedmodel.get_componentcount() > 0:}}
                                 <div id="tcomponents" class="tab-pane">
-                                    {{=LOAD('component','rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax=True, target='tcomponents_inner', content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                                    <div id="tcomponents_content"></div>
                                 </div>
                                 {{pass}}
                                 {{if selectedmodel.get_toolcount() > 0:}}
                                 <div id="ttools" class="tab-pane">
-                                    {{=LOAD('tool','rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax=True, target='ttools_inner', content=IMG(_src=URL('static', 'images/waiting.gif')))}}
+                                    <div id="ttools_content"></div>
                                 </div>
                                 {{pass}}
                                 {{if selectedmodel.get_attachmentcount() > 0:}}
                                 <div id="tattachments" class="tab-pane">
-                                    {{=LOAD('attachment','rendercard.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='tattachments_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
+                                    <div id="tattachments_content"></div>
                                 </div>
                                 {{pass}}
                                 {{if selectedmodel.get_switchcount() > 0:}}
                                 <div id="tswitches" class="tab-pane">
-                                    {{=LOAD('switch','renderswitchtable.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='tswitches_inner', content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),'Getting Attachments...'))}}
+                                    <div id="tswitches_content"></div>
                                 </div>
                                 {{pass}}
                                 {{if selectedmodel.diagram:}}
                                 <div id="tdiagram" class="tab-pane">
-                                    {{=LOAD('diagram','rendermodeldiagram.load', args=[selectedmodel.id, 'dashboard'], ajax_trap=True, target='tdiagram_inner', content=DIV(IMG(_src=URL('static',
-                                    'images/waiting.gif')), "Wiring Diagram"))}}
+                                    <div id="tdiagram_content"></div>
                                 </div>
                                 {{pass}}
-                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+
+        <script>
+        (function() {
+            var loaded = {};
+            var tabUrls = {
+                'tabnote':  ['{{=URL('activity','rendernotes.load',args=[selectedmodel.id,'dashboard'])}}', 'tnotes_content'],
+                'tabtodo':  ['{{=URL('todo','rendercard.load',args=[selectedmodel.id,'dashboard'])}}', 'ttodos_content'],
+                {{if selectedmodel.get_componentcount() > 0:}}
+                'tabcomp':  ['{{=URL('component','rendercard.load',args=[selectedmodel.id,'dashboard'])}}', 'tcomponents_content'],
+                {{pass}}
+                {{if selectedmodel.get_toolcount() > 0:}}
+                'tabtool':  ['{{=URL('tool','rendercard.load',args=[selectedmodel.id,'dashboard'])}}', 'ttools_content'],
+                {{pass}}
+                {{if selectedmodel.get_attachmentcount() > 0:}}
+                'tabatta':  ['{{=URL('attachment','rendercard.load',args=[selectedmodel.id,'dashboard'])}}', 'tattachments_content'],
+                {{pass}}
+                {{if selectedmodel.get_switchcount() > 0:}}
+                'tabswit':  ['{{=URL('switch','renderswitchtable.load',args=[selectedmodel.id,'dashboard'])}}', 'tswitches_content'],
+                {{pass}}
+                {{if selectedmodel.diagram:}}
+                'tabdiag':  ['{{=URL('diagram','rendermodeldiagram.load',args=[selectedmodel.id,'dashboard'])}}', 'tdiagram_content'],
+                {{pass}}
+            };
+
+            $('#tab-list a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+                var tabId = $(e.target).attr('id');
+                if (tabUrls[tabId] && !loaded[tabId]) {
+                    loaded[tabId] = true;
+                    var url = tabUrls[tabId][0];
+                    var target = tabUrls[tabId][1];
+                    $('#' + target).html('<img src="{{=URL('static','images/waiting.gif')}}" /> Loading...');
+                    web2py_component(url, target);
+                }
+            });
+
+            // Auto-refresh: poll for changes every 30s and reload the active tab
+            var _dashFingerprint = null;
+            var _versionUrl = '{{=URL('default','dashboard_version.json')}}';
+
+            function refreshActiveTab() {
+                var activeId = $('#tab-list .nav-link.active').attr('id');
+                if (tabUrls[activeId]) {
+                    web2py_component(tabUrls[activeId][0], tabUrls[activeId][1]);
+                }
+            }
+
+            setInterval(function() {
+                $.getJSON(_versionUrl, function(data) {
+                    if (_dashFingerprint !== null && _dashFingerprint !== data.fingerprint) {
+                        refreshActiveTab();
+                    }
+                    _dashFingerprint = data.fingerprint;
+                });
+            }, 30000);
+        })();
+        </script>
+
         {{else:}}
-        Something happened!
+        <div class="alert alert-warning mt-3">Model not found.</div>
         {{pass}}
     </div>
 </div>

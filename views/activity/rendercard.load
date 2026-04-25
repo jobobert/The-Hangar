@@ -4,10 +4,11 @@
     </div>
     <div class="card-body">
         {{if activities:}}
+
         {{for activity in activities:}}
         <div class="row">
-            <div class="col-12 col-md-9 d-block" style="border-left: solid 10px {{=activitytype_colors.get(activity.activitytype, '#cccccc')}}">{{=B(activity.activitydate)}}<br />{{=activity.activitytype}}</div>
-            <div class="col-12 col-md-3 d-block">
+            <div class="col d-block" style="border-left: solid 10px {{=activitytype_colors.get(activity.activitytype, '#cccccc')}}">{{=B(activity.activitydate)}}<br />{{=activity.activitytype}}</div>
+            <div class="col-3 d-block">
                 {{=editButton('activity', 'update.html', activity.id)}}
             </div>
         </div>
@@ -15,6 +16,8 @@
             <div class="col-12 d-none d-lg-block" style="border-left: solid 10px {{=activitytype_colors.get(activity.activitytype, '#cccccc')}}">{{=MARKMIN(activity.notes)}}</div>
         </div>
         {{pass}}
+
+
         {{else:}}
         No Activities{{pass}}
     </div>

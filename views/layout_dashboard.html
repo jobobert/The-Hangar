@@ -76,16 +76,11 @@
   <script type="text/javascript">
     $(document).ready(function () {
       $("textarea").markItUp(mySettings);
-      //alert(jQuery.fn.jquery);
       $('img').on("error", function () {
         $(this).attr('src', "{{=URL('static', 'icons/nopicture_light.png') }}");
       });
       $('#model-details > table').addClass('table')
     });
-  </script>
-
-
-
   </script>
 
 </body>

@@ -775,4 +775,38 @@ def integrity_report():
         if missing:
             flagged.append({'model': model, 'missing': missing})
 
-    return dict(flagged=flagged, total=len(models))
+    # Models with legacy switch records not yet migrated to model_switch
+    legacy_switch_model_ids = {
+        r.model for r in db(db.switch.id > 0).select(db.switch.model, distinct=True)
+    }
+    switch_pending = sorted(
+        (db.model(mid) for mid in legacy_switch_model_ids
+         if mid and not _migration_applied(f'model_switch_migrated_{mid}')),
+        key=lambda m: m.name
+    )
+
+    # Models with an existing raw-DOT diagram not yet reviewed in the new editor
+    diagram_model_ids = {
+        r.id for r in db(db.model.id > 0).select(db.model.id, db.model.diagram) if r.diagram
+    }
+    diagram_pending = sorted(
+        (db.model(mid) for mid in diagram_model_ids
+         if mid and not _migration_applied(f'model_diagram_migrated_{mid}')),
+        key=lambda m: m.name
+    )
+
+    # Models with components but no diagram at all
+    models_with_components = {
+        r.model for r in db(db.model_component.id > 0).select(db.model_component.model, distinct=True)
+    }
+    diagram_generation_pending = sorted(
+        (db.model(mid) for mid in models_with_components
+         if mid and not db.model(mid).diagram
+         and not _migration_applied(f'model_diagram_migrated_{mid}')),
+        key=lambda m: m.name
+    )
+
+    return dict(flagged=flagged, total=len(models),
+                switch_pending=switch_pending,
+                diagram_pending=diagram_pending,
+                diagram_generation_pending=diagram_generation_pending)

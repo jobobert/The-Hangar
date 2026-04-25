@@ -688,6 +688,12 @@ table>thead>tr>td {
     border: #ffffff solid 2px;
 }
 
+.nav-pills .nav-link.active.dashboard-tab {
+    background-color: #555555;
+    color: #ffffff;
+    border-color: #555555;
+}
+
 .dashboard-highlight {
     background-color: #c5bcbc;
     font-weight: bold;

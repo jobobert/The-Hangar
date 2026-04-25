@@ -1,0 +1,152 @@
+{{extend 'layout.html'}}
+
+<h2>{{=controller_icon('diagram', 40)}} Migrate Diagram &mdash; {{=model.name}}</h2>
+<a href="{{=URL('admin','integrity_report')}}" class="btn btn-sm btn-outline-secondary mb-3">&larr; Integrity Report</a>
+
+{{if already_migrated:}}
+<div class="alert alert-success">
+    This model&rsquo;s diagram has already been migrated.
+    <a href="{{=URL('model','index',args=[model_id],extension='html')}}">Return to model</a>
+</div>
+{{pass}}
+
+{{if not existing_dot:}}
+<div class="alert alert-info">
+    This model has no diagram yet. Use the
+    <a href="{{=URL('diagram','editmodeldiagram',args=[model_id])}}">diagram editor</a> to create one.
+</div>
+{{else:}}
+
+<p class="text-muted mb-3">
+    Map each legacy node ID (left column) to its component using the new <code>mc{id}</code> scheme.
+    The diagram and DOT update live as you assign IDs. When done, click <strong>Save</strong>.
+</p>
+
+<div class="row">
+
+    <div class="col-12 col-lg-7 mb-3">
+        <div class="card h-100">
+            <div class="card-header py-2"><strong>Diagram Preview</strong></div>
+            <div class="card-body p-2" id="graph-container" style="overflow:auto; min-height:300px;"></div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-5 mb-3">
+        <div class="card h-100">
+            <div class="card-header py-2"><strong>Node ID Mapping</strong></div>
+            <div class="card-body p-2">
+                <table class="table table-sm table-bordered mb-0">
+                    <thead class="thead-light">
+                        <tr><th>Old ID</th><th>Map to</th></tr>
+                    </thead>
+                    <tbody id="map-tbody">
+                        {{for nid in node_ids:}}
+                        <tr>
+                            <td><code>{{=nid}}</code></td>
+                            <td>
+                                <select class="form-control form-control-sm id-map-select"
+                                        data-old="{{=nid}}">
+                                    <option value="">— keep as-is —</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {{pass}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<form method="post" action="{{=URL('diagram','migrate_model_diagram',args=[model_id])}}">
+    <div class="form-group">
+        <label><strong>Updated DOT</strong> <small class="text-muted">(editable — changes are reflected in the preview)</small></label>
+        <textarea id="dot-output" name="dot" class="form-control"
+                  rows="12" style="font-family:monospace;font-size:12px;">{{=existing_dot}}</textarea>
+    </div>
+    <button type="submit" name="action" value="save" class="btn btn-primary">Save</button>
+    <button type="submit" name="action" value="skip" class="btn btn-outline-secondary ml-2">Skip</button>
+    <a href="{{=URL('diagram','editmodeldiagram',args=[model_id])}}" class="btn btn-secondary ml-2">Open Full Editor</a>
+</form>
+
+<script src="{{=URL('static','js/viz-global.js')}}"></script>
+<script>
+(function () {
+    var originalDot  = {{=XML(existing_dot_json)}};
+    var compOptions  = {{=XML(comp_options_json)}};
+    var dotTextarea  = document.getElementById('dot-output');
+    var container    = document.getElementById('graph-container');
+    var selects      = document.querySelectorAll('.id-map-select');
+
+    // Populate every dropdown with the component options
+    selects.forEach(function (sel) {
+        compOptions.forEach(function (opt) {
+            var el = document.createElement('option');
+            el.value = opt.new_id;
+            el.textContent = opt.new_id + ' — ' + opt.label;
+            sel.appendChild(el);
+        });
+    });
+
+    // Replace every occurrence of oldId with newId in the DOT string.
+    // Old diagrams may use unquoted node IDs in edges (e.g. receiver:f1:e -- rudder_servo).
+    function applyMappings(dot) {
+        selects.forEach(function (sel) {
+            var oldId = sel.dataset.old;
+            var newId = sel.value;
+            if (!newId) return;
+            var escaped = oldId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            // 1. Quoted: "oldId" -> "newId"  (node definitions, quoted edge refs)
+            dot = dot.replace(new RegExp('"' + escaped + '"', 'g'), '"' + newId + '"');
+            // 2. Unquoted port/compass refs: oldId:port -> "newId":port
+            dot = dot.replace(new RegExp('\\b' + escaped + '(?=:\\w)', 'g'), '"' + newId + '"');
+            // 3. Unquoted standalone: oldId not followed by : or word chars
+            dot = dot.replace(new RegExp('\\b' + escaped + '\\b(?![:\\w"])', 'g'), '"' + newId + '"');
+        });
+        return dot;
+    }
+
+    // Add xlabel="oldId" to every node definition so the diagram self-labels.
+    // For record (table) nodes Graphviz renders xlabel outside the box, which
+    // is still enough to identify the node for mapping purposes.
+    function annotateIds(dot) {
+        return dot.replace(/"([^"]+)"\s*\[/g, function (match, nodeId) {
+            return '"' + nodeId + '" [xlabel="' + nodeId + '"; ';
+        });
+    }
+
+    function renderDot(dot) {
+        Viz.instance().then(function (viz) {
+            try {
+                var svg = viz.renderSVGElement(annotateIds(dot));
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.maxWidth = '100%';
+                container.replaceChildren(svg);
+            } catch (e) { /* leave current preview on invalid DOT */ }
+        });
+    }
+
+    // Called when any dropdown changes: rebuild DOT from original + mappings
+    function onMappingChange() {
+        var dot = applyMappings(originalDot);
+        dotTextarea.value = dot;
+        renderDot(dot);
+    }
+
+    // Called when the user edits the textarea directly
+    dotTextarea.addEventListener('input', function () {
+        renderDot(dotTextarea.value);
+    });
+
+    selects.forEach(function (sel) {
+        sel.addEventListener('change', onMappingChange);
+    });
+
+    // Initial render from original DOT
+    renderDot(originalDot);
+})();
+</script>
+
+{{pass}}

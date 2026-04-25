@@ -351,6 +351,62 @@ def createcomponentexamples():
 
     return comps
 
+def migrate_model_diagram():
+    """Remap legacy node IDs in an existing DOT diagram to the mc{id} scheme."""
+    import re, json as _json
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
+    model = db.model(model_id)
+
+    already_migrated = _migration_applied(f'model_diagram_migrated_{model_id}')
+
+    if request.post_vars.get('action') == 'save':
+        dot_to_save = request.post_vars.get('dot', '').strip()
+        if dot_to_save:
+            db(db.model.id == model_id).update(diagram=dot_to_save)
+        _mark_migration(f'model_diagram_migrated_{model_id}')
+        session.flash = 'Diagram migrated'
+        redirect(URL('model', 'index', args=[model_id], extension='html'))
+
+    if request.post_vars.get('action') == 'skip':
+        _mark_migration(f'model_diagram_migrated_{model_id}')
+        session.flash = 'Skipped'
+        redirect(URL('admin', 'integrity_report'))
+
+    # Parse node definition IDs from the existing DOT, preserving order
+    node_ids = []
+    if model.diagram:
+        seen = set()
+        for nid in re.findall(r'"([^"]+)"\s*\[', model.diagram):
+            if nid not in seen:
+                seen.add(nid)
+                node_ids.append(nid)
+
+    # Build new-ID options from model_component records (mc{id} scheme)
+    comp_options = []
+    for mc in db(db.model_component.model == model_id).select():
+        comp = mc.component
+        if not comp:
+            continue
+        label = comp.diagramname if comp.diagramname else comp.name
+        if mc.purpose:
+            label += f' — {mc.purpose}'
+        comp_options.append({
+            'new_id': f'mc{mc.id}',
+            'label': f'[{comp.componenttype}] {label}',
+        })
+
+    existing_dot = model.diagram or ''
+    return dict(
+        model=model,
+        model_id=model_id,
+        existing_dot=existing_dot,
+        existing_dot_json=_json.dumps(existing_dot),
+        already_migrated=already_migrated,
+        node_ids=node_ids,
+        comp_options_json=_json.dumps(comp_options),
+    )
+
+
 def editmodeldiagram():
     import json
     model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
