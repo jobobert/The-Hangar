@@ -639,18 +639,18 @@ def atthefield():
         queries.append(db.model.modeltype.belongs(fq))
 
     query = reduce(lambda a, b: (a & b), queries)
-    fields = (db.model.img, db.model.name)
 
-    links = [
-        dict(header='Count', body=lambda row: row.get_flightcount()),
-        lambda row: A('+1', _href=URL('activity', 'addflight', args=[row.id]), _class='btn btn-primary'),
-        lambda row: A(activity_icon('crash', 20), _href=URL('activity', 'addcrash', args=[row.id]), _class='btn btn-outline-danger'),
-        lambda row: A(controller_icon('model', 20), _href=URL('model', 'index', args=[ row.id]), _class="btn btn-outline-secondary")
-    ]
-
-    models = SQLFORM.grid(
-        query, args=request.args[:1], searchable=False, orderby=db.model.name, csv=False, editable=False, deletable=False, paginate=100,
-        details=False, maxtextlength=255, create=False, fields=fields, links=links, links_placement='right', buttons_placement='both', _class='itemlist-grid', user_signature=False
+    rows = db(query).select(
+        db.model.id,
+        db.model.img,
+        db.model.name,
+        db.activity.activitydate.max().with_alias('last_flight'),
+        left=db.activity.on(
+            (db.activity.model == db.model.id) &
+            (db.activity.activitytype == 'Flight')
+        ),
+        groupby=db.model.id,
+        orderby=~db.activity.activitydate.max() | db.model.name,
     )
 
     filters = {
@@ -673,7 +673,7 @@ def atthefield():
         
     #DIV(A("Flying", _href="", _class="btn btn-secondary"), A("Boating", _href="", _class="btn btn-secondary"))
 
-    return dict(content=models, filter=filter)
+    return dict(content=rows, filter=filter)
 
 def updatemodelbattery():
     response.title = "Update Model/Battery"

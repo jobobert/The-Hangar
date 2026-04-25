@@ -1,0 +1,80 @@
+{{extend 'layout.html'}}
+
+<div class="update-page">
+    <div class="row">
+        <h2>{{=controller_icon('switch', 48)}} Change Transmitter — {{=model.name}}</h2>
+    </div>
+
+    {{if phase == 1:}}
+    <p class="lead">Select the new transmitter for this model. Any linked switch assignments will be remapped in the next step.</p>
+    <form method="post" action="{{=URL('switch', 'change_transmitter', args=[model_id])}}">
+        <div class="form-group">
+            <label>New Transmitter</label>
+            <select class="form-control" name="new_transmitter_id" required>
+                <option value="">-- Select transmitter --</option>
+                {{for t in transmitters:}}
+                <option value="{{=t.id}}">{{=t.nickname or t.name}}</option>
+                {{pass}}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Next</button>
+        <a href="{{=URL('model', 'index', args=[model_id], extension='html')}}" class="btn btn-secondary ml-2">Cancel</a>
+    </form>
+
+    {{elif phase == 2:}}
+    <p class="lead">
+        Switching from <strong>{{=model.transmitter.nickname or model.transmitter.name}}</strong>
+        to <strong>{{=new_transmitter.nickname or new_transmitter.name}}</strong>.
+    </p>
+
+    {{if rows:}}
+    <p>For each linked switch, choose where it should map on the new transmitter.
+       Switches pre-matched by name and type are pre-selected — you can override any of them.</p>
+    <form method="post" action="{{=URL('switch', 'change_transmitter', args=[model_id])}}">
+        <input type="hidden" name="new_transmitter_id" value="{{=new_transmitter_id}}">
+        <input type="hidden" name="confirm" value="1">
+        <div style="overflow-x:auto">
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th>Switch</th>
+                    <th>Type</th>
+                    <th>Purpose</th>
+                    <th>Map to</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{for ms, old_ts, preselected_id in rows:}}
+                <tr>
+                    <td><strong>{{=old_ts.name}}</strong></td>
+                    <td>{{=switch_icon(old_ts.switchtype, 20)}} {{=old_ts.switchtype or ''}}</td>
+                    <td>{{=ms.purpose or ''}}</td>
+                    <td>
+                        <select class="form-control form-control-sm" name="map_{{=ms.id}}">
+                            {{for val, label in new_ts_opts:}}
+                            <option value="{{=val}}" {{='selected' if val == preselected_id else ''}}>{{=label}}</option>
+                            {{pass}}
+                        </select>
+                        {{if preselected_id > 0:}}
+                        <small class="text-success">&#10003; auto-matched</small>
+                        {{pass}}
+                    </td>
+                </tr>
+                {{pass}}
+            </tbody>
+        </table>
+        </div>
+        <button type="submit" class="btn btn-primary">Confirm Change</button>
+        <a href="{{=URL('model', 'index', args=[model_id], extension='html')}}" class="btn btn-secondary ml-2">Cancel</a>
+    </form>
+    {{else:}}
+    <p class="text-muted">This model has no linked switch assignments to remap.</p>
+    <form method="post" action="{{=URL('switch', 'change_transmitter', args=[model_id])}}">
+        <input type="hidden" name="new_transmitter_id" value="{{=new_transmitter_id}}">
+        <input type="hidden" name="confirm" value="1">
+        <button type="submit" class="btn btn-primary">Confirm Change</button>
+        <a href="{{=URL('model', 'index', args=[model_id], extension='html')}}" class="btn btn-secondary ml-2">Cancel</a>
+    </form>
+    {{pass}}
+    {{pass}}
+</div>

@@ -60,6 +60,8 @@
     <span>{{=controller_icon('transmitter', 20)}}</span>
     <span>{{=A(model.transmitter.nickname or model.transmitter.name, _href=URL('transmitter', 'index',
         args=model.transmitter))}}</span>
+    <span> </span>
+    <a href="{{=URL('switch','change_transmitter',args=[model.id])}}" class="btn btn-sm btn-outline-secondary">Change</a>
     <span> | </span>
     {{if model.protocol:}}
     <span>{{=A(model.protocol.name, _href=URL('protocol', 'index', args=model.protocol))}}</span>

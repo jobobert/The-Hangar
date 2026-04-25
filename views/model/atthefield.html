@@ -8,8 +8,23 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        {{=content}}
-
+        {{for row in content:}}
+        <div class="row border-bottom my-2 align-items-center">
+            <div class="col-auto">
+                <img src="{{=URL('default', 'download', args=row.model.img)}}" style="width:48px;height:48px;object-fit:cover;">
+            </div>
+            <div class="col">
+                {{=row.model.name}}
+            </div>
+            <div class="col-auto text-muted">
+                {{=row.model.get_flightcount()}}
+            </div>
+            <div class="col-auto order-first order-sm-last">
+                <a href="{{=URL('activity', 'addflight', args=[row.model.id])}}" class="btn btn-primary">+1</a>
+                <a href="{{=URL('activity', 'addcrash', args=[row.model.id])}}" class="btn btn-outline-danger">{{=activity_icon('crash', 20)}}</a>
+                <a href="{{=URL('model', 'index', args=[row.model.id])}}" class="btn btn-outline-secondary">{{=controller_icon('model', 20)}}</a>
+            </div>
+        </div>
+        {{pass}}
     </div>
-
 </div>

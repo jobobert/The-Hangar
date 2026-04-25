@@ -361,6 +361,64 @@ def model_switch_positions():
                 model_switch_id=model_switch_id)
 
 
+def change_transmitter():
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        redirect(URL('model', 'listview'))
+    model = db.model[model_id]
+
+    # Phase 2: apply choices
+    if request.post_vars.get('confirm') == '1':
+        new_transmitter_id = int(request.post_vars.new_transmitter_id)
+        linked = db((db.model_switch.model == model_id) &
+                    (db.model_switch.transmitter_switch != None)).select()
+        for ms in linked:
+            old_ts = db.transmitter_switch[ms.transmitter_switch]
+            choice = int(request.post_vars.get(f'map_{ms.id}', 0))
+            if choice == -1:
+                db(db.model_switch_position.model_switch == ms.id).delete()
+                ms.delete_record()
+            elif choice == 0:
+                ms.update_record(transmitter_switch=None,
+                                 name=old_ts.name, switchtype=old_ts.switchtype)
+            else:
+                ms.update_record(transmitter_switch=choice, name=None, switchtype=None)
+        db.model[model_id].update_record(transmitter=new_transmitter_id)
+        session.flash = 'Transmitter changed'
+        redirect(URL('model', 'index', args=[model_id], extension='html'))
+
+    # Phase 1 POST: compute pre-selections, show resolution form
+    if request.post_vars.get('new_transmitter_id'):
+        new_transmitter_id = int(request.post_vars.new_transmitter_id)
+        new_ts_list = db(db.transmitter_switch.transmitter == new_transmitter_id).select(
+            orderby=db.transmitter_switch.sort_order | db.transmitter_switch.name)
+        new_ts_by_key = {(ts.name, ts.switchtype): ts for ts in new_ts_list}
+
+        linked = db((db.model_switch.model == model_id) &
+                    (db.model_switch.transmitter_switch != None)).select()
+        rows = []
+        for ms in linked:
+            old_ts = db.transmitter_switch[ms.transmitter_switch]
+            match = new_ts_by_key.get((old_ts.name, old_ts.switchtype))
+            rows.append((ms, old_ts, match.id if match else 0))
+
+        new_transmitter = db.transmitter[new_transmitter_id]
+        new_ts_opts = [(0, '-- Keep as freeform --'), (-1, '-- Discard --')]
+        for ts in new_ts_list:
+            new_ts_opts.append((ts.id, f'{ts.name} ({ts.switchtype})'))
+
+        return dict(phase=2, model=model, model_id=model_id,
+                    new_transmitter=new_transmitter,
+                    new_transmitter_id=new_transmitter_id,
+                    rows=rows,
+                    new_ts_opts=new_ts_opts)
+
+    # GET: show transmitter selector
+    transmitters = db(db.transmitter.id != model.transmitter).select(
+        orderby=db.transmitter.name)
+    return dict(phase=1, model=model, model_id=model_id, transmitters=transmitters)
+
+
 ###############################################
 ## PER-MODEL MIGRATION TOOL
 

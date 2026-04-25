@@ -58,7 +58,7 @@
     {{pass}}
 
     <div class="card-body pt-2">
-        {{if switch_count == 0:}}
+        {{if switch_count == 0 and not transmitter_switches:}}
         <p class="text-muted">No switches defined.</p>
         {{else:}}
 
