@@ -43,6 +43,7 @@ def update():
     return dict(form=form)
 
 def renderexport():
+    session.forget(response)
     transmitter_id = VerifyTableID('transmitter', request.args(0))
 
     if not transmitter_id:

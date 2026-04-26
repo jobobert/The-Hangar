@@ -18,6 +18,7 @@ def add():
     return dict(form=form)
 
 def renderswitches():
+    session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate this model', 'model', 'Models')
@@ -66,6 +67,7 @@ def renderswitches():
     return dict(switchList=switchList, switch_count=x, model_id=model_id, render_card=render_card)
 
 def renderswitchtable():
+    session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate this model', 'model', 'Models')
@@ -129,6 +131,7 @@ def update():
     return dict(form=form, switch_id=switch_id)
 
 def renderpositions():
+    session.forget(response)
     switch_id = request.args[0] or None
     newpos = ""
 
@@ -175,6 +178,7 @@ def transmitter_switch_move():
     return response.json({'ok': True, 'x': x, 'y': y})
 
 def transmitter_layout_canvas():
+    session.forget(response)
     transmitter_id = VerifyTableID('transmitter', request.args(0))
     if not transmitter_id:
         return render_card_error('Unable to locate this transmitter', 'transmitter', 'Transmitters')
@@ -228,6 +232,7 @@ def transmitter_switch_delete():
 ## MODEL SWITCH CRUD
 
 def model_switch_card():
+    session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate this model', 'model', 'Models')
@@ -302,13 +307,50 @@ def model_switch_card():
         freeform_edit_forms[ms.id] = eform
 
     # Pre-load positions for all model_switches on this model
-    all_ms_ids = (list(assigned_map.values()) + list(freeform_switches))
-    all_ms_ids = [ms.id for ms in all_ms_ids]
+    all_ms_ids = [ms.id for ms in list(assigned_map.values()) + list(freeform_switches)]
     positions_map = {}
     if all_ms_ids:
         for p in db(db.model_switch_position.model_switch.belongs(all_ms_ids)).select(
                 orderby=db.model_switch_position.id):
             positions_map.setdefault(p.model_switch, []).append(p)
+
+    position_forms = {}
+    for ms_id in all_ms_ids:
+        positions = positions_map.get(ms_id, [])
+
+        addform = SQLFORM(db.model_switch_position, fields=['pos', 'func'], showid=False)
+        addform.vars.model_switch = ms_id
+        if addform.process(session=None, formname=f'addpos_{ms_id}').accepted:
+            response.flash = 'Position added'
+            positions = list(db(db.model_switch_position.model_switch == ms_id).select(
+                              orderby=db.model_switch_position.id))
+            positions_map[ms_id] = positions
+        elif addform.errors:
+            response.flash = 'Error adding position'
+
+        delform = SQLFORM.factory()
+        if delform.process(session=None, formname=f'delpos_{ms_id}').accepted:
+            for k, v in request.vars.items():
+                if v == 'Remove':
+                    db(db.model_switch_position.id == k).delete()
+                    positions = [p for p in positions if str(p.id) != str(k)]
+                    positions_map[ms_id] = positions
+                    response.flash = 'Position removed'
+
+        pos_edit_forms = {}
+        for p in list(positions):
+            eform = SQLFORM(db.model_switch_position, p.id, fields=['pos', 'func'], showid=False)
+            if eform.process(session=None, formname=f'editpos_{p.id}').accepted:
+                response.flash = 'Position updated'
+                positions = list(db(db.model_switch_position.model_switch == ms_id).select(
+                                  orderby=db.model_switch_position.id))
+                positions_map[ms_id] = positions
+            elif eform.errors:
+                response.flash = 'Error updating position'
+            pos_edit_forms[p.id] = eform
+
+        position_forms[ms_id] = dict(positions=positions, addform=addform, delform=delform,
+                                     pos_edit_forms=pos_edit_forms)
 
     switch_count = len(assigned_map) + len(freeform_switches)
 
@@ -324,6 +366,7 @@ def model_switch_card():
         edit_forms=edit_forms,
         freeform_edit_forms=freeform_edit_forms,
         positions_map=positions_map,
+        position_forms=position_forms,
         switch_count=switch_count,
     )
 
@@ -435,7 +478,7 @@ def migrate_model_switches():
     if transmitter_id:
         for ts in db(db.transmitter_switch.transmitter == transmitter_id).select(
                 orderby=db.transmitter_switch.sort_order | db.transmitter_switch.name):
-            transmitter_switch_opts.append((ts.id, ts.name))
+            transmitter_switch_opts.append((ts.id, f'{ts.name} ({ts.switchtype})' if ts.switchtype else ts.name))
 
     if request.post_vars:
         for s in old_switches:
@@ -472,6 +515,7 @@ def migrate_model_switches():
 
 
 def listswitches():
+    session.forget(response)
     transmitter_id = VerifyTableID('transmitter', request.args(0))
 
     try:
@@ -531,7 +575,7 @@ def listswitches():
                 proto = 'No Protocol'
             model_data[(r['model_name'], 'protocol')] = proto
             model_data[(r['model_name'], 'actions')] = A(
-                'Go', _href=URL('model', 'index', args=[r['model_id']]),
+                'Go', _href=URL('model', 'index', args=[r['model_id']], extension='html'),
                 _class='btn btn-primary btn-sm')
             if r['legacy']:
                 model_data[(r['model_name'], 'legacy')] = True
@@ -555,6 +599,7 @@ def listswitches():
 
 
 def switchreport():
+    session.forget(response)
     response.title = 'Switch Report'
 
     all_transmitters = db(db.transmitter).select(orderby=db.transmitter.name)

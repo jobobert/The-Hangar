@@ -154,6 +154,7 @@ def exportflighttimes():
     return dict(content=torender)
 
 def rendercard():
+    session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate this model', 'model', 'Models')
@@ -167,6 +168,7 @@ def rendercard():
     return dict(model=model)
 
 def renderurlcard():
+    session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
 
     if not model_id:
@@ -197,6 +199,7 @@ def renderurlcard():
     return dict(urls=urls, urlcount=urlcount, addform=addform, deleteform=deleteform)
 
 def printcard():
+    session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate this model', 'model', 'Models')
@@ -204,6 +207,7 @@ def printcard():
     return dict(model_id=model_id)
 
 def renderpackinglistcard():
+    session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate this model', 'model', 'Models')
@@ -219,6 +223,7 @@ def renderpackinglistcard():
     return dict(model=model, batteries=batteries, hardware=hardware, tools=tools, support_items=support_items, propellers=propellers, rigs=rigs)
 
 def renderhass():
+    session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate this model', 'model', 'Models')
@@ -397,7 +402,7 @@ def deleteconfig():
     return redirect(session.ReturnHere or URL('model', 'index', args=model_id))
 
 def updatestate():
-    # session.forget(response)
+    session.forget(response)
     model_id = request.args[0]
     state_id = request.args[1]
 
@@ -530,6 +535,7 @@ def updateflighttime():
 
 
 def renderflighttimes():
+    session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate this model', 'model', 'Models')

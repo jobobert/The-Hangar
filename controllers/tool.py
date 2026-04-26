@@ -95,6 +95,7 @@ def rendercard():
     return dict(model_tools=model_tools, model_id=model_id, addform=addform, newform=newform, deleteform=deleteform, tool_count=tool_count, options=request.args(1))
 
 def renderexport():
+    session.forget(response)
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:

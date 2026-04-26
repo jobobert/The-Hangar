@@ -74,6 +74,7 @@ def rendercard():
 
 
 def renderexport():
+    session.forget(response)
 
     model_id = VerifyTableID('model', request.args(0)) or None
 

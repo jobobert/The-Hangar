@@ -271,8 +271,10 @@ def index():
 
     ct_count   = db(db.componenttype.id > 0).count()
     de_count   = db(db.diagramedge.id > 0).count()
+    conn_count = db(db.diagram_connector.id > 0).count()
     chem_count = db(db.chemistry.id > 0).count()
-    return dict(groups=groups, ct_count=ct_count, de_count=de_count, chem_count=chem_count)
+    return dict(groups=groups, ct_count=ct_count, de_count=de_count,
+                conn_count=conn_count, chem_count=chem_count)
 
 
 def category():
@@ -583,6 +585,56 @@ def diagramedge_delete():
     db(db.diagramedge.id == de_id).delete()
     session.flash = "Deleted '%s'" % row.name
     redirect(URL('admin', 'diagramedge_list'))
+
+
+# ---------------------------------------------------------------------------
+# Diagram Connectors
+# ---------------------------------------------------------------------------
+
+def connector_list():
+    rows = db(db.diagram_connector.id > 0).select(
+        orderby=db.diagram_connector.sort_order | db.diagram_connector.name)
+    return dict(rows=rows)
+
+
+def connector_update():
+    dc_id = VerifyTableID('diagram_connector', request.args(0)) if request.args(0) else None
+    old_row = db.diagram_connector(dc_id) if dc_id else None
+
+    if not dc_id:
+        _max = db(db.diagram_connector.id > 0).select(
+            db.diagram_connector.sort_order.max()
+        ).first()[db.diagram_connector.sort_order.max()] or 0
+        db.diagram_connector.sort_order.default = _max + 1
+
+    form = SQLFORM(db.diagram_connector, old_row, showid=False, deletable=False,
+                   fields=['name', 'left_count', 'right_count', 'left_label',
+                           'right_label', 'fillcolor', 'custom_dot', 'sort_order'])
+    disable_autocomplete(form)
+
+    if form.process().accepted:
+        session.flash = "Saved"
+        redirect(URL('admin', 'connector_list'))
+    elif form.errors:
+        response.flash = "Please correct the errors below"
+
+    return dict(form=form, old_row=old_row)
+
+
+def connector_delete():
+    dc_id = VerifyTableID('diagram_connector', request.args(0))
+    if not dc_id:
+        session.flash = "Invalid connector"
+        redirect(URL('admin', 'connector_list'))
+
+    row = db.diagram_connector(dc_id)
+    if not row:
+        session.flash = "Connector not found"
+        redirect(URL('admin', 'connector_list'))
+
+    db(db.diagram_connector.id == dc_id).delete()
+    session.flash = "Deleted '%s'" % row.name
+    redirect(URL('admin', 'connector_list'))
 
 
 # ---------------------------------------------------------------------------

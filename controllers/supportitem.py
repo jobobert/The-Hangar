@@ -47,7 +47,8 @@ def remove():
     redirect(session.ReturnHere or URL('supportitem', 'index', args=item_id, extension="html"))
 
 def renderexport():
-    
+    session.forget(response)
+
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate the associated model', 'supportitem', 'Support Items')

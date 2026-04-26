@@ -1,0 +1,89 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+Your submitted form contains the following errors:
+<ul>
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}} error: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+
+<div class="update-page">
+    <div class="row">
+        <h2>{{=controller_icon('tag', 48)}} Diagram Connector</h2>
+    </div>
+    <a href="{{=URL('admin', 'connector_list')}}" class="btn btn-sm btn-outline-secondary mb-3">&larr; Connectors</a>
+
+    {{=makeFormField(form, 'name', FormFieldType.ROWS)}}
+
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Terminals</label>
+        <div class="col-sm-2">
+            <label class="small text-muted">{{=db.diagram_connector.left_count.label}}</label>
+            {{=form.custom.widget.left_count}}
+        </div>
+        <div class="col-sm-2">
+            <label class="small text-muted">{{=db.diagram_connector.right_count.label}}</label>
+            {{=form.custom.widget.right_count}}
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Labels</label>
+        <div class="col-sm-2">
+            <label class="small text-muted">{{=db.diagram_connector.left_label.label}}</label>
+            {{=form.custom.widget.left_label}}
+        </div>
+        <div class="col-sm-2">
+            <label class="small text-muted">{{=db.diagram_connector.right_label.label}}</label>
+            {{=form.custom.widget.right_label}}
+        </div>
+        <div class="col-sm-4">
+            <small class="form-text text-muted">e.g. &#9794; / &#9792; or + / &minus;</small>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="diagram_connector_fillcolor">{{=db.diagram_connector.fillcolor.label}}</label>
+        <div class="col-sm-3 d-flex align-items-center">
+            <input type="color" id="colorpicker_fillcolor"
+                   value="{{=old_row.fillcolor if old_row else '#d4c07a'}}"
+                   style="margin-right:.5rem;height:2rem;width:3rem;padding:2px;border:1px solid #ced4da;border-radius:4px;cursor:pointer;"
+                   oninput="document.getElementById('diagram_connector_fillcolor').value=this.value">
+            {{=form.custom.widget.fillcolor}}
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="diagram_connector_custom_dot">{{=db.diagram_connector.custom_dot.label}}</label>
+        <div class="col-sm-7">
+            {{=form.custom.widget.custom_dot}}
+            <small class="form-text text-muted">
+                Optional raw Graphviz label override, e.g. <code>&lt;TABLE&gt;...&lt;/TABLE&gt;</code>. Leave blank to use standard terminal layout.
+            </small>
+        </div>
+    </div>
+
+    {{=makeFormField(form, 'sort_order', FormFieldType.ROWS)}}
+
+</div>
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    {{=makeFormSubmitbutton(form)}}
+</div>
+
+{{=form.custom.end}}
+
+<script>
+(function () {
+    var picker = document.getElementById('colorpicker_fillcolor');
+    var text   = document.getElementById('diagram_connector_fillcolor');
+    if (text && picker) {
+        text.addEventListener('input', function () { picker.value = this.value; });
+    }
+})();
+</script>

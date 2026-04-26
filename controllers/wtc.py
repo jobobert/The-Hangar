@@ -98,6 +98,7 @@ def delete():
     redirect(session.ReturnHere or URL('wtc', 'listview'))
 
 def renderexport():
+    session.forget(response)
     """
     Render WTC export for a given model
     """

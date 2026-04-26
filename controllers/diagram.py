@@ -1,4 +1,5 @@
 def rendermodeldiagram():
+    session.forget(response)
 
     model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
 
@@ -12,6 +13,7 @@ def rendermodeldiagram():
     return dict(dot=model.diagram, model_id=model.id,options=request.args(1),is_mobile=is_mobile)
 
 def rendermodelexport():
+    session.forget(response)
 
     model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
 
@@ -112,6 +114,7 @@ subgraph cluster_legend {{
     """
 
 def diagram_connector_json():
+    session.forget(response)
     """JSON endpoint for wire connector type CRUD used by the diagram editor."""
     import json
     response.headers['Content-Type'] = 'application/json'
@@ -161,6 +164,7 @@ def diagram_connector_json():
 
 
 def diagramedge_json():
+    session.forget(response)
     """JSON endpoint for wire type (diagramedge) CRUD used by the diagram editor."""
     import json
     response.headers['Content-Type'] = 'application/json'
@@ -204,6 +208,7 @@ def diagramedge_json():
 
 
 def diagram_component_json():
+    session.forget(response)
     """JSON endpoint for custom diagram component CRUD used by the diagram editor."""
     import json
     response.headers['Content-Type'] = 'application/json'

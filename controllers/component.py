@@ -290,7 +290,7 @@ def rendercard_grid():
     return dict(components=components, component_count=component_count, grid=grid, newform=newform, options=request.args(1))
 
 def rendercard():
-    # session.forget(response)
+    session.forget(response)
     if len(request.args) == 2:
         is_mobile = request.args[1]
     else:

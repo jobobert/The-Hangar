@@ -1,0 +1,47 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('tag', 48)}} Diagram Connectors</h2>
+        <a href="{{=URL('admin', 'index')}}" class="btn btn-sm btn-outline-secondary mb-2">&larr; Admin</a>
+    </div>
+</div>
+
+<div class="row border-bottom my-2">
+    <div class="col-3 th-listview-header">Name</div>
+    <div class="col th-listview-header">Terminals</div>
+    <div class="col th-listview-header">Labels</div>
+    <div class="col-1 th-listview-header">Color</div>
+    <div class="col-1 th-listview-header">Sort</div>
+    <div class="col-2 th-listview-header">Actions</div>
+</div>
+
+{{if rows:}}
+{{for row in rows:}}
+<div class="row border-bottom my-2 align-items-center">
+    <div class="col-3"><strong>{{=row.name}}</strong></div>
+    <div class="col">{{=row.left_count}} &times; {{=row.right_count}}</div>
+    <div class="col">
+        {{if row.left_label or row.right_label:}}
+        <code>{{=row.left_label or ''}}</code> / <code>{{=row.right_label or ''}}</code>
+        {{pass}}
+    </div>
+    <div class="col-1">
+        <span style="display:inline-block;width:1.4rem;height:1.4rem;background:{{=row.fillcolor or '#d4c07a'}};border:1px solid #999;border-radius:3px;vertical-align:middle;"></span>
+    </div>
+    <div class="col-1">{{=row.sort_order}}</div>
+    <div class="col-2">
+        {{=editButton('admin', 'connector_update', [row.id])}}
+        {{=deleteButton('admin', 'connector_delete', [row.id])}}
+    </div>
+</div>
+{{pass}}
+{{else:}}
+<div class="row border-bottom my-2">
+    <div class="col">No connectors found.</div>
+</div>
+{{pass}}
+
+<div class="row bg-light fixed-bottom pl-5 p-2">
+    <a href="{{=URL('admin', 'connector_update')}}" class="btn btn-success">+ Add Connector</a>
+</div>

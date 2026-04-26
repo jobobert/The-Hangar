@@ -106,6 +106,7 @@ def update():
 
 
 def read():
+    session.forget(response)
     response.title = 'Read Article'
 
     article_id = VerifyTableID('article', request.args(0)) or redirect(URL('library', 'index'))
@@ -115,6 +116,7 @@ def read():
     return dict(article=article)
 
 def search():
+    session.forget(response)
     finalresults = []
 
     # Library Query

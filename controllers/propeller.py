@@ -52,6 +52,7 @@ def delete():
         redirect(URL('propeller', 'index', args=item_id, extension="html"))
 
 def renderexport():
+    session.forget(response)
 
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:

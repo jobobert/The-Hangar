@@ -74,6 +74,7 @@ def rendercard():
     return dict(model_rigs=model_rigs, modelid=model_id, newform=newform, deleteform=deleteform, rig_count=rig_count)
 
 def renderexport():
+    session.forget(response)
     """
     Render Sail Rig export for a given model
     """

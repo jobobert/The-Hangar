@@ -30,6 +30,7 @@ def calendar():
     return dict(model_id=model_id)
 
 def listrecentflights():
+    session.forget(response)
 
     #model_id = VerifyTableID('model', request.args(0)) or redirect(URL('activity', 'calendar'))
 
@@ -39,6 +40,7 @@ def listrecentflights():
     return dict(flights=flights)
 
 def events():
+    session.forget(response)
 
     theList = []
 

@@ -50,58 +50,192 @@
                        cursor:pointer;color:#6c757d;line-height:1;">
             &#9660; expand
         </button>
-        </div>{{# end overflow-x wrapper }}
+        </div>
         <p class="text-muted mt-1 mb-0" style="font-size:0.75rem;">
-            Green = assigned &nbsp;|&nbsp; Gray = unassigned. Click a switch name below to assign or edit.
+            Green = assigned &nbsp;|&nbsp; Gray = unassigned.
         </p>
     </div>
     {{pass}}
 
-    <div class="card-body pt-2">
+    <div class="card-body pt-2 pb-1">
         {{if switch_count == 0 and not transmitter_switches:}}
         <p class="text-muted">No switches defined.</p>
         {{else:}}
 
-        {{# Transmitter-linked assigned switches }}
+        {{# Assigned transmitter-linked switches }}
         {{for ts in transmitter_switches:}}
         {{ms = assigned_map.get(ts.id)}}
         {{if ms:}}
-        <div class="row">
-            <div class="col-4 col-md-2 font-weight-bold">{{=ts.name}}</div>
-            <div class="col col-md-8">{{=ms.purpose or ''}}</div>
-            <div class="col-2 col-md-2">
-                <button type="button" class="btn btn-sm btn-warning"
-                        popovertarget="msw-edit-{{=ms.id}}">{{=action_icon('edit', 16)}}</button>
-                <div id="msw-edit-{{=ms.id}}" popover="manual"
-                     style="position:fixed;top:5vh;left:50%;transform:translateX(-50%);
-                            padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;
-                            min-width:320px;max-height:90vh;overflow-y:auto;z-index:9999;">
-                    <button type="button" popovertarget="msw-edit-{{=ms.id}}"
-                            popovertargetaction="hide"
-                            style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>
-                    <h5>{{=ts.name}}</h5>
-                    {{=edit_forms[ms.id]}}
-                </div>
+        {{pf = position_forms.get(ms.id, {})}}
+        <div class="d-flex align-items-center py-1">
+            <span class="mr-1">{{=switch_icon(ts.switchtype, 18)}}</span>
+            <strong class="mr-2" style="font-size:.9rem;">{{=ts.name}}</strong>
+            <span class="text-muted flex-grow-1" style="font-size:.85rem;">{{=ms.purpose or ''}}</span>
+            <button type="button" class="btn btn-sm btn-warning ml-auto"
+                    popovertarget="msw-edit-{{=ms.id}}">{{=action_icon('edit', 14)}}</button>
+            <div id="msw-edit-{{=ms.id}}" popover="manual"
+                 style="position:fixed;top:5vh;left:50%;transform:translateX(-50%);
+                        padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;
+                        min-width:320px;max-height:90vh;overflow-y:auto;z-index:9999;">
+                <button type="button" popovertarget="msw-edit-{{=ms.id}}"
+                        popovertargetaction="hide"
+                        style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>
+                <h5>{{=ts.name}}</h5>
+                {{=edit_forms[ms.id]}}
             </div>
         </div>
-        <div class="row border-bottom mb-1">
-            <div class="col-3 d-none d-md-block">
-                {{=switch_icon(ts.switchtype, 32)}}
+        {{# Edit popovers for each position (outside delete form) }}
+        {{for p in pf.get('positions', []):}}
+        <div id="pos-edit-{{=p.id}}" popover="manual"
+             style="position:fixed;top:5vh;left:50%;transform:translateX(-50%);
+                    padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;
+                    min-width:280px;max-height:90vh;overflow-y:auto;z-index:9999;">
+            <button type="button" popovertarget="pos-edit-{{=p.id}}"
+                    popovertargetaction="hide"
+                    style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>
+            <h6 class="mb-2">Edit Position</h6>
+            {{ef = pf['pos_edit_forms'][p.id]}}
+            {{=ef.custom.begin}}
+            <div class="form-row">
+                {{=makeFormField(ef, 'pos', fieldType=FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(ef, 'func', fieldType=FormFieldType.COLUMNS, columns=8)}}
             </div>
-            <div class="col">
-                {{for p in positions_map.get(ms.id, []):}}
-                <div class="row border-bottom">
-                    <div class="col-3">{{=switch_icon(p.pos, 32)}}</div>
-                    <div class="col-9">{{=p.func or ''}}</div>
-                </div>
-                {{pass}}
+            <div class="mt-2">
+                {{=makeFormField(ef, 'submit', fieldType=FormFieldType.COLUMNS, columns=12)}}
+            </div>
+            {{=ef.custom.end}}
+        </div>
+        {{pass}}
+        {{# Delete form wraps position rows }}
+        <div class="pl-3 mb-1" style="font-size:.82rem;">
+        {{=pf['delform'].custom.begin}}
+        {{for p in pf.get('positions', []):}}
+        <div class="row border-bottom" style="margin:0;padding:1px 0;">
+            <div class="col-auto pr-1" style="min-width:1.4rem;">{{=switch_icon(p.pos, 14)}}</div>
+            <div class="col-2 text-muted px-0">{{=p.pos}}</div>
+            <div class="col px-1">{{=p.func or ''}}</div>
+            <div class="col-auto pl-0">
+                <button type="button" popovertarget="pos-edit-{{=p.id}}"
+                        class="btn btn-sm btn-outline-secondary py-0 px-1 mr-1"
+                        style="font-size:.7rem;line-height:1.5;">&#x270E;</button>
+                <button type="submit" value="Remove" name="{{=p.id}}"
+                        class="btn btn-sm btn-outline-danger py-0 px-1"
+                        style="font-size:.7rem;line-height:1.5;">&#x2715;</button>
             </div>
         </div>
-        {{else:}}
-        {{# Unassigned transmitter switch — show as clickable to assign }}
-        <div class="row border-bottom mb-1">
-            <div class="col-4 col-md-2 font-weight-bold text-muted">{{=ts.name}}</div>
-            <div class="col">
+        {{pass}}
+        {{=pf['delform'].custom.end}}
+        {{=pf['addform'].custom.begin}}
+        {{pf['addform'].custom.widget.pos.components.insert(0, OPTION('', _value=''))}}
+        {{pf['addform'].custom.widget.pos['_class'] = 'border-0 bg-transparent p-0 w-100'}}
+        {{pf['addform'].custom.widget.func['_class'] = 'border-0 bg-transparent p-0 w-100'}}
+        {{pf['addform'].custom.widget.func['_style'] = 'border-bottom:1px solid #dee2e6;outline:none;'}}
+        {{pf['addform'].custom.submit['_class'] = 'btn btn-sm btn-outline-secondary py-0 px-1'}}
+        {{pf['addform'].custom.submit['_style'] = 'font-size:.7rem;line-height:1.5;'}}
+        <div class="row" style="margin:0;padding:2px 0;font-size:.82rem;">
+            <div class="col-auto pr-1" style="min-width:1.4rem;color:#aaa;">&#xFF0B;</div>
+            <div class="col-2 px-0">{{=pf['addform'].custom.widget.pos}}</div>
+            <div class="col px-1">{{=pf['addform'].custom.widget.func}}</div>
+            <div class="col-auto pl-0">{{=pf['addform'].custom.submit}}</div>
+        </div>
+        {{=pf['addform'].custom.end}}
+        </div>
+        <hr class="my-1">
+        {{pass}}
+        {{pass}}
+
+        {{# Freeform (non-transmitter) switches }}
+        {{for ms in freeform_switches:}}
+        {{pf = position_forms.get(ms.id, {})}}
+        <div class="d-flex align-items-center py-1">
+            <span class="mr-1">{{=switch_icon(ms.switchtype, 18)}}</span>
+            <strong class="mr-2" style="font-size:.9rem;">{{=ms.name or ''}}</strong>
+            {{if ms.switchtype:}}<span class="badge badge-secondary mr-2" style="font-size:.7rem;">{{=ms.switchtype}}</span>{{pass}}
+            <span class="text-muted flex-grow-1" style="font-size:.85rem;">{{=ms.purpose or ''}}</span>
+            <button type="button" class="btn btn-sm btn-warning ml-auto"
+                    popovertarget="msff-edit-{{=ms.id}}">{{=action_icon('edit', 14)}}</button>
+            <div id="msff-edit-{{=ms.id}}" popover="manual"
+                 style="position:fixed;top:5vh;left:50%;transform:translateX(-50%);
+                        padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;
+                        min-width:320px;max-height:90vh;overflow-y:auto;z-index:9999;">
+                <button type="button" popovertarget="msff-edit-{{=ms.id}}"
+                        popovertargetaction="hide"
+                        style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>
+                <h5>{{=ms.name or 'Switch'}}</h5>
+                {{=freeform_edit_forms[ms.id]}}
+            </div>
+        </div>
+        {{# Edit popovers for each position (outside delete form) }}
+        {{for p in pf.get('positions', []):}}
+        <div id="pos-edit-{{=p.id}}" popover="manual"
+             style="position:fixed;top:5vh;left:50%;transform:translateX(-50%);
+                    padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;
+                    min-width:280px;max-height:90vh;overflow-y:auto;z-index:9999;">
+            <button type="button" popovertarget="pos-edit-{{=p.id}}"
+                    popovertargetaction="hide"
+                    style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>
+            <h6 class="mb-2">Edit Position</h6>
+            {{ef = pf['pos_edit_forms'][p.id]}}
+            {{=ef.custom.begin}}
+            <div class="form-row">
+                {{=makeFormField(ef, 'pos', fieldType=FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(ef, 'func', fieldType=FormFieldType.COLUMNS, columns=8)}}
+            </div>
+            <div class="mt-2">
+                {{=makeFormField(ef, 'submit', fieldType=FormFieldType.COLUMNS, columns=12)}}
+            </div>
+            {{=ef.custom.end}}
+        </div>
+        {{pass}}
+        {{# Delete form wraps position rows }}
+        <div class="pl-3 mb-1" style="font-size:.82rem;">
+        {{=pf['delform'].custom.begin}}
+        {{for p in pf.get('positions', []):}}
+        <div class="row border-bottom" style="margin:0;padding:1px 0;">
+            <div class="col-auto pr-1" style="min-width:1.4rem;">{{=switch_icon(p.pos, 14)}}</div>
+            <div class="col-2 text-muted px-0">{{=p.pos}}</div>
+            <div class="col px-1">{{=p.func or ''}}</div>
+            <div class="col-auto pl-0">
+                <button type="button" popovertarget="pos-edit-{{=p.id}}"
+                        class="btn btn-sm btn-outline-secondary py-0 px-1 mr-1"
+                        style="font-size:.7rem;line-height:1.5;">&#x270E;</button>
+                <button type="submit" value="Remove" name="{{=p.id}}"
+                        class="btn btn-sm btn-outline-danger py-0 px-1"
+                        style="font-size:.7rem;line-height:1.5;">&#x2715;</button>
+            </div>
+        </div>
+        {{pass}}
+        {{=pf['delform'].custom.end}}
+        {{=pf['addform'].custom.begin}}
+        {{pf['addform'].custom.widget.pos.components.insert(0, OPTION('', _value=''))}}
+        {{pf['addform'].custom.widget.pos['_class'] = 'border-0 bg-transparent p-0 w-100'}}
+        {{pf['addform'].custom.widget.func['_class'] = 'border-0 bg-transparent p-0 w-100'}}
+        {{pf['addform'].custom.widget.func['_style'] = 'border-bottom:1px solid #dee2e6;outline:none;'}}
+        {{pf['addform'].custom.submit['_class'] = 'btn btn-sm btn-outline-secondary py-0 px-1'}}
+        {{pf['addform'].custom.submit['_style'] = 'font-size:.7rem;line-height:1.5;'}}
+        <div class="row" style="margin:0;padding:2px 0;font-size:.82rem;">
+            <div class="col-auto pr-1" style="min-width:1.4rem;color:#aaa;">&#xFF0B;</div>
+            <div class="col-2 px-0">{{=pf['addform'].custom.widget.pos}}</div>
+            <div class="col px-1">{{=pf['addform'].custom.widget.func}}</div>
+            <div class="col-auto pl-0">{{=pf['addform'].custom.submit}}</div>
+        </div>
+        {{=pf['addform'].custom.end}}
+        </div>
+        <hr class="my-1">
+        {{pass}}
+
+        {{# Unassigned transmitter switches — collapsed }}
+        {{unassigned = [ts for ts in transmitter_switches if assigned_map.get(ts.id) is None]}}
+        {{if unassigned:}}
+        <details class="mt-1 border-top pt-1">
+            <summary class="text-muted" style="font-size:.82rem;cursor:pointer;user-select:none;">
+                {{=len(unassigned)}} unassigned switch{{='es' if len(unassigned) != 1 else ''}}
+            </summary>
+            <div class="pl-2 pt-1">
+            {{for ts in unassigned:}}
+            <div class="d-flex align-items-center py-1 border-bottom">
+                <span class="mr-1">{{=switch_icon(ts.switchtype, 16)}}</span>
+                <span class="mr-auto text-muted" style="font-size:.85rem;">{{=ts.name}}</span>
                 <button type="button" class="btn btn-sm btn-outline-secondary"
                         popovertarget="msw-assign-{{=ts.id}}">Assign</button>
                 <div id="msw-assign-{{=ts.id}}" popover="manual"
@@ -116,53 +250,16 @@
                     {{=assign_forms.get(ts.id, '')}}
                 </div>
             </div>
-        </div>
-        {{pass}}
-        {{pass}}
-
-        {{# Freeform (non-transmitter) switches }}
-        {{for ms in freeform_switches:}}
-        <div class="row">
-            <div class="col-4 col-md-2 font-weight-bold">{{=ms.name or ''}}</div>
-            <div class="col col-md-8">
-                {{if ms.switchtype:}}<span class="badge badge-secondary mr-1">{{=ms.switchtype}}</span>{{pass}}
-                {{=ms.purpose or ''}}
+            {{pass}}
             </div>
-            <div class="col-2">
-                <button type="button" class="btn btn-sm btn-warning"
-                        popovertarget="msff-edit-{{=ms.id}}">{{=action_icon('edit', 16)}}</button>
-                <div id="msff-edit-{{=ms.id}}" popover="manual"
-                     style="position:fixed;top:5vh;left:50%;transform:translateX(-50%);
-                            padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;
-                            min-width:320px;max-height:90vh;overflow-y:auto;z-index:9999;">
-                    <button type="button" popovertarget="msff-edit-{{=ms.id}}"
-                            popovertargetaction="hide"
-                            style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>
-                    <h5>{{=ms.name or 'Switch'}}</h5>
-                    {{=freeform_edit_forms[ms.id]}}
-                </div>
-            </div>
-        </div>
-        <div class="row border-bottom mb-1">
-            <div class="col-3 d-none d-md-block">
-                {{=switch_icon(ms.switchtype, 32)}}
-            </div>
-            <div class="col">
-                {{for p in positions_map.get(ms.id, []):}}
-                <div class="row border-bottom">
-                    <div class="col-3">{{=switch_icon(p.pos, 32)}}</div>
-                    <div class="col-9">{{=p.func or ''}}</div>
-                </div>
-                {{pass}}
-            </div>
-        </div>
+        </details>
         {{pass}}
 
         {{pass}}
     </div>
 
     <div class="card-footer">
-        <button type="button" class="btn btn-primary"
+        <button type="button" class="btn btn-primary btn-sm"
                 popovertarget="add-freeform-sw-{{=model_id}}">Add</button>
         <div id="add-freeform-sw-{{=model_id}}" popover="manual"
              style="position:fixed;top:5vh;left:50%;transform:translateX(-50%);

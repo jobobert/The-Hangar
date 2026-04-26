@@ -31,6 +31,13 @@
     </div>
 </div>
 <div class="row border-bottom my-1 align-items-center pl-4">
+    <div class="col">Diagram Connectors</div>
+    <div class="col-2">{{=conn_count}}</div>
+    <div class="col-2">
+        <a href="{{=URL('admin', 'connector_list')}}" class="btn btn-sm btn-outline-primary">Manage</a>
+    </div>
+</div>
+<div class="row border-bottom my-1 align-items-center pl-4">
     <div class="col">Battery Chemistries</div>
     <div class="col-2">{{=chem_count}}</div>
     <div class="col-2">

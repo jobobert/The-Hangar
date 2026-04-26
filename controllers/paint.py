@@ -111,6 +111,7 @@ def rendercard():
     return dict(model_paints=model_paints, model_id=model_id, addform=addform, newform=newform, deleteform=deleteform, paint_count=paint_count)
 
 def renderexport():
+    session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return render_card_error('Unable to locate the associated model', 'paint', 'Paint')

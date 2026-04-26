@@ -7,6 +7,7 @@ import json as _json
 
 
 def quick_search():
+    session.forget(response)
     """Simple text search across model, component, article, and tag names."""
     s = (request.vars.get('s') or '').strip()
     results = []
