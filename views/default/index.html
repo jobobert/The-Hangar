@@ -119,13 +119,13 @@
     <h3>No Models Found</h3>
     <i>Perhaps try a different state?</i>
   </div>
-  {{=LOAD('model','renderstatecounts.load', ajax_trap=True, content=DIV(IMG(_src=URL('static',
+  {{=LOAD('model','renderstatecounts.load', vars=dict(c=modelCategory), ajax_trap=True, content=DIV(IMG(_src=URL('static',
   'images/waiting.gif')),"State Counts"))}}
 
   {{else:}}
 
   <div class="col-12 col-sm-auto mb-3">
-    {{=LOAD('model','renderstatecounts.load', ajax_trap=True, content=DIV(IMG(_src=URL('static',
+    {{=LOAD('model','renderstatecounts.load', vars=dict(c=modelCategory), ajax_trap=True, content=DIV(IMG(_src=URL('static',
     'images/waiting.gif')),"State Counts"))}}
   </div>
   {{for model in models:}}

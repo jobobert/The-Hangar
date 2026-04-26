@@ -158,8 +158,12 @@ def rendercard():
     if not model_id:
         return render_card_error('Unable to locate this model', 'model', 'Models')
 
-    model = db.model(model_id) or None
+    if request.env.request_method == 'POST':
+        current_model = db.model(model_id)
+        if current_model:
+            db(db.model.id == model_id).update(selected=not current_model.selected)
 
+    model = db.model(model_id) or None
     return dict(model=model)
 
 def renderurlcard():
@@ -269,12 +273,10 @@ def renderstatecounts():
         return dict(counts=counts, options=request.args(0))
     else:
         viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
-        modelCategory = viableOptions[2]
-        if session.modelcategory:
-            modelCategory = session.modelcategory
-
+        default_category = next((o for o in viableOptions if o), None)
+        modelCategory = request.vars.get('c') or session.modelcategory or default_category
         if modelCategory not in viableOptions:
-            modelCategory = viableOptions[2]
+            modelCategory = default_category
 
         counts = db(db.model.modelcategory == modelCategory).select(db.model.modelstate,
                                     db.model.id.count(), groupby=db.model.modelstate)
@@ -542,21 +544,20 @@ def renderflighttimes():
 
 
 def selected():
-    session.point = "selected"
-    model_id = VerifyTableID('model', request.args(0)) 
+    session.forget(response)
+    model_id = VerifyTableID('model', request.args(0))
     if not model_id:
         return redirect(session.ReturnHere or URL('component', 'listview'))
 
     options = request.args(1) or None
-
     model = db(db.model.id == model_id).select(db.model.id, db.model.selected)
 
-    form = SQLFORM.factory(formname='selected', table_name='selected_form')
-
-    if form.process().accepted:
+    if request.env.request_method == 'POST':
         db(db.model.id == model_id).update(selected=not (model[0].selected))
+        model = db(db.model.id == model_id).select(db.model.id, db.model.selected)
 
-    model = db(db.model.id == model_id).select(db.model.id, db.model.selected)
+    form = SQLFORM.factory(formname=f'selected_{model_id}', table_name='selected_form')
+    form.process(session=None, onsuccess=None)
 
     return dict(model=model, form=form, options=options)
 

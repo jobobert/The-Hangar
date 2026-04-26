@@ -1464,23 +1464,25 @@ if db(db.lookup.id > 0).count() == 0:
 # Runs once per row — skips any row that already has metadata set.
 import json as _json
 
-# Comprehensive modeltype sync: seeds 'hide' and 'controllers' from hardcoded dicts
-# only when those keys are absent. Once a key exists (admin has saved it), it is
-# never touched — the admin is the source of truth for existing rows.
-for _row in db(db.lookup.category == 'modeltype').select():
-    try:
-        _meta = _json.loads(_row.metadata or '{}')
-    except (ValueError, TypeError):
-        _meta = {}
-    _changed = False
-    if 'hide' not in _meta:
-        _meta['hide'] = modeltype_hide_attribs.get(_row.name, [])
-        _changed = True
-    if 'controllers' not in _meta:
-        _meta['controllers'] = modeltype_controller_mapping.get(_row.name, [])
-        _changed = True
-    if _changed:
-        _row.update_record(metadata=_json.dumps(_meta))
+# One-time seed of 'hide' and 'controllers' metadata for modeltype rows.
+# Admin edits after this migration runs are never overwritten.
+if not _migration_applied('modeltype_metadata_v1'):
+    for _row in db(db.lookup.category == 'modeltype').select():
+        try:
+            _meta = _json.loads(_row.metadata or '{}')
+        except (ValueError, TypeError):
+            _meta = {}
+        _changed = False
+        if 'hide' not in _meta:
+            _meta['hide'] = modeltype_hide_attribs.get(_row.name, [])
+            _changed = True
+        if 'controllers' not in _meta:
+            _meta['controllers'] = modeltype_controller_mapping.get(_row.name, [])
+            _changed = True
+        if _changed:
+            _row.update_record(metadata=_json.dumps(_meta))
+    _mark_migration('modeltype_metadata_v1')
+    db.commit()
 
 _MODELCATEGORY_CONTROLLERS = {
     'Dynamic':   ['attachment', 'battery', 'component', 'diagram', 'paint',
@@ -1488,25 +1490,28 @@ _MODELCATEGORY_CONTROLLERS = {
     'Static':    ['attachment', 'component', 'paint'],
     'Non-Model': ['attachment', 'component', 'supportitem', 'tool'],
 }
-for _row in db(db.lookup.category == 'modelcategory').select():
-    try:
-        _meta = _json.loads(_row.metadata or '{}')
-    except (ValueError, TypeError):
-        _meta = {}
-    _updates = {}
-    if 'hide' not in _meta:
-        # 'Remote Control' was renamed to 'Dynamic'; fall back to Dynamic's list
-        _hide = modelcategory_hide_attribs.get(_row.name) \
-                or modelcategory_hide_attribs.get('Dynamic', [])
-        _meta['hide'] = _hide
-        _updates['metadata'] = _json.dumps(_meta)
-    if 'controllers' not in _meta:
-        _meta['controllers'] = _MODELCATEGORY_CONTROLLERS.get(_row.name, [])
-        _updates['metadata'] = _json.dumps(_meta)
-    if not _row.is_system:
-        _updates['is_system'] = True
-    if _updates:
-        _row.update_record(**_updates)
+# One-time seed of 'hide', 'controllers', and is_system for modelcategory rows.
+if not _migration_applied('modelcategory_metadata_v1'):
+    for _row in db(db.lookup.category == 'modelcategory').select():
+        try:
+            _meta = _json.loads(_row.metadata or '{}')
+        except (ValueError, TypeError):
+            _meta = {}
+        _updates = {}
+        if 'hide' not in _meta:
+            _hide = modelcategory_hide_attribs.get(_row.name) \
+                    or modelcategory_hide_attribs.get('Dynamic', [])
+            _meta['hide'] = _hide
+            _updates['metadata'] = _json.dumps(_meta)
+        if 'controllers' not in _meta:
+            _meta['controllers'] = _MODELCATEGORY_CONTROLLERS.get(_row.name, [])
+            _updates['metadata'] = _json.dumps(_meta)
+        if not _row.is_system:
+            _updates['is_system'] = True
+        if _updates:
+            _row.update_record(**_updates)
+    _mark_migration('modelcategory_metadata_v1')
+    db.commit()
 
 # One-time forced reseed of modelcategory controllers metadata.
 # Needed because the admin UI was exercised before defaults were finalized,
@@ -1539,19 +1544,23 @@ _ACTIVITY_COLORS = {
     'Other':           '#bff52b',
 }
 _ACTIVITY_SYSTEM = frozenset(['Flight', 'Crash', 'Note', 'StateChange', 'Reconfiguration'])
-for _row in db(db.lookup.category == 'activitytype').select():
-    _updates = {}
-    if _row.name in _ACTIVITY_SYSTEM and not _row.is_system:
-        _updates['is_system'] = True
-    try:
-        _m = _json.loads(_row.metadata or '{}')
-    except (ValueError, TypeError):
-        _m = {}
-    if not _m.get('color') and _row.name in _ACTIVITY_COLORS:
-        _m['color'] = _ACTIVITY_COLORS[_row.name]
-        _updates['metadata'] = _json.dumps(_m)
-    if _updates:
-        _row.update_record(**_updates)
+# One-time seed of is_system and color metadata for activitytype rows.
+if not _migration_applied('activitytype_metadata_v1'):
+    for _row in db(db.lookup.category == 'activitytype').select():
+        _updates = {}
+        if _row.name in _ACTIVITY_SYSTEM and not _row.is_system:
+            _updates['is_system'] = True
+        try:
+            _m = _json.loads(_row.metadata or '{}')
+        except (ValueError, TypeError):
+            _m = {}
+        if not _m.get('color') and _row.name in _ACTIVITY_COLORS:
+            _m['color'] = _ACTIVITY_COLORS[_row.name]
+            _updates['metadata'] = _json.dumps(_m)
+        if _updates:
+            _row.update_record(**_updates)
+    _mark_migration('activitytype_metadata_v1')
+    db.commit()
 
 if not _migration_applied('diagramedge_seed_v1'):
     if db(db.diagramedge.id > 0).count() == 0:
@@ -1631,11 +1640,14 @@ if not _migration_applied('componenttype_system_v1'):
             _row.update_record(is_system=_want)
     _mark_migration('componenttype_system_v1')
 
-# itemtype: Standard is the only system type (always included); all others are optional.
-for _row in db(db.lookup.category == 'itemtype').select():
-    _want_system = (_row.name == 'Standard')
-    if _row.is_system != _want_system:
-        _row.update_record(is_system=_want_system)
+# One-time seed: Standard is the only system itemtype.
+if not _migration_applied('itemtype_system_v1'):
+    for _row in db(db.lookup.category == 'itemtype').select():
+        _want_system = (_row.name == 'Standard')
+        if _row.is_system != _want_system:
+            _row.update_record(is_system=_want_system)
+    _mark_migration('itemtype_system_v1')
+    db.commit()
 
 # chemistry: one-time seed of db.chemistry from lookup rows; delete lookup rows after.
 if not _migration_applied('chemistry_seed_v1'):

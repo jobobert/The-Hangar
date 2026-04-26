@@ -49,7 +49,17 @@
                 {{pass}}
                 {{except:}}---{{pass}}</li>
             {{pass}}
-            <li class="nav-item">{{=LOAD('model','selected.load', args=[model.id,'card'], ajax=True, content='...')}}</li>
+            <li class="nav-item">
+                <form method="post" action="{{=URL('model','rendercard.load',args=[model.id])}}">
+                    <button class="btn button-model-select" type="submit">
+                        {{if model.selected:}}
+                        {{=action_icon('checked', 30)}}
+                        {{else:}}
+                        {{=action_icon('unchecked', 30)}}
+                        {{pass}}
+                    </button>
+                </form>
+            </li>
         </ul>
         <div class="pl-1 mt-0">
             {{if model.haveplans:}}<span class="badge badge-info">Plans</span>{{pass}}

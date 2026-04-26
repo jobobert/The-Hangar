@@ -206,7 +206,7 @@ def index():
     modelCategory = None
     if 'ui' in request.cookies and request.cookies['ui'].value != 'dashboard':
         viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
-        modelCategory = viableOptions[2]
+        modelCategory = next((o for o in viableOptions if o), None)
         if request.vars.get('c') in viableOptions:
             modelCategory = request.vars['c']
         queries.append(db.model.modelcategory == modelCategory)
@@ -407,7 +407,7 @@ def dashboard_version():
 # ---- action to server uploaded static content (required) ---
 
 
-@cache.action()
+@cache.action(time_expire=2592000)
 def download():
     """
     allows downloading of uploaded files
