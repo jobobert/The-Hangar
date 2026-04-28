@@ -69,12 +69,13 @@
     <span>Unknown Protocol</span>
     {{pass}}
     <span> | </span>
-    {{if model.get_radio_config_backedup() == 'Yes':}}
+    {{cfg_status = model.get_radio_config_backedup()}}
+    {{if cfg_status == 'Yes':}}
     <span>{{=A('Download Config', _href=URL('default', 'download', args=model.configbackup))}}</span>
     <span> | </span>
     <span>{{=A('Delete Config', _class='delete', data={'confirm': 'Are you sure to delete this item?'},
         _href=URL('model','deleteconfig', args=model.id))}}</span>
-    {{else:}}
+    {{elif cfg_status == 'No':}}
     <span>No Save!</span>
     {{pass}}
 </div>
@@ -240,27 +241,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Attributes</h5>
-                <button type="button" class="btn btn-sm btn-link"
-                        popovertarget="attrs_edit_popover">Edit</button>
-            </div>
-            <div id="attrs_edit_popover" popover="manual"
-                 style="position:fixed;top:5vh;left:50%;transform:translateX(-50%);
-                        padding:1rem;background:white;border:1px solid #ccc;border-radius:4px;
-                        min-width:60vw;max-height:90vh;overflow-y:auto;z-index:9999;">
-                <button type="button" popovertarget="attrs_edit_popover"
-                        popovertargetaction="hide"
-                        style="display:block;margin-bottom:.5rem;">&#x2715; Close</button>
-                <h5>Edit Attributes</h5>
-                {{=attrs_form.custom.begin}}
-                <div style="display:flex;flex-wrap:wrap;gap:0 1rem;">
-                {{for f in attr_edit_fields:}}
-                <div style="flex:1;min-width:14rem;">
-                    {{=makeFormField(attrs_form, f, FormFieldType.COLUMNS)}}
-                </div>
-                {{pass}}
-                </div>
-                <div class="mt-2">{{=makeFormSubmitbutton(attrs_form)}}</div>
-                {{=attrs_form.custom.end}}
+                <a class="btn btn-sm btn-link" href="{{=URL('model', 'update', args=model.id)}}">Edit</a>
             </div>
             <div class="card-body attribute-list">
                 <dl>

@@ -37,27 +37,13 @@ def index():
     elif rotor_form.errors:
         response.flash = "Error Updating Rotors"
 
-    mt_hide = set(modeltype_hide_attribs.get(model.modeltype, []))
-    mc_hide = set(modelcategory_hide_attribs.get(model.modelcategory, []))
-    hidden_attrs = mt_hide | mc_hide
-    attr_edit_fields = [f for f in db.model.fields if f.startswith('attr_') and f not in hidden_attrs]
-
-    attrs_form = SQLFORM(db.model, model.id, fields=attr_edit_fields, showid=False, formstyle='divs')
-    if 'attr_covering' in attr_edit_fields:
-        attrs_form.custom.widget.attr_covering['_class'] = "form-control"
-    if attrs_form.process(formname='attrsform').accepted:
-        session.flash = "Attributes Updated"
-        redirect(URL('model', 'index', args=attrs_form.vars.id, extension="html"))
-    elif attrs_form.errors:
-        response.flash = "Error Updating Attributes"
-
     response.title = 'Model: ' + model.name
     session.ReturnHere = URL(
         args=request.args, vars=request.get_vars, host=True)
 
 
     return dict(model=model, details_form=details_form, fieldnotes_form=fieldnotes_form,
-                rotor_form=rotor_form, attrs_form=attrs_form, attr_edit_fields=attr_edit_fields)
+                rotor_form=rotor_form)
 
 def wishlist():
     

@@ -119,6 +119,37 @@
 </div>
 {{pass}}
 
+{{# ── Transmitters Without Switches ──────────────────────────────────────── }}
+<h4>Transmitter Switches</h4>
+{{if not transmitters_no_switches:}}
+<div class="alert alert-success mb-4">All transmitters have switches defined.</div>
+{{else:}}
+<div class="alert alert-warning">
+    <strong>{{=len(transmitters_no_switches)}} transmitter{{='s' if len(transmitters_no_switches) != 1 else ''}}</strong>
+    have no switches defined.
+</div>
+<div class="table-responsive mb-4">
+<table class="table table-bordered table-sm">
+    <thead class="thead-light">
+        <tr>
+            <th>Transmitter</th>
+            <th class="text-center">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for tx in transmitters_no_switches:}}
+        <tr>
+            <td>{{=tx.name}}{{=' — ' + tx.nickname if tx.nickname else ''}}</td>
+            <td class="text-center">
+                <a href="{{=URL('switch', 'transmitter_layout_canvas', args=tx.id)}}" class="btn btn-sm btn-warning">Define Switches</a>
+            </td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+</div>
+{{pass}}
+
 {{# ── Missing Important Fields ────────────────────────────────────────────── }}
 <h4>Missing Important Fields</h4>
 {{if not flagged:}}

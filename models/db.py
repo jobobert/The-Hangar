@@ -387,6 +387,8 @@ db.define_table('transmitter',
                 Field('protocol', type='list:reference protocol', label='Protocols Supported', comment='The protocols supported by this transmitter',
                 widget=SQLFORM.widgets.checkboxes.widget,
                 represent=lambda v, r: ', '.join([p.name for p in db(db.protocol.id.belongs(v)).select()]) ),
+                Field('can_export_config', type='boolean', label='Can Export Config',
+                      default=False, comment='Whether this transmitter can export a configuration file'),
                 format=lambda row: row.name
                 )
 
@@ -573,19 +575,41 @@ db.model.get_receiver.label = 'Receiver'
 
 def has_radio_backup(model_id):
     model = db(db.model.id == model_id).select().first()
-
-    if model.transmitter != None:
-        if model.configbackup != None:
-            if len(model.configbackup) > 0:
-                return 'Yes'
-            else:
-                return 'No'
-        else:
-            return 'No'
-    else:
+    if model.transmitter is None:
         return 'NA'
+    tx = db.transmitter(model.transmitter)
+    if not tx or not tx.can_export_config:
+        return 'NA'
+    if model.configbackup and len(model.configbackup) > 0:
+        return 'Yes'
+    return 'No'
 db.model.get_radio_config_backedup = Field.Method( lambda row: has_radio_backup(row.model.id) )
 db.model.get_radio_config_backedup.label = 'Config Backed Up'
+
+def _model_has_integrity_issues(model_id):
+    import json as _json
+    def _safe_parse(s):
+        try:
+            return _json.loads(s or '{}')
+        except (ValueError, TypeError):
+            return {}
+    model = db.model(model_id)
+    if not model or model.modelstate <= 3:
+        return False
+    mt_row = db((db.lookup.category == 'modeltype') & (db.lookup.name == model.modeltype)).select().first()
+    cat_row = db((db.lookup.category == 'modelcategory') & (db.lookup.name == model.modelcategory)).select().first()
+    if mt_row and cat_row:
+        mt_imp = set(_safe_parse(mt_row.metadata).get('important', []))
+        cat_imp = set(_safe_parse(cat_row.metadata).get('important', []))
+        for f in (mt_imp & cat_imp):
+            if f != 'configbackup' and not model[f]:
+                return True
+    if model.transmitter:
+        tx = db.transmitter(model.transmitter)
+        if tx and tx.can_export_config and not model.configbackup:
+            return True
+    return False
+db.model.has_integrity_issues = Field.Method(lambda row: _model_has_integrity_issues(row.model.id))
 
 def model_battery_count(model_id):
     batteries = models_and_batteries(db.model.id == model_id).select()

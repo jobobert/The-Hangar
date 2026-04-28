@@ -50,6 +50,8 @@
                         {{else:}}
                         <dd class="ml-1">No Protocols Identified</dd>
                         {{pass}}
+                        <dt>{{=db.transmitter.can_export_config.label}}</dt>
+                        <dd class="ml-1">{{='Yes' if transmitter.can_export_config else 'No'}}</dd>
                     </dl>
                 </div>
             </div>

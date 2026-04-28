@@ -811,19 +811,22 @@ def integrity_report():
         cat_important[r.name] = set(m.get('important', []))
 
     models = db(db.model.modelstate > 3).select(orderby=db.model.name)
+    non_retired_ids = {r.id for r in db(db.model.modelstate != 1).select(db.model.id)}
+    can_export_tx_ids = {
+        r.id for r in db(db.transmitter.can_export_config == True).select(db.transmitter.id)
+    }
     flagged = []
     for model in models:
         mt_imp = mt_important.get(model.modeltype, set())
         cat_imp = cat_important.get(model.modelcategory, set())
-        # Only flag if both type AND category mark the field as important
         eff_important = mt_imp & cat_imp
-        if not eff_important:
-            continue
         missing = [
             (f, field_labels.get(f, f))
             for f in sorted(eff_important)
-            if not model[f]
+            if f != 'configbackup' and not model[f]
         ]
+        if model.transmitter in can_export_tx_ids and not model.configbackup:
+            missing.append(('configbackup', db.model['configbackup'].label))
         if missing:
             flagged.append({'model': model, 'missing': missing})
 
@@ -833,13 +836,15 @@ def integrity_report():
     }
     switch_pending = sorted(
         (db.model(mid) for mid in legacy_switch_model_ids
-         if mid and not _migration_applied(f'model_switch_migrated_{mid}')),
+         if mid in non_retired_ids
+         and not _migration_applied(f'model_switch_migrated_{mid}')),
         key=lambda m: m.name
     )
 
     # Models with an existing raw-DOT diagram not yet reviewed in the new editor
     diagram_model_ids = {
-        r.id for r in db(db.model.id > 0).select(db.model.id, db.model.diagram) if r.diagram
+        r.id for r in db((db.model.id > 0) & (db.model.modelstate != 1)).select(db.model.id, db.model.diagram)
+        if r.diagram
     }
     diagram_pending = sorted(
         (db.model(mid) for mid in diagram_model_ids
@@ -853,12 +858,23 @@ def integrity_report():
     }
     diagram_generation_pending = sorted(
         (db.model(mid) for mid in models_with_components
-         if mid and not db.model(mid).diagram
+         if mid in non_retired_ids
+         and not db.model(mid).diagram
          and not _migration_applied(f'model_diagram_migrated_{mid}')),
         key=lambda m: m.name
     )
 
+    # Transmitters with no switches defined
+    txs_with_switches = {
+        r.transmitter for r in db(db.transmitter_switch.id > 0).select(db.transmitter_switch.transmitter, distinct=True)
+    }
+    transmitters_no_switches = [
+        tx for tx in db(db.transmitter.id > 0).select(orderby=db.transmitter.name)
+        if tx.id not in txs_with_switches
+    ]
+
     return dict(flagged=flagged, total=len(models),
                 switch_pending=switch_pending,
                 diagram_pending=diagram_pending,
-                diagram_generation_pending=diagram_generation_pending)
+                diagram_generation_pending=diagram_generation_pending,
+                transmitters_no_switches=transmitters_no_switches)
