@@ -144,7 +144,7 @@
         var path = window.location.pathname;
         var currentUrl = path + window.location.search;
         // Pages whose function name starts with update/add/edit are edit pages — never push to stack
-        var isEditPage = /\/(update|add|edit[^/]*)(\/|$)/.test(path);
+        var isEditPage = /\/(update|add|edit)[^/]*(\/|$)/.test(path);
 
         var stack = [];
         try { stack = JSON.parse(sessionStorage.getItem('hangar_nav_stack') || '[]'); } catch (e) {}

@@ -10,10 +10,10 @@
         {{if not switches:}}
         <p class="text-muted">No switches defined. Use <em>Add Switch</em> to define the physical switches on this transmitter.</p>
         {{else:}}
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
         <div id="tx-canvas-{{=transmitter_id}}"
-             data-compact="30" data-expanded="56.25"
-             style="position:relative;min-width:600px;width:100%;padding-top:30%;
+             data-compact="240" data-expanded="450"
+             style="position:relative;width:800px;height:240px;
                     background-color:#f8f9fa;
                     background-image:
                         linear-gradient(rgba(0,0,0,0.12) 1px, transparent 1px),
@@ -22,7 +22,10 @@
                         linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
                     background-size: 10% 10%, 10% 10%, 2% 2%, 2% 2%;
                     border:1px solid #dee2e6;border-top-left-radius:4px;border-top-right-radius:4px;
-                    overflow:visible;transition:padding-top 0.2s ease;">
+                    overflow:hidden;transition:height 0.2s ease;">
+            <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(100,100,200,0.35);pointer-events:none;"></div>
+            <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(100,100,200,0.35);pointer-events:none;"></div>
+            <span style="position:absolute;left:50%;top:50%;transform:translate(3px,-14px);font-size:0.6rem;color:rgba(100,100,200,0.6);pointer-events:none;user-select:none;">0,0</span>
             {{for sw in switches:}}
             <div class="tx-chip-wrapper"
                  data-switch-id="{{=sw.id}}"
@@ -50,7 +53,7 @@
         </div>
         <button type="button" id="tx-expand-btn-{{=transmitter_id}}"
                 onclick="txToggleCanvas('{{=transmitter_id}}')"
-                style="display:block;min-width:600px;width:100%;padding:2px 0;font-size:0.7rem;
+                style="display:block;width:800px;padding:2px 0;font-size:0.7rem;
                        background:#e9ecef;border:1px solid #dee2e6;border-top:none;
                        border-bottom-left-radius:4px;border-bottom-right-radius:4px;
                        cursor:pointer;color:#6c757d;line-height:1;">
@@ -69,8 +72,8 @@
                 <tr id="tx-row-{{=sw.id}}">
                     <td>{{=sw.name}}</td>
                     <td>{{=switch_icon(sw.switchtype, 20)}} {{=sw.switchtype or ''}}</td>
-                    <td id="tx-x-{{=sw.id}}">{{=sw.x}}</td>
-                    <td id="tx-y-{{=sw.id}}">{{=sw.y}}</td>
+                    <td id="tx-x-{{=sw.id}}">{{=sw.x - 50}}</td>
+                    <td id="tx-y-{{=sw.id}}">{{=sw.y - 50}}</td>
                     <td>{{=sw.sort_order}}</td>
                     <td>
                         <button type="button" class="btn btn-sm btn-outline-secondary"
@@ -90,14 +93,16 @@ function txToggleCanvas(tid) {
     var canvas = document.getElementById('tx-canvas-' + tid);
     var btn    = document.getElementById('tx-expand-btn-' + tid);
     var isCompact = canvas.dataset.state !== 'expanded';
-    canvas.style.paddingTop = isCompact ? (canvas.dataset.expanded + '%') : (canvas.dataset.compact + '%');
-    canvas.dataset.state    = isCompact ? 'expanded' : 'compact';
+    canvas.style.height = isCompact ? (canvas.dataset.expanded + 'px') : (canvas.dataset.compact + 'px');
+    canvas.dataset.state = isCompact ? 'expanded' : 'compact';
     btn.innerHTML = isCompact ? '&#9650; collapse' : '&#9660; expand';
 }
 
 (function () {
     var canvas = document.getElementById('tx-canvas-{{=transmitter_id}}');
     if (!canvas) return;
+    var wrapper = canvas.parentElement;
+    wrapper.scrollLeft = Math.max(0, (canvas.offsetWidth - wrapper.clientWidth) / 2);
     var moveUrl = '{{=URL("switch", "transmitter_switch_move")}}';
 
     canvas.querySelectorAll('.tx-chip-wrapper').forEach(function (wrapper) {
@@ -151,8 +156,8 @@ function txToggleCanvas(tid) {
 
             var xCell = document.getElementById('tx-x-' + switchId);
             var yCell = document.getElementById('tx-y-' + switchId);
-            if (xCell) xCell.textContent = x;
-            if (yCell) yCell.textContent = y;
+            if (xCell) xCell.textContent = x - 50;
+            if (yCell) yCell.textContent = y - 50;
 
             var body = 'switch_id=' + encodeURIComponent(switchId) +
                        '&x=' + encodeURIComponent(x) +
