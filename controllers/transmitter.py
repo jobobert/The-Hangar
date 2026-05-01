@@ -75,6 +75,7 @@ def renderexport():
                 (getattr(db.transmitter,'processor').label, transmitter.processor),
                 (getattr(db.transmitter,'os').label, transmitter.os),
                 (getattr(db.transmitter,'os_version').label, transmitter.os_version),
+                (getattr(db.transmitter,'radio_processor').label, transmitter.radio_processor),
                 (getattr(db.transmitter,'radio_firmware').label, transmitter.radio_firmware),
                 (getattr(db.transmitter,'firmware_version').label, transmitter.firmware_version),
                 #(getattr(db.transmitter,'notes').label, MARKMIN(transmitter.notes)),

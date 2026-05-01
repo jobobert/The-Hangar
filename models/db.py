@@ -380,6 +380,7 @@ db.define_table('transmitter',
                 Field('manufacturer', type='string', label='Manufacturer', comment='Who made the transmitter?'),
                 Field('model', type='string', label='Model', comment='The model of the transmitter'),
                 Field('processor', type='string', label='Processor', comment='The processor in the transmitter'),
+                Field('radio_processor', type='string', label='Radio Processor', comment='The processor in the radio module'),
                 Field('radio_firmware', type='string', label='Radio Firmware', comment='The radio firmware running on the transmitter'),
                 Field('os', type='string', label='Operating System', comment='The OS name (e.g. EdgeTX, OpenTX)'),
                 Field('os_version', type=semver_type, label='OS Version', comment='The OS version (e.g. 2.9.3)'),
@@ -406,6 +407,8 @@ db.transmitter.radio_firmware.widget = SQLFORM.widgets.autocomplete(
     request, db.transmitter.radio_firmware, limitby=(0, 10), min_length=2, distinct=True)
 db.transmitter.os.widget = SQLFORM.widgets.autocomplete(
     request, db.transmitter.os, limitby=(0, 10), min_length=2, distinct=True)
+db.transmitter.radio_processor.widget = SQLFORM.widgets.autocomplete(
+    request, db.transmitter.radio_processor, limitby=(0, 10), min_length=2, distinct=True)
 db.transmitter.os_version.requires = IS_EMPTY_OR(
     IS_MATCH(r'^\d+(\.\d+){0,2}$', error_message='Format: major.minor.patch (e.g. 2.9.3)'))
 

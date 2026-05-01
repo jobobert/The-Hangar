@@ -19,7 +19,7 @@ Your submitted form contains the following errors:
     <div class="row">
         {{=makeFormField(form, "name", FormFieldType.COLUMNS)}}
     </div>
-        <div class="row">
+    <div class="row">
         {{=makeFormField(form, "manufacturer", FormFieldType.COLUMNS, columns=6)}}
         {{=makeFormField(form, "model", FormFieldType.COLUMNS, columns=6)}}
     </div>
@@ -36,8 +36,9 @@ Your submitted form contains the following errors:
 
     <div class="row">
         {{=makeFormField(form, "processor", FormFieldType.COLUMNS, columns=4)}}
-        {{=makeFormField(form, "protocol", FormFieldType.COLUMNS, columns=5)}}
-        {{=makeFormField(form, "can_export_config", FormFieldType.COLUMNS, columns=3)}}
+        {{=makeFormField(form, "protocol", FormFieldType.COLUMNS, columns=2)}}
+        {{=makeFormField(form, "radio_processor", FormFieldType.COLUMNS, columns=4)}}
+        {{=makeFormField(form, "can_export_config", FormFieldType.COLUMNS, columns=2)}}
     </div>
     <div class="row">
         {{=makeFormField(form, "img", FormFieldType.COLUMNS, columns=6)}}
