@@ -34,17 +34,18 @@ def rendercard():
     return dict(items=items, model_id=model_id, item_count=si_count, addform=addform, deleteform=deleteform)
 
 def remove():
-    
-    item_id = VerifyTableID('supportitem', request.args(0))
-    
-    if item_id:
-        db(db.supportitem.id == item_id).delete()
-        response.flash = "Support item removed successfully"
 
+    item_id = VerifyTableID('supportitem', request.args(0))
+
+    if item_id:
+        item = db.supportitem(item_id)
+        model_id = item.model if item else None
+        db(db.supportitem.id == item_id).delete()
+        session.flash = "Support item removed successfully"
+        redirect(URL('model', 'index', args=model_id))
     else:
-        session.flash = "Invalid support item ID"      
-        
-    redirect(session.ReturnHere or URL('supportitem', 'index', args=item_id, extension="html"))
+        session.flash = "Invalid support item ID"
+        redirect(URL('default', 'index'))
 
 def renderexport():
     session.forget(response)

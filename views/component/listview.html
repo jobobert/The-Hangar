@@ -1,6 +1,27 @@
 {{extend 'layout.html'}}
 {{block head}}
 <link rel="stylesheet" href="{{=URL('static','css/dataTables.bootstrap4.min.css')}}">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+<style>
+.itemlist-grid .dataTables_wrapper .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+.itemlist-grid .dataTables_wrapper .row > [class^="col-"]:first-child { padding-left: 0; }
+.itemlist-grid .dataTables_wrapper .row > [class^="col-"]:last-child  { padding-right: 0; }
+
+td .expand-toggle {
+    color: #6c757d;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+tr.parent td .expand-toggle::before {
+    content: "\f078";  /* fa-chevron-down */
+}
+tr:not(.parent) td .expand-toggle::before {
+    content: "\f054";  /* fa-chevron-right */
+}
+</style>
 {{end}}
 
 <ul class="nav nav-tabs mb-2">
@@ -28,12 +49,33 @@
 {{block page_js}}
 <script src="{{=URL('static','js/jquery.dataTables.min.js')}}"></script>
 <script src="{{=URL('static','js/dataTables.bootstrap4.min.js')}}"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
-    $('.itemlist-grid table').DataTable({
+    var pinnedIndices = {{=XML(pinned_indices)}};
+    var colDefs = [
+        { responsivePriority: 10001, targets: '_all' },
+        { responsivePriority: 1,     targets: [-1, -2, -3, -4, -5] }
+    ];
+    pinnedIndices.forEach(function(idx) {
+        colDefs.push({ responsivePriority: 1, targets: [idx] });
+    });
+    var table = $('.itemlist-grid table').DataTable({
         paging: false,
         info: false,
-        order: []
+        order: [],
+        autoWidth: false,
+        responsive: { details: { type: 'column', target: '.expand-toggle' } },
+        columnDefs: colDefs
+    });
+
+    // Clicking anywhere on a row (not a button/link/expand-cell) triggers the expand cell.
+    // Exclude td.dtr-control to prevent the triggered click from re-firing this handler.
+    $('.itemlist-grid table tbody').on('click', 'tr', function(e) {
+        if ($(e.target).closest('a, button, td.dtr-control').length) return;
+        var $ctrl = $(this).find('td.dtr-control');
+        if ($ctrl.length) $ctrl.trigger('click');
     });
 });
 </script>

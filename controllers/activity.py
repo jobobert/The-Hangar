@@ -93,7 +93,7 @@ def addactivity():
     if form.process().accepted:
         session.flash = "New Activity Added"
 
-        redirect(session.ReturnHere or URL('model', 'index', args=model_id))
+        redirect(URL('model', 'index', args=form.vars.model))
     elif form.errors:
         response.flash = "Error Adding New Activity"
     # else:
@@ -104,9 +104,6 @@ def addactivity():
     return dict(content=form)
 
 def listview():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-    
     activities = db(db.activity).select(orderby=db.activity.activitydate)
     return dict(activities=activities)
 
@@ -114,13 +111,20 @@ def update():
 
     response.title = "Update/Add Activity"
 
-    form = SQLFORM(db.activity, request.args(0), upload=URL(
+    activity_id = request.args(0)
+    existing = db.activity(activity_id)
+    model_id = existing.model if existing else None
+
+    form = SQLFORM(db.activity, activity_id, upload=URL(
         'default', 'download'), deletable=True, showid=False)
     if form.process().accepted:
-        session.flash = "Activity Updated"
-        #print(form.vars.model)
-        redirect(session.ReturnHere or URL('model', 'index', args=form.vars.model))
-    
+        if form.deleted:
+            session.flash = "Activity Deleted"
+            redirect(URL('model', 'index', args=model_id))
+        else:
+            session.flash = "Activity Updated"
+            redirect(URL('model', 'index', args=form.vars.model))
+
     elif form.errors:
         response.flash = "Error Adding New Activity "
 
@@ -184,8 +188,9 @@ def addflight():
         modelid = request.args(0)
         log_activity(modelid, 'Flight')
         session.flash = "Flight Logged"
+        return redirect(URL('model', 'index', args=modelid))
 
-    return redirect(session.ReturnHere or URL('component', 'listview'))
+    return redirect(URL('default', 'index'))
 
 
 def addcrash():
@@ -193,7 +198,7 @@ def addcrash():
     if request.args(0):
         model_id = VerifyTableID('model', request.args(0))
         if not model_id:
-            return redirect(session.ReturnHere or URL('component', 'listview'))
+            return redirect(URL('model', 'listview'))
 
         log_activity(model_id, 'Crash')
         response.flash = "Crash Logged"
@@ -204,7 +209,9 @@ def addcrash():
         notes = "State changed to **{}**".format(new_modelstate.name)
         log_activity(model_id, 'StateChange', notes)
 
-    return redirect(session.ReturnHere or URL('component', 'listview'))
+        return redirect(URL('model', 'index', args=model_id))
+
+    return redirect(URL('default', 'index'))
 
 def renderexport():
 

@@ -34,9 +34,6 @@ def rendercard():
     return dict(items=items, model_id=model_id, item_count=si_count, addform=addform, deleteform=deleteform)
 
 def listview():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     activemodels = db(db.model.modelstate > 1)._select(db.model._id)
 
     propellers = db(db.propeller.model.belongs(activemodels)).select(orderby=db.propeller.item | db.propeller.model)

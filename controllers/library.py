@@ -1,8 +1,6 @@
 def index():
 
     response.title = 'Library'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     includeComponents = True
     query = db.article
@@ -93,8 +91,7 @@ def update():
     if form.process().accepted:
         session.flash = 'Article %s' % (
             'updated' if request.args else 'added')
-        redirect(URL('library', 'read', args=form.vars.id,
-                 extension="html") or session.ReturnHere)
+        redirect(URL('library', 'read', args=form.vars.id, extension="html"))
     elif form.errors:
         response.flash = "Error Adding Article"
     else:

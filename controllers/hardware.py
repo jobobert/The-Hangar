@@ -5,9 +5,6 @@ def index():
 
     hardware_id = VerifyTableID('hardware', request.args(0)) or redirect(URL('hardware', 'listview'))
 
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     item = db.hardware(hardware_id)
     model = db.model(item.model) if item else None
 
@@ -15,9 +12,6 @@ def index():
 
 
 def listview():
-
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     hardware = db(db.hardware).select(
         orderby=db.hardware.hardwaretype | db.hardware.diameter | db.hardware.length_mm)
@@ -36,8 +30,7 @@ def update():
     ).process(message_onsuccess='Hardware %s' % ('updated' if request.args(0) else 'added'))
 
     if form.accepted:
-        redirect(URL('hardware', 'index', args=form.vars.id, extension='html')
-                 or session.ReturnHere)
+        redirect(URL('hardware', 'index', args=form.vars.id, extension='html'))
 
     disable_autocomplete(form)
 
@@ -119,4 +112,4 @@ def delete():
 
     db(db.hardware.id == hardware_id).delete()
     session.flash = "Deleted"
-    redirect(session.ReturnHere or URL('hardware', 'listview'))
+    redirect(URL('hardware', 'listview'))

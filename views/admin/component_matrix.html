@@ -39,7 +39,7 @@
             </td>
             {{for fname, checked in row['cells']:}}
             <td class="text-center {{='table-success' if checked else ''}}">
-                {{='&#10003;' if checked else ''}}
+                {{=XML('&#10003;') if checked else ''}}
             </td>
             {{pass}}
         </tr>

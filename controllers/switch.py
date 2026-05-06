@@ -3,15 +3,15 @@ def add():
     model_id = VerifyTableID('model', request.args(0))
 
     if not model_id:
-        redirect(session.ReturnHere or URL('default','index'))
+        redirect(URL('default','index'))
 
     fields = ['switch', 'switchtype', 'purpose']
-    
+
     form = SQLFORM(db.switch, fields=fields, showid=False, deletable=True)
     form.vars.model = model_id
     if form.process().accepted:
         session.flash = "Switch Added"
-        redirect(session.ReturnHere or URL('default','index'))
+        redirect(URL('model', 'index', args=model_id))
     elif form.errors:
         response.flash = "Error Adding Switch"
 
@@ -219,10 +219,10 @@ def transmitter_switch_delete():
     if not switch_id:
         response.flash = 'Invalid switch'
         return dict()
+    transmitter_id = db.transmitter_switch[switch_id].transmitter
     if db(db.model_switch.transmitter_switch == switch_id).count() > 0:
         session.flash = 'Cannot delete: switch is used by one or more models'
-        redirect(session.ReturnHere or URL('transmitter', 'index'))
-    transmitter_id = db.transmitter_switch[switch_id].transmitter
+        redirect(URL('transmitter', 'index', args=[transmitter_id], extension='html'))
     db(db.transmitter_switch.id == switch_id).delete()
     session.flash = 'Switch deleted'
     redirect(URL('transmitter', 'index', args=[transmitter_id], extension='html'))

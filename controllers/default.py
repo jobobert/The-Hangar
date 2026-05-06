@@ -75,8 +75,6 @@ def quick_search():
 
 def search():
     """Advanced QueryBuilder search across models and related tables."""
-    session.ReturnHere = URL(args=request.args, vars=request.get_vars, host=True)
-
     rules_json   = request.vars.get('q', '')
     results      = []
     result_count = 0
@@ -186,7 +184,6 @@ def find_unreferenced_uploads():
 def index():
 
     response.title = 'The Hangar: Models'
-    session.ReturnHere = URL(args=request.args, vars=request.get_vars, host=True)
 
     if 'ui' not in request.cookies:
         request.cookies['ui'] = 'list'
@@ -483,9 +480,6 @@ def hass():
 
 
 def final():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     query = db((db.model.modelstate > 3) | (
         (db.model.modelstate == 2) & (db.model.havekit == True)))
 
@@ -538,8 +532,6 @@ def editfinal_render():
 def inventory():
 
     response.title = 'Component Inventory'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     components = db(db.component).select(orderby=db.component.componenttype | db.component.name)
     propellers = db(db.propeller).select(orderby=db.propeller.item, groupby=db.propeller.item)

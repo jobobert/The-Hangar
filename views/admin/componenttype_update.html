@@ -91,6 +91,35 @@ Your submitted form contains the following errors:
         </div>
     </div>
 
+    {{# --- Listview Column Priority ----------------------------------------- }}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header"><strong>Listview: Always-Visible Columns</strong></div>
+                <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">Checked columns are always visible in the component list, even on narrow screens. Action buttons are always pinned regardless of this setting.</p>
+                {{if pinnable_cols:}}
+                <div class="row">
+                    {{for col_name, col_label, col_pinned in pinnable_cols:}}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="meta_pinned_cols" value="{{=col_name}}"
+                                   id="pin_{{=col_name}}"
+                                   {{='checked' if col_pinned else ''}}>
+                            <label class="form-check-label" for="pin_{{=col_name}}">{{=col_label}}</label>
+                        </div>
+                    </div>
+                    {{pass}}
+                </div>
+                {{else:}}
+                <p class="text-muted">Save this component type first, then configure column visibility.</p>
+                {{pass}}
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{# --- Wiring Diagram -------------------------------------------------- }}
     <div class="row mt-3">
         <div class="col">

@@ -1,8 +1,5 @@
 
 def index():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     response.title = 'Protocol'
 
     protocol_id = VerifyTableID('protocol', request.args(0)) or redirect(URL('protocol', 'listview'))
@@ -15,9 +12,6 @@ def index():
     return dict(protocol=protocol, models=models, transmitters=transmitters)
 
 def listview():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     protocols = db(db.protocol).select()
     return dict(protocols=protocols)
 

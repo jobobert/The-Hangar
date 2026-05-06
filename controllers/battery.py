@@ -2,9 +2,6 @@ def index():
 
     battery_id = VerifyTableID('battery', request.args(0)) or redirect(URL('battery', 'listview'))
 
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     #battery_id = request.args(0)
     battery = db(db.battery.id == battery_id).select().first() or redirect(URL('battery', 'listview'))
 
@@ -17,9 +14,6 @@ def index():
 
 
 def listview():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     batteries = db(db.battery).select(orderby=db.battery.chemistry | db.battery.cellcount | db.battery.mah | db.battery.crating)
     return dict(batteries=batteries)
 
@@ -33,7 +27,7 @@ def addcount():
         else:
             row.update_record(ownedcount=(row.ownedcount + 1))
 
-    return redirect(session.ReturnHere or URL('battery', 'listview'))
+    return redirect(URL('battery', 'listview'))
 
  
 def subtractcount():
@@ -43,13 +37,10 @@ def subtractcount():
         if row.ownedcount > 0:
             row.update_record(ownedcount=(row.ownedcount - 1))
 
-    return redirect(session.ReturnHere or URL('battery', 'listview'))
+    return redirect(URL('battery', 'listview'))
 
 
 def update():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     response.title = "Add/Update Battery"
 
     form = SQLFORM(db.battery, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False, submit_button='Submit')
@@ -121,16 +112,16 @@ def delete():
     #if db(db.model_battery.battery == battery_id).count() > 0:
     if db(db.model_battery.battery == battery_id).select(db.model_battery.id, limitby=(0,1)).first():
         session.flash = "Cannot delete: battery is assigned to models!"
-        redirect(session.ReturnHere or URL('battery', 'listview'))
+        redirect(URL('battery', 'listview'))
 
     #if db(db.eflite_time.battery == battery_id).count() > 0:
     if db(db.eflite_time.battery == battery_id).select(db.model_battery.id, limitby=(0,1)).first():
         session.flash = "Cannot delete: battery is assigned to flight time record!"
-        redirect(session.ReturnHere or URL('battery', 'listview'))
+        redirect(URL('battery', 'listview'))
 
     db(db.battery.id == battery_id).delete()
     session.flash = "Deleted"
-    redirect(session.ReturnHere or URL('battery', 'listview'))
+    redirect(URL('battery', 'listview'))
 
 def removefrommodel():
     # try to do this via ajax sometime...

@@ -20,103 +20,104 @@
 
     <div class="row mb-5">
         <div class="row">
-            <div class="col-12 col-md-6 col-lg-4 mb-3">
-            <div class="card assoc-card">
-                <div class="card-header">
-                    <h5 class="card-title">Attributes</h5>
-                </div>
-                <div class="card-body attribute-list">
-                    <dl>
-                        <dt>Type</dt>
-                        <dd>{{=comp.componenttype}}</dd>
-                        {{if comp.componentsubtype:}}
-                        <dt>Subtype</dt>
-                        <dd>{{=comp.componentsubtype}}</dd>
-                        {{pass}}
-                        <dt>Owned</dt>
-                        <dd>{{=comp.ownedcount}}</dd>
-                        <dt>Remaining</dt>
-                        <dd>{{=comp.get_remainingcount()}}</dd>
-                        <dt>Stored at</dt>
-                        <dd>{{=comp.storedat}}</dd>
-                        {{for key in comp.__dict__:}}
-                        {{if key.startswith('attr_') and comp[key]:}}
-                        <dt>{{=getattr(db.component, key).label}}</dt>
-                        <dd>{{if getattr(db.component, key).type == 'double':}}
-                            {{=TwoDecimal(comp[key])}} {{=ConvertMeasurementField(db.component, comp, key)}}
-                            {{else:}}
-                            {{=comp[key]}}
+            <div class="col-12 col-sm-auto mb-3">
+                <div class="card assoc-card">
+                    <div class="card-header">
+                        <h5 class="card-title">Attributes</h5>
+                    </div>
+                    <div class="card-body attribute-list">
+                        <dl>
+                            <dt>Type</dt>
+                            <dd>{{=comp.componenttype}}</dd>
+                            {{if comp.componentsubtype:}}
+                            <dt>Subtype</dt>
+                            <dd>{{=comp.componentsubtype}}</dd>
                             {{pass}}
-                        </dd>
-                        {{pass}}
-                        {{pass}}
-                    </dl>
+                            <dt>Owned</dt>
+                            <dd>{{=comp.ownedcount}}</dd>
+                            <dt>Remaining</dt>
+                            <dd>{{=comp.get_remainingcount()}}</dd>
+                            <dt>Stored at</dt>
+                            <dd>{{=comp.storedat}}</dd>
+                            {{for key in comp.__dict__:}}
+                            {{if key.startswith('attr_') and comp[key]:}}
+                            <dt>{{=getattr(db.component, key).label}}</dt>
+                            <dd>{{if getattr(db.component, key).type == 'double':}}
+                                {{=TwoDecimal(comp[key])}} {{=ConvertMeasurementField(db.component, comp, key)}}
+                                {{else:}}
+                                {{=comp[key]}}
+                                {{pass}}
+                            </dd>
+                            {{pass}}
+                            {{pass}}
+                        </dl>
+                    </div>
                 </div>
-            </div>
-            </div> {{if comp.attachment:}}
-            <div class="col-12 col-md-6 col-lg-4 mb-3">
-            <div class="card assoc-card">
-                <div class="card-header">
-                    <h5 class="card-title">Attachment</h5>
-                </div>
-                <div class="card-body">
-                    <ul>
+            </div> 
+            {{if comp.attachment:}}
+            <div class="col-12 col-sm-auto mb-3">
+                <div class="card assoc-card">
+                    <div class="card-header">
+                        <h5 class="card-title">Attachment</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul>
 
-                        {{(filename, file) = db.component.attachment.retrieve(comp.attachment)}}
-                        <li>
-                            <div class="d-inline-block attachment_icon">{{=filetype_icon(comp.attachment, 32) }}</div>
-                            <div class="d-inline-block attachment_name"><a href="{{=URL('default', 'inline' if ispdf(comp.attachment) else 'download', args=comp.attachment)}}" target="_blank">{{=filename}}</a></div>
-                            <div class="d-inline-block">{{=comp.showAttachmentPopup()}}</div>
-                        </li>
-                    </ul>
+                            {{(filename, file) = db.component.attachment.retrieve(comp.attachment)}}
+                            <li>
+                                <div class="d-inline-block attachment_icon">{{=filetype_icon(comp.attachment, 32) }}</div>
+                                <div class="d-inline-block attachment_name"><a href="{{=URL('default', 'inline' if ispdf(comp.attachment) else 'download', args=comp.attachment)}}" target="_blank">{{=filename}}</a></div>
+                                <div class="d-inline-block">{{=comp.showAttachmentPopup()}}</div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
             </div>
             {{pass}}
 
-            <div class="col-12 col-md-6 col-lg-4 mb-3">
-            <div class="card assoc-card">
-                <div class="card-header">
-                    <h5 class="card-title">Associated Models</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group">
-
-                        {{if modelCount:}}
-                        {{for model in modelCount:}}
-                        {{=modelListItem(modelIDs[model], img=True, label=f'{model} ({modelCount[model]})')}}
-                        {{pass}}
-
-                        {{else:}}
-                        No models use this protocol
-                        {{pass}}
-                    </ul>
-                </div>
-                <div class="card-footer">
-                    <div class=" m-2 ">
-                        <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_component" role="button" aria-expanded="false" aria-controls="collapseform_component">Add</a>
+            <div class="col-12 col-sm-auto mb-3">
+                <div class="card assoc-card">
+                    <div class="card-header">
+                        <h5 class="card-title">Associated Models</h5>
                     </div>
-                    <div class=" m-2 collapse " id="collapseform_component">
-                        {{=addform}}
+                    <div class="card-body">
+                        <ul class="list-group">
+
+                            {{if modelCount:}}
+                            {{for model in modelCount:}}
+                            {{=modelListItem(modelIDs[model], img=True, label=f'{model} ({modelCount[model]})')}}
+                            {{pass}}
+
+                            {{else:}}
+                            No models use this protocol
+                            {{pass}}
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <div class=" m-2 ">
+                            <a class="btn btn-primary" data-toggle="collapse" href="#collapseform_component" role="button" aria-expanded="false" aria-controls="collapseform_component">Add</a>
+                        </div>
+                        <div class=" m-2 collapse " id="collapseform_component">
+                            {{=addform}}
+                        </div>
                     </div>
                 </div>
-            </div>
             </div>
 
             {{if flitetimes:}}
-            <div class="col-12 col-md-6 col-lg-4 mb-3">
-            <div class="card assoc-card">
-                <div class="card-header">
-                    <h5 class="card-title">Flight Times</h5>
+            <div class="col-12 col-sm-auto mb-3">
+                <div class="card assoc-card">
+                    <div class="card-header">
+                        <h5 class="card-title">Flight Times</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            {{for f in flitetimes:}}
+                            <li>{{=f.model.name}} flying for {{=f.get_minutes()}} minutes</li>
+                            {{pass}}
+                        </ul>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <ul>
-                        {{for f in flitetimes:}}
-                        <li>{{=f.model.name}} flying for {{=f.get_minutes()}} minutes</li>
-                        {{pass}}
-                    </ul>
-                </div>
-            </div>
             </div>
             {{pass}}
         </div>

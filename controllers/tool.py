@@ -5,9 +5,6 @@ def index():
 
     tool_id = VerifyTableID('tool', request.args(0)) or redirect(URL('tool', 'listview'))
 
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     tools = db(db.tool.id == tool_id).select() 
 
     models = models_and_tools(
@@ -17,9 +14,6 @@ def index():
 
 
 def listview():
-
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     tools = db(db.tool).select(orderby=db.tool.tooltype | db.tool.name)
     return dict(tools=tools)
@@ -35,8 +29,7 @@ def update():
             'updated' if request.args else 'added'))
 
     if form.accepted:
-        redirect(URL('tool', 'index', args=form.vars.id,
-                 extension="html") or session.ReturnHere)
+        redirect(URL('tool', 'index', args=form.vars.id, extension="html"))
 
     disable_autocomplete(form)
 
@@ -146,8 +139,8 @@ def delete():
     #if db(db.model_tool.tool == tool_id).count() > 0:
     if db(db.model_tool.tool == tool_id).select(db.model_tool.id, limitby=(0,1)).first():
         session.flash = "Cannot delete: tool is assigned to models!"
-        redirect(session.ReturnHere or URL('tool', 'listview'))
+        redirect(URL('tool', 'listview'))
 
     db(db.tool.id == tool_id).delete()
     session.flash = "Deleted"
-    redirect(session.ReturnHere or URL('tool', 'listview'))
+    redirect(URL('tool', 'listview'))

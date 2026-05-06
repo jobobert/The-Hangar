@@ -3,8 +3,6 @@
 def select():
 
     response.title = 'Choose the Models'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     # Load itemtype rows: system types (Standard) are always included, others get checkboxes.
     _itemtypes = db(db.lookup.category == 'itemtype').select(orderby=db.lookup.sort_order)
@@ -143,9 +141,6 @@ def thelist():
 
 def listview():
 
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-        
     packingitems = db(db.packingitems).select(orderby=db.packingitems.itemtype | db.packingitems.name)
     return dict(packingitems=packingitems)
 
@@ -164,4 +159,4 @@ def delete():
     item_id = VerifyTableID('packingitems', request.args(0)) or redirect(URL('default', 'index'))
 
     db(db.packingitems.id == item_id).delete()
-    return redirect(session.ReturnHere or URL('packingitems', 'listview'))
+    return redirect(URL('packingitems', 'listview'))

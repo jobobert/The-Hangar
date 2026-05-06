@@ -1,7 +1,4 @@
 def index():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     paint_id = request.args(0)
     paint = db(db.paint.id == paint_id).select().first() or redirect(URL('paint', 'listview'))
 
@@ -14,9 +11,6 @@ def index():
 
 
 def update():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     response.title = "Add/Update Paint Type"
 
     form = SQLFORM(db.paint, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False, submit_button='Submit').process(
@@ -29,9 +23,6 @@ def update():
     return dict(form=form)
 
 def listview():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     response.title = "List Paint Types"
 
     paints = db(db.paint).select( orderby=db.paint.color)
@@ -43,7 +34,7 @@ def delete():
 
     if db(db.model_paint.paint == paint_id).count() > 0:
         session.flash = "Cannot delete: paint is assigned to models!"
-        return redirect(session.ReturnHere or URL('paint', 'listview'))
+        return redirect(URL('paint', 'listview'))
     
     if paint_id:
         db(db.paint.id == paint_id).delete()
@@ -51,7 +42,7 @@ def delete():
     else:
         session.flash = "Cannot delete: paint not found"
         
-    return redirect(session.ReturnHere or URL('paint', 'listview'))
+    return redirect(URL('paint', 'listview'))
 
 def removefrommodel():
     model_id = VerifyTableID('model', request.args(0)) or redirect(URL('default', 'index'))

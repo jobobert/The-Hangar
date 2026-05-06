@@ -4,8 +4,6 @@ def index():
 
     transmitter_id = VerifyTableID('transmitter', request.args(0)) or redirect(URL('transmitter', 'listview'))
     response.title = 'Transmitters'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     transmitters = db(db.transmitter.id == transmitter_id).select(
     ) or redirect(URL('transmitter', 'listview'))
@@ -17,9 +15,6 @@ def index():
 
 
 def listview():
-
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     transmitters = db(db.transmitter).select(orderby=db.transmitter.name)
     return dict(transmitters=transmitters)
@@ -35,8 +30,7 @@ def update():
             'updated' if request.args else 'added'))
 
     if form.accepted:
-        redirect(URL('transmitter', 'index', args=form.vars.id,
-                 extension="html") or session.ReturnHere)
+        redirect(URL('transmitter', 'index', args=form.vars.id, extension="html"))
 
     disable_autocomplete(form)
 

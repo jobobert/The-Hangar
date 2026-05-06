@@ -4,9 +4,6 @@ import json
 def index():
     component_id = VerifyTableID('component', request.args(0)) or redirect(URL('component', 'listview'))
 
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     addform = SQLFORM(db.model_component, fields=["model", "purpose", "channel"], showid=False, comments=False)
     addform.vars.component = component_id
     if addform.process(session=None, formname="addtomodel").accepted:
@@ -37,8 +34,6 @@ def index():
 def listview():
 
     response.title = 'Component List'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     types = []
     for x, y in db.component.componenttype.requires.options():
@@ -66,12 +61,13 @@ def listview():
         fields.append(db.component.ownedcount)
 
         links = [
-            dict(header='In Use', body=lambda row: DIV(row.get_usedcount(), _class='text-center')), 
-            dict(header='Remaining', body=lambda row: DIV(B(row.get_remainingcount()), _class='text-center')), 
+            dict(header='In Use', body=lambda row: DIV(row.get_usedcount(), _class='text-center')),
+            dict(header='Remaining', body=lambda row: DIV(B(row.get_remainingcount()), _class='text-center')),
             lambda row: viewButton('component', 'index', [row.id]),
             lambda row: editButton('component', 'update', [row.id]),
             lambda row: plusButton('component', 'addcount', [row.id]),
             lambda row: minusButton('component', 'subtractcount', [row.id]),
+            dict(header='', body=lambda row: XML('<i class="fa fa-chevron-right expand-toggle"></i>')),
         ]
 
         comp = db(db.component.componenttype == request.vars['c'])
@@ -84,13 +80,24 @@ def listview():
             comp, orderby=db.component.componenttype | db.component.name, args=request.args[:1], user_signature=False, editable=False, deletable=False, details=False, maxtextlength=255, create=False, links=links, fields=fields, _class='itemlist-grid', searchable=False
         )
 
+        # Build column index map for responsive priority (index 0 = responsive control col)
+        _col_names = (
+            ['img', 'name', 'significantdetail'] +
+            component_attribs.get(requestedtype, []) +
+            ['ownedcount', '__inuse__', '__remaining__', '__view__', '__edit__', '__plus__', '__minus__', '__expand__']
+        )
+        _col_index = {name: i for i, name in enumerate(_col_names)}
+        ct_row = db(db.componenttype.name == requestedtype).select().first()
+        _pinned = json.loads(ct_row.pinned_cols or '[]') if ct_row else []
+        pinned_indices = json.dumps([_col_index[n] for n in _pinned if n in _col_index])
+    else:
+        pinned_indices = json.dumps([])
+
     #response.view = 'content.html'
-    return dict(components=components, types=types, requestedtype=requestedtype, active=active, available=available)
+    return dict(components=components, types=types, requestedtype=requestedtype, active=active, available=available, pinned_indices=pinned_indices)
 
 
 def usage():
-    session.ReturnHere = URL(args=request.args, vars=request.get_vars, host=True)
-
     types = [y for x, y in db.component.componenttype.requires.options() if y != '']
     requestedtype = request.vars.get('c', '') if request.vars.get('c', '') in types else ''
     groupby = 'model' if request.vars.get('g') == 'model' else 'component'
@@ -206,36 +213,33 @@ def usage():
 
 def addcount():
 
-    component_id = VerifyTableID('component', request.args(0)) or redirect(session.ReturnHere or URL('component', 'listview'))
+    component_id = VerifyTableID('component', request.args(0)) or redirect(URL('component', 'listview'))
     row = db.component(component_id)
     if row.ownedcount == None:
         row.update_record(ownedcount=(1))
     else:
         row.update_record(ownedcount=(row.ownedcount + 1))
 
-    return redirect(session.ReturnHere or URL('component', 'listview'))
+    return redirect(URL('component', 'listview'))
 
 def subtractcount():
 
-    component_id = VerifyTableID('component', request.args(0)) or redirect(session.ReturnHere or URL('component', 'listview'))
+    component_id = VerifyTableID('component', request.args(0)) or redirect(URL('component', 'listview'))
     row = db.component(component_id)
     if row.ownedcount > 0:
         row.update_record(ownedcount=(row.ownedcount - 1))
-    return redirect(session.ReturnHere or URL('component', 'listview'))
+    return redirect(URL('component', 'listview'))
 
 def update():
 
     response.title = 'Add/Update Component'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     form = SQLFORM(db.component, request.args(0), upload=URL(
         'default', 'download'), deletable=True, showid=False).process(
         message_onsuccess='Document %s' % ('updated' if request.args else 'added')) 
 
     if form.accepted:
-        redirect(URL('component', 'index', args=form.vars.id,
-                 extension="html") or session.ReturnHere)
+        redirect(URL('component', 'index', args=form.vars.id, extension="html"))
 
     disable_autocomplete(form)
 
@@ -474,6 +478,8 @@ def removefrommodel():
 def updatemodelrelation():
 
     relationship_id = request.args[0]
+    rel_record = db.model_component(relationship_id)
+    model_id = rel_record.model if rel_record else None
 
     rel = db(db.model_component.model == relationship_id).select().first()
 
@@ -484,8 +490,7 @@ def updatemodelrelation():
     disable_autocomplete(form)
     if form.process().accepted:
         session.flash = "Relationship Updated"
-        redirect(session.ReturnHere or URL(
-            'default', 'index', extension="html"))
+        redirect(URL('model', 'index', args=model_id))
     elif form.errors:
         response.flash = "Error Updating Component Relationship"
 
@@ -503,15 +508,15 @@ def delete():
     #if db(db.model_component.component == component_id).count() > 0:
     if db(db.model_component.component == component_id).select(db.model_component.id, limitby=(0,1)).first():
         session.flash = "Cannot delete: component is assigned to models!"
-        redirect(session.ReturnHere or URL('component', 'listview'))
+        redirect(URL('component', 'listview'))
 
     #if db(db.eflite_time.motor == component_id).count() > 0:
     if db(db.eflite_time.motor == component_id).select(db.eflite_time.id, limitby=(0,1)).first():
         session.flash = "Cannot delete: component is assigned to a flight time!"
-        redirect(session.ReturnHere or URL('component', 'listview'))
+        redirect(URL('component', 'listview'))
 
     if component_id:
         db(db.component.id == component_id).delete()
         session.flash = "Deleted"
         
-    return redirect(session.ReturnHere or URL('component', 'listview'))
+    return redirect(URL('component', 'listview'))

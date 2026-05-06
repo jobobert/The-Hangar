@@ -61,19 +61,16 @@ def complete():
 
     model_id = VerifyTableID('model', request.args(0)) 
     if not model_id:
-        return redirect(session.ReturnHere or URL('todo', 'listview'))
+        return redirect(URL('todo', 'listview'))
     todo_id = VerifyTableID('todo', request.args(1)) 
 
     if todo_id:
         db(db.todo.id == todo_id).update(complete=True)
 
-    redirect(session.ReturnHere or URL('todo', 'index', args=model_id))
+    redirect(URL('todo', 'index', args=model_id))
 
 
 def listview():
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     activemodels = db(db.model.modelstate > 1)._select(db.model._id)
 
     todo_query = db((db.todo.complete == False)

@@ -44,7 +44,7 @@ def new():
         session.flash = "New Attachment Added"
 
         #redirect(URL('default', 'breadcrumb_back'))
-        redirect(session.ReturnHere or URL('model', 'index', args=model_id))
+        redirect(URL('model', 'index', args=model_id))
 
     elif form.errors:
         response.flash = "Error Adding New Attachment"
@@ -77,4 +77,4 @@ def remove():
 
     db(db.attachment.id == attachment_id).delete()
 
-    redirect(session.ReturnHere or URL('model', 'index', args=model_id))
+    redirect(URL('model', 'index', args=model_id))

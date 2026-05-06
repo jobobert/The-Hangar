@@ -110,6 +110,13 @@ def getDatabaseHelp(field) -> str:
             the database, but this list is pretty complete. There is also a sub type field you can use to add more details
             (that is if the attributes aren't helpful enough.) This field also drives the editable list of attributes.
             """
+        case 'componenttype.pinned_cols':
+            return """
+            These are the columns that will always remain visible in the component list view, even on narrow screens.
+            When the screen is too narrow to show all columns, DataTables collapses lower-priority columns behind a
+            '+' expand button — pinned columns are never collapsed. The action buttons (view, edit, +, −) are always
+            pinned regardless of this setting. Configure this per component type in Admin → Component Types.
+            """
         case 'component.storedat':
             return """
             If you have lots of components in lots of locations, use this field to narrow down where you have to look.

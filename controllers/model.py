@@ -38,9 +38,6 @@ def index():
         response.flash = "Error Updating Rotors"
 
     response.title = 'Model: ' + model.name
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
 
     return dict(model=model, details_form=details_form, fieldnotes_form=fieldnotes_form,
                 rotor_form=rotor_form)
@@ -314,8 +311,6 @@ def renderdashboard():
 
 def listview():
     response.title = 'Model List'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     query = db.model
     active = ''
@@ -366,7 +361,7 @@ def update():
         if (not request.args):
             log_activity(form.vars.id, 'Other', 'Model Created')
 
-        redirect(URL( 'model', 'index', args=form.vars.id, extension="html") or session.ReturnHere)
+        redirect(URL('model', 'index', args=form.vars.id, extension="html"))
     elif form.errors:
         response.flash = "Error Adding New Model"
     else:
@@ -379,13 +374,13 @@ def deleteconfig():
     # Delete the radio config
     model_id = VerifyTableID('model', request.args(0)) 
     if not model_id:
-        return redirect(session.ReturnHere or URL('component', 'listview'))
+        return redirect(URL('model', 'listview'))
 
     # Confirmation is done in the front end
     row = db(db.model.id == model_id).select().first()
     delete_file(row, 'configbackup')
 
-    return redirect(session.ReturnHere or URL('model', 'index', args=model_id))
+    return redirect(URL('model', 'index', args=model_id))
 
 def updatestate():
     session.forget(response)
@@ -404,7 +399,7 @@ def updatestate():
 
     log_activity(model.id, 'StateChange', notes)
 
-    return redirect(session.ReturnHere or URL('model', 'index.html', args=model_id))
+    return redirect(URL('model', 'index.html', args=model_id))
 
 @mobilize
 def flowchart():
@@ -472,7 +467,7 @@ def flowchart():
 def addflighttime():
     model_id = VerifyTableID('model', request.args(0)) 
     if not model_id:
-        return redirect(session.ReturnHere or URL('component', 'listview'))
+        return redirect(URL('model', 'listview'))
 
     model = db.model(model_id)
     motor = model.get_motor()
@@ -489,7 +484,7 @@ def addflighttime():
 
     if form.process().accepted:
         session.flash = "New Flight Time Added"
-        redirect(session.ReturnHere or URL('model', 'index', args=model_id))
+        redirect(URL('model', 'index', args=model_id))
     elif form.errors:
         response.flash = "Error Adding Flight Time"
 
@@ -539,7 +534,7 @@ def selected():
     session.forget(response)
     model_id = VerifyTableID('model', request.args(0))
     if not model_id:
-        return redirect(session.ReturnHere or URL('component', 'listview'))
+        return redirect(URL('model', 'listview'))
 
     options = request.args(1) or None
     model = db(db.model.id == model_id).select(db.model.id, db.model.selected)
@@ -603,8 +598,6 @@ def retire():
 
 def atthefield():
     response.title = 'At The Field'
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     #query = db((db.model.modelstate == 4) | (db.model.modelstate == 5))
     queries = []
@@ -672,12 +665,14 @@ def updatemodelbattery():
     response.title = "Update Model/Battery"
 
     model_battery_id = request.args(0)
+    battery_record = db.model_battery(model_battery_id)
+    model_id = battery_record.model if battery_record else None
 
     form = SQLFORM(db.model_battery, model_battery_id, formstyle='bootstrap4_inline', showid=False, submit_button='Submit')
 
     if form.process(session=None).accepted:
         session.flash = "Model/Battery Updated"
-        redirect(session.ReturnHere or URL('default', 'index'))
+        redirect(URL('model', 'index', args=model_id))
 
     response.view = 'content.html'
 
@@ -687,12 +682,14 @@ def updatemodelpaint():
     response.title = "Update Model/Paint"
 
     model_paint_id = request.args(0)
+    paint_record = db.model_paint(model_paint_id)
+    model_id = paint_record.model if paint_record else None
 
     form = SQLFORM(db.model_paint, model_paint_id, formstyle='bootstrap4_inline', showid=False, submit_button='Submit')
 
     if form.process(session=None).accepted:
         session.flash = "Model/Paint Updated"
-        redirect(session.ReturnHere or URL('default', 'index'))
+        redirect(URL('model', 'index', args=model_id))
 
     response.view = 'content.html'
 

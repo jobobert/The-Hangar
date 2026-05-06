@@ -256,6 +256,7 @@ db.define_table('componenttype',
     Field('diagram_shape',      type='string',      label='Diagram Shape', default=''),
     Field('diagram_color',      type='string',      label='Diagram Color', default='#efefef'),
     Field('diagram_edgeattrib', type='string',      label='Diagram Edge',  default='default'),
+    Field('pinned_cols',        type='text',         label='Pinned Columns', default=''),
     format=lambda r: r.name
 )
 

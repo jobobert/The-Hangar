@@ -1,8 +1,5 @@
 def listview():
 
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
-
     tags = db(db.tag).select()
     return dict(tags=tags)
 
@@ -30,4 +27,4 @@ def delete():
     else:
         session.flash = "Could not delete: tag not found"
     
-    redirect(session.ReturnHere or URL('tag', 'listview'))
+    redirect(URL('tag', 'listview'))

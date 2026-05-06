@@ -71,16 +71,13 @@ def update():
     )
 
     if form.accepted:
-        redirect(URL('wtc', 'index', args=form.vars.id, extension="html") or session.ReturnHere)
+        redirect(URL('wtc', 'index', args=form.vars.id, extension="html"))
 
     disable_autocomplete(form)
 
     return dict(form=form)
 
 def listview():
-
-    session.ReturnHere = URL(
-        args=request.args, vars=request.get_vars, host=True)
 
     wtcs = db(db.wtc).select(orderby=db.wtc.name)
 
@@ -91,11 +88,11 @@ def delete():
 
     if db(db.model_wtc.wtc == wtc_id).select(db.model_wtc.id, limitby=(0,1)).first():
         session.flash = "Cannot delete: WTC is assigned to models!"        
-        redirect(session.ReturnHere or URL('wtc', 'listview'))
+        redirect(URL('wtc', 'listview'))
 
     db(db.wtc.id == wtc_id).delete()
     session.flash = "Deleted"
-    redirect(session.ReturnHere or URL('wtc', 'listview'))
+    redirect(URL('wtc', 'listview'))
 
 def renderexport():
     session.forget(response)

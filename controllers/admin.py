@@ -234,8 +234,6 @@ def _cascade_rename(category, old_name, new_name):
 
 
 def index():
-    session.ReturnHere = URL(args=request.args, vars=request.get_vars, host=True)
-
     # Value counts per category from DB
     count_rows = db(db.lookup.id > 0).select(
         db.lookup.category,
@@ -279,7 +277,6 @@ def index():
 
 def category():
     cat = request.args(0) or redirect(URL('admin', 'index'))
-    session.ReturnHere = URL(args=request.args, vars=request.get_vars, host=True)
 
     rows = db(db.lookup.category == cat).select(
         orderby=db.lookup.sort_order | db.lookup.name
@@ -432,7 +429,6 @@ def replace():
 # ---------------------------------------------------------------------------
 
 def componenttype_list():
-    session.ReturnHere = URL(args=request.args, vars=request.get_vars, host=True)
     rows = db(db.componenttype.id > 0).select(
         orderby=db.componenttype.sort_order | db.componenttype.name)
     rows_with_counts = [
@@ -453,39 +449,34 @@ def componenttype_update():
         ).first()[db.componenttype.sort_order.max()] or 0
         db.componenttype.sort_order.default = _max + 1
 
-    # Block renaming system values
-    if old_row and old_row.is_system and request.vars.name and request.vars.name != old_row.name:
-        response.flash = "Cannot rename a system value"
-
-    else:
-        # Collect custom POST vars (attrs + diagram fields handled outside SQLFORM)
-        extra = None
-        if request.post_vars:
-            extra = dict(
-                attrs              = request.post_vars.getlist('meta_attrs') or [],
-                diagram_shape      = (request.post_vars.get('meta_diagram_shape') or '').strip(),
-                diagram_color      = (request.post_vars.get('meta_diagram_color') or '#efefef').strip(),
-                diagram_edgeattrib = (request.post_vars.get('meta_diagram_edgeattrib') or 'default').strip(),
-            )
-
-        form = SQLFORM(db.componenttype, old_row, showid=False, deletable=False,
-                       fields=['name', 'sort_order', 'is_system'])
-        disable_autocomplete(form)
-
-        if form.process().accepted:
-            if old_row and old_row.name != form.vars.name:
-                db(db.component.componenttype == old_row.name).update(
-                    componenttype=form.vars.name)
-            if extra is not None:
-                db(db.componenttype.id == (ct_id or form.vars.id)).update(**extra)
-            session.flash = "Saved"
-            redirect(URL('admin', 'componenttype_list'))
-        elif form.errors:
-            response.flash = "Please correct the errors below"
+    # Collect custom POST vars (attrs + diagram fields handled outside SQLFORM)
+    extra = None
+    if request.post_vars:
+        extra = dict(
+            attrs              = request.post_vars.getlist('meta_attrs') or [],
+            diagram_shape      = (request.post_vars.get('meta_diagram_shape') or '').strip(),
+            diagram_color      = (request.post_vars.get('meta_diagram_color') or '#efefef').strip(),
+            diagram_edgeattrib = (request.post_vars.get('meta_diagram_edgeattrib') or 'default').strip(),
+            pinned_cols        = json.dumps(request.post_vars.getlist('meta_pinned_cols') or []),
+        )
 
     form = SQLFORM(db.componenttype, old_row, showid=False, deletable=False,
                    fields=['name', 'sort_order', 'is_system'])
     disable_autocomplete(form)
+
+    # Block renaming system values
+    if old_row and old_row.is_system and request.vars.name and request.vars.name != old_row.name:
+        response.flash = "Cannot rename a system value"
+    elif form.process().accepted:
+        if old_row and old_row.name != form.vars.name:
+            db(db.component.componenttype == old_row.name).update(
+                componenttype=form.vars.name)
+        if extra is not None:
+            db(db.componenttype.id == (ct_id or form.vars.id)).update(**extra)
+        session.flash = "Saved"
+        redirect(URL('admin', 'componenttype_list'))
+    elif form.errors:
+        response.flash = "Please correct the errors below"
 
     _attrs_set = set(old_row.attrs or []) if old_row else set()
     attr_groups = [
@@ -494,6 +485,20 @@ def componenttype_update():
     ]
     _opts = _edge_options()
     _ea = {r.name: r.dot_attribs for r in db(db.diagramedge.id > 0).select()}
+
+    _pinned_set = set(json.loads(old_row.pinned_cols or '[]')) if old_row else set()
+    _attrs_for_type = list(old_row.attrs or []) if old_row else []
+    _fixed_cols = [
+        ('img',               db.component.img.label),
+        ('name',              db.component.name.label),
+        ('significantdetail', db.component.significantdetail.label),
+        ('ownedcount',        db.component.ownedcount.label),
+        ('__inuse__',         'In Use'),
+        ('__remaining__',     'Remaining'),
+    ]
+    _attr_cols = [(f, db.component[f].label) for f in _attrs_for_type if f in db.component.fields]
+    pinnable_cols = [(n, lbl, n in _pinned_set) for n, lbl in _fixed_cols + _attr_cols]
+
     return dict(
         form=form,
         old_row=old_row,
@@ -504,6 +509,7 @@ def componenttype_update():
         diagram_shape=old_row.diagram_shape if old_row else '',
         diagram_color=old_row.diagram_color if old_row else '#efefef',
         diagram_edgeattrib=old_row.diagram_edgeattrib if old_row else 'default',
+        pinnable_cols=pinnable_cols,
     )
 
 
