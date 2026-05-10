@@ -1,6 +1,6 @@
 def index():
 
-    battery_id = VerifyTableID('battery', request.args(0)) or redirect(URL('battery', 'listview'))
+    battery_id = VerifyTableID('battery', request.args(0), URL('battery', 'listview'), prefer_referer=True)
 
     #battery_id = request.args(0)
     battery = db(db.battery.id == battery_id).select().first() or redirect(URL('battery', 'listview'))

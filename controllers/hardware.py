@@ -3,7 +3,7 @@
 def index():
     response.title = 'Hardware'
 
-    hardware_id = VerifyTableID('hardware', request.args(0)) or redirect(URL('hardware', 'listview'))
+    hardware_id = VerifyTableID('hardware', request.args(0), URL('hardware', 'listview'), prefer_referer=True)
 
     item = db.hardware(hardware_id)
     model = db.model(item.model) if item else None

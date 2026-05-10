@@ -2,7 +2,7 @@
 def index():
     response.title = 'Protocol'
 
-    protocol_id = VerifyTableID('protocol', request.args(0)) or redirect(URL('protocol', 'listview'))
+    protocol_id = VerifyTableID('protocol', request.args(0), URL('protocol', 'listview'), prefer_referer=True)
     
     protocol = db.protocol(protocol_id) or redirect(URL('default', 'index'))
 

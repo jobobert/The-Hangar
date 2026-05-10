@@ -376,30 +376,33 @@ def render_card_error(content, controller=None, title=None):
     response.view = 'rendercarderror.load'
     return dict(content=content, controller=controller, title=title)
 
-def VerifyTableID(table:str, rowID:int|str):
+def VerifyTableID(table:str, rowID:int|str, redirect_url=None, prefer_referer=False):
     #print(f'{table} -- {rowID}:  {type(rowID)}')
 
-    if rowID == None:
-        print(f"VerifyTableID: Error: Received Null ID (table '{table}').")
+    def _fail():
+        if redirect_url:
+            session.flash = "Record not found."
+            referer = request.env.http_referer or ''
+            same_page = URL(request.controller, request.function, host=True)
+            target = referer if (prefer_referer and referer and not referer.startswith(same_page)) else redirect_url
+            redirect(target)
+        response.flash = "Record not found!"
         return None
+
+    if rowID is None:
+        print(f"VerifyTableID: Error: Received Null ID (table '{table}').")
+        return _fail()
 
     try:
         integer_value = int(rowID)
-    except ValueError:
-        print(f"VerifyTableID: Error: Could not convert '{rowID}' to an integer. Invalid input.")
+    except (ValueError, TypeError):
+        print(f"VerifyTableID: Error: Could not convert '{rowID}' (table '{table}').")
         print(inspect.stack()[1][3])
-        response.flash = "Record not found!"
-        return None
-    except TypeError:
-        print(f"VerifyTableID: Error: Cannot convert type '{type(rowID).__name__}' to an integer.")
-        print(inspect.stack()[1][3])
-        response.flash = "Record not found!"
-        return None
+        return _fail()
 
     if (db(db[table].id == integer_value)).count() == 0:
-        response.flash = "Record not found!"
-        return None
-    
+        return _fail()
+
     return integer_value
 
 def TwoDecimal(number):

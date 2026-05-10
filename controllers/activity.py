@@ -70,7 +70,7 @@ def events():
 
 def index():
 
-    activity_id = VerifyTableID('activity', request.args(0)) or redirect(URL('activity', 'calendar'))
+    activity_id = VerifyTableID('activity', request.args(0), URL('activity', 'calendar'), prefer_referer=True)
     activity = db.activity(activity_id) 
     response.title = "Activity"
 
@@ -111,7 +111,8 @@ def update():
 
     response.title = "Update/Add Activity"
 
-    activity_id = request.args(0)
+    activity_id = VerifyTableID('activity', request.args(0), URL('activity', 'listview'), prefer_referer=True)
+
     existing = db.activity(activity_id)
     model_id = existing.model if existing else None
 

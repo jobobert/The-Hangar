@@ -2,10 +2,10 @@ from gluon.contrib.user_agent_parser import mobilize
 
 import json
 
-def index(): 
-    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
+def index():
+    model_id = VerifyTableID('model', request.args(0), URL('model', 'listview'), prefer_referer=True)
 
-    model = db.model(model_id) 
+    model = db.model(model_id)
 
     details_form = SQLFORM(db.model, model.id, fields=[
                            'notes'], showid=False, formstyle='divs')

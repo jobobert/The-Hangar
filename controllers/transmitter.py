@@ -2,7 +2,7 @@
 
 def index():
 
-    transmitter_id = VerifyTableID('transmitter', request.args(0)) or redirect(URL('transmitter', 'listview'))
+    transmitter_id = VerifyTableID('transmitter', request.args(0), URL('transmitter', 'listview'), prefer_referer=True)
     response.title = 'Transmitters'
 
     transmitters = db(db.transmitter.id == transmitter_id).select(

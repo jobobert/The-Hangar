@@ -3,7 +3,7 @@
 def index():
     response.title = 'Tools'
 
-    tool_id = VerifyTableID('tool', request.args(0)) or redirect(URL('tool', 'listview'))
+    tool_id = VerifyTableID('tool', request.args(0), URL('tool', 'listview'), prefer_referer=True)
 
     tools = db(db.tool.id == tool_id).select() 
 

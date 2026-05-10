@@ -2,7 +2,7 @@
 import json
 
 def index():
-    component_id = VerifyTableID('component', request.args(0)) or redirect(URL('component', 'listview'))
+    component_id = VerifyTableID('component', request.args(0), URL('component', 'listview'), prefer_referer=True)
 
     addform = SQLFORM(db.model_component, fields=["model", "purpose", "channel"], showid=False, comments=False)
     addform.vars.component = component_id

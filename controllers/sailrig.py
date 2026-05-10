@@ -1,5 +1,5 @@
 def index():
-    rig_id = VerifyTableID('sailrig', request.args(0)) or redirect(URL('sailrig', 'listview'))
+    rig_id = VerifyTableID('sailrig', request.args(0), URL('sailrig', 'listview'), prefer_referer=True)
     rig = db(db.sailrig.id == rig_id).select(
     ).first() or redirect(URL('sailrig', 'listview'))
 

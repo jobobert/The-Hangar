@@ -106,7 +106,7 @@ def read():
     session.forget(response)
     response.title = 'Read Article'
 
-    article_id = VerifyTableID('article', request.args(0)) or redirect(URL('library', 'index'))
+    article_id = VerifyTableID('article', request.args(0), URL('library', 'index'), prefer_referer=True)
 
     article = db.article(article_id)
 
