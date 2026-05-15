@@ -8,69 +8,104 @@ import json as _json
 
 def quick_search():
     session.forget(response)
-    """Simple text search across model, component, article, and tag names."""
+    """Simple text search across models, transmitters, library, components, and tools."""
     s = (request.vars.get('s') or '').strip()
     results = []
-    if s:
-        pat = '%' + s + '%'
+
+    # Parse optional 2-letter prefix, e.g. "md:", "tx:", "lb:", "co:", "tl:"
+    PREFIX_LABELS = {'md': 'Models', 'tx': 'Transmitters', 'lb': 'Library',
+                     'co': 'Components', 'tl': 'Tools'}
+    prefix = None
+    term = s
+    if len(s) > 3 and s[2] == ':':
+        p = s[:2].lower()
+        if p in PREFIX_LABELS:
+            prefix, term = p, s[3:].strip()
+
+    if term:
+        pat = '%' + term + '%'
 
         # Models by name
-        for row in db(db.model.name.like(pat)).select(
-                db.model.id, db.model.name, db.model.img,
-                db.model.modeltype, orderby=db.model.name):
-            results.append({'controller': 'model', 'name': row.name,
-                            'img': row.img, 'sub': row.modeltype or '',
-                            'url': URL('model', 'index', args=row.id)})
+        if not prefix or prefix == 'md':
+            for row in db(db.model.name.like(pat)).select(
+                    db.model.id, db.model.name, db.model.img,
+                    db.model.modeltype, orderby=db.model.name):
+                results.append({'controller': 'model', 'name': row.name,
+                                'img': row.img, 'sub': row.modeltype or '',
+                                'url': URL('model', 'index', args=row.id)})
 
         # Components by name + models that use each matching component
-        seen_models = set(r['url'] for r in results)
-        for crow in db(db.component.name.like(pat)).select(
-                db.component.id, db.component.name, db.component.img,
-                db.component.componenttype, orderby=db.component.name):
-            results.append({'controller': 'component', 'name': crow.name,
-                            'img': crow.img, 'sub': crow.componenttype or '',
-                            'url': URL('component', 'index', args=crow.id)})
-            for mc in db(db.model_component.component == crow.id).select(db.model_component.model):
-                mrow = db.model(mc.model)
-                if mrow:
-                    mu = URL('model', 'index', args=mrow.id)
-                    if mu not in seen_models:
-                        seen_models.add(mu)
-                        results.append({'controller': 'model',
-                                        'name': mrow.name,
-                                        'img': mrow.img,
-                                        'sub': 'has: ' + crow.name,
-                                        'url': mu})
+        if not prefix or prefix == 'co':
+            seen_models = set(r['url'] for r in results)
+            for crow in db(db.component.name.like(pat)).select(
+                    db.component.id, db.component.name, db.component.img,
+                    db.component.componenttype, orderby=db.component.name):
+                results.append({'controller': 'component', 'name': crow.name,
+                                'img': crow.img, 'sub': crow.componenttype or '',
+                                'url': URL('component', 'index', args=crow.id)})
+                for mc in db(db.model_component.component == crow.id).select(db.model_component.model):
+                    mrow = db.model(mc.model)
+                    if mrow:
+                        mu = URL('model', 'index', args=mrow.id)
+                        if mu not in seen_models:
+                            seen_models.add(mu)
+                            results.append({'controller': 'model',
+                                            'name': mrow.name,
+                                            'img': mrow.img,
+                                            'sub': 'has: ' + crow.name,
+                                            'url': mu})
 
-        # Articles by name
-        for row in db(db.article.name.like(pat)).select(
-                db.article.id, db.article.name, db.article.img,
-                db.article.articletype, orderby=db.article.name):
-            results.append({'controller': 'article', 'name': row.name,
-                            'img': row.img, 'sub': row.articletype or '',
-                            'url': URL('library', 'read', args=row.id)})
+        # Transmitters by name
+        if not prefix or prefix == 'tx':
+            for row in db(db.transmitter.name.like(pat)).select(
+                    db.transmitter.id, db.transmitter.name, db.transmitter.img,
+                    db.transmitter.manufacturer, orderby=db.transmitter.name):
+                results.append({'controller': 'transmitter', 'name': row.name,
+                                'img': row.img, 'sub': row.manufacturer or '',
+                                'url': URL('transmitter', 'index', args=row.id)})
 
-        # Tags by name + articles that have each matching tag
-        seen_articles = set()
-        for trow in db(db.tag.name.like(pat)).select(
-                db.tag.id, db.tag.name, orderby=db.tag.name):
-            results.append({'controller': 'tag', 'name': trow.name,
-                            'img': None, 'sub': '',
-                            'url': URL('tag', 'listview')})
-            for arow in db(db.article.tags.contains(trow.id)).select(
+        # Library articles by name
+        if not prefix or prefix == 'lb':
+            for row in db(db.article.name.like(pat)).select(
                     db.article.id, db.article.name, db.article.img,
                     db.article.articletype, orderby=db.article.name):
-                au = URL('library', 'read', args=arow.id)
-                if au not in seen_articles:
-                    seen_articles.add(au)
-                    results.append({'controller': 'article',
-                                    'name': arow.name,
-                                    'img': arow.img,
-                                    'sub': 'tagged: ' + trow.name,
-                                    'url': au})
+                results.append({'controller': 'article', 'name': row.name,
+                                'img': row.img, 'sub': row.articletype or '',
+                                'url': URL('library', 'read', args=row.id)})
+
+            # Tags by name + articles that have each matching tag
+            seen_articles = set()
+            for trow in db(db.tag.name.like(pat)).select(
+                    db.tag.id, db.tag.name, orderby=db.tag.name):
+                results.append({'controller': 'tag', 'name': trow.name,
+                                'img': None, 'sub': '',
+                                'url': URL('tag', 'listview')})
+                for arow in db(db.article.tags.contains(trow.id)).select(
+                        db.article.id, db.article.name, db.article.img,
+                        db.article.articletype, orderby=db.article.name):
+                    au = URL('library', 'read', args=arow.id)
+                    if au not in seen_articles:
+                        seen_articles.add(au)
+                        results.append({'controller': 'article',
+                                        'name': arow.name,
+                                        'img': arow.img,
+                                        'sub': 'tagged: ' + trow.name,
+                                        'url': au})
+
+        # Tools by name
+        if not prefix or prefix == 'tl':
+            for row in db(db.tool.name.like(pat)).select(
+                    db.tool.id, db.tool.name, db.tool.img,
+                    db.tool.tooltype, orderby=db.tool.name):
+                results.append({'controller': 'tool', 'name': row.name,
+                                'img': row.img, 'sub': row.tooltype or '',
+                                'url': URL('tool', 'index', args=row.id)})
+
         if len(results) == 1:
             redirect(results[0]['url'])
-    return dict(s=s, results=results)
+
+    return dict(s=s, results=results, prefix=prefix, term=term,
+                prefix_label=PREFIX_LABELS.get(prefix, ''))
 
 
 def search():

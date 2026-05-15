@@ -386,7 +386,7 @@ SEARCH_FIELDS = [
     },
     {
         'id': 'component_firmware_version', 'label': 'Component Firmware Version',
-        'group': 'Components', 'type': 'version', 'input': 'text',
+        'group': 'Components', 'type': 'string', 'input': 'text',
         'operators': ['equal', 'not_equal', 'greater', 'greater_or_equal',
                       'less', 'less_or_equal', 'is_empty', 'is_not_empty'],
         'values': None, 'table': 'component', 'field': 'attr_firmware_version',
@@ -459,7 +459,7 @@ SEARCH_FIELDS = [
     },
     {
         'id': 'transmitter_firmware_version', 'label': 'Transmitter Firmware Version',
-        'group': 'Transmitter / Protocol', 'type': 'version', 'input': 'text',
+        'group': 'Transmitter / Protocol', 'type': 'string', 'input': 'text',
         'operators': ['equal', 'not_equal', 'greater', 'greater_or_equal',
                       'less', 'less_or_equal', 'is_empty', 'is_not_empty'],
         'values': None, 'table': 'transmitter', 'field': 'firmware_version',

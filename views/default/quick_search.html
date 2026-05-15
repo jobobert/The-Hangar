@@ -3,7 +3,11 @@
 <div class="row mb-2">
     <div class="col">
         <h4>
+            {{if prefix:}}
+            Search results for <em>{{=term}}</em> in <strong>{{=prefix_label}}</strong>
+            {{else:}}
             Search results for <em>{{=s}}</em>
+            {{pass}}
             <a href="{{=URL('default','search')}}" class="btn btn-sm btn-outline-secondary ml-2">Advanced Search</a>
         </h4>
     </div>
