@@ -35,66 +35,38 @@ def listview():
 
     response.title = 'Component List'
 
-    types = []
-    for x, y in db.component.componenttype.requires.options():
-        if y != '':
-            types.append(y)
+    types = [y for x, y in db.component.componenttype.requires.options() if y != '']
 
-    components = DIV('Choose the Component Type Above...',
-                     _class='componentlist_choose')
     requestedtype = ''
     active = ''
     available = False
+    rows = []
+    col_defs = []  # list of (field_name, label)
 
-    if request.vars['a']:
+    if request.vars.get('a'):
         available = True
 
-    if request.vars['c'] in types:
+    if request.vars.get('c') in types:
         requestedtype = request.vars['c']
-        active = request.vars['c']
-        fields = [db.component.img, db.component.name,
-                  db.component.significantdetail]
+        active = requestedtype
+        col_defs = (
+            [('img',               db.component.img.label),
+             ('name',              db.component.name.label),
+             ('significantdetail', db.component.significantdetail.label)]
+            + [(f, db.component[f].label) for f in component_attribs.get(requestedtype, [])]
+            + [('ownedcount',      db.component.ownedcount.label)]
+        )
 
-        for attrib in component_attribs[requestedtype]:
-            fields.append(db.component[attrib])
-
-        fields.append(db.component.ownedcount)
-
-        links = [
-            dict(header='In Use', body=lambda row: DIV(row.get_usedcount(), _class='text-center')),
-            dict(header='Remaining', body=lambda row: DIV(B(row.get_remainingcount()), _class='text-center')),
-            lambda row: viewButton('component', 'index', [row.id]),
-            lambda row: editButton('component', 'update', [row.id]),
-            lambda row: plusButton('component', 'addcount', [row.id]),
-            lambda row: minusButton('component', 'subtractcount', [row.id]),
-            dict(header='', body=lambda row: XML('<i class="fa fa-chevron-right expand-toggle"></i>')),
-        ]
-
-        comp = db(db.component.componenttype == request.vars['c'])
-
+        comp_q = db(db.component.componenttype == requestedtype)
         if available:
-            available_ids = [r.id for r in comp.select() if r.get_remainingcount() > 0]
-            comp = db(db.component.id.belongs(available_ids))
+            all_rows = comp_q.select()
+            avail_ids = [r.id for r in all_rows if r.get_remainingcount() > 0]
+            comp_q = db(db.component.id.belongs(avail_ids))
 
-        components = SQLFORM.grid(
-            comp, orderby=db.component.componenttype | db.component.name, args=request.args[:1], user_signature=False, editable=False, deletable=False, details=False, maxtextlength=255, create=False, links=links, fields=fields, _class='itemlist-grid', searchable=False
-        )
+        rows = comp_q.select(orderby=db.component.name)
 
-        # Build column index map for responsive priority (index 0 = responsive control col)
-        _col_names = (
-            ['img', 'name', 'significantdetail'] +
-            component_attribs.get(requestedtype, []) +
-            ['ownedcount', '__inuse__', '__remaining__', '__view__', '__edit__', '__plus__', '__minus__', '__expand__']
-        )
-        _col_index = {name: i for i, name in enumerate(_col_names)}
-        ct_row = db(db.componenttype.name == requestedtype).select().first()
-        _pinned = json.loads(ct_row.pinned_cols or '[]') if ct_row else []
-        pinned_indices = json.dumps([_col_index[n] for n in _pinned if n in _col_index])
-    else:
-        pinned_indices = json.dumps([])
-
-    #response.view = 'content.html'
-    return dict(components=components, types=types, requestedtype=requestedtype, active=active, available=available, pinned_indices=pinned_indices)
+    return dict(types=types, requestedtype=requestedtype, active=active,
+                available=available, rows=rows, col_defs=col_defs)
 
 
 def usage():

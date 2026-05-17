@@ -90,24 +90,6 @@
         <div class=" m-2 collapse " id="collapseform_component">
             <div class="card-body">
                 <div class="mt-3">
-                    <script>
-                        function searchSelect(searchForID, searchInID) {
-                            var input = document.getElementById(searchForID).value.toLowerCase();
-                            var output = document.getElementById(searchInID).options
-
-                            for (var i = 0; i < output.length; i++) {
-                                if (output[i].text.toLowerCase().indexOf(input) < 0) {
-                                    output[i].style.display = "none";
-                                    output[i].setAttribute('style', 'display:none');
-                                }
-                                else {
-                                    output[i].style.display = "";
-                                    output[i].setAttribute('style', 'display:');
-                                }
-                            }
-                        }
-                    </script>
-
                     {{=addform.custom.begin}}
 
                     <div class="form-group row">

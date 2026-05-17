@@ -95,9 +95,9 @@ Your submitted form contains the following errors:
     <div class="row mt-3">
         <div class="col">
             <div class="card">
-                <div class="card-header"><strong>Listview: Always-Visible Columns</strong></div>
+                <div class="card-header"><strong>List View Columns</strong></div>
                 <div class="card-body">
-                <p class="card-subtitle mb-2 text-muted">Checked columns are always visible in the component list, even on narrow screens. Action buttons are always pinned regardless of this setting.</p>
+                <p class="card-subtitle mb-2 text-muted">Checked columns stay visible on narrow screens. Unchecked columns are hidden first when space is limited. Action buttons are always visible regardless of this setting.</p>
                 {{if pinnable_cols:}}
                 <div class="row">
                     {{for col_name, col_label, col_pinned in pinnable_cols:}}

@@ -1,26 +1,11 @@
 {{extend 'layout.html'}}
 {{block head}}
 <link rel="stylesheet" href="{{=URL('static','css/dataTables.bootstrap4.min.css')}}">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
 <style>
-.itemlist-grid .dataTables_wrapper .row {
-    margin-left: 0;
-    margin-right: 0;
-}
-.itemlist-grid .dataTables_wrapper .row > [class^="col-"]:first-child { padding-left: 0; }
-.itemlist-grid .dataTables_wrapper .row > [class^="col-"]:last-child  { padding-right: 0; }
-
-td .expand-toggle {
-    color: #6c757d;
-    font-size: 0.85rem;
-    cursor: pointer;
-}
-tr.parent td .expand-toggle::before {
-    content: "\f078";  /* fa-chevron-down */
-}
-tr:not(.parent) td .expand-toggle::before {
-    content: "\f054";  /* fa-chevron-right */
-}
+.component-table td,
+.component-table th  { white-space: nowrap; vertical-align: middle; }
+.component-table .col-name { white-space: normal; min-width: 130px; }
+.component-table img { max-height: 50px; width: auto; }
 </style>
 {{end}}
 
@@ -28,7 +13,7 @@ tr:not(.parent) td .expand-toggle::before {
     {{for t in types:}}
     <li class="nav-item">
         <a class="nav-link {{=' active ' if active == t else ''}}"
-           href="{{= URL('component', 'listview', vars=(dict(c=t, a='1') if available else dict(c=t))) }}">{{=t}}</a>
+           href="{{=URL('component', 'listview', vars=(dict(c=t, a='1') if available else dict(c=t)))}}">{{=t}}</a>
     </li>
     {{pass}}
 </ul>
@@ -44,39 +29,62 @@ tr:not(.parent) td .expand-toggle::before {
 </div>
 
 <h2>{{=controller_icon('component', 48)}} {{=requestedtype}} Components</h2>
-{{=components}}
+
+{{if rows:}}
+<table id="component-list" class="table table-sm table-hover component-table">
+<thead><tr>
+    {{for fname, flabel in col_defs:}}
+    <th>{{=flabel}}</th>
+    {{pass}}
+    <th>In Use</th>
+    <th>Remaining</th>
+    <th></th>
+</tr></thead>
+<tbody>
+{{for row in rows:}}
+<tr>
+    {{for fname, flabel in col_defs:}}
+    {{if fname == 'img':}}
+    <td>{{=db.component.img.represent(row.img, row)}}</td>
+    {{elif fname == 'name':}}
+    <td class="col-name"><a href="{{=URL('component', 'index', args=[row.id])}}">{{=row.name}}</a></td>
+    {{else:}}
+    <td>{{=row.get(fname, '') or ''}}</td>
+    {{pass}}
+    {{pass}}
+    <td class="text-center">{{=row.get_usedcount()}}</td>
+    <td class="text-center"><strong>{{=row.get_remainingcount()}}</strong></td>
+    <td class="col-btns">
+        {{=viewButton('component', 'index', [row.id])}}
+        {{=editButton('component', 'update', [row.id])}}
+        {{=plusButton('component', 'addcount', [row.id])}}
+        {{=minusButton('component', 'subtractcount', [row.id])}}
+    </td>
+</tr>
+{{pass}}
+</tbody>
+</table>
+{{elif requestedtype:}}
+<p class="text-muted">No components found.</p>
+{{else:}}
+<p class="text-muted">Choose the Component Type Above...</p>
+{{pass}}
 
 {{block page_js}}
 <script src="{{=URL('static','js/jquery.dataTables.min.js')}}"></script>
 <script src="{{=URL('static','js/dataTables.bootstrap4.min.js')}}"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
-    var pinnedIndices = {{=XML(pinned_indices)}};
-    var colDefs = [
-        { responsivePriority: 10001, targets: '_all' },
-        { responsivePriority: 1,     targets: [-1, -2, -3, -4, -5] }
-    ];
-    pinnedIndices.forEach(function(idx) {
-        colDefs.push({ responsivePriority: 1, targets: [idx] });
+    {{if rows:}}
+    $('#component-list').DataTable({
+        paging:    false,
+        info:      false,
+        searching: false,
+        order:     [],
+        scrollX:   true,
+        columnDefs: [{ orderable: false, targets: [-1] }]
     });
-    var table = $('.itemlist-grid table').DataTable({
-        paging: false,
-        info: false,
-        order: [],
-        autoWidth: false,
-        responsive: { details: { type: 'column', target: '.expand-toggle' } },
-        columnDefs: colDefs
-    });
-
-    // Clicking anywhere on a row (not a button/link/expand-cell) triggers the expand cell.
-    // Exclude td.dtr-control to prevent the triggered click from re-firing this handler.
-    $('.itemlist-grid table tbody').on('click', 'tr', function(e) {
-        if ($(e.target).closest('a, button, td.dtr-control').length) return;
-        var $ctrl = $(this).find('td.dtr-control');
-        if ($ctrl.length) $ctrl.trigger('click');
-    });
+    {{pass}}
 });
 </script>
 {{end}}
