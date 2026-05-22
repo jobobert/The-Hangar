@@ -30,6 +30,7 @@ def update():
             'updated' if request.args else 'added'))
 
     if form.accepted:
+        transmitter_id = VerifyTableID('transmitter', request.args(0), URL('transmitter', 'listview'), prefer_referer=False)
         redirect(URL('transmitter', 'index', args=form.vars.id, extension="html"))
 
     disable_autocomplete(form)
