@@ -557,7 +557,7 @@ def editfinal_render():
     for s in inputs:
         s['_autocomplete'] = 'off'
         s['_onkeypress'] = "enableButton('" + 'btn_' + str(model.id) + "');"
-    if form.process(formname='m_' + str(model.id)).accepted:
+    if form.process(session=None, formname='m_' + str(model.id)).accepted:
         response.flash = "Disposition Set"
     elif form.errors:
         response.flash = "Error Setting Disposition"

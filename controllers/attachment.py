@@ -10,7 +10,7 @@ def rendercard():
     form = SQLFORM(db.attachment, model=model_id, fields=fields, comments=False)
     disable_autocomplete(form)
     form.vars.model = model_id
-    if form.process(formname='attachmentform').accepted:
+    if form.process(session=None, formname='attachmentform').accepted:
         response.flash = "New Attachment Added"
     elif form.errors:
         response.flash = "Error Adding New Attachment"

@@ -10,7 +10,7 @@ def rendercard():
 
     form = SQLFORM(db.activity, fields=fields, formstyle="divs")
     form.vars.model = model_id
-    if form.process().accepted:
+    if form.process(session=None, formname='activityform').accepted:
         response.flash = "Activity Updated"
     elif form.errors:
         response.flash = "Error Adding New Activity "

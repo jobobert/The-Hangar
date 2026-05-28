@@ -10,7 +10,7 @@ def index():
     details_form = SQLFORM(db.model, model.id, fields=[
                            'notes'], showid=False, formstyle='divs')
 
-    if details_form.process(formname='detailsform').accepted:
+    if details_form.process(session=None, formname='detailsform').accepted:
         session.flash = "Model Updated"
         redirect(URL('model', 'index', args=details_form.vars.id, extension="html"))
     elif details_form.errors:
@@ -19,7 +19,7 @@ def index():
     fieldnotes_form = SQLFORM(db.model, model.id, fields=[
                               'fieldnotes'], showid=False, formstyle='divs')
 
-    if fieldnotes_form.process(formname='fieldnotesform').accepted:
+    if fieldnotes_form.process(session=None, formname='fieldnotesform').accepted:
         session.flash = "Field Notes Updated"
         redirect(URL('model', 'index', args=fieldnotes_form.vars.id, extension="html"))
     elif fieldnotes_form.errors:
@@ -31,7 +31,7 @@ def index():
                          'attr_copter_tailrotor_span', 'attr_copter_tailrotor_drive'],
                          showid=False, formstyle='divs')
 
-    if rotor_form.process(formname='rotorform').accepted:
+    if rotor_form.process(session=None, formname='rotorform').accepted:
         session.flash = "Rotors Updated"
         redirect(URL('model', 'index', args=rotor_form.vars.id, extension="html"))
     elif rotor_form.errors:
@@ -300,7 +300,7 @@ def renderdashboard():
 
     details_form = SQLFORM(db.model, model.id, fields=[
                            'notes'], showid=False, formstyle='divs')
-    if details_form.process().accepted:
+    if details_form.process(session=None, formname=f'dashdetails_{model_id}').accepted:
         session.flash = "Details Updated"
         redirect(URL('default', 'index',
                      args=details_form.vars.id, extension="html"))
