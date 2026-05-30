@@ -114,6 +114,7 @@ _MODEL_FIELD_GROUPS = [
         'attr_car_scale', 'attr_car_drive', 'attr_car_drivetrain',
         'attr_car_bodystyle', 'attr_car_wheelbase',
     ]),
+    ('Hardware', ['attr_hardware_os', 'attr_hardware_os_version', 'attr_hardware_firmware_version',]),
     ('Status & Notes', [
         'selected', 'final_disposition', 'final_value', 'fieldnotes', 'diagram',
     ]),

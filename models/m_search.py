@@ -311,6 +311,33 @@ SEARCH_FIELDS = [
     },
 
     # =========================================================================
+    # GROUP: Hardware
+    # =========================================================================
+    {
+        'id': 'attr_hardware_os', 'label': 'Operating System', 'group': 'Hardware',
+        'type': 'string', 'input': 'select',
+        'operators': ['equal', 'not_equal', 'is_empty', 'is_not_empty'],
+        'values': _lookup_vals('attr_hardware_os'),
+        'table': 'model', 'field': 'attr_hardware_os', 'join': None,
+    },
+    {
+        'id': 'attr_hardware_os_version', 'label': 'Operating System Version',
+        'group': 'Hardware', 'type': 'string', 'input': 'text',
+        'operators': ['equal', 'not_equal', 'greater', 'greater_or_equal',
+                      'less', 'less_or_equal', 'is_empty', 'is_not_empty'],
+        'values': None, 'table': 'model', 'field': 'attr_hardware_os_version',
+        'join': None,
+    },
+    {
+        'id': 'attr_hardware_firmware_version', 'label': 'Firmware Version',
+        'group': 'Hardware', 'type': 'string', 'input': 'text',
+        'operators': ['equal', 'not_equal', 'greater', 'greater_or_equal',
+                      'less', 'less_or_equal', 'is_empty', 'is_not_empty'],
+        'values': None, 'table': 'model', 'field': 'attr_hardware_firmware_version',
+        'join': None,
+    },
+
+    # =========================================================================
     # GROUP: Components
     # Cross-table via model_component bridge.
     # =========================================================================

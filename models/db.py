@@ -503,6 +503,10 @@ db.define_table('model'
                 , Field('diagram', type='text', label='Diagram Code (.dot)', comment=diagram_comment, represent=lambda id, row: XML(row.diagram))
                 , Field('protocol', type='reference protocol', label='Protocol', comment='The radio protocol used by this model')
                 #
+                , Field('attr_hardware_os', type='string', label='Operating System', comment='The OS name (e.g. EdgeTX, Windows)')
+                , Field('attr_hardware_os_version', type=semver_type, label='OS Version', comment='The OS version (e.g. 2.9.3)')
+                , Field('attr_hardware_firmware_version', type=semver_type, label='Radio Firmware Version', comment='The firmware version (e.g. 1.2.3)')
+                
                 , format=lambda row: row.name
                 )
 
