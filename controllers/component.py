@@ -462,7 +462,7 @@ def updatemodelrelation():
     disable_autocomplete(form)
     if form.process().accepted:
         session.flash = "Relationship Updated"
-        redirect(URL('model', 'index', args=model_id))
+        redirect(URL('model', 'index.html', args=model_id))
     elif form.errors:
         response.flash = "Error Updating Component Relationship"
 

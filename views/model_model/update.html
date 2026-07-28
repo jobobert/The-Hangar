@@ -1,0 +1,30 @@
+{{extend 'layout.html'}}
+
+{{if form.errors:}}
+<ul class="alert alert-danger">
+    {{for fieldname in form.errors:}}
+    <li>{{=fieldname}}: {{=form.errors[fieldname]}}</li>
+    {{pass}}
+</ul>
+{{form.errors.clear()}}
+{{pass}}
+
+{{=form.custom.begin}}
+
+<div class="update-page">
+    <div class="row">
+        <h2>Edit Relationship Notes</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            {{=makeFormField(form, 'notes',  FormFieldType.STANDARD)}}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        {{=makeFormField(form, 'submit', FormFieldType.STANDARD)}}
+    </div>
+</div>
+
+{{=form.custom.end}}

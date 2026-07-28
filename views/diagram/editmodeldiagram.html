@@ -395,6 +395,7 @@
 const EDGE_ATTRIBS = {{=XML(edge_attribs_json)}};
 const NODE_OPTIONS = {{=XML(node_options_json)}};
 const REFRESH_NODES_DOT = {{=XML(model_nodes_dot_json)}};
+const MODEL_COMPONENTS_DOT = `{{=XML(model_components_dot)}}`;
 const COMPONENT_TYPES = {{=XML(componenttype_nodes_json)}};
 
 const textarea = document.getElementById('model_diagram');
@@ -435,7 +436,7 @@ function refreshNodes() {
         const graphOpen = dot.indexOf('{');
         dot = graphOpen !== -1
             ? dot.slice(0, graphOpen + 1) + '\n\n' + REFRESH_NODES_DOT + '\n' + dot.slice(graphOpen + 1)
-            : REFRESH_NODES_DOT + '\n' + dot;
+            : MODEL_COMPONENTS_DOT;
     }
     textarea.value = dot;
     updateGraph();

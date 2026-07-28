@@ -1,0 +1,38 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;"><span class="card-icon">{{=controller_icon('related models', 25)}}</span>{{=rel_count}} Related Model{{='s' if rel_count != 1 else ''}}</h5>
+    </div>
+    <div class="card-body">
+        {{if rel_count == 0:}}
+        <p class="text-muted small mb-0">No related models linked. Use the form below to associate another inventory item.</p>
+        {{else:}}
+        {{=deleteform.custom.begin}}
+        {{for row in related:}}
+        {{other_id = row.model_b if row.model_a == model_id else row.model_a}}
+        {{other = db.model(other_id)}}
+        <div class="row border-bottom py-1 align-items-center">
+            <div class="col">
+                {{=text_model_type_icon(other.modeltype, 16)}}
+                <a class="text-decoration-none" href="{{=URL('model','index.html',args=[other.id])}}">{{=other.name}}</a>
+                <span class="text-muted small ms-1">({{=other.modeltype}})</span>
+                {{if row.notes:}}<span class="text-muted small ms-2">— {{=row.notes}}</span>{{pass}}
+            </div>
+            <div class="col-auto">
+                {{=editButton('model_model', 'update.html', row.id, 16)}}
+                <button class="btn btn-sm btn-danger" type="submit" value="Remove" name="{{=row.id}}">{{=action_icon('delete', 16)}}</button>
+            </div>
+        </div>
+        {{pass}}
+        {{=deleteform.custom.end}}
+        {{pass}}
+    </div>
+    <div class="card-footer">
+        {{=addform.custom.begin}}
+        <div class="row">
+            {{=makeFormField(addform, 'model_b', FormFieldType.COLUMNS)}}
+            {{=makeFormField(addform, 'notes',   FormFieldType.COLUMNS)}}
+            {{=makeFormField(addform, 'submit',  FormFieldType.COLUMNS, columns=2)}}
+        </div>
+        {{=addform.custom.end}}
+    </div>
+</div>

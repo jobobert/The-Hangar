@@ -506,7 +506,31 @@ db.define_table('model'
                 , Field('attr_hardware_os', type='string', label='Operating System', comment='The OS name (e.g. EdgeTX, Windows)')
                 , Field('attr_hardware_os_version', type=semver_type, label='OS Version', comment='The OS version (e.g. 2.9.3)')
                 , Field('attr_hardware_firmware_version', type=semver_type, label='Radio Firmware Version', comment='The firmware version (e.g. 1.2.3)')
-                
+                #
+                # HAM Radio
+                , Field('attr_radio_freq_low_mhz', type='double', label='Freq Low (MHz)', comment='Lowest transmit/receive frequency in MHz', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_radio_freq_high_mhz', type='double', label='Freq High (MHz)', comment='Highest transmit/receive frequency in MHz', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_radio_power_w', type='double', label='Max Power (W)', comment='Maximum transmit power in watts', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_radio_mode', type='string', label='Modes', comment='Supported operating modes (e.g. FM, SSB, AM, CW, Digital)')
+                , Field('attr_radio_bands', type='string', label='Bands', comment='Supported bands (e.g. 2m/70cm, HF/VHF/UHF)')
+                , Field('attr_radio_memory_ch', type='integer', label='Memory Channels', comment='Number of programmable memory channels', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control'))
+                , Field('attr_radio_rf_connector', type='string', label='RF Connector', comment='RF output connector type (e.g. SO-239, BNC, SMA)')
+                , Field('attr_radio_aprs', type='boolean', notnull=True, default=False, label='APRS Capable?', comment='Does this radio support APRS position reporting?')
+                , Field('attr_radio_dstar', type='boolean', notnull=True, default=False, label='D-STAR Capable?', comment='Does this radio support D-STAR digital voice mode?')
+                , Field('attr_radio_dmr', type='boolean', notnull=True, default=False, label='DMR Capable?', comment='Does this radio support DMR digital mode?')
+                #
+                # Antenna
+                , Field('attr_antenna_type', type='string', label='Antenna Type', comment='Antenna design (e.g. Yagi, Vertical, Dipole, Beam)')
+                , Field('attr_antenna_gain_dbi', type='double', label='Gain (dBi)', comment='Antenna gain referenced to isotropic, in dBi', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_antenna_freq_low_mhz', type='double', label='Freq Low (MHz)', comment='Lowest operational frequency in MHz', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_antenna_freq_high_mhz', type='double', label='Freq High (MHz)', comment='Highest operational frequency in MHz', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_antenna_max_power_w', type='double', label='Max Power (W)', comment='Maximum continuous power handling in watts', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                , Field('attr_antenna_impedance_ohm', type='integer', label='Impedance (Ohm)', comment='Feed impedance in ohms - typically 50 or 75', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control'))
+                , Field('attr_antenna_connector', type='string', label='Connector', comment='RF connector on the antenna feed point')
+                , Field('attr_antenna_polarization', type='string', label='Polarization', comment='Antenna polarization (Vertical, Horizontal, Circular)')
+                , Field('attr_antenna_mount', type='string', label='Mount Type', comment='How/where the antenna is mounted (Mobile, Base, Portable, Tower, etc.)')
+                , Field('attr_antenna_elements', type='integer', label='Element Count', comment='Number of elements - relevant for Yagi and beam antennas', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control'))
+
                 , format=lambda row: row.name
                 )
 
@@ -723,6 +747,13 @@ db.model.attr_car_drive.requires = lookup_set('attr_car_drive', empty_ok=True)
 db.model.attr_car_drivetrain.requires = lookup_set('attr_car_drivetrain', empty_ok=True)
 db.model.attr_sub_ballast.requires = lookup_set('attr_sub_ballast', empty_ok=True)
 
+db.model.attr_radio_mode.requires           = lookup_set('attr_radio_mode', empty_ok=True)
+db.model.attr_radio_rf_connector.requires   = lookup_set('attr_rf_connector', empty_ok=True)
+db.model.attr_antenna_type.requires         = lookup_set('attr_antenna_type', empty_ok=True)
+db.model.attr_antenna_connector.requires    = lookup_set('attr_rf_connector', empty_ok=True)
+db.model.attr_antenna_polarization.requires = lookup_set('attr_antenna_polarization', empty_ok=True)
+db.model.attr_antenna_mount.requires        = lookup_set('attr_antenna_mount', empty_ok=True)
+
 db.model.notes.format = lambda model: MARKMIN(model.notes)
 
 db.model.img.default = os.path.join(
@@ -737,8 +768,8 @@ db.model.manufacturer.widget = SQLFORM.widgets.autocomplete(
 # Full set of card controllers. Used as the pass-through default when a
 # modeltype has no controllers configured (empty list = no type-level restriction).
 _ALL_CONTROLLERS = frozenset([
-    'attachment', 'battery', 'component', 'diagram', 'paint',
-    'propeller', 'rotor', 'sailrig', 'supportitem', 'switch', 'tool', 'wtc',
+    'attachment', 'battery', 'component', 'diagram', 'model_model', 'paint',
+    'propeller', 'radio_channel', 'rotor', 'sailrig', 'supportitem', 'switch', 'tool', 'wtc',
 ])
 
 # Which nav-tab controllers are shown for each model type.
@@ -758,6 +789,8 @@ modeltype_controller_mapping = {
     'Miniature'   : ['attachment', 'battery', 'component', 'paint', 'supportitem', 'tool'],
     'Train'       : ['attachment', 'battery', 'component', 'diagram', 'paint', 'supportitem', 'switch', 'tool'],
     'Other'       : ['attachment', 'battery', 'component', 'diagram', 'paint', 'supportitem', 'switch', 'tool'],
+    'HAM Radio'   : ['attachment', 'battery', 'component', 'model_model', 'radio_channel', 'supportitem', 'tool'],
+    'Antenna'     : ['attachment', 'component', 'model_model', 'supportitem', 'tool'],
 }
 
 # Fields that are not editable when a modeltype is selected
@@ -779,6 +812,18 @@ modeltype_hide_attribs = {
                      'attr_covering', 'configbackup', 'transmitter', 'protocol'],
     'Train'       : ['attr_cog', 'attr_covering', 'configbackup'],
     'Other'       : [],
+    'HAM Radio'   : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog', 'attr_covering',
+                     'configbackup', 'transmitter', 'protocol',
+                     'attr_antenna_type', 'attr_antenna_gain_dbi', 'attr_antenna_freq_low_mhz',
+                     'attr_antenna_freq_high_mhz', 'attr_antenna_max_power_w',
+                     'attr_antenna_impedance_ohm', 'attr_antenna_connector',
+                     'attr_antenna_polarization', 'attr_antenna_mount', 'attr_antenna_elements'],
+    'Antenna'     : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog', 'attr_covering',
+                     'configbackup', 'transmitter', 'protocol',
+                     'attr_hardware_os', 'attr_hardware_os_version', 'attr_hardware_firmware_version',
+                     'attr_radio_freq_low_mhz', 'attr_radio_freq_high_mhz', 'attr_radio_power_w',
+                     'attr_radio_mode', 'attr_radio_bands', 'attr_radio_memory_ch',
+                     'attr_radio_rf_connector', 'attr_radio_aprs', 'attr_radio_dstar', 'attr_radio_dmr'],
 }
 
 # Fields that are not editable when a modelcategory is selected
@@ -817,9 +862,50 @@ modelcategory_hide_attribs = {
 
 
 ###############################################
+## RADIO CHANNEL
+
+db.define_table('radio_channel',
+                Field('model',         type='reference model', label='Model', required=True),
+                Field('channel_num',   type='integer', label='Channel #', comment='Memory slot number (0-based, as exported by CHIRP)', widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')),
+                Field('name',          type='string', label='Name', comment='Channel name (up to 8 characters)'),
+                Field('frequency_mhz', type='double', label='Frequency (MHz)', comment='Receive frequency in MHz', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('duplex',        type='string', label='Duplex', comment='Duplex shift: blank=simplex, +=plus offset, -=minus offset, split=split'),
+                Field('offset_mhz',    type='double', label='Offset (MHz)', comment='Transmit offset in MHz (for repeaters)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('tone_mode',     type='string', label='Tone Mode', comment='CTCSS/DCS tone mode (Tone, TSQL, DTCS, Cross, or blank)'),
+                Field('ctcss_freq',    type='double', label='CTCSS Tone (Hz)', comment='CTCSS tone frequency in Hz (e.g. 88.5, 100.0, 127.3)', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('dtcs_code',     type='string', label='DCS Code', comment='DCS/DTCS code (e.g. 023, 025, 432)'),
+                Field('channel_mode',   type='string', label='Mode', comment='Operating mode (FM, NFM, AM, WFM, DV)'),
+                Field('skip',          type='boolean', notnull=True, default=False, label='Skip?', comment='Skip this channel during scanning'),
+                Field('channel_comment', type='string', label='Comment', comment='Free-text channel comment'),
+                format=lambda row: f'Ch{row.channel_num}: {row.name or ""} ({row.frequency_mhz} MHz)'
+                )
+
+db.radio_channel.duplex.requires    = IS_EMPTY_OR(IS_IN_SET(['', '+', '-', 'split', 'off']))
+db.radio_channel.tone_mode.requires = IS_EMPTY_OR(IS_IN_SET(['', 'Tone', 'TSQL', 'DTCS', 'Cross', 'DTCS-R', 'Tone->DTCS']))
+db.radio_channel.channel_mode.requires = IS_EMPTY_OR(IS_IN_SET(['FM', 'NFM', 'AM', 'WFM', 'DV']))
+
+
+###############################################
+## MODEL ↔ MODEL (related models, undirected many-to-many)
+
+db.define_table('model_model',
+                Field('model_a', type='reference model', label='Model', required=True),
+                Field('model_b', type='reference model', label='Related Model', required=True),
+                Field('notes',   type='string', label='Notes'),
+                format=lambda row: f'{row.model_a} ↔ {row.model_b}'
+                )
+
+db.model_model.model_b.requires = IS_IN_DB(
+    db, 'model.id',
+    lambda r: f'{r.name} ({r.modeltype})',
+    zero='-- select model --'
+)
+
+
+###############################################
 ## TODO
 
-db.define_table('todo', 
+db.define_table('todo',
                 Field('todo', type='string', label='To Do', required=True), 
                 Field('model', type='reference model'), 
                 Field('critical', type='boolean', default=False, comment='Does this prevent the model from operating?'), 
@@ -841,7 +927,7 @@ db.define_table('activity',
                 Field('activitylocation', type='string', label='Location'), 
                 Field('notes', type='text', label='Notes', comment='Notes about the event'), 
                 Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the activity (1500px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), 
-                format=lambda row: 'Unknown' if row is None else row.name
+                format=lambda row: 'Unknown' if row is None else f'{row.activitydate}: {row.activitytype or "Activity"}'
                 )
 
 db.activity.activitytype.requires = lookup_set('activitytype')
@@ -896,6 +982,12 @@ db.define_table('component',
                 Field('attr_model_scale', type='string', label='Model Scale', comment='The model scale the component is for (1:x)?'),
                 Field('attr_firmware_version', type=semver_type, label='Firmware Version', comment='The firmware version of the component (e.g. 1.2.3)'),
                 #
+                # RF / Radio
+                Field('attr_freq_low_mhz', type='double', label='Freq Low (MHz)', comment='Minimum operational frequency in MHz', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_freq_high_mhz', type='double', label='Freq High (MHz)', comment='Maximum operational frequency in MHz', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_max_power_w', type='double', label='Max Power (W)', comment='Maximum RF power handling in watts', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')),
+                Field('attr_rf_connector', type='string', label='RF Connector', comment='RF connector type (e.g. SO-239, BNC, SMA, N-Type)'),
+                #
                 Field('manufacturer', type='string', label='Manufacturer', comment='Who made the component?'),
                 Field('model', type='string', label='Model', comment='The model of the component'),
                 #
@@ -934,7 +1026,8 @@ db.component.attr_travel.extra = {'measurement': 'mm'}
 db.component.img.default = os.path.join(
     request.folder, 'static', 'images', 'defaultUpload.png')
 
-db.component.attr_pump_type.requires = lookup_set('attr_pump_type', empty_ok=True)
+db.component.attr_pump_type.requires    = lookup_set('attr_pump_type', empty_ok=True)
+db.component.attr_rf_connector.requires = lookup_set('attr_rf_connector', empty_ok=True)
 
 db.component.componenttype.requires = IS_IN_SET(
     [r.name for r in db(db.componenttype.id > 0).select(
@@ -962,6 +1055,11 @@ component_attribs = {
     'Sensor': ['attr_voltage_in','attr_amps_in','attr_firmware_version'],
     'Tire': ['attr_model_scale'],
     'Shock': ['attr_travel'],
+    'SWR/Power Meter' : ['attr_freq_low_mhz', 'attr_freq_high_mhz', 'attr_max_power_w', 'attr_rf_connector'],
+    'Antenna Tuner'   : ['attr_freq_low_mhz', 'attr_freq_high_mhz', 'attr_max_power_w', 'attr_voltage_in', 'attr_rf_connector', 'attr_firmware_version'],
+    'Coaxial Cable'   : ['attr_freq_high_mhz', 'attr_rf_connector', 'attr_length'],
+    'TNC'             : ['attr_voltage_in', 'attr_firmware_version'],
+    'Rotator'         : ['attr_voltage_in', 'attr_watts_in'],
 }
 
 db.component.img.requires = IS_EMPTY_OR(IS_IMAGE(maxsize=(1000, 1000)))
@@ -1434,13 +1532,13 @@ db.wishlist.modelcategory.requires = db.model.modelcategory.requires
 ## INITIAL DATABASE SETUP
 
 if db(db.modelstate.id > 0).count() == 0:
-    db.modelstate.insert('Retired/Disposed')  # 1
-    db.modelstate.insert('Idea')  # 2
-    db.modelstate.insert('On The Board')  # 3
-    db.modelstate.insert('Ready for Maiden')  # 4
-    db.modelstate.insert('In Service')  # 5
-    db.modelstate.insert('Out of Service')  # 6
-    db.modelstate.insert('Under Repair')  # 7
+    db.modelstate.insert(name='Retired/Disposed')  # 1
+    db.modelstate.insert(name='Idea')  # 2
+    db.modelstate.insert(name='On The Board')  # 3
+    db.modelstate.insert(name='Ready for Maiden')  # 4
+    db.modelstate.insert(name='In Service')  # 5
+    db.modelstate.insert(name='Out of Service')  # 6
+    db.modelstate.insert(name='Under Repair')  # 7
 
 if db(db.tag.id > 0).count() == 0:
     db.tag.insert(name='Modeling')
@@ -1484,6 +1582,17 @@ if db(db.lookup.id > 0).count() == 0:
                                          'Trim_Horizontal', 'Trim-Vertical', 'Latching']),
         ('pos',                         ['Back', 'Middle', 'Forward', 'Up', 'Down', 'Left', 'Right',
                                          'Position 1', 'Position 2']),
+        ('attr_radio_mode',             ['FM', 'AM', 'SSB', 'CW', 'FT8', 'FT4', 'RTTY',
+                                         'Packet', 'APRS', 'D-STAR', 'DMR', 'C4FM', 'Digital']),
+        ('attr_rf_connector',           ['SO-239 (UHF-F)', 'PL-259 (UHF-M)', 'BNC', 'N-Type',
+                                         'SMA-Female', 'SMA-Male', 'RP-SMA', 'Other']),
+        ('attr_antenna_type',           ['Vertical', 'Yagi', 'Dipole', 'Beam', 'Magnetic Loop',
+                                         'End-Fed Half Wave', 'Quad', 'Wire', 'Discone',
+                                         'J-Pole', 'Slim Jim', 'Collinear', 'Moxon',
+                                         'Inverted-V', 'Other']),
+        ('attr_antenna_polarization',   ['Vertical', 'Horizontal', 'Circular RHCP', 'Circular LHCP']),
+        ('attr_antenna_mount',          ['Mobile', 'Base Station', 'Portable', 'Tower',
+                                         'Roof', 'Attic', 'Vehicle Roof', 'Tripod', 'Other']),
     ]
     for category, values in _seed:
         for i, v in enumerate(values, 1):
@@ -1700,6 +1809,87 @@ if not _migration_applied('chemistry_seed_v1'):
     # Remove lookup chemistry rows now that db.chemistry is the authority.
     db(db.lookup.category == 'chemistry').delete()
     _mark_migration('chemistry_seed_v1')
+
+# Add HAM Radio / Antenna model types, new lookup categories, and HAM component types.
+if not _migration_applied('hamradio_types_v1'):
+    _rf_lookup_seeds = [
+        ('attr_radio_mode',          ['FM', 'AM', 'SSB', 'CW', 'FT8', 'FT4', 'RTTY',
+                                      'Packet', 'APRS', 'D-STAR', 'DMR', 'C4FM', 'Digital']),
+        ('attr_rf_connector',        ['SO-239 (UHF-F)', 'PL-259 (UHF-M)', 'BNC', 'N-Type',
+                                      'SMA-Female', 'SMA-Male', 'RP-SMA', 'Other']),
+        ('attr_antenna_type',        ['Vertical', 'Yagi', 'Dipole', 'Beam', 'Magnetic Loop',
+                                      'End-Fed Half Wave', 'Quad', 'Wire', 'Discone',
+                                      'J-Pole', 'Slim Jim', 'Collinear', 'Moxon',
+                                      'Inverted-V', 'Other']),
+        ('attr_antenna_polarization', ['Vertical', 'Horizontal', 'Circular RHCP', 'Circular LHCP']),
+        ('attr_antenna_mount',        ['Mobile', 'Base Station', 'Portable', 'Tower',
+                                       'Roof', 'Attic', 'Vehicle Roof', 'Tripod', 'Other']),
+    ]
+    for _cat, _vals in _rf_lookup_seeds:
+        if not db(db.lookup.category == _cat).count():
+            for _i, _v in enumerate(_vals, 1):
+                db.lookup.insert(category=_cat, name=_v, sort_order=_i, is_system=False)
+
+    for _name, _sort in [('HAM Radio', 15), ('Antenna', 16)]:
+        if not db((db.lookup.category == 'modeltype') & (db.lookup.name == _name)).count():
+            _meta = _json.dumps({
+                'hide'       : modeltype_hide_attribs.get(_name, []),
+                'controllers': modeltype_controller_mapping.get(_name, []),
+            })
+            db.lookup.insert(category='modeltype', name=_name,
+                             sort_order=_sort, is_system=False, metadata=_meta)
+
+    _max_sort_row = db(db.componenttype.id > 0).select(db.componenttype.sort_order.max()).first()
+    _max_sort = (_max_sort_row[db.componenttype.sort_order.max()] or 0) if _max_sort_row else 0
+    _new_comp_types = [
+        ('SWR/Power Meter', ['attr_freq_low_mhz', 'attr_freq_high_mhz', 'attr_max_power_w', 'attr_rf_connector']),
+        ('Antenna Tuner',   ['attr_freq_low_mhz', 'attr_freq_high_mhz', 'attr_max_power_w',
+                             'attr_voltage_in', 'attr_rf_connector', 'attr_firmware_version']),
+        ('Coaxial Cable',   ['attr_freq_high_mhz', 'attr_rf_connector', 'attr_length']),
+        ('TNC',             ['attr_voltage_in', 'attr_firmware_version']),
+        ('Rotator',         ['attr_voltage_in', 'attr_watts_in']),
+    ]
+    for _i, (_cname, _attrs) in enumerate(_new_comp_types, 1):
+        if not db(db.componenttype.name == _cname).count():
+            db.componenttype.insert(name=_cname, sort_order=_max_sort + _i, attrs=_attrs)
+
+    _mark_migration('hamradio_types_v1')
+    db.commit()
+
+# Add model_model to HAM Radio and Antenna controller lists in existing DBs.
+if not _migration_applied('model_model_v1'):
+    for _mtype in ['HAM Radio', 'Antenna']:
+        _mm_row = db((db.lookup.category == 'modeltype') &
+                     (db.lookup.name == _mtype)).select().first()
+        if _mm_row and _mm_row.metadata:
+            _mm_meta = _json.loads(_mm_row.metadata)
+            if 'model_model' not in _mm_meta.get('controllers', []):
+                _mm_meta['controllers'].append('model_model')
+                _mm_row.update_record(metadata=_json.dumps(_mm_meta))
+    _mark_migration('model_model_v1')
+    db.commit()
+
+# Add radio_channel and model_model to every modelcategory controllers list.
+# modelcategory_controllers_v1 ran before these controllers existed, so existing
+# DBs have stale lists. The view intersection logic requires both the modeltype
+# AND modelcategory lists to contain a controller name for the card to appear.
+if not _migration_applied('modelcategory_new_controllers_v1'):
+    for _row in db(db.lookup.category == 'modelcategory').select():
+        try:
+            _meta = _json.loads(_row.metadata or '{}')
+        except (ValueError, TypeError):
+            _meta = {}
+        _ctrl = _meta.get('controllers', [])
+        _changed = False
+        for _cname in ('radio_channel', 'model_model'):
+            if _cname not in _ctrl:
+                _ctrl.append(_cname)
+                _changed = True
+        if _changed:
+            _meta['controllers'] = _ctrl
+            _row.update_record(metadata=_json.dumps(_meta))
+    _mark_migration('modelcategory_new_controllers_v1')
+    db.commit()
 
 # Load runtime dicts from lookup metadata (overrides the hardcoded dicts above).
 # These run after all migration/sync steps so they reflect current DB state.

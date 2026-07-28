@@ -1,0 +1,55 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" style="display: inline-block;">
+            <span class="card-icon">{{=controller_icon('radio channel', 25)}}</span>{{=ch_count}} Radio Channels
+        </h5>
+        {{=renderModal('new-channel', 'New Channel', newform)}}
+    </div>
+    <div class="card-body">
+        {{if ch_count == 0:}}
+        <p class="text-muted small mb-0">No channels programmed. Add one or import a CHIRP CSV below.</p>
+        {{else:}}
+        <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="thead-light">
+                <tr>
+                    <th>#</th><th>Name</th><th>Frequency</th><th>Duplex/Offset</th>
+                    <th>Tone</th><th>Mode</th><th>Comment</th><th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {{=deleteform.custom.begin}}
+            {{for ch in channels:}}
+            <tr>
+                <td>{{=ch.channel_num}}</td>
+                <td>{{=ch.name or ''}}</td>
+                <td>{{=ch.frequency_mhz}} MHz</td>
+                <td>
+                    {{if ch.duplex:}}{{=ch.duplex}}{{if ch.offset_mhz:}} {{='%.4f' % ch.offset_mhz}}{{pass}}{{pass}}
+                </td>
+                <td>
+                    {{if ch.tone_mode:}}{{=ch.tone_mode}}{{if ch.ctcss_freq:}} {{=ch.ctcss_freq}}{{pass}}{{if ch.dtcs_code:}} {{=ch.dtcs_code}}{{pass}}{{pass}}
+                </td>
+                <td>{{=ch.channel_mode or ''}}</td>
+                <td class="text-muted small">{{=ch.channel_comment or ''}}</td>
+                <td style="white-space:nowrap;">
+                    {{=editButton('radio_channel', 'update.html', ch.id, 16)}}
+                    <button class="btn btn-sm btn-danger" type="submit" value="Remove" name="{{=ch.id}}">{{=action_icon('delete', 16)}}</button>
+                </td>
+            </tr>
+            {{pass}}
+            {{=deleteform.custom.end}}
+            </tbody>
+        </table>
+        </div>
+        {{pass}}
+    </div>
+    <div class="card-footer">
+        <form method="POST" action="{{=URL('radio_channel', 'import_chirp', args=[model_id])}}" enctype="multipart/form-data" class="d-inline-flex align-items-center gap-2">
+            {{=XML(session._formkey and '<input type="hidden" name="_formkey" value="%s">' % session._formkey or '')}}
+            <label class="mb-0 small text-muted me-1">Import CHIRP CSV:</label>
+            <input type="file" name="csvfile" accept=".csv" class="form-control form-control-sm" style="max-width:220px;">
+            <button type="submit" class="btn btn-sm btn-outline-secondary ms-1">Import</button>
+        </form>
+    </div>
+</div>

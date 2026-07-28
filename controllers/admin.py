@@ -61,7 +61,7 @@ def _table_display_name(tablename):
 # Card tab controllers available for model detail pages.
 _CARD_CONTROLLERS = [
     'attachment', 'battery', 'component', 'diagram',
-    'paint', 'propeller', 'rotor', 'sailrig',
+    'model_model', 'paint', 'propeller', 'radio_channel', 'rotor', 'sailrig',
     'supportitem', 'switch', 'tool', 'wtc',
 ]
 
@@ -115,6 +115,18 @@ _MODEL_FIELD_GROUPS = [
         'attr_car_bodystyle', 'attr_car_wheelbase',
     ]),
     ('Hardware', ['attr_hardware_os', 'attr_hardware_os_version', 'attr_hardware_firmware_version',]),
+    ('HAM Radio', [
+        'attr_radio_freq_low_mhz', 'attr_radio_freq_high_mhz', 'attr_radio_power_w',
+        'attr_radio_mode', 'attr_radio_bands', 'attr_radio_memory_ch',
+        'attr_radio_rf_connector', 'attr_radio_aprs', 'attr_radio_dstar', 'attr_radio_dmr',
+    ]),
+    ('Antenna', [
+        'attr_antenna_type', 'attr_antenna_gain_dbi',
+        'attr_antenna_freq_low_mhz', 'attr_antenna_freq_high_mhz',
+        'attr_antenna_max_power_w', 'attr_antenna_impedance_ohm',
+        'attr_antenna_connector', 'attr_antenna_polarization',
+        'attr_antenna_mount', 'attr_antenna_elements',
+    ]),
     ('Status & Notes', [
         'selected', 'final_disposition', 'final_value', 'fieldnotes', 'diagram',
     ]),
@@ -143,6 +155,10 @@ _COMPONENT_ATTR_GROUPS = [
         'attr_firmware_version',
     ]),
     ('Pump & Switch', ['attr_pump_type', 'attr_switch_type']),
+    ('RF / Radio', [
+        'attr_freq_low_mhz', 'attr_freq_high_mhz',
+        'attr_max_power_w', 'attr_rf_connector',
+    ]),
 ]
 
 

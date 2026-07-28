@@ -186,10 +186,13 @@ def rendernotes():
 def addflight():
 
     if request.args(0):
-        modelid = request.args(0)
-        log_activity(modelid, 'Flight')
+        model_id = VerifyTableID('model', request.args(0), URL('model', 'listview'))
+        if not model_id:
+            return
+
+        log_activity(model_id, 'Flight')
         session.flash = "Flight Logged"
-        return redirect(URL('model', 'index', args=modelid))
+        return redirect(RefererOrDefault(URL('model', 'index', args=model_id)))
 
     return redirect(URL('default', 'index'))
 
@@ -197,12 +200,12 @@ def addflight():
 def addcrash():
 
     if request.args(0):
-        model_id = VerifyTableID('model', request.args(0))
+        model_id = VerifyTableID('model', request.args(0), URL('model', 'listview'))
         if not model_id:
-            return redirect(URL('model', 'listview'))
+            return
 
         log_activity(model_id, 'Crash')
-        response.flash = "Crash Logged"
+        session.flash = "Crash Logged"
 
         new_modelstate = db.modelstate(6)
         db(db.model.id == model_id).update(modelstate=new_modelstate)
@@ -210,7 +213,7 @@ def addcrash():
         notes = "State changed to **{}**".format(new_modelstate.name)
         log_activity(model_id, 'StateChange', notes)
 
-        return redirect(URL('model', 'index', args=model_id))
+        return redirect(RefererOrDefault(URL('model', 'index', args=model_id)))
 
     return redirect(URL('default', 'index'))
 

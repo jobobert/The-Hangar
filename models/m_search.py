@@ -547,6 +547,128 @@ SEARCH_FIELDS = [
                  'bridge_model_fk': 'model',
                  'condition_fn': lambda: db.todo.complete == False},
     },
+    # --- HAM Radio ---
+    {
+        'id': 'attr_radio_freq_low_mhz', 'label': 'Radio Freq Low (MHz)', 'group': 'HAM Radio',
+        'type': 'double', 'input': 'number', 'values': None,
+        'operators': ['equal', 'greater', 'greater_or_equal', 'less', 'less_or_equal', 'between', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_radio_freq_low_mhz', 'join': None,
+    },
+    {
+        'id': 'attr_radio_freq_high_mhz', 'label': 'Radio Freq High (MHz)', 'group': 'HAM Radio',
+        'type': 'double', 'input': 'number', 'values': None,
+        'operators': ['equal', 'greater', 'greater_or_equal', 'less', 'less_or_equal', 'between', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_radio_freq_high_mhz', 'join': None,
+    },
+    {
+        'id': 'attr_radio_power_w', 'label': 'Radio Max Power (W)', 'group': 'HAM Radio',
+        'type': 'double', 'input': 'number', 'values': None,
+        'operators': ['equal', 'greater', 'greater_or_equal', 'less', 'less_or_equal', 'between', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_radio_power_w', 'join': None,
+    },
+    {
+        'id': 'attr_radio_memory_ch', 'label': 'Radio Memory Channels', 'group': 'HAM Radio',
+        'type': 'integer', 'input': 'number', 'values': None,
+        'operators': ['equal', 'greater', 'greater_or_equal', 'less', 'less_or_equal', 'between', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_radio_memory_ch', 'join': None,
+    },
+    {
+        'id': 'attr_radio_bands', 'label': 'Radio Bands', 'group': 'HAM Radio',
+        'type': 'string', 'input': 'text', 'values': None,
+        'operators': ['contains', 'equal', 'not_equal', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_radio_bands', 'join': None,
+    },
+    {
+        'id': 'attr_radio_mode', 'label': 'Radio Mode', 'group': 'HAM Radio',
+        'type': 'string', 'input': 'select', 'values': _lookup_vals('attr_radio_mode'),
+        'operators': ['equal', 'not_equal', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_radio_mode', 'join': None,
+    },
+    {
+        'id': 'attr_radio_rf_connector', 'label': 'Radio RF Connector', 'group': 'HAM Radio',
+        'type': 'string', 'input': 'select', 'values': _lookup_vals('attr_rf_connector'),
+        'operators': ['equal', 'not_equal', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_radio_rf_connector', 'join': None,
+    },
+    {
+        'id': 'attr_radio_aprs', 'label': 'APRS Capable', 'group': 'HAM Radio',
+        'type': 'boolean', 'input': 'radio', 'values': _YES_NO,
+        'operators': ['equal'],
+        'table': 'model', 'field': 'attr_radio_aprs', 'join': None,
+    },
+    {
+        'id': 'attr_radio_dstar', 'label': 'D-STAR Capable', 'group': 'HAM Radio',
+        'type': 'boolean', 'input': 'radio', 'values': _YES_NO,
+        'operators': ['equal'],
+        'table': 'model', 'field': 'attr_radio_dstar', 'join': None,
+    },
+    {
+        'id': 'attr_radio_dmr', 'label': 'DMR Capable', 'group': 'HAM Radio',
+        'type': 'boolean', 'input': 'radio', 'values': _YES_NO,
+        'operators': ['equal'],
+        'table': 'model', 'field': 'attr_radio_dmr', 'join': None,
+    },
+    # --- Antenna ---
+    {
+        'id': 'attr_antenna_type', 'label': 'Antenna Type', 'group': 'Antenna',
+        'type': 'string', 'input': 'select', 'values': _lookup_vals('attr_antenna_type'),
+        'operators': ['equal', 'not_equal', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_antenna_type', 'join': None,
+    },
+    {
+        'id': 'attr_antenna_gain_dbi', 'label': 'Antenna Gain (dBi)', 'group': 'Antenna',
+        'type': 'double', 'input': 'number', 'values': None,
+        'operators': ['equal', 'greater', 'greater_or_equal', 'less', 'less_or_equal', 'between', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_antenna_gain_dbi', 'join': None,
+    },
+    {
+        'id': 'attr_antenna_freq_low_mhz', 'label': 'Antenna Freq Low (MHz)', 'group': 'Antenna',
+        'type': 'double', 'input': 'number', 'values': None,
+        'operators': ['equal', 'greater', 'greater_or_equal', 'less', 'less_or_equal', 'between', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_antenna_freq_low_mhz', 'join': None,
+    },
+    {
+        'id': 'attr_antenna_freq_high_mhz', 'label': 'Antenna Freq High (MHz)', 'group': 'Antenna',
+        'type': 'double', 'input': 'number', 'values': None,
+        'operators': ['equal', 'greater', 'greater_or_equal', 'less', 'less_or_equal', 'between', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_antenna_freq_high_mhz', 'join': None,
+    },
+    {
+        'id': 'attr_antenna_max_power_w', 'label': 'Antenna Max Power (W)', 'group': 'Antenna',
+        'type': 'double', 'input': 'number', 'values': None,
+        'operators': ['equal', 'greater', 'greater_or_equal', 'less', 'less_or_equal', 'between', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_antenna_max_power_w', 'join': None,
+    },
+    {
+        'id': 'attr_antenna_impedance_ohm', 'label': 'Antenna Impedance (Ohm)', 'group': 'Antenna',
+        'type': 'integer', 'input': 'number', 'values': None,
+        'operators': ['equal', 'greater', 'greater_or_equal', 'less', 'less_or_equal', 'between', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_antenna_impedance_ohm', 'join': None,
+    },
+    {
+        'id': 'attr_antenna_connector', 'label': 'Antenna Connector', 'group': 'Antenna',
+        'type': 'string', 'input': 'select', 'values': _lookup_vals('attr_rf_connector'),
+        'operators': ['equal', 'not_equal', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_antenna_connector', 'join': None,
+    },
+    {
+        'id': 'attr_antenna_polarization', 'label': 'Antenna Polarization', 'group': 'Antenna',
+        'type': 'string', 'input': 'select', 'values': _lookup_vals('attr_antenna_polarization'),
+        'operators': ['equal', 'not_equal', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_antenna_polarization', 'join': None,
+    },
+    {
+        'id': 'attr_antenna_mount', 'label': 'Antenna Mount', 'group': 'Antenna',
+        'type': 'string', 'input': 'select', 'values': _lookup_vals('attr_antenna_mount'),
+        'operators': ['equal', 'not_equal', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_antenna_mount', 'join': None,
+    },
+    {
+        'id': 'attr_antenna_elements', 'label': 'Antenna Element Count', 'group': 'Antenna',
+        'type': 'integer', 'input': 'number', 'values': None,
+        'operators': ['equal', 'greater', 'greater_or_equal', 'less', 'less_or_equal', 'between', 'is_null', 'is_not_null'],
+        'table': 'model', 'field': 'attr_antenna_elements', 'join': None,
+    },
 ]
 
 # ---------------------------------------------------------------------------

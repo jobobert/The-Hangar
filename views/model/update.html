@@ -254,6 +254,70 @@ Your submitted form contains the following errors:
 </div>
 
 <div class="row">
+    <div class="card w-100 py-2">
+        <div class="card-header" id="headingHamRadio">
+            <h5 class="mb-0">
+                <a class=" " data-toggle="collapse" data-target="#collapse_ham_radio" aria-expanded="false" aria-controls="collapse_ham_radio">HAM Radio &#8681;</a>
+            </h5>
+        </div>
+        <div class="card-body collapse" id="collapse_ham_radio">
+
+            <div class="row">
+                {{=makeFormField(form, "attr_radio_freq_low_mhz",  FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_radio_freq_high_mhz", FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_radio_power_w",       FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_radio_memory_ch",     FormFieldType.COLUMNS, columns=6)}}
+            </div>
+
+            <div class="row">
+                {{=makeFormField(form, "attr_radio_bands",        FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_radio_mode",         FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_radio_rf_connector", FormFieldType.COLUMNS, columns=6)}}
+            </div>
+
+            <div class="row">
+                {{=makeFormField(form, "attr_radio_aprs",  FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(form, "attr_radio_dstar", FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(form, "attr_radio_dmr",   FormFieldType.COLUMNS, columns=4)}}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="card w-100 py-2">
+        <div class="card-header" id="headingAntenna">
+            <h5 class="mb-0">
+                <a class=" " data-toggle="collapse" data-target="#collapse_antenna" aria-expanded="false" aria-controls="collapse_antenna">Antenna &#8681;</a>
+            </h5>
+        </div>
+        <div class="card-body collapse" id="collapse_antenna">
+
+            <div class="row">
+                {{=makeFormField(form, "attr_antenna_type",          FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_antenna_mount",         FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_antenna_freq_low_mhz",  FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_antenna_freq_high_mhz", FormFieldType.COLUMNS, columns=6)}}
+            </div>
+
+            <div class="row">
+                {{=makeFormField(form, "attr_antenna_max_power_w",   FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_antenna_gain_dbi",      FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_antenna_impedance_ohm", FormFieldType.COLUMNS, columns=4)}}
+                {{=makeFormField(form, "attr_antenna_elements",      FormFieldType.COLUMNS, columns=4)}}
+            </div>
+
+            <div class="row">
+                {{=makeFormField(form, "attr_antenna_connector",    FormFieldType.COLUMNS, columns=6)}}
+                {{=makeFormField(form, "attr_antenna_polarization", FormFieldType.COLUMNS, columns=6)}}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="row">
     <div class="card w-100 ">
         <div class="card-header" id="headingFieldNotes">
             <h5 class="mb-0">

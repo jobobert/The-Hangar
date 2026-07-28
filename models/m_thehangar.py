@@ -277,7 +277,8 @@ def model_type_icon(model, size:int):
     if size not in [32, 48]: size = 32
 
     if model.modeltype:
-        return show_icon(folder + model.modeltype.lower() + '-' + str(size) + '.svg', size, model.modeltype)
+        _slug = model.modeltype.lower().replace(' ', '-')
+        return show_icon(folder + _slug + '-' + str(size) + '.svg', size, model.modeltype)
     else:
         return show_icon('noicon.svg', size, f"unknown modeltype for {model.name}")
 
@@ -286,7 +287,8 @@ def text_model_type_icon(modeltype:str, size:int):
     if size not in [32, 48]: size = 32
 
     try:
-        return show_icon(folder + modeltype.lower() + '-' + str(size) + '.svg', size, modeltype)
+        _slug = modeltype.lower().replace(' ', '-')
+        return show_icon(folder + _slug + '-' + str(size) + '.svg', size, modeltype)
     except:
         return show_icon('noicon.svg', size, f"unknown modeltype for {modeltype}")
 
@@ -382,9 +384,7 @@ def VerifyTableID(table:str, rowID:int|str, redirect_url=None, prefer_referer=Fa
     def _fail():
         if redirect_url:
             session.flash = "Record not found."
-            referer = request.env.http_referer or ''
-            same_page = URL(request.controller, request.function, host=True)
-            target = referer if (prefer_referer and referer and not referer.startswith(same_page)) else redirect_url
+            target = RefererOrDefault(redirect_url) if prefer_referer else redirect_url
             redirect(target)
         response.flash = "Record not found!"
         return None
@@ -404,6 +404,13 @@ def VerifyTableID(table:str, rowID:int|str, redirect_url=None, prefer_referer=Fa
         return _fail()
 
     return integer_value
+
+def RefererOrDefault(default_url):
+    referer = request.env.http_referer or ''
+    same_action = URL(request.controller, request.function, host=True)
+    if referer and not referer.startswith(same_action):
+        return referer
+    return default_url
 
 def TwoDecimal(number):
     if number is None:
