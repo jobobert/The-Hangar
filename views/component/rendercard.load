@@ -72,6 +72,13 @@
                             {{pass}}
                         </div>
                     </div>
+                    {{if component.model_component.note:}}
+                    <div class="row">
+                        <div class="col d-none d-md-inline component-item-comment">
+                            <span class="component-item-comment_label text-muted">Comment:</span> <span class="component-item-comment_value">{{=component.model_component.note}}</span>
+                        </div>
+                    </div>
+                    {{pass}}
                 </div>
                 <div class="col-2 component-item-buttons">
                     <a class="btn btn-warning d-inline-block" href="{{=URL('component','updatemodelrelation',args=component.model_component.id)}}">{{=action_icon('edit', 16)}}</a>
@@ -152,6 +159,11 @@
         <label for="newcomponent_channel">{{=db.model_component.channel.label}}</label>
         <input type="number" id="newcomponent_channel" name="newcomponent_channel" class="form-control integer" />
         <small class="form-text text-muted">{{=db.model_component.channel.comment or ''}}</small>
+    </div>
+    <div class="form-group">
+        <label for="newcomponent_note">{{=db.model_component.note.label}}</label>
+        <input type="text" id="newcomponent_note" name="newcomponent_note" class="form-control string" autocomplete="off" />
+        <small class="form-text text-muted">{{=db.model_component.note.comment or ''}}</small>
     </div>
 
     <div class="mt-2">{{=makeFormSubmitbutton(newform)}}</div>

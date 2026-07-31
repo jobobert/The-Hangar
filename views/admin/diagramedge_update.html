@@ -21,15 +21,20 @@ Your submitted form contains the following errors:
     {{=makeFormField(form, 'name', FormFieldType.ROWS)}}
 
     <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="diagramedge_dot_attribs">{{=db.diagramedge.dot_attribs.label}}</label>
-        <div class="col-sm-7">
-            {{=form.custom.widget.dot_attribs}}
-            <small class="form-text text-muted">
-                Raw Graphviz edge attributes, e.g. <code>color="#cc0000"; style=dashed; penwidth=2;</code>
-            </small>
+        <label class="col-sm-2 col-form-label" for="diagramedge_stroke_color">{{=db.diagramedge.stroke_color.label}}</label>
+        <div class="col-sm-3 d-flex align-items-center">
+            <input type="color" id="colorpicker_stroke_color"
+                   value="{{=old_row.stroke_color if old_row else '#000000'}}"
+                   style="margin-right:.5rem;height:2rem;width:3rem;padding:2px;border:1px solid #ced4da;border-radius:4px;cursor:pointer;"
+                   oninput="document.getElementById('diagramedge_stroke_color').value=this.value">
+            {{=form.custom.widget.stroke_color}}
         </div>
     </div>
 
+    {{=makeFormField(form, 'stroke_width', FormFieldType.ROWS)}}
+    {{=makeFormField(form, 'stroke_style', FormFieldType.ROWS)}}
+    {{=makeFormField(form, 'arrow_start', FormFieldType.ROWS)}}
+    {{=makeFormField(form, 'arrow_end', FormFieldType.ROWS)}}
     {{=makeFormField(form, 'sort_order', FormFieldType.ROWS)}}
 
 </div>
@@ -39,3 +44,13 @@ Your submitted form contains the following errors:
 </div>
 
 {{=form.custom.end}}
+
+<script>
+(function () {
+    var picker = document.getElementById('colorpicker_stroke_color');
+    var text   = document.getElementById('diagramedge_stroke_color');
+    if (text && picker) {
+        text.addEventListener('input', function () { picker.value = this.value; });
+    }
+})();
+</script>

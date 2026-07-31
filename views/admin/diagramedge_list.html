@@ -9,7 +9,10 @@
 
 <div class="row border-bottom my-2">
     <div class="col th-listview-header">Name</div>
-    <div class="col th-listview-header">DOT Attributes</div>
+    <div class="col th-listview-header">Color</div>
+    <div class="col th-listview-header">Width</div>
+    <div class="col th-listview-header">Style</div>
+    <div class="col th-listview-header">Arrowheads</div>
     <div class="col-1 th-listview-header">Sort</div>
     <div class="col-3 th-listview-header">Actions</div>
 </div>
@@ -18,7 +21,13 @@
 {{for row in rows:}}
 <div class="row border-bottom my-2 align-items-center">
     <div class="col"><strong>{{=row.name}}</strong></div>
-    <div class="col"><code>{{=row.dot_attribs}}</code></div>
+    <div class="col">
+        <span style="display:inline-block;width:1.2em;height:1.2em;background:{{=row.stroke_color}};border:1px solid #aaa;vertical-align:middle;"></span>
+        <code>{{=row.stroke_color}}</code>
+    </div>
+    <div class="col">{{=row.stroke_width}}px</div>
+    <div class="col">{{=row.stroke_style}}</div>
+    <div class="col">{{=row.arrow_start}} &rarr; {{=row.arrow_end}}</div>
     <div class="col-1">{{=row.sort_order}}</div>
     <div class="col-3">
         {{=editButton('admin', 'diagramedge_update', [row.id])}}

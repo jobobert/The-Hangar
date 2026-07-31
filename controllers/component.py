@@ -277,7 +277,7 @@ def rendercard():
         return render_card_error('Unable to locate the associated model', 'component', 'Components')
     
     addform = SQLFORM(db.model_component, fields=[
-                      "component", "purpose", "channel"], comments=False)
+                      "component", "purpose", "channel", "note"], comments=False)
     addform.vars.model = request.args(0)
     disable_autocomplete(addform)
     if addform.process(session=None, formname='addcomponent').accepted:
@@ -307,6 +307,7 @@ def rendercard():
             component=newform.vars.id,
             purpose=request.vars.newcomponent_purpose or '',
             channel=channel,
+            note=request.vars.newcomponent_note or '',
         )
         response.flash = "Component added to model"
     elif newform.errors:
@@ -455,7 +456,7 @@ def updatemodelrelation():
 
     rel = db(db.model_component.model == relationship_id).select().first()
 
-    fields = ['purpose', 'channel']
+    fields = ['purpose', 'channel', 'note']
 
     form = SQLFORM(db.model_component, relationship_id, fields=fields, showid=False)
 

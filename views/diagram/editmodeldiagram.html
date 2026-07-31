@@ -11,7 +11,7 @@
 <div class="row mb-2">
     <div class="col">
         <button type="button" class="btn btn-secondary" onclick="if(confirm('Rebuild from components?\n\nThis will replace all nodes and connections with auto-generated content from the model. Any custom wiring will be lost.')) refreshNodes();">Rebuild from Components</button>
-        <button type="button" class="btn btn-secondary" onclick="setDefaultDot()">Use default dot code</button>
+        <button type="button" class="btn btn-secondary" onclick="setDefaultDiagram()">Use default diagram</button>
     </div>
 </div>
 
@@ -32,14 +32,13 @@
         <div style="overflow-x:auto"><table class="table table-sm table-bordered mb-1" id="conn-table">
             <thead class="thead-light"><tr>
                 <th>From</th>
-                <th style="width:7em">Port</th>
                 <th>To</th>
                 <th>Wire Type</th>
                 <th style="width:2.5em"></th>
             </tr></thead>
             <tbody id="conn-tbody"></tbody>
         </table></div>
-        <small class="text-muted">Port is optional — use e.g. <code>f1</code> for receiver port 1, <code>l1</code>/<code>r1</code> for connector ports.</small>
+        <small class="text-muted">To connect to a specific receiver port, select it directly in From/To (e.g. "Receiver — Port 2").</small>
     </div>
 </div>
 
@@ -48,28 +47,36 @@
     <div id="graph-container"></div>
 </div>
 
+{{if legacy_dot:}}
+<!-- LEGACY GRAPHVIZ SCAFFOLDING — temporary, read-only.
+     Remove this card, the viz-global.js <script> tag near the bottom of
+     this file, and the render script below it, once every model has been
+     migrated off model.diagram. See the matching removal note next to
+     diagram_comment_legacy in models/db.py and legacy_dot in
+     controllers/diagram.py's editmodeldiagram(). -->
+<div class="card mb-4">
+    <div class="card-header py-2">
+        <strong>Legacy Graphviz Diagram</strong>
+        <small class="text-muted ml-2">Read-only reference — this model had a diagram before the switch to Mermaid that was not auto-migrated.</small>
+    </div>
+    <div class="card-body p-2" id="legacy-graph-container" style="overflow:auto; min-height:100px;"></div>
+</div>
+{{pass}}
+
 <div class="accordion mb-5" id="dotAccordion">
     <div class="card">
         <div class="card-header p-1 d-flex align-items-center">
             <button type="button" class="btn btn-link btn-sm collapsed"
                     data-toggle="collapse" data-target="#dotCollapse" aria-expanded="false">
-                ▶ Advanced: DOT Code
+                ▶ Advanced: Mermaid Code
             </button>
-            <small class="text-muted ml-2">Editor <a href="https://dreampuf.github.io/GraphvizOnline/" target="_blank">here</a></small>
+            <small class="text-muted ml-2">Editor <a href="https://mermaid.live" target="_blank">here</a></small>
         </div>
         <div id="dotCollapse" class="collapse" data-parent="#dotAccordion">
             <div class="card-body">
-                {{=form.custom.widget.diagram}}
-                <script>document.getElementById('model_diagram').classList.add('no-markitup');</script>
-                <div class="model_form_comment">{{=form.custom.comment.diagram}}</div>
-                <div class="mt-3">
-                    <strong>Attributes</strong>
-                    <div class="mt-1">
-                    {{for k,v in edge_attribs.items():}}
-                        <button type="button" class="btn btn-sm btn-secondary m-1" onclick="insertText('{{=v}}')">{{=k}}</button>
-                    {{pass}}
-                    </div>
-                </div>
+                {{=form.custom.widget.diagram_mermaid}}
+                <script>document.getElementById('model_diagram_mermaid').classList.add('no-markitup');</script>
+                <div class="model_form_comment">{{=form.custom.comment.diagram_mermaid}}</div>
                 <div class="mt-3">
                     <strong>Components</strong>
                     <div class="mt-1">
@@ -95,7 +102,10 @@
                 <table class="table table-sm table-bordered mb-2" id="wt-table">
                     <thead class="thead-light"><tr>
                         <th>Name</th>
-                        <th>DOT Attributes</th>
+                        <th>Color</th>
+                        <th>Width</th>
+                        <th>Style</th>
+                        <th>Arrowheads</th>
                         <th style="width:4em">Sort</th>
                         <th style="width:7em"></th>
                     </tr></thead>
@@ -112,11 +122,41 @@
                         </div>
                     </div>
                     <div class="form-group row mb-2">
-                        <label class="col-12 col-sm-2 col-form-label col-form-label-sm">DOT Attributes</label>
-                        <div class="col-12 col-sm-10">
-                            <input type="text" id="wt-attribs" class="form-control form-control-sm"
-                                   placeholder='color="#cc0000"; style=dashed; penwidth=2;'>
-                            <small class="form-text text-muted">Raw Graphviz edge attributes.</small>
+                        <label class="col-12 col-sm-2 col-form-label col-form-label-sm">Color</label>
+                        <div class="col-12 col-sm-3">
+                            <input type="color" id="wt-color" class="form-control form-control-sm" value="#000000">
+                        </div>
+                        <label class="col-12 col-sm-2 col-form-label col-form-label-sm">Width (px)</label>
+                        <div class="col-12 col-sm-2">
+                            <input type="number" id="wt-width" class="form-control form-control-sm" value="1" min="1" max="10">
+                        </div>
+                        <label class="col-12 col-sm-1 col-form-label col-form-label-sm">Style</label>
+                        <div class="col-12 col-sm-2">
+                            <select id="wt-style" class="form-control form-control-sm">
+                                <option value="solid">Solid</option>
+                                <option value="dashed">Dashed</option>
+                                <option value="dotted">Dotted</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-2">
+                        <label class="col-12 col-sm-2 col-form-label col-form-label-sm">Start Arrowhead</label>
+                        <div class="col-12 col-sm-3">
+                            <select id="wt-arrow-start" class="form-control form-control-sm">
+                                <option value="none">None</option>
+                                <option value="arrow">Arrow</option>
+                                <option value="circle">Circle</option>
+                                <option value="cross">Cross</option>
+                            </select>
+                        </div>
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">End Arrowhead</label>
+                        <div class="col-12 col-sm-3">
+                            <select id="wt-arrow-end" class="form-control form-control-sm">
+                                <option value="none">None</option>
+                                <option value="arrow">Arrow</option>
+                                <option value="circle">Circle</option>
+                                <option value="cross">Cross</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-group row mb-2">
@@ -208,10 +248,10 @@
                         </div>
                     </div>
                     <div class="form-group row mb-2">
-                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Custom DOT Label</label>
+                        <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Custom Mermaid Override</label>
                         <div class="col-12 col-sm-9">
                             <textarea id="dc-custom-dot" class="form-control form-control-sm no-markitup" rows="3"
-                                      placeholder="Optional. If set, overrides all fields above. Enter a complete Graphviz label= value, e.g.&#10;&lt;&lt;table...&gt;&gt;" oninput="previewConnector()"></textarea>
+                                      placeholder="Optional. If set, overrides all fields above. Enter Mermaid node syntax, e.g.&#10;[&quot;XT-60&quot;]" oninput="previewConnector()"></textarea>
                             <small class="form-text text-muted">Leave blank to auto-generate from fields above.</small>
                         </div>
                     </div>
@@ -286,59 +326,15 @@
                                 <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Shape</label>
                                 <div class="col-12 col-sm-9">
                                     <select id="cc-shape" class="form-control form-control-sm" onchange="previewCustomComponent()">
-                                        <optgroup label="Basic">
-                                            <option value="box">box</option>
-                                            <option value="rect">rect</option>
-                                            <option value="square">square</option>
-                                            <option value="circle">circle</option>
-                                            <option value="ellipse">ellipse</option>
-                                            <option value="oval">oval</option>
-                                            <option value="diamond">diamond</option>
-                                            <option value="point">point</option>
-                                            <option value="plaintext">plaintext</option>
-                                            <option value="none">none</option>
-                                        </optgroup>
-                                        <optgroup label="Polygon">
-                                            <option value="triangle">triangle</option>
-                                            <option value="invtriangle">invtriangle</option>
-                                            <option value="trapezium">trapezium</option>
-                                            <option value="invtrapezium">invtrapezium</option>
-                                            <option value="parallelogram">parallelogram</option>
-                                            <option value="house">house</option>
-                                            <option value="invhouse">invhouse</option>
-                                            <option value="pentagon">pentagon</option>
-                                            <option value="hexagon">hexagon</option>
-                                            <option value="septagon">septagon</option>
-                                            <option value="octagon">octagon</option>
-                                            <option value="star">star</option>
-                                        </optgroup>
-                                        <optgroup label="Double / Triple">
-                                            <option value="doublecircle">doublecircle</option>
-                                            <option value="doubleoctagon">doubleoctagon</option>
-                                            <option value="tripleoctagon">tripleoctagon</option>
-                                            <option value="Mdiamond">Mdiamond</option>
-                                            <option value="Msquare">Msquare</option>
-                                            <option value="Mcircle">Mcircle</option>
-                                        </optgroup>
-                                        <optgroup label="3D / Special">
-                                            <option value="box3d">box3d</option>
-                                            <option value="cylinder">cylinder</option>
-                                            <option value="egg">egg</option>
-                                            <option value="component">component</option>
-                                            <option value="note">note</option>
-                                            <option value="tab">tab</option>
-                                            <option value="folder">folder</option>
-                                            <option value="polygon">polygon</option>
-                                        </optgroup>
-                                        <optgroup label="Bio / Signal">
-                                            <option value="cds">cds</option>
-                                            <option value="promoter">promoter</option>
-                                            <option value="rpromoter">rpromoter</option>
-                                            <option value="terminator">terminator</option>
-                                            <option value="utr">utr</option>
-                                            <option value="larrow">larrow</option>
-                                            <option value="rarrow">rarrow</option>
-                                        </optgroup>
+                                        <option value="rect">Rectangle</option>
+                                        <option value="oval">Rounded</option>
+                                        <option value="circle">Circle</option>
+                                        <option value="diamond">Diamond</option>
+                                        <option value="hexagon">Hexagon</option>
+                                        <option value="cylinder">Cylinder</option>
+                                        <option value="component">Subroutine (double border)</option>
+                                        <option value="parallelogram">Parallelogram</option>
+                                        <option value="trapezium">Trapezoid</option>
                                     </select>
                                 </div>
                             </div>
@@ -354,10 +350,22 @@
                                 </div>
                             </div>
                             <div class="form-group row mb-2">
-                                <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Extra DOT Attribs</label>
-                                <div class="col-12 col-sm-9">
-                                    <input type="text" id="cc-dot-attribs" class="form-control form-control-sm"
-                                           placeholder='e.g. style=dashed; penwidth=2;' oninput="previewCustomComponent()">
+                                <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Border Color</label>
+                                <div class="col-12 col-sm-3">
+                                    <input type="color" id="cc-stroke-color" class="form-control form-control-sm"
+                                           value="#333333" oninput="previewCustomComponent()">
+                                </div>
+                                <label class="col-12 col-sm-3 col-form-label col-form-label-sm">Width (px)</label>
+                                <div class="col-12 col-sm-1">
+                                    <input type="number" id="cc-stroke-width" class="form-control form-control-sm" value="1" min="1" max="10" oninput="previewCustomComponent()">
+                                </div>
+                                <label class="col-12 col-sm-2 col-form-label col-form-label-sm">Style</label>
+                                <div class="col-12 col-sm-2">
+                                    <select id="cc-stroke-style" class="form-control form-control-sm" onchange="previewCustomComponent()">
+                                        <option value="solid">Solid</option>
+                                        <option value="dashed">Dashed</option>
+                                        <option value="dotted">Dotted</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group row mb-2">
@@ -390,15 +398,39 @@
 
 {{=form.custom.end}}
 
+<script src="{{=URL('static','js/mermaid.min.js')}}"></script>
+<script src="{{=URL('static','js/mermaid-helpers.js', vars=dict(v=static_cachebust('js/mermaid-helpers.js')))}}"></script>
+
+{{if legacy_dot:}}
+<!-- LEGACY GRAPHVIZ SCAFFOLDING — remove alongside the card above once
+     every model is migrated off model.diagram (see models/db.py). -->
 <script src="{{=URL('static','js/viz-global.js')}}"></script>
 <script>
-const EDGE_ATTRIBS = {{=XML(edge_attribs_json)}};
+(function () {
+    var legacyDot = {{=XML(legacy_dot_json)}};
+    var container = document.getElementById('legacy-graph-container');
+    Viz.instance().then(function (viz) {
+        try {
+            var svg = viz.renderSVGElement(legacyDot);
+            svg.removeAttribute('width');
+            svg.removeAttribute('height');
+            svg.style.maxWidth = '100%';
+            container.replaceChildren(svg);
+        } catch (e) {
+            container.textContent = 'Could not render legacy diagram (invalid DOT).';
+        }
+    });
+})();
+</script>
+{{pass}}
+
+<script>
+const EDGE_STYLES = {{=XML(edge_styles_json)}};
 const NODE_OPTIONS = {{=XML(node_options_json)}};
-const REFRESH_NODES_DOT = {{=XML(model_nodes_dot_json)}};
-const MODEL_COMPONENTS_DOT = `{{=XML(model_components_dot)}}`;
+const REFRESH_NODES_MERMAID = {{=XML(model_nodes_mermaid_json)}};
 const COMPONENT_TYPES = {{=XML(componenttype_nodes_json)}};
 
-const textarea = document.getElementById('model_diagram');
+const textarea = document.getElementById('model_diagram_mermaid');
 
 textarea.addEventListener('input', () => {
     updateGraph();
@@ -412,69 +444,62 @@ function insertText(text) {
     textarea.focus();
 }
 
-function setDefaultDot() {
-    textarea.value = `{{=XML(default_dot)}}`;
+function setDefaultDiagram() {
+    textarea.value = `{{=XML(default_mermaid)}}`;
     updateGraph();
     renderConnectionsTable();
 }
 
 function refreshNodes() {
-    let dot = textarea.value;
-    const startMarker = '// Nodes';
-    const endMarker   = '// End Edges';
-    const si = dot.indexOf(startMarker);
-    const ei = dot.indexOf(endMarker);
-
-    if (si !== -1 && ei !== -1) {
-        // Replace everything from // Nodes through // End Edges; preserve legend before and title after
-        dot = dot.slice(0, si) + REFRESH_NODES_DOT + '\n' + dot.slice(ei + endMarker.length);
-    } else if (si !== -1) {
-        // Has nodes but no End Edges marker — replace to closing brace
-        const cb = dot.lastIndexOf('}');
-        dot = dot.slice(0, si) + REFRESH_NODES_DOT + '\n' + (cb !== -1 ? dot.slice(cb) : '}');
-    } else {
-        const graphOpen = dot.indexOf('{');
-        dot = graphOpen !== -1
-            ? dot.slice(0, graphOpen + 1) + '\n\n' + REFRESH_NODES_DOT + '\n' + dot.slice(graphOpen + 1)
-            : MODEL_COMPONENTS_DOT;
-    }
-    textarea.value = dot;
+    // Full-text replace — matches what the button's own confirm dialog
+    // already promises ("replace all nodes and connections... custom
+    // wiring lost"), and avoids fragile marker-splicing across the
+    // receiver's multi-line port subgraph.
+    textarea.value = REFRESH_NODES_MERMAID;
     updateGraph();
     renderConnectionsTable();
 }
 
-// Parse edges from the // Edges section only (avoids matching legend edges)
-function parseDotEdges(dot) {
-    const marker = '// Edges';
-    const endMarker = '// End Edges';
-    const mi = dot.indexOf(marker);
+// Parse edges from the %% Edges section only (avoids matching legend
+// edges and a receiver's own internal port-wiring, which lives in the
+// %% Nodes section). Each edge is emitted on its own line as either
+// `from -- "Wire Type" --- to` or, unlabeled, `from --- to`.
+function parseMermaidEdges(text) {
+    const marker = '%% Edges';
+    const endMarker = '%% End Edges';
+    const mi = text.indexOf(marker);
     if (mi === -1) return [];
-    const lineEnd = dot.indexOf('\n', mi) + 1;
-    const endIdx = dot.indexOf(endMarker, lineEnd);
-    const edgesText = endIdx !== -1 ? dot.slice(lineEnd, endIdx) : dot.slice(lineEnd);
+    const lineEnd = text.indexOf('\n', mi) + 1;
+    const endIdx = text.indexOf(endMarker, lineEnd);
+    const edgesText = endIdx !== -1 ? text.slice(lineEnd, endIdx) : text.slice(lineEnd);
 
-    const re = /"?([^"\s:;{}\[\]<>]+)"?(?::(\w+))?\s*(?:->|--)\s*"?([^"\s:;\[\]{}<>]+)"?(?::(\w+))?\s*\[([^\]]*)\]/g;
+    const labeled = /^\s*(\S+)\s*--\s*"([^"]*)"\s*---\s*(\S+)\s*$/;
+    const plain   = /^\s*(\S+)\s*---\s*(\S+)\s*$/;
     const edges = [];
-    let m;
-    while ((m = re.exec(edgesText)) !== null) {
-        edges.push({ from: m[1], fromPort: m[2]||'', to: m[3], attribs: m[5].trim() });
-    }
+    edgesText.split('\n').forEach(line => {
+        if (!line.trim()) return;
+        let m = line.match(labeled);
+        if (m) { edges.push({ from: m[1], typeName: m[2], to: m[3] }); return; }
+        m = line.match(plain);
+        if (m) { edges.push({ from: m[1], typeName: '', to: m[2] }); }
+    });
     return edges;
 }
 
-// Get node IDs from NODE_OPTIONS + any custom nodes defined in // Nodes section
-function getAllNodeIds(dot) {
+// Get node IDs from NODE_OPTIONS + any custom nodes defined in the %% Nodes
+// section (a node-declaration line is an identifier immediately followed
+// by a shape-open bracket, e.g. mc4{{"ESC"}} or mc3_p1(["Port 1"]) —
+// this excludes subgraph/direction/end lines and plain wiring edges).
+function getAllNodeIds(text) {
     const nodeMap = new Map(NODE_OPTIONS.map(n => [n.id, n.label]));
-    const startMarker = '// Nodes';
-    const endMarker = '// End Nodes';
-    const si = dot.indexOf(startMarker);
+    const startMarker = '%% Nodes';
+    const endMarker = '%% End Nodes';
+    const si = text.indexOf(startMarker);
     if (si !== -1) {
-        const lineEnd = dot.indexOf('\n', si) + 1;
-        const endIdx = dot.indexOf(endMarker, lineEnd);
-        const edgesIdx = dot.indexOf('// Edges', lineEnd);
-        const nodesEnd = endIdx !== -1 ? endIdx : (edgesIdx !== -1 ? edgesIdx : dot.lastIndexOf('}'));
-        const nodesText = dot.slice(lineEnd, nodesEnd);
-        const re = /"([^"]+)"\s*\[label/g;
+        const lineEnd = text.indexOf('\n', si) + 1;
+        const endIdx = text.indexOf(endMarker, lineEnd);
+        const nodesText = endIdx !== -1 ? text.slice(lineEnd, endIdx) : text.slice(lineEnd);
+        const re = /^\s*(\w[\w-]*)\s*(?:\[|\(|\{)/gm;
         let m;
         while ((m = re.exec(nodesText)) !== null) {
             if (!nodeMap.has(m[1])) nodeMap.set(m[1], m[1]);
@@ -483,18 +508,10 @@ function getAllNodeIds(dot) {
     return [...nodeMap.entries()].map(([id, label]) => ({id, label}));
 }
 
-function findEdgeTypeName(attribs) {
-    const norm = s => s.replace(/\s+/g, '');
-    for (const [name, val] of Object.entries(EDGE_ATTRIBS)) {
-        if (norm(attribs) === norm(val)) return name;
-    }
-    return '(custom)';
-}
-
 function buildNodeSelect(cls, selectedId, nodes) {
     const sel = document.createElement('select');
     sel.className = 'form-control form-control-sm ' + cls;
-    sel.onchange = syncDotFromTable;
+    sel.onchange = syncMermaidFromTable;
     const blank = document.createElement('option');
     blank.value = '';
     blank.textContent = '— select —';
@@ -509,26 +526,19 @@ function buildNodeSelect(cls, selectedId, nodes) {
     return sel;
 }
 
-function buildTypeSelect(selectedType, edge) {
+function buildTypeSelect(selectedType) {
     const sel = document.createElement('select');
     sel.className = 'form-control form-control-sm conn-type';
-    sel.onchange = syncDotFromTable;
-    Object.keys(EDGE_ATTRIBS).forEach(name => {
+    sel.onchange = syncMermaidFromTable;
+    const names = Object.keys(EDGE_STYLES);
+    if (selectedType && !names.includes(selectedType)) names.push(selectedType);
+    names.forEach(name => {
         const opt = document.createElement('option');
         opt.value = name;
         opt.textContent = name;
         if (name === selectedType) opt.selected = true;
         sel.appendChild(opt);
     });
-    if (selectedType === '(custom)') {
-        const opt = document.createElement('option');
-        opt.value = '(custom)';
-        opt.textContent = '(custom — edit in DOT panel)';
-        opt.selected = true;
-        sel.appendChild(opt);
-        sel.dataset.origAttribs = (edge && edge.attribs) ? edge.attribs : '';
-        sel.disabled = true;
-    }
     return sel;
 }
 
@@ -536,8 +546,8 @@ function buildTypeSelect(selectedType, edge) {
 let _newTypeTargetRow = null;
 
 function addConnectionRow(edge) {
-    const defaultType = Object.keys(EDGE_ATTRIBS)[0] || '';
-    const typeName = edge ? findEdgeTypeName(edge.attribs) : defaultType;
+    const defaultType = Object.keys(EDGE_STYLES)[0] || '';
+    const typeName = edge ? (edge.typeName || defaultType) : defaultType;
     const nodes = getAllNodeIds(textarea.value);
     const tbody = document.getElementById('conn-tbody');
 
@@ -546,22 +556,13 @@ function addConnectionRow(edge) {
     const tdFrom = document.createElement('td');
     tdFrom.appendChild(buildNodeSelect('conn-from', edge ? edge.from : '', nodes));
 
-    const tdPort = document.createElement('td');
-    const portInput = document.createElement('input');
-    portInput.type = 'text';
-    portInput.className = 'form-control form-control-sm conn-port';
-    portInput.value = (edge && edge.fromPort) ? edge.fromPort : '';
-    portInput.placeholder = 'f1';
-    portInput.oninput = syncDotFromTable;
-    tdPort.appendChild(portInput);
-
     const tdTo = document.createElement('td');
     tdTo.appendChild(buildNodeSelect('conn-to', edge ? edge.to : '', nodes));
 
     const tdType = document.createElement('td');
     const typeWrap = document.createElement('div');
     typeWrap.style.cssText = 'display:flex; gap:3px;';
-    const typeSel = buildTypeSelect(typeName, edge);
+    const typeSel = buildTypeSelect(typeName);
     typeSel.style.flex = '1';
     const newWtBtn = document.createElement('button');
     newWtBtn.type = 'button';
@@ -580,15 +581,15 @@ function addConnectionRow(edge) {
     delBtn.className = 'btn btn-sm btn-outline-danger';
     delBtn.innerHTML = '&times;';
     delBtn.type = 'button';
-    delBtn.onclick = function() { tr.remove(); syncDotFromTable(); };
+    delBtn.onclick = function() { tr.remove(); syncMermaidFromTable(); };
     tdDel.appendChild(delBtn);
 
-    tr.append(tdFrom, tdPort, tdTo, tdType, tdDel);
+    tr.append(tdFrom, tdTo, tdType, tdDel);
     tbody.appendChild(tr);
 }
 
 function renderConnectionsTable() {
-    const edges = parseDotEdges(textarea.value);
+    const edges = parseMermaidEdges(textarea.value);
     document.getElementById('conn-tbody').innerHTML = '';
     edges.forEach(e => addConnectionRow(e));
 }
@@ -600,54 +601,38 @@ function rebuildAllTypeSelects(newTypeName, targetRow) {
         const oldSel = tr.querySelector('.conn-type');
         if (!oldSel) return;
         const currentType = (tr === targetRow && newTypeName) ? newTypeName : oldSel.value;
-        const origAttribs = oldSel.dataset.origAttribs;
-        const newSel = buildTypeSelect(currentType, origAttribs ? {attribs: origAttribs} : null);
+        const newSel = buildTypeSelect(currentType);
         oldSel.replaceWith(newSel);
     });
-    if (newTypeName) syncDotFromTable();
+    if (newTypeName) syncMermaidFromTable();
 }
 
-function syncDotFromTable() {
-    let dot = textarea.value;
+function syncMermaidFromTable() {
+    let text = textarea.value;
     const rows = [...document.querySelectorAll('#conn-tbody tr')];
     const edgeLines = [];
 
     rows.forEach(row => {
         const from = row.querySelector('.conn-from').value;
-        const port = row.querySelector('.conn-port').value.trim();
         const to = row.querySelector('.conn-to').value;
-        const typeEl = row.querySelector('.conn-type');
-        const type = typeEl.value;
+        const type = row.querySelector('.conn-type').value;
         if (!from || !to) return;
-        const fromStr = port ? `"${from}":${port}` : `"${from}"`;
-        if (type === '(custom)') {
-            edgeLines.push(`    ${fromStr} -- "${to}" [${typeEl.dataset.origAttribs || ''}];`);
-        } else {
-            edgeLines.push(`    ${fromStr} -- "${to}" [${EDGE_ATTRIBS[type] || ''}];`);
-        }
+        edgeLines.push(`  ${from} -- "${type}" --- ${to}`);
     });
 
-    const marker = '// Edges';
-    const endMarker = '// End Edges';
-    const mi = dot.indexOf(marker);
+    const marker = '%% Edges';
+    const endMarker = '%% End Edges';
+    const mi = text.indexOf(marker);
 
     if (mi !== -1) {
-        const lineEnd = dot.indexOf('\n', mi) + 1;
-        const endIdx = dot.indexOf(endMarker, lineEnd);
-        let tail;
-        if (endIdx !== -1) {
-            tail = dot.slice(endIdx);
-        } else {
-            const titleIdx = dot.indexOf('\n// Title', lineEnd);
-            const splitAt = titleIdx !== -1 ? titleIdx : dot.lastIndexOf('}');
-            tail = '// End Edges\n' + dot.slice(splitAt);
-        }
-        dot = dot.slice(0, lineEnd) + edgeLines.join('\n') + '\n' + tail;
+        const lineEnd = text.indexOf('\n', mi) + 1;
+        const endIdx = text.indexOf(endMarker, lineEnd);
+        const tail = endIdx !== -1 ? text.slice(endIdx) : '%% End Edges';
+        text = text.slice(0, lineEnd) + edgeLines.join('\n') + '\n' + tail;
     } else {
-        const cb = dot.lastIndexOf('}');
-        dot = dot.slice(0, cb) + '// Edges\n' + edgeLines.join('\n') + '\n// End Edges\n}';
+        text = text + '\n\n%% Edges\n' + edgeLines.join('\n') + '\n%% End Edges';
     }
-    textarea.value = dot;
+    textarea.value = text;
     updateGraph();
 }
 
@@ -671,9 +656,12 @@ async function loadWireTypes() {
         const tdName = document.createElement('td');
         const b = document.createElement('strong'); b.textContent = r.name; tdName.appendChild(b);
 
-        const tdAttribs = document.createElement('td');
-        const code = document.createElement('code'); code.textContent = r.dot_attribs; tdAttribs.appendChild(code);
+        const tdColor = document.createElement('td');
+        tdColor.innerHTML = `<span style="display:inline-block;width:1.2em;height:1.2em;background:${r.stroke_color};border:1px solid #aaa;vertical-align:middle;"></span> <code>${r.stroke_color}</code>`;
 
+        const tdWidth = document.createElement('td'); tdWidth.textContent = r.stroke_width + 'px';
+        const tdStyle = document.createElement('td'); tdStyle.textContent = r.stroke_style;
+        const tdArrows = document.createElement('td'); tdArrows.textContent = `${r.arrow_start} → ${r.arrow_end}`;
         const tdSort = document.createElement('td'); tdSort.textContent = r.sort_order;
 
         const editBtn = document.createElement('button');
@@ -688,11 +676,16 @@ async function loadWireTypes() {
         tdActions.append(editBtn, delBtn);
 
         const tr = document.createElement('tr');
-        tr.append(tdName, tdAttribs, tdSort, tdActions);
+        tr.append(tdName, tdColor, tdWidth, tdStyle, tdArrows, tdSort, tdActions);
         tbody.appendChild(tr);
     });
-    Object.keys(EDGE_ATTRIBS).forEach(k => delete EDGE_ATTRIBS[k]);
-    rows.forEach(r => { EDGE_ATTRIBS[r.name] = r.dot_attribs; });
+    Object.keys(EDGE_STYLES).forEach(k => delete EDGE_STYLES[k]);
+    rows.forEach(r => {
+        EDGE_STYLES[r.name] = {
+            color: r.stroke_color, width: r.stroke_width, style: r.stroke_style,
+            arrowStart: r.arrow_start, arrowEnd: r.arrow_end,
+        };
+    });
     return rows;
 }
 
@@ -700,13 +693,17 @@ async function loadWireTypes() {
 $('#wireTypesModal').on('hidden.bs.modal', () => renderConnectionsTable());
 
 function editWireType(row) {
-    document.getElementById('wt-id').value      = row ? row.id : '';
-    document.getElementById('wt-name').value    = row ? row.name : '';
-    document.getElementById('wt-attribs').value = row ? row.dot_attribs : '';
-    document.getElementById('wt-sort').value    = row ? row.sort_order : 0;
+    document.getElementById('wt-id').value          = row ? row.id : '';
+    document.getElementById('wt-name').value        = row ? row.name : '';
+    document.getElementById('wt-color').value       = row ? row.stroke_color : '#000000';
+    document.getElementById('wt-width').value       = row ? row.stroke_width : 1;
+    document.getElementById('wt-style').value       = row ? row.stroke_style : 'solid';
+    document.getElementById('wt-arrow-start').value = row ? row.arrow_start : 'none';
+    document.getElementById('wt-arrow-end').value   = row ? row.arrow_end : 'none';
+    document.getElementById('wt-sort').value        = row ? row.sort_order : 0;
     document.getElementById('wt-error').style.display = 'none';
     document.getElementById('wt-form').style.display = '';
-    previewWireAttribs(row ? row.dot_attribs : '');
+    previewWireStyle();
     document.getElementById('wt-name').focus();
 }
 
@@ -716,22 +713,26 @@ function cancelWireTypeEdit() {
 }
 
 async function saveWireType() {
-    const id         = document.getElementById('wt-id').value;
-    const name       = document.getElementById('wt-name').value.trim();
-    const dot_attribs = document.getElementById('wt-attribs').value.trim();
-    const sort_order = document.getElementById('wt-sort').value;
-    const errEl      = document.getElementById('wt-error');
+    const id           = document.getElementById('wt-id').value;
+    const name         = document.getElementById('wt-name').value.trim();
+    const stroke_color = document.getElementById('wt-color').value;
+    const stroke_width = document.getElementById('wt-width').value;
+    const stroke_style = document.getElementById('wt-style').value;
+    const arrow_start  = document.getElementById('wt-arrow-start').value;
+    const arrow_end    = document.getElementById('wt-arrow-end').value;
+    const sort_order   = document.getElementById('wt-sort').value;
+    const errEl        = document.getElementById('wt-error');
     errEl.style.display = 'none';
     if (!name) { errEl.textContent = 'Name is required.'; errEl.style.display = ''; return; }
 
-    const body = new URLSearchParams({ action: 'save', name, dot_attribs, sort_order });
+    const body = new URLSearchParams({ action: 'save', name, stroke_color, stroke_width, stroke_style, arrow_start, arrow_end, sort_order });
     if (id) body.set('id', id);
     const res  = await fetch(DIAGRAMEDGE_JSON_URL, { method: 'POST', body });
     const data = await res.json();
     if (data.error) { errEl.textContent = data.error; errEl.style.display = ''; return; }
 
     cancelWireTypeEdit();
-    await loadWireTypes(); // rebuilds EDGE_ATTRIBS
+    await loadWireTypes(); // rebuilds EDGE_STYLES
 
     const targetRow = _newTypeTargetRow;
     _newTypeTargetRow = null;
@@ -751,20 +752,25 @@ async function deleteWireType(id, name) {
     await loadWireTypes();
 }
 
-function previewWireAttribs(attribs) {
-    const dot = `graph { rankdir=LR; A [shape=plaintext label="A"]; B [shape=plaintext label="B"]; A -- B [${attribs}]; }`;
-    Viz.instance().then(viz => {
-        try {
-            const svg = viz.renderSVGElement(dot);
-            svg.setAttribute('width', '120'); svg.removeAttribute('height');
-            document.getElementById('wt-preview').replaceChildren(svg);
-        } catch(e) {
-            document.getElementById('wt-preview').textContent = '(invalid attributes)';
-        }
-    });
+function previewWireStyle() {
+    const color = document.getElementById('wt-color').value;
+    const width = document.getElementById('wt-width').value;
+    const style = document.getElementById('wt-style').value;
+    const arrowStart = document.getElementById('wt-arrow-start').value;
+    const arrowEnd = document.getElementById('wt-arrow-end').value;
+    const dash = style === 'dashed' ? ',stroke-dasharray:5 5' : (style === 'dotted' ? ',stroke-dasharray:1 3' : '');
+    const sMark = mermaidMarkerChar(arrowStart, 'start');
+    const eMark = mermaidMarkerChar(arrowEnd, 'end');
+    const edgeLine = (sMark || eMark) ? `  A ${sMark}-- "" --${eMark} B` : `  A -- "" --- B`;
+    const mmd = `flowchart LR\n  A[" "]:::none\n  B[" "]:::none\n${edgeLine}\n  classDef none fill:none,stroke:none\n  linkStyle 0 stroke:${color},stroke-width:${width}px${dash}`;
+    renderMermaidInto(document.getElementById('wt-preview'), mmd, { maxWidth: '160px' });
 }
 
-document.getElementById('wt-attribs').addEventListener('input', e => previewWireAttribs(e.target.value));
+['wt-color', 'wt-width', 'wt-style', 'wt-arrow-start', 'wt-arrow-end'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', previewWireStyle);
+    el.addEventListener('change', previewWireStyle);
+});
 
 // ── Connectors modal ──────────────────────────────────────────────────────────
 
@@ -780,7 +786,7 @@ $('#connectorsModal').on('hidden.bs.modal', () => {
         const nodeId = _addConnectorNodeId;
         _addConnectorNodeId = null;
         renderConnectionsTable();
-        addConnectionRow({ from: nodeId, fromPort: '', to: '', attribs: '' });
+        addConnectionRow({ from: nodeId, to: '', typeName: '' });
     }
 });
 
@@ -890,61 +896,65 @@ async function deleteConnector(id, name) {
     await loadConnectors();
 }
 
-function generateConnectorNodeDot(ct, nodeId) {
+// Represents a connector as a body node plus one small pin node per left/
+// right terminal (locked design decision: Mermaid has no port-anchored
+// edges like Graphviz record shapes, so terminals are separate nodes).
+// ct.custom_dot (label: "Custom Mermaid Override"), if set, is raw Mermaid
+// node syntax appended verbatim after the node id, same passthrough role
+// it had for raw DOT before.
+function generateConnectorNodeMermaid(ct, nodeId) {
     if (ct.custom_dot) {
-        return `"${nodeId}" ${ct.custom_dot}`;
+        return `  ${nodeId}${ct.custom_dot}`;
     }
     const lc = Math.max(parseInt(ct.left_count) || 0, 0);
     const rc = Math.max(parseInt(ct.right_count) || 0, 0);
-    const maxRows = Math.max(lc, rc, 1);
     const ll = ct.left_label || '';
     const rl = ct.right_label || '';
     const fillcolor = ct.fillcolor || '#d4c07a';
 
     let centerLabel = ct.name;
-    if (ll || rl) centerLabel += `<br/><font point-size="8">${ll}|${rl}</font>`;
+    if (ll || rl) centerLabel += ` (${ll}|${rl})`;
+    centerLabel = centerLabel.replace(/"/g, "'");
 
-    let rows = [];
-    for (let i = 0; i < maxRows; i++) {
-        const leftCell  = lc > 0 ? (i < lc  ? `<td port="l${i+1}">${i+1}</td>` : '<td></td>') : '';
-        const rightCell = rc > 0 ? (i < rc  ? `<td port="r${i+1}">${i+1}</td>` : '<td></td>') : '';
-        if (i === 0) {
-            const spanAttr = maxRows > 1 ? ` rowspan="${maxRows}"` : '';
-            rows.push(`<tr>${leftCell}<td${spanAttr}>${centerLabel}</td>${rightCell}</tr>`);
-        } else {
-            rows.push(`<tr>${leftCell}${rightCell}</tr>`);
-        }
+    const lines = [];
+    lines.push(`  ${nodeId}[/"${centerLabel}"\\]`);
+    lines.push(`  style ${nodeId} fill:${fillcolor},stroke:#333,stroke-width:1px`);
+    for (let i = 1; i <= lc; i++) {
+        const pinId = `${nodeId}_l${i}`;
+        lines.push(`  ${pinId}(["L${i}"]):::ctPort`);
+        lines.push(`  ${pinId} --- ${nodeId}`);
     }
-    const table = `<table border="0" cellpadding="3" cellspacing="0" cellborder="1">${rows.join('')}</table>`;
-    return `"${nodeId}" [label=<${table}>; shape=plaintext; style="filled"; fillcolor="${fillcolor}";];`;
+    for (let i = 1; i <= rc; i++) {
+        const pinId = `${nodeId}_r${i}`;
+        lines.push(`  ${pinId}(["R${i}"]):::ctPort`);
+        lines.push(`  ${nodeId} --- ${pinId}`);
+    }
+    return lines.join('\n');
 }
 
 function insertConnectorNode(ct) {
-    let dot = textarea.value;
+    let text = textarea.value;
 
     // Unique node ID: count existing conn* nodes
-    const connRe = /"conn(\d+)"/g;
+    const connRe = /\bconn(\d+)\b/g;
     let maxNum = 0, m;
-    while ((m = connRe.exec(dot)) !== null) maxNum = Math.max(maxNum, parseInt(m[1]));
+    while ((m = connRe.exec(text)) !== null) maxNum = Math.max(maxNum, parseInt(m[1]));
     const nodeId = `conn${maxNum + 1}`;
 
-    const nodeDot = generateConnectorNodeDot(ct, nodeId);
+    const nodeMermaid = generateConnectorNodeMermaid(ct, nodeId);
 
-    const endNodesMarker = '// End Nodes';
-    const nodesMarker = '// Nodes';
-    const ei = dot.indexOf(endNodesMarker);
-    const si = dot.indexOf(nodesMarker);
+    const endNodesMarker = '%% End Nodes';
+    const nodesMarker = '%% Nodes';
+    const ei = text.indexOf(endNodesMarker);
+    const si = text.indexOf(nodesMarker);
 
     if (ei !== -1) {
-        textarea.value = dot.slice(0, ei) + nodeDot + '\n' + dot.slice(ei);
+        textarea.value = text.slice(0, ei) + nodeMermaid + '\n' + text.slice(ei);
     } else if (si !== -1) {
-        const lineEnd = dot.indexOf('\n', si) + 1;
-        textarea.value = dot.slice(0, lineEnd) + nodeDot + '\n' + dot.slice(lineEnd);
+        const lineEnd = text.indexOf('\n', si) + 1;
+        textarea.value = text.slice(0, lineEnd) + nodeMermaid + '\n' + text.slice(lineEnd);
     } else {
-        const graphOpen = dot.indexOf('{');
-        textarea.value = graphOpen !== -1
-            ? dot.slice(0, graphOpen + 1) + '\n' + nodeDot + '\n' + dot.slice(graphOpen + 1)
-            : nodeDot + '\n' + dot;
+        textarea.value = text + (text ? '\n' : '') + nodeMermaid;
     }
     updateGraph();
 
@@ -967,25 +977,16 @@ function previewConnector() {
         fillcolor:   document.getElementById('dc-fillcolor').value || '#d4c07a',
         custom_dot:  document.getElementById('dc-custom-dot').value,
     };
-    const nodeDot = generateConnectorNodeDot(ct, 'preview');
-    const dot = `graph { ${nodeDot} }`;
-    Viz.instance().then(viz => {
-        try {
-            const svg = viz.renderSVGElement(dot);
-            svg.removeAttribute('width'); svg.removeAttribute('height');
-            svg.style.maxWidth = '280px';
-            document.getElementById('dc-preview').replaceChildren(svg);
-        } catch(e) {
-            document.getElementById('dc-preview').textContent = '(invalid)';
-        }
-    });
+    const nodeMermaid = generateConnectorNodeMermaid(ct, 'preview');
+    const mmd = `flowchart LR\n${nodeMermaid}\n  classDef ctPort fill:#ffffff,stroke:#999,stroke-width:1px`;
+    renderMermaidInto(document.getElementById('dc-preview'), mmd, { maxWidth: '280px' });
 }
 
 // ── Components modal ─────────────────────────────────────────────────────────
 
 const DIAGRAM_COMPONENT_JSON_URL = '{{=URL("diagram", "diagram_component_json")}}';
 
-let _pendingInsert = null; // { shape, fillcolor, dotAttribs }
+let _pendingInsert = null; // { shape, fillcolor, strokeColor, strokeWidth, strokeStyle, defaultLabel }
 
 async function openComponentsModal() {
     renderComponentTypesTable();
@@ -1018,7 +1019,7 @@ function renderComponentTypesTable() {
         const insertBtn = document.createElement('button');
         insertBtn.type = 'button'; insertBtn.className = 'btn btn-sm btn-outline-success';
         insertBtn.textContent = 'Insert';
-        insertBtn.onclick = () => promptInsertComponent({ shape: ct.shape, fillcolor: ct.color, dotAttribs: '', defaultLabel: ct.name });
+        insertBtn.onclick = () => promptInsertComponent({ shape: ct.shape, fillcolor: ct.color, defaultLabel: ct.name });
 
         const tdActions = document.createElement('td');
         tdActions.appendChild(insertBtn);
@@ -1049,7 +1050,11 @@ async function loadCustomComponents() {
         const insertBtn = document.createElement('button');
         insertBtn.type = 'button'; insertBtn.className = 'btn btn-sm btn-outline-success mr-1';
         insertBtn.textContent = 'Insert';
-        insertBtn.onclick = () => promptInsertComponent({ shape: r.shape, fillcolor: r.fillcolor, dotAttribs: r.dot_attribs, defaultLabel: r.name });
+        insertBtn.onclick = () => promptInsertComponent({
+            shape: r.shape, fillcolor: r.fillcolor,
+            strokeColor: r.stroke_color, strokeWidth: r.stroke_width, strokeStyle: r.stroke_style,
+            defaultLabel: r.name,
+        });
 
         const editBtn = document.createElement('button');
         editBtn.type = 'button'; editBtn.className = 'btn btn-sm btn-outline-primary mr-1';
@@ -1085,48 +1090,56 @@ function cancelInsertComponent() {
 function confirmInsertComponent() {
     if (!_pendingInsert) return;
     const label = document.getElementById('comp-label-input').value.trim() || _pendingInsert.defaultLabel || 'Component';
-    insertGenericNode(_pendingInsert.shape, _pendingInsert.fillcolor, _pendingInsert.dotAttribs, label);
+    insertGenericNode(_pendingInsert.shape, _pendingInsert.fillcolor,
+        _pendingInsert.strokeColor, _pendingInsert.strokeWidth, _pendingInsert.strokeStyle, label);
     cancelInsertComponent();
     $('#componentsModal').modal('hide');
 }
 
-function insertGenericNode(shape, fillcolor, dotAttribs, label) {
-    let dot = textarea.value;
+function insertGenericNode(shape, fillcolor, strokeColor, strokeWidth, strokeStyle, label) {
+    let text = textarea.value;
 
-    const genRe = /"gen(\d+)"/g;
+    const genRe = /\bgen(\d+)\b/g;
     let maxNum = 0, m;
-    while ((m = genRe.exec(dot)) !== null) maxNum = Math.max(maxNum, parseInt(m[1]));
+    while ((m = genRe.exec(text)) !== null) maxNum = Math.max(maxNum, parseInt(m[1]));
     const nodeId = `gen${maxNum + 1}`;
 
-    const extraAttribs = dotAttribs ? ' ' + dotAttribs.replace(/;?\s*$/, '') + ';' : '';
-    const nodeDot = `"${nodeId}" [label="${label.replace(/"/g, '\\"')}"; shape="${shape}"; style="filled"; fillcolor="${fillcolor}";${extraAttribs}];`;
+    const [open, close] = mermaidShapeTokens(shape);
+    const safeLabel = label.replace(/"/g, "'");
+    const nodeLine = `  ${nodeId}${open}"${safeLabel}"${close}`;
+    const styleParts = [`fill:${fillcolor}`];
+    if (strokeColor) {
+        styleParts.push(`stroke:${strokeColor}`, `stroke-width:${strokeWidth || 1}px`);
+        if (strokeStyle === 'dashed') styleParts.push('stroke-dasharray:5 5');
+        else if (strokeStyle === 'dotted') styleParts.push('stroke-dasharray:1 3');
+    }
+    const insertion = nodeLine + '\n  style ' + nodeId + ' ' + styleParts.join(',');
 
-    const endNodesMarker = '// End Nodes';
-    const nodesMarker = '// Nodes';
-    const ei = dot.indexOf(endNodesMarker);
-    const si = dot.indexOf(nodesMarker);
+    const endNodesMarker = '%% End Nodes';
+    const nodesMarker = '%% Nodes';
+    const ei = text.indexOf(endNodesMarker);
+    const si = text.indexOf(nodesMarker);
 
     if (ei !== -1) {
-        textarea.value = dot.slice(0, ei) + nodeDot + '\n' + dot.slice(ei);
+        textarea.value = text.slice(0, ei) + insertion + '\n' + text.slice(ei);
     } else if (si !== -1) {
-        const lineEnd = dot.indexOf('\n', si) + 1;
-        textarea.value = dot.slice(0, lineEnd) + nodeDot + '\n' + dot.slice(lineEnd);
+        const lineEnd = text.indexOf('\n', si) + 1;
+        textarea.value = text.slice(0, lineEnd) + insertion + '\n' + text.slice(lineEnd);
     } else {
-        const graphOpen = dot.indexOf('{');
-        textarea.value = graphOpen !== -1
-            ? dot.slice(0, graphOpen + 1) + '\n' + nodeDot + '\n' + dot.slice(graphOpen + 1)
-            : nodeDot + '\n' + dot;
+        textarea.value = text + (text ? '\n' : '') + insertion;
     }
     updateGraph();
 }
 
 function editCustomComponent(row) {
-    document.getElementById('cc-id').value         = row ? row.id : '';
-    document.getElementById('cc-name').value       = row ? row.name : '';
-    document.getElementById('cc-shape').value      = row ? (row.shape || 'box') : 'box';
-    document.getElementById('cc-fillcolor').value  = row ? (row.fillcolor || '#efefef') : '#efefef';
-    document.getElementById('cc-sort').value       = row ? row.sort_order : 0;
-    document.getElementById('cc-dot-attribs').value = row ? (row.dot_attribs || '') : '';
+    document.getElementById('cc-id').value           = row ? row.id : '';
+    document.getElementById('cc-name').value         = row ? row.name : '';
+    document.getElementById('cc-shape').value        = row ? (row.shape || 'rect') : 'rect';
+    document.getElementById('cc-fillcolor').value    = row ? (row.fillcolor || '#efefef') : '#efefef';
+    document.getElementById('cc-stroke-color').value = row ? (row.stroke_color || '#333333') : '#333333';
+    document.getElementById('cc-stroke-width').value = row ? (row.stroke_width || 1) : 1;
+    document.getElementById('cc-stroke-style').value = row ? (row.stroke_style || 'solid') : 'solid';
+    document.getElementById('cc-sort').value         = row ? row.sort_order : 0;
     document.getElementById('cc-error').style.display = 'none';
     document.getElementById('cc-form').style.display = '';
     previewCustomComponent();
@@ -1139,17 +1152,19 @@ function cancelCustomComponentEdit() {
 }
 
 async function saveCustomComponent() {
-    const id          = document.getElementById('cc-id').value;
-    const name        = document.getElementById('cc-name').value.trim();
-    const shape       = document.getElementById('cc-shape').value.trim() || 'box';
-    const fillcolor   = document.getElementById('cc-fillcolor').value;
-    const dot_attribs = document.getElementById('cc-dot-attribs').value.trim();
-    const sort_order  = document.getElementById('cc-sort').value;
-    const errEl       = document.getElementById('cc-error');
+    const id           = document.getElementById('cc-id').value;
+    const name         = document.getElementById('cc-name').value.trim();
+    const shape        = document.getElementById('cc-shape').value.trim() || 'rect';
+    const fillcolor    = document.getElementById('cc-fillcolor').value;
+    const stroke_color = document.getElementById('cc-stroke-color').value;
+    const stroke_width = document.getElementById('cc-stroke-width').value;
+    const stroke_style = document.getElementById('cc-stroke-style').value;
+    const sort_order   = document.getElementById('cc-sort').value;
+    const errEl        = document.getElementById('cc-error');
     errEl.style.display = 'none';
     if (!name) { errEl.textContent = 'Name is required.'; errEl.style.display = ''; return; }
 
-    const body = new URLSearchParams({ action: 'save', name, shape, fillcolor, dot_attribs, sort_order });
+    const body = new URLSearchParams({ action: 'save', name, shape, fillcolor, stroke_color, stroke_width, stroke_style, sort_order });
     if (id) body.set('id', id);
     const res  = await fetch(DIAGRAM_COMPONENT_JSON_URL, { method: 'POST', body });
     const data = await res.json();
@@ -1168,36 +1183,22 @@ async function deleteCustomComponent(id, name) {
 }
 
 function previewCustomComponent() {
-    const name      = document.getElementById('cc-name').value || 'Component';
-    const shape     = document.getElementById('cc-shape').value || 'box';
-    const fillcolor = document.getElementById('cc-fillcolor').value || '#efefef';
-    const extra     = document.getElementById('cc-dot-attribs').value || '';
-    const extraPart = extra ? ' ' + extra.replace(/;?\s*$/, '') + ';' : '';
-    const nodeDot = `"n" [label="${name}"; shape="${shape}"; style="filled"; fillcolor="${fillcolor}";${extraPart}];`;
-    const dot = `graph { ${nodeDot} }`;
-    Viz.instance().then(viz => {
-        try {
-            const svg = viz.renderSVGElement(dot);
-            svg.removeAttribute('width'); svg.removeAttribute('height');
-            svg.style.maxWidth = '200px';
-            document.getElementById('cc-preview').replaceChildren(svg);
-        } catch(e) {
-            document.getElementById('cc-preview').textContent = '(invalid shape)';
-        }
-    });
+    const name         = document.getElementById('cc-name').value || 'Component';
+    const shape        = document.getElementById('cc-shape').value || 'rect';
+    const fillcolor    = document.getElementById('cc-fillcolor').value || '#efefef';
+    const stroke_color = document.getElementById('cc-stroke-color').value || '#333333';
+    const stroke_width = document.getElementById('cc-stroke-width').value || 1;
+    const stroke_style = document.getElementById('cc-stroke-style').value || 'solid';
+    const dash = stroke_style === 'dashed' ? ',stroke-dasharray:5 5' : (stroke_style === 'dotted' ? ',stroke-dasharray:1 3' : '');
+    const [open, close] = mermaidShapeTokens(shape);
+    const mmd = `flowchart LR\n  n${open}"${name.replace(/"/g, "'")}"${close}:::prev\n  classDef prev fill:${fillcolor},stroke:${stroke_color},stroke-width:${stroke_width}px${dash}`;
+    renderMermaidInto(document.getElementById('cc-preview'), mmd, { maxWidth: '200px' });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 function updateGraph() {
-    Viz.instance().then(viz => {
-        try {
-            const svg = viz.renderSVGElement(textarea.value);
-            document.getElementById('graph-container').replaceChildren(svg);
-        } catch(e) {
-            // Invalid DOT — keep current SVG until it's valid again
-        }
-    });
+    renderMermaidInto(document.getElementById('graph-container'), textarea.value, { edgeStyles: EDGE_STYLES });
 }
 
 updateGraph();

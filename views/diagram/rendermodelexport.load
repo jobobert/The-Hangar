@@ -1,6 +1,7 @@
-<script src="{{=URL('static','js/viz-global.js')}}"></script>
+<script src="{{=URL('static','js/mermaid.min.js')}}"></script>
+<script src="{{=URL('static','js/mermaid-helpers.js', vars=dict(v=static_cachebust('js/mermaid-helpers.js')))}}"></script>
 
-{{if dot:}}
+{{if mermaid:}}
 
 <h3 class="export-h3">
     {{=controller_icon('diagram', 25)}}
@@ -10,18 +11,10 @@
 
 
 <script>
-    //function remove_linebreaks(str) {
-    //    return str.replace(/[\r\n]+/gm, " ");
-    //}
+    const mermaidGraph = `{{=XML(mermaid)}}`;
+    const edgeStyles = {{=XML(edge_styles_json)}};
 
-    const dotGraph = `{{=XML(dot)}}`;
-
-    Viz.instance().then(viz => {
-        const svg = viz.renderSVGElement(dotGraph);
-        svg.style.maxWidth = '100%';
-        document.getElementById("graph-container").appendChild(svg);
-    });
-
+    renderMermaidInto(document.getElementById("graph-container"), mermaidGraph, { edgeStyles, maxWidth: '100%' });
 </script>
 {{else:}}
 No Diagram

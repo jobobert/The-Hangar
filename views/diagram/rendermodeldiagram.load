@@ -1,4 +1,5 @@
-<script src="{{=URL('static','js/viz-global.js')}}"></script>
+<script src="{{=URL('static','js/mermaid.min.js')}}"></script>
+<script src="{{=URL('static','js/mermaid-helpers.js', vars=dict(v=static_cachebust('js/mermaid-helpers.js')))}}"></script>
 
 {{if options == 'dashboard':}}
 
@@ -31,12 +32,14 @@
 
 <script>
 
-    const dotGraph = `{{=XML(dot)}}`;
+    const mermaidGraph = `{{=XML(mermaid)}}`;
+    const edgeStyles = {{=XML(edge_styles_json)}};
+    const container = document.getElementById("graph-container");
 
-    Viz.instance().then(viz => {
-        const svg = viz.renderSVGElement(dotGraph);
-
-        document.getElementById("graph-container").appendChild(svg);
-    });
+    if (mermaidGraph.trim()) {
+        renderMermaidInto(container, mermaidGraph, { edgeStyles });
+    } else {
+        container.textContent = 'No diagram yet.';
+    }
 
 </script>

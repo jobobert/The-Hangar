@@ -374,6 +374,16 @@ def show_icon(iconname:str, size:int=0, alt:str="icon"):
 ############################################
 ## UTILITIES
 import inspect
+def static_cachebust(relpath):
+    """Query-string cache-buster (file mtime) for a static asset, e.g.
+    URL('static', 'js/x.js', vars=dict(v=static_cachebust('js/x.js'))) —
+    for files under active development, so browsers don't need a hard
+    refresh to pick up each edit."""
+    try:
+        return int(os.path.getmtime(os.path.join(request.folder, 'static', relpath)))
+    except OSError:
+        return 0
+
 def render_card_error(content, controller=None, title=None):
     response.view = 'rendercarderror.load'
     return dict(content=content, controller=controller, title=title)

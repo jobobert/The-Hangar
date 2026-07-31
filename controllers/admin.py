@@ -501,7 +501,6 @@ def componenttype_update():
         for grp, flds in _component_attr_options()
     ]
     _opts = _edge_options()
-    _ea = {r.name: r.dot_attribs for r in db(db.diagramedge.id > 0).select()}
 
     _pinned_set = set(json.loads(old_row.pinned_cols or '[]')) if old_row else set()
     _attrs_for_type = list(old_row.attrs or []) if old_row else []
@@ -522,7 +521,7 @@ def componenttype_update():
         attr_groups=attr_groups,
         physical_attrs=_physical_attr_options(),
         edge_options=_opts,
-        edge_attribs_json=json.dumps(_ea),
+        edge_styles_json=json.dumps(mermaid_edge_styles),
         diagram_shape=old_row.diagram_shape if old_row else '',
         diagram_color=old_row.diagram_color if old_row else '#efefef',
         diagram_edgeattrib=old_row.diagram_edgeattrib if old_row else 'default',
@@ -576,7 +575,7 @@ def diagramedge_update():
         db.diagramedge.sort_order.default = _max + 1
 
     form = SQLFORM(db.diagramedge, old_row, showid=False, deletable=False,
-                   fields=['name', 'dot_attribs', 'sort_order'])
+                   fields=['name', 'stroke_color', 'stroke_width', 'stroke_style', 'arrow_start', 'arrow_end', 'sort_order'])
     disable_autocomplete(form)
 
     if form.process().accepted:

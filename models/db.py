@@ -5,6 +5,7 @@
 # Auth is for authenticaiton and access control
 # -------------------------------------------------------------------------
 import os
+import re
 import datetime
 #from plugin_thumbnails.thumbnails import thumbnails
 from gluon.contrib.appconfig import AppConfig
@@ -126,7 +127,14 @@ def component_select_widget(field, value):
 markmin_comment = SPAN('More on Markmin ',   A('here  ', _href='http://www.web2py.com/init/static/markmin.html',
                                                _target='_blank'), 'Upload/Insert an image ', A('here', _href=URL('image', 'index'), _target='_blank'))
 
-diagram_comment = SPAN('Editor ', A('here', _href='https://viz-js.com', _target='_blank'))
+# LEGACY GRAPHVIZ SCAFFOLDING — diagram_comment_legacy, model.diagram below,
+# and the read-only rendered-diagram card + viz-global.js include in
+# views/diagram/editmodeldiagram.html (see legacy_dot in
+# controllers/diagram.py's editmodeldiagram()) all exist only so pre-Mermaid
+# diagrams that never got auto-migrated aren't lost from view. Delete all of
+# them together once every model has moved to diagram_mermaid.
+diagram_comment_legacy = SPAN('Legacy Graphviz reference only — no longer editable here.')
+diagram_comment_mermaid = SPAN('Editor ', A('here', _href='https://mermaid.live', _target='_blank'))
 
 
 field_method_labels = {}
@@ -179,12 +187,66 @@ def _mark_migration(name):
 ## DIAGRAM EDGE
 
 db.define_table('diagramedge',
-    Field('name',        type='string',  label='Edge Type',      required=True),
-    Field('dot_attribs', type='string',  label='DOT Attributes', default=''),
-    Field('sort_order',  type='integer', label='Sort Order',     default=0),
+    Field('name',         type='string',  label='Edge Type',      required=True),
+    Field('stroke_color', type='string',  label='Color',          default='#000000'),
+    Field('stroke_width', type='integer', label='Width (px)',     default=1),
+    Field('stroke_style', type='string',  label='Style',          default='solid',
+          requires=IS_IN_SET(['solid', 'dashed', 'dotted'])),
+    Field('arrow_start',  type='string',  label='Start Arrowhead', default='none',
+          requires=IS_IN_SET(['none', 'arrow', 'circle', 'cross'])),
+    Field('arrow_end',    type='string',  label='End Arrowhead',  default='none',
+          requires=IS_IN_SET(['none', 'arrow', 'circle', 'cross'])),
+    Field('dot_attribs',  type='string',  label='DOT Attributes (legacy)', default='',
+          readable=False, writable=False),
+    Field('sort_order',   type='integer', label='Sort Order',     default=0),
     format=lambda r: r.name
 )
 
+def _parse_dot_attribs_to_style(dot_attribs):
+    """Mechanically parse the small 'key="value"; key=value;' Graphviz
+    attribute fragment this app actually uses (color/penwidth/style) into
+    (color, width, style). Anything else in the fragment is left alone —
+    the original string is preserved verbatim in the now-hidden
+    dot_attribs column, so nothing is destroyed, just not reflected here."""
+    color = '#000000'
+    width = 1
+    style = 'solid'
+    m = re.search(r'color\s*=\s*"?(#[0-9a-fA-F]{3,8}|\w+)"?', dot_attribs or '')
+    if m:
+        color = m.group(1)
+    m = re.search(r'penwidth\s*=\s*"?(\d+)"?', dot_attribs or '')
+    if m:
+        width = int(m.group(1))
+    if re.search(r'style\s*=\s*"?dashed"?', dot_attribs or ''):
+        style = 'dashed'
+    elif re.search(r'style\s*=\s*"?dotted"?', dot_attribs or ''):
+        style = 'dotted'
+    return color, width, style
+
+if not _migration_applied('diagramedge_structured_style_v1'):
+    for _row in db(db.diagramedge.id > 0).select():
+        _color, _width, _style = _parse_dot_attribs_to_style(_row.dot_attribs)
+        _row.update_record(stroke_color=_color, stroke_width=_width, stroke_style=_style)
+    _mark_migration('diagramedge_structured_style_v1')
+    db.commit()
+
+if not _migration_applied('diagramedge_arrow_defaults_v1'):
+    # Field(default=...) only applies at insert time, not retroactively to
+    # rows that existed before these columns were added — backfill them.
+    db(db.diagramedge.arrow_start == None).update(arrow_start='none')
+    db(db.diagramedge.arrow_end == None).update(arrow_end='none')
+    _mark_migration('diagramedge_arrow_defaults_v1')
+    db.commit()
+
+mermaid_edge_styles = {
+    r.name: {'color': r.stroke_color, 'width': r.stroke_width, 'style': r.stroke_style,
+             'arrowStart': r.arrow_start, 'arrowEnd': r.arrow_end}
+    for r in db(db.diagramedge.id > 0).select(
+        orderby=db.diagramedge.sort_order | db.diagramedge.name)
+}
+
+# Legacy dict kept alive for creatediagramfromcomponents() (still used as the
+# fresh-regeneration comparison baseline for Mermaid auto-migration).
 diagram_edge_attribs = {
     r.name: r.dot_attribs
     for r in db(db.diagramedge.id > 0).select(
@@ -201,7 +263,7 @@ db.define_table('diagram_connector',
     Field('left_label',  type='string',  label='Left Label',      default=''),
     Field('right_label', type='string',  label='Right Label',     default=''),
     Field('fillcolor',   type='string',  label='Fill Color',      default='#d4c07a'),
-    Field('custom_dot',  type='text',    label='Custom DOT Label', default=''),
+    Field('custom_dot',  type='text',    label='Custom Mermaid Override', default=''),
     Field('sort_order',  type='integer', label='Sort Order',      default=0),
     format=lambda r: r.name
 )
@@ -227,11 +289,16 @@ if not _migration_applied('diagram_connector_seed_v1'):
 ## DIAGRAM COMPONENT
 
 db.define_table('diagram_component',
-    Field('name',        type='string',  label='Name',        required=True),
-    Field('shape',       type='string',  label='Shape',       default='box'),
-    Field('fillcolor',   type='string',  label='Fill Color',  default='#efefef'),
-    Field('dot_attribs', type='string',  label='DOT Attribs', default=''),
-    Field('sort_order',  type='integer', label='Sort Order',  default=0),
+    Field('name',         type='string',  label='Name',            required=True),
+    Field('shape',        type='string',  label='Shape',           default='box'),
+    Field('fillcolor',    type='string',  label='Fill Color',      default='#efefef'),
+    Field('stroke_color', type='string',  label='Border Color',    default=''),
+    Field('stroke_width', type='integer', label='Border Width (px)', default=1),
+    Field('stroke_style', type='string',  label='Border Style',    default='solid',
+          requires=IS_IN_SET(['solid', 'dashed', 'dotted'])),
+    Field('dot_attribs',  type='string',  label='DOT Attribs (legacy)', default='',
+          readable=False, writable=False),
+    Field('sort_order',   type='integer', label='Sort Order',      default=0),
     format=lambda r: r.name
 )
 
@@ -500,7 +567,8 @@ db.define_table('model'
                 , Field('final_disposition', type='string', label='Final Disposition', comment='How to liquidate the fleet')
                 , Field('final_value', type='double', label='Reasonable Value', comment='A reasonable value for the model')
                 , Field('fieldnotes', type='text', label='Field Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes))
-                , Field('diagram', type='text', label='Diagram Code (.dot)', comment=diagram_comment, represent=lambda id, row: XML(row.diagram))
+                , Field('diagram', type='text', label='Diagram Code (.dot) — Legacy', comment=diagram_comment_legacy, represent=lambda id, row: XML(row.diagram))
+                , Field('diagram_mermaid', type='text', label='Diagram Code (Mermaid)', comment=diagram_comment_mermaid, represent=lambda id, row: XML(row.diagram_mermaid))
                 , Field('protocol', type='reference protocol', label='Protocol', comment='The radio protocol used by this model')
                 #
                 , Field('attr_hardware_os', type='string', label='Operating System', comment='The OS name (e.g. EdgeTX, Windows)')
@@ -1097,6 +1165,7 @@ db.define_table('model_component'
                 , Field('component', type='reference component', label='Component')
                 , Field('purpose', type='string', label='Purpose', comment='Purpose of this component', represent=lambda v, r: '' if v is None else v)
                 , Field('channel', type='integer', label='Channel', comment='Channel Assignment', represent=lambda v, r: '' if v is None else v, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control'))
+                , Field('note', type='string', label='Comment', comment='Optional note shown on the wiring diagram', represent=lambda v, r: '' if v is None else v)
                 )
 
 db.model_component.modelstate = Field.Virtual(
