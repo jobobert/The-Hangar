@@ -64,7 +64,7 @@
   {{for x, category in db.model.modelcategory.requires.options():}}
   {{if category != "":}}
   <li class="nav-item">
-    <a class="nav-link {{=' active ' if modelCategory == category else ''}}" href="{{=URL('default', 'index', vars=dict(c=category, s=state_param))}}">{{=category}}</a>
+    <a class="nav-link {{=' active ' if modelCategory == category else ''}}" href="{{=URL('default', 'index', vars=dict(c=category, fstates=fstates_param))}}">{{=category}}</a>
   </li>
   {{pass}}
   {{pass}}
@@ -73,10 +73,10 @@
 <div class="row mb-2 d-print-none">
   <div class="col-12">
     {{any_filter_active = any(filters[f] for f in filters)}}
-    <a class="btn {{='btn-success' if state_number == 1 and state_plus else 'btn-outline-secondary'}}"
-       href="{{=URL('default','index', vars=dict(s='1*', c=modelCategory))}}">Show All</a>
-    <a class="btn {{='btn-success' if state_number >= 4 and state_plus else 'btn-outline-secondary'}}"
-       href="{{=URL('default','index', vars=dict(s='4*', c=modelCategory))}}">Show Active</a>
+    <a class="btn {{='btn-success' if state_is_all else 'btn-outline-secondary'}}"
+       href="{{=URL('default','index', vars=dict(fstates=','.join(str(i) for i in all_state_ids), c=modelCategory))}}">Show All</a>
+    <a class="btn {{='btn-success' if state_is_default else 'btn-outline-secondary'}}"
+       href="{{=URL('default','index', vars=dict(fstates=','.join(str(i) for i in default_state_ids), c=modelCategory))}}">Show Active</a>
     <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#todos">Todos</button>
     <button class="btn {{='btn-success' if any_filter_active else 'btn-outline-secondary'}}"
             data-toggle="collapse" data-target="#filters">Filters{{=' \u2713' if any_filter_active else ''}}</button>
@@ -119,18 +119,18 @@
     <h3>No Models Found</h3>
     <i>Perhaps try a different state?</i>
   </div>
-  {{=LOAD('model','renderstatecounts.load', vars=dict(c=modelCategory), ajax_trap=True, content=DIV(IMG(_src=URL('static',
+  {{=LOAD('model','renderstatecounts.load', vars=dict(c=modelCategory), ajax=True, ajax_trap=True, content=DIV(IMG(_src=URL('static',
   'images/waiting.gif')),"State Counts"))}}
 
   {{else:}}
 
   <div class="col-12 col-sm-auto mb-3">
-    {{=LOAD('model','renderstatecounts.load', vars=dict(c=modelCategory), ajax_trap=True, content=DIV(IMG(_src=URL('static',
+    {{=LOAD('model','renderstatecounts.load', vars=dict(c=modelCategory), ajax=True, ajax_trap=True, content=DIV(IMG(_src=URL('static',
     'images/waiting.gif')),"State Counts"))}}
   </div>
   {{for model in models:}}
   <div class="col-12 col-sm-auto mb-3">
-    {{=LOAD('model','rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static',
+    {{=LOAD('model','rendercard.load', args=[model.id], ajax=True, ajax_trap=True, content=DIV(IMG(_src=URL('static',
     'images/waiting.gif')),model.name))}}
   </div>
   {{pass}}

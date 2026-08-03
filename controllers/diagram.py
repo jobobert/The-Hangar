@@ -241,12 +241,17 @@ def mermaid_legend():
     """4-row wire-type legend as a Mermaid subgraph — no ports/anchors,
     each row is two invisible nodes joined by a real edge carrying the wire
     type's name as its label (id -- "Wire Type" --- id), same convention as
-    creatediagramfrommermaid()'s body edges. The actual color/width/dash is
-    never baked into the text — it's computed live at render time from the
-    label by mermaid-helpers.js's injectMermaidLinkStyles(), the same way
-    for every render call site (editor, read-only views, previews), so a
-    wire type's style always reflects its current admin-configured value
-    without needing every diagram re-saved when it changes."""
+    creatediagramfrommermaid()'s body edges.
+
+    Commented out (every line prefixed with %%): wires already carry their
+    type as an inline edge label, so a separate legend is redundant screen
+    space. The generation logic is kept intact rather than deleted so this
+    is a one-line change to re-enable (drop the '%% ' prefix below) if
+    inline labels are ever turned off for a decluttered view instead.
+    Since commented lines aren't real Mermaid edges, they don't consume
+    positional linkStyle/edge-index slots — mermaid-helpers.js's
+    injectMermaidLinkStyles() skips them the same way Mermaid itself does,
+    so the two stay in sync without any special-casing there."""
     legend_rows = _legend_row_selection()
     lines = ['  subgraph legend ["Legend"]', '    direction TB']
     for i, edge_name in enumerate(legend_rows, 1):
@@ -254,7 +259,7 @@ def mermaid_legend():
         lines.append(f'    lg{i}_b[" "]:::legendSwatch')
         lines.append(f'    lg{i}_a -- "{edge_name}" --- lg{i}_b')
     lines.append('  end')
-    return '\n'.join(lines)
+    return '\n'.join('%% ' + line for line in lines)
 
 def _wrap_mermaid(body, model_name):
     """Assemble a complete Mermaid flowchart document: title comment,
@@ -584,6 +589,11 @@ def creatediagramfrommermaid(model_id):
     receiver_row = next((r for r in model_components if r.component.componenttype == 'Receiver'), None)
     receiver_node_id = ('mc' + str(receiver_row.id)) if receiver_row else None
     receiver_port_nodes = {}
+    # Channels actually assigned to some component — a receiver's unused
+    # ports (e.g. channels 6-16 on a 16ch receiver when only 5 are wired)
+    # would otherwise add a node+edge per port for nothing anyone connects
+    # to, which is most of the size cost on a fully-populated receiver.
+    used_channels = {r.channel for r in model_components if r.channel}
 
     def edge_line(from_id, to_id, edgeattrib_name):
         edge_lines.append(f'  {from_id} -- "{edgeattrib_name}" --- {to_id}')
@@ -601,6 +611,8 @@ def creatediagramfrommermaid(model_id):
         node_lines.append(_mermaid_node_line(receiver_node_id, _mermaid_label_with_comment(compname, receiver_row.note), 'Receiver'))
         node_lines.append(_mermaid_click_line(receiver_node_id, comp.id))
         for x in range(1, count + 1):
+            if x not in used_channels:
+                continue
             port_id = f'{receiver_node_id}_p{x}'
             node_lines.append(f'  {port_id}(["Port {x}"]):::ctPort')
             node_lines.append(f'  {receiver_node_id} --- {port_id}')

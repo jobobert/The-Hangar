@@ -223,21 +223,27 @@ def index():
     if 'ui' not in request.cookies:
         request.cookies['ui'] = 'list'
 
-    state_number = 4
-    state_plus = True
+    is_dashboard = 'ui' in request.cookies and request.cookies['ui'].value == 'dashboard'
+
     filter_text = {
         'modeltype': '', 'controltype': '', 'powerplant': '',
         'plankit': '', 'transmitter': '', 'subjecttype': '', 'selected': ''
     }
 
     states = db(db.modelstate).select(db.modelstate.id, db.modelstate.name)
-    filterstatelist = []
+    all_state_ids = [s.id for s in states]
+    # Context default when no explicit fstates= selection is given: the
+    # dashboard hides only Retired, the list view also hides Idea/On The
+    # Board (matches the previous state_number>1 / state_number>=4 defaults).
+    default_state_ids = [s.id for s in states if s.id > 1] if is_dashboard \
+        else [s.id for s in states if s.id >= 4]
+
     log = []
     queries = []
 
     wasFormUsed = False
     modelCategory = None
-    if 'ui' in request.cookies and request.cookies['ui'].value != 'dashboard':
+    if not is_dashboard:
         viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
         modelCategory = next((o for o in viableOptions if o), None)
         if request.vars.get('c') in viableOptions:
@@ -246,20 +252,6 @@ def index():
 
     for s in states:
         filter_text[s.name] = ''
-
-    if 's' in request.vars:
-        state = request.vars['s']
-        try:
-            if len(str(state)) == 2 and state[1] == '*':
-                state_number = int(state[0])
-                state_plus = True
-            else:
-                state_number = int(state)
-                state_plus = False
-        except (ValueError, IndexError):
-            pass
-
-    state_param = str(state_number) + ('*' if state_plus else '')
 
     # Read filter values from GET params
     filters = {
@@ -271,25 +263,50 @@ def index():
         'subjecttype': request.vars.get('subjecttype', '') or '',
         'isselected':  request.vars.get('isselected',  '') or '',
     }
-    fstates_param = request.vars.get('fstates', '') or ''
+    # fstates presence (not just truthiness) matters: fstates='' means the
+    # user explicitly submitted the checkbox panel with nothing checked
+    # (show zero states), which must be respected rather than silently
+    # falling back to the default — that fallback was the previous bug
+    # (unchecking every box looked identical to never having filtered).
+    fstates_raw = request.vars.get('fstates', None)
+    fstates_explicit = fstates_raw is not None
+    fstates_param = fstates_raw or ''
+
+    # Resolve which model states are in effect for this request — a single
+    # mechanism (fstates=) for both the checkbox filter panel and the
+    # "Show All"/"Show Active"/per-state-count quick links. An explicit
+    # selection (even an empty one) takes precedence; otherwise fall back
+    # to the context default.
+    explicit_state_ids = [int(x) for x in fstates_param.split(',') if x.strip().isdigit()]
+    active_state_ids = explicit_state_ids if fstates_explicit else default_state_ids
+    state_is_all = set(active_state_ids) == set(all_state_ids)
+    state_is_default = set(active_state_ids) == set(default_state_ids)
+    active_fstates_param = ','.join(str(i) for i in active_state_ids)
 
     fields = []
     fields.append(Field('modeltype', label=db.model.modeltype.label,
-                        requires=IS_EMPTY_OR(db.model.modeltype.requires), required=False))
+                        requires=IS_EMPTY_OR(db.model.modeltype.requires), required=False,
+                        default=filters['modeltype']))
     fields.append(Field('controltype', label=db.model.controltype.label,
-                        requires=IS_EMPTY_OR(db.model.controltype.requires), required=False))
+                        requires=IS_EMPTY_OR(db.model.controltype.requires), required=False,
+                        default=filters['controltype']))
     fields.append(Field('powerplant', label=db.model.powerplant.label,
-                        requires=IS_EMPTY_OR(db.model.powerplant.requires), required=False))
+                        requires=IS_EMPTY_OR(db.model.powerplant.requires), required=False,
+                        default=filters['powerplant']))
     fields.append(Field('plankit', label='Plan or Kit',
-                        requires=IS_EMPTY_OR(IS_IN_SET(['Plan', 'Kit', 'Both', 'Neither'])), required=False))
+                        requires=IS_EMPTY_OR(IS_IN_SET(['Plan', 'Kit', 'Both', 'Neither'])), required=False,
+                        default=filters['plankit']))
     fields.append(Field('transmitter', label=db.model.transmitter.label,
-                        requires=IS_EMPTY_OR(db.model.transmitter.requires), required=False))
+                        requires=IS_EMPTY_OR(db.model.transmitter.requires), required=False,
+                        default=filters['transmitter']))
     fields.append(Field('subjecttype', label=db.model.subjecttype.label,
-                        requires=IS_EMPTY_OR(db.model.subjecttype.requires), required=False))
-    fields.append(Field('isselected', 'boolean', label='Is Selected', required=False))
+                        requires=IS_EMPTY_OR(db.model.subjecttype.requires), required=False,
+                        default=filters['subjecttype']))
+    fields.append(Field('isselected', 'boolean', label='Is Selected', required=False,
+                        default=(filters['isselected'] == 'on')))
     for s in states:
         fields.append(Field('s' + str(s.id), 'boolean',
-                            label=s.name, default=(s.id > 2), required=False))
+                            label=s.name, default=(s.id in active_state_ids), required=False))
 
     selectform = SQLFORM.factory(
         *fields, formstyle='divs', keepvalues=True, _class='filterform', table_name='filter_form')
@@ -298,32 +315,26 @@ def index():
         # POST-redirect-GET: encode form values as URL params and redirect
         rvars = {}
         if modelCategory: rvars['c'] = modelCategory
-        if request.vars.get('s'): rvars['s'] = request.vars['s']
         for key in ['modeltype', 'controltype', 'powerplant', 'plankit', 'transmitter', 'subjecttype']:
             if selectform.vars.get(key): rvars[key] = selectform.vars[key]
         if selectform.vars.get('isselected'): rvars['isselected'] = 'on'
+        # Always set fstates on submission (even '' for "nothing checked")
+        # so an explicit empty selection is distinguishable from never
+        # having filtered at all — see fstates_explicit above.
         checked = [str(s.id) for s in states if selectform.vars.get('s' + str(s.id))]
-        if checked: rvars['fstates'] = ','.join(checked)
+        rvars['fstates'] = ','.join(checked)
         redirect(URL('default', 'index', vars=rvars))
-
-    # Pre-populate form display from GET params
-    for key in ['modeltype', 'controltype', 'powerplant', 'plankit', 'transmitter', 'subjecttype', 'isselected']:
-        selectform.vars[key] = filters.get(key, '')
-    if fstates_param:
-        fstates_set = set(fstates_param.split(','))
-        for s in states:
-            selectform.vars['s' + str(s.id)] = str(s.id) in fstates_set
 
     if request.vars.get('clear'):
         rvars = {}
         if modelCategory: rvars['c'] = modelCategory
-        rvars['s'] = state_param
+        rvars['fstates'] = active_fstates_param
         redirect(URL('default', 'index', vars=rvars))
 
     # Apply filter queries from GET params
     wasFormUsed = bool(
         any(filters.get(k) for k in ['modeltype', 'controltype', 'powerplant', 'plankit', 'transmitter', 'subjecttype', 'isselected'])
-        or fstates_param
+        or fstates_explicit
     )
 
     if filters['modeltype']:
@@ -362,22 +373,22 @@ def index():
         queries.append(db.model.selected == True)
         filter_text['selected'] = 'Selected'
 
-    if fstates_param:
-        filterstatelist = [int(x) for x in fstates_param.split(',') if x.strip().isdigit()]
-        if filterstatelist:
-            queries.append(db.model.modelstate.belongs(filterstatelist))
-            for s in states:
-                if s.id in filterstatelist:
-                    filter_text[s.name] = s.name
+    # Modelstate/retired filtering — always applied as its own independent
+    # condition, regardless of what other filters are active, so retired
+    # models can never leak through just because an unrelated filter (e.g.
+    # modeltype) was set without an explicit fstates selection.
+    queries.append(db.model.modelstate.belongs(active_state_ids))
+    if fstates_explicit and not (state_is_all or state_is_default):
+        for s in states:
+            if s.id in active_state_ids:
+                filter_text[s.name] = s.name
+        if not active_state_ids:
+            filter_text['modelstate_empty'] = 'No States Selected'
 
-    if not wasFormUsed:
-        if 'ui' in request.cookies and request.cookies['ui'].value == 'dashboard':
-            queries.append((db.model.selected == True) & (db.model.modelstate > 1))
-        else:
-            if state_plus:
-                queries.append(db.model.modelstate >= state_number)
-            else:
-                queries.append(db.model.modelstate == state_number)
+    # Dashboard's implicit "only show my selected fleet" default — only
+    # when nothing was explicitly filtered, same as before.
+    if not wasFormUsed and is_dashboard:
+        queries.append(db.model.selected == True)
 
     # Combine all active filter conditions with AND into a single DAL query
     query = reduce(lambda a, b: (a & b), queries)
@@ -393,12 +404,14 @@ def index():
         selected = -1
         selectedmodel = None
 
-    if 'ui' in request.cookies and request.cookies['ui'].value == 'dashboard':
+    if is_dashboard:
         response.view = 'default/dashboard.html'
 
     return dict(models=models, form=selectform, filters=filter_text, selected=selected,
                 selectedmodel=selectedmodel, log=log, modelCategory=modelCategory,
-                state_number=state_number, state_plus=state_plus, state_param=state_param)
+                active_state_ids=active_state_ids, all_state_ids=all_state_ids,
+                default_state_ids=default_state_ids, state_is_all=state_is_all,
+                state_is_default=state_is_default, fstates_param=active_fstates_param)
 
 
 def setui():

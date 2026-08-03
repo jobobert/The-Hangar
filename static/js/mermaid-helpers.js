@@ -12,7 +12,15 @@
         // clean up because it isn't ours to clean up. With it, a failed
         // render only rejects the promise, matching the old Viz.js call
         // sites' "leave the last good render in place" behavior.
-        mermaid.initialize({ startOnLoad: false, securityLevel: 'loose', suppressErrorRendering: true });
+        mermaid.initialize({
+            startOnLoad: false, securityLevel: 'loose', suppressErrorRendering: true,
+            // Tighter than Mermaid's defaults (nodeSpacing/rankSpacing 50,
+            // diagramPadding 8) — these diagrams are mostly small
+            // shape+label nodes, not big text blocks, so the default
+            // spacing reads as mostly empty space.
+            flowchart: { nodeSpacing: 25, rankSpacing: 35, padding: 8 },
+            diagramPadding: 4,
+        });
         _initialized = true;
     }
 
