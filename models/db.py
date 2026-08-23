@@ -127,14 +127,16 @@ def component_select_widget(field, value):
 markmin_comment = SPAN('More on Markmin ',   A('here  ', _href='http://www.web2py.com/init/static/markmin.html',
                                                _target='_blank'), 'Upload/Insert an image ', A('here', _href=URL('image', 'index'), _target='_blank'))
 
-# LEGACY GRAPHVIZ SCAFFOLDING — diagram_comment_legacy, model.diagram below,
-# and the read-only rendered-diagram card + viz-global.js include in
-# views/diagram/editmodeldiagram.html (see legacy_dot in
-# controllers/diagram.py's editmodeldiagram()) all exist only so pre-Mermaid
-# diagrams that never got auto-migrated aren't lost from view. Delete all of
-# them together once every model has moved to diagram_mermaid.
-diagram_comment_legacy = SPAN('Legacy Graphviz reference only — no longer editable here.')
-diagram_comment_mermaid = SPAN('Editor ', A('here', _href='https://mermaid.live', _target='_blank'))
+diagram_comment = SPAN('Editor ', A('here', _href='https://dreampuf.github.io/GraphvizOnline/', _target='_blank'))
+
+# LEGACY MERMAID SCAFFOLDING — diagram_comment_mermaid_legacy, model.diagram_mermaid
+# below, and the read-only rendered-diagram card + mermaid.min.js include in
+# views/diagram/editmodeldiagram.html (see legacy_mermaid in
+# controllers/diagram.py's editmodeldiagram()) all exist only so diagrams drawn
+# during the Mermaid period aren't lost from view while they get re-drawn in
+# Graphviz. Delete all of them together — plus static/js/mermaid.min.js and
+# static/js/mermaid-helpers.js — once every model has a model.diagram again.
+diagram_comment_mermaid_legacy = SPAN('Legacy Mermaid reference only — no longer editable here.')
 
 
 field_method_labels = {}
@@ -238,17 +240,90 @@ if not _migration_applied('diagramedge_arrow_defaults_v1'):
     _mark_migration('diagramedge_arrow_defaults_v1')
     db.commit()
 
-mermaid_edge_styles = {
-    r.name: {'color': r.stroke_color, 'width': r.stroke_width, 'style': r.stroke_style,
-             'arrowStart': r.arrow_start, 'arrowEnd': r.arrow_end}
+# Graphviz arrowhead name for each of the four arrow_start/arrow_end values.
+# Graphviz has no X-shaped arrow type, so 'cross' maps to the perpendicular
+# bar ('tee'), which is the closest thing it offers.
+_DOT_ARROW_TYPES = {
+    'none':   'none',
+    'arrow':  'normal',
+    'circle': 'odot',
+    'cross':  'tee',
+}
+
+def _arrow_dot_attribs(arrow_start, arrow_end):
+    """Graphviz dir/arrowtail/arrowhead fragment for a wire type's two ends.
+
+    Only meaningful on a directed graph — Graphviz silently ignores all three
+    attributes inside an undirected `graph`, which is why generated diagrams
+    are `digraph`s (see _style_to_dot_attribs()). Returns '' when neither end
+    has an arrowhead and there is nothing to say beyond dir=none."""
+    tail = _DOT_ARROW_TYPES.get(arrow_start or 'none', 'none')
+    head = _DOT_ARROW_TYPES.get(arrow_end or 'none', 'none')
+    if tail == 'none' and head == 'none':
+        return 'dir = none'
+    if tail == 'none':
+        return f'dir = forward; arrowhead = {head}'
+    if head == 'none':
+        return f'dir = back; arrowtail = {tail}'
+    return f'dir = both; arrowtail = {tail}; arrowhead = {head}'
+
+def _style_to_dot_attribs(row):
+    """Build a Graphviz edge-attribute fragment from a diagramedge row's
+    structured style columns — the inverse of _parse_dot_attribs_to_style()
+    above.
+
+    The structured columns are the source of truth: they are what the admin UI
+    edits, and diagram_component.dot_attribs is empty on every row, so the
+    frozen dot_attribs text can't drive generation any more. It is still kept
+    verbatim in its now-hidden column as the historical record.
+
+    Round-trips exactly against the seeded values — e.g. ('#a8700f', 1,
+    'dashed') renders 'color = "#a8700f"; style = dashed;', byte-for-byte the
+    string diagramedge_seed_v1 originally inserted."""
+    parts = [f'color = "{row.stroke_color or "#000000"}"']
+    if row.stroke_width and int(row.stroke_width) != 1:
+        parts.append(f'penwidth = {int(row.stroke_width)}')
+    if row.stroke_style in ('dashed', 'dotted'):
+        parts.append(f'style = {row.stroke_style}')
+    # Always emitted, dir=none included: a digraph defaults to dir=forward with
+    # a filled arrowhead, so "no arrowheads configured" has to say so out loud
+    # or every wire sprouts an arrow it was never given.
+    parts.append(_arrow_dot_attribs(row.arrow_start, row.arrow_end))
+    return '; '.join(parts) + ';'
+
+def _component_style_to_dot_attribs(row):
+    """Build a Graphviz node-attribute fragment from a diagram_component row's
+    structured style columns, for the diagram editor's custom-component
+    palette. Mirrors _style_to_dot_attribs() for nodes rather than edges: the
+    border style folds into Graphviz's combined `style` attribute alongside
+    `filled`, rather than being its own attribute."""
+    style = 'filled'
+    if row.stroke_style in ('dashed', 'dotted'):
+        style += ',' + row.stroke_style
+    parts = [
+        f'shape = "{row.shape or "box"}"',
+        f'style = "{style}"',
+        f'fillcolor = "{row.fillcolor or "#efefef"}"',
+    ]
+    if row.stroke_color:
+        parts.append(f'color = "{row.stroke_color}"')
+    if row.stroke_width and int(row.stroke_width) != 1:
+        parts.append(f'penwidth = {int(row.stroke_width)}')
+    return '; '.join(parts) + ';'
+
+# name -> Graphviz edge attributes, generated live from the structured columns
+# so an admin edit in Wire Types takes effect without re-saving any diagram.
+diagram_edge_attribs = {
+    r.name: _style_to_dot_attribs(r)
     for r in db(db.diagramedge.id > 0).select(
         orderby=db.diagramedge.sort_order | db.diagramedge.name)
 }
 
-# Legacy dict kept alive for creatediagramfromcomponents() (still used as the
-# fresh-regeneration comparison baseline for Mermaid auto-migration).
-diagram_edge_attribs = {
-    r.name: r.dot_attribs
+# LEGACY MERMAID SCAFFOLDING — only feeds the read-only Mermaid card that
+# renders already-saved model.diagram_mermaid text. Remove with the rest.
+mermaid_edge_styles = {
+    r.name: {'color': r.stroke_color, 'width': r.stroke_width, 'style': r.stroke_style,
+             'arrowStart': r.arrow_start, 'arrowEnd': r.arrow_end}
     for r in db(db.diagramedge.id > 0).select(
         orderby=db.diagramedge.sort_order | db.diagramedge.name)
 }
@@ -263,7 +338,7 @@ db.define_table('diagram_connector',
     Field('left_label',  type='string',  label='Left Label',      default=''),
     Field('right_label', type='string',  label='Right Label',     default=''),
     Field('fillcolor',   type='string',  label='Fill Color',      default='#d4c07a'),
-    Field('custom_dot',  type='text',    label='Custom Mermaid Override', default=''),
+    Field('custom_dot',  type='text',    label='Custom DOT Label', default=''),
     Field('sort_order',  type='integer', label='Sort Order',      default=0),
     format=lambda r: r.name
 )
@@ -567,8 +642,9 @@ db.define_table('model'
                 , Field('final_disposition', type='string', label='Final Disposition', comment='How to liquidate the fleet')
                 , Field('final_value', type='double', label='Reasonable Value', comment='A reasonable value for the model')
                 , Field('fieldnotes', type='text', label='Field Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes))
-                , Field('diagram', type='text', label='Diagram Code (.dot) — Legacy', comment=diagram_comment_legacy, represent=lambda id, row: XML(row.diagram))
-                , Field('diagram_mermaid', type='text', label='Diagram Code (Mermaid)', comment=diagram_comment_mermaid, represent=lambda id, row: XML(row.diagram_mermaid))
+                , Field('diagram', type='text', label='Diagram Code (.dot)', comment=diagram_comment, represent=lambda id, row: XML(row.diagram))
+                # LEGACY MERMAID SCAFFOLDING — see the note near diagram_comment_mermaid_legacy above.
+                , Field('diagram_mermaid', type='text', label='Diagram Code (Mermaid) — Legacy', comment=diagram_comment_mermaid_legacy, represent=lambda id, row: XML(row.diagram_mermaid))
                 , Field('protocol', type='reference protocol', label='Protocol', comment='The radio protocol used by this model')
                 #
                 , Field('attr_hardware_os', type='string', label='Operating System', comment='The OS name (e.g. EdgeTX, Windows)')
@@ -1779,15 +1855,27 @@ if not _migration_applied('activitytype_metadata_v1'):
 
 if not _migration_applied('diagramedge_seed_v1'):
     if db(db.diagramedge.id > 0).count() == 0:
-        for _i, (_name, _attribs) in enumerate([
-            ('default',     'color = "#efefef";'),
-            ('5v Servo',    'color = "#a8700f";'),
-            ('5v Signal',   'color = "#a8700f"; style = dashed;'),
-            ('12v 12gauge', 'color = "#2430d3"; penwidth = 4;'),
-            ('12v 20gauge', 'color = "#2430d3"; penwidth = 2;'),
+        # Seeds the structured columns directly. This block runs far below
+        # diagramedge_structured_style_v1, which would already have been marked
+        # applied against an empty table, so seeding dot_attribs alone would
+        # leave every wire type at the Field defaults (black/1px/solid) on a
+        # fresh database. dot_attribs is still filled in to match what the
+        # original seed wrote, as the historical record.
+        for _i, (_name, _color, _width, _style, _attribs) in enumerate([
+            ('default',     '#efefef', 1, 'solid',  'color = "#efefef";'),
+            ('5v Servo',    '#a8700f', 1, 'solid',  'color = "#a8700f";'),
+            ('5v Signal',   '#a8700f', 1, 'dashed', 'color = "#a8700f"; style = dashed;'),
+            ('12v 12gauge', '#2430d3', 4, 'solid',  'color = "#2430d3"; penwidth = 4;'),
+            ('12v 20gauge', '#2430d3', 2, 'solid',  'color = "#2430d3"; penwidth = 2;'),
         ], 1):
-            db.diagramedge.insert(name=_name, dot_attribs=_attribs, sort_order=_i)
-        diagram_edge_attribs = {r.name: r.dot_attribs for r in db(db.diagramedge.id > 0).select(orderby=db.diagramedge.sort_order | db.diagramedge.name)}
+            db.diagramedge.insert(name=_name, stroke_color=_color, stroke_width=_width,
+                                  stroke_style=_style, arrow_start='none', arrow_end='none',
+                                  dot_attribs=_attribs, sort_order=_i)
+        diagram_edge_attribs = {
+            r.name: _style_to_dot_attribs(r)
+            for r in db(db.diagramedge.id > 0).select(
+                orderby=db.diagramedge.sort_order | db.diagramedge.name)
+        }
     _mark_migration('diagramedge_seed_v1')
 
 _BUILTIN_CT = {

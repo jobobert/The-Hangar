@@ -1,5 +1,4 @@
-<script src="{{=URL('static','js/mermaid.min.js')}}"></script>
-<script src="{{=URL('static','js/mermaid-helpers.js', vars=dict(v=static_cachebust('js/mermaid-helpers.js')))}}"></script>
+<script src="{{=URL('static','js/viz-global.js')}}"></script>
 
 {{if options == 'dashboard':}}
 
@@ -31,15 +30,24 @@
 
 
 <script>
-
-    const mermaidGraph = `{{=XML(mermaid)}}`;
-    const edgeStyles = {{=XML(edge_styles_json)}};
+// IIFE, not top-level declarations: this fragment is injected into a host page
+// that has its own script scope (views/model/index.html already declares a
+// `container`), and a top-level const here would collide with it.
+(function () {
+    // Saved text is rendered verbatim — a legacy undirected `graph`/`--`
+    // document and a generated `digraph`/`->` one both render as-is.
+    const dotGraph = `{{=XML(dot)}}`;
     const container = document.getElementById("graph-container");
 
-    if (mermaidGraph.trim()) {
-        renderMermaidInto(container, mermaidGraph, { edgeStyles });
+    if (dotGraph.trim()) {
+        Viz.instance().then(viz => {
+            const svg = viz.renderSVGElement(dotGraph);
+            container.replaceChildren(svg);
+        }).catch(err => {
+            container.textContent = 'Diagram error: ' + err;
+        });
     } else {
         container.textContent = 'No diagram yet.';
     }
-
+})();
 </script>

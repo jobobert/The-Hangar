@@ -521,7 +521,7 @@ def componenttype_update():
         attr_groups=attr_groups,
         physical_attrs=_physical_attr_options(),
         edge_options=_opts,
-        edge_styles_json=json.dumps(mermaid_edge_styles),
+        edge_attribs_json=json.dumps(diagram_edge_attribs),
         diagram_shape=old_row.diagram_shape if old_row else '',
         diagram_color=old_row.diagram_color if old_row else '#efefef',
         diagram_edgeattrib=old_row.diagram_edgeattrib if old_row else 'default',

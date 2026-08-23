@@ -32,7 +32,8 @@ Blank cell = no / not applicable. `?` = uncertain, needs verification.
 | description                       | Description          | string      |                       |         |          |           |      |         |
 | notes                             | Details              | text        |                       |         |          |           |      |         |
 | fieldnotes                        | Field Notes          | text        |                       |         |          |           |      |         |
-| diagram                           | Diagram Code         | text        |                       |         |          |           |      |         |
+| diagram                           | Diagram Code (.dot)  | text        |                       |         |          |           |      |         |
+| diagram_mermaid                   | Diagram Code (Mermaid) — Legacy | text |             |         |          |           |      |         |
 | img                               | Picture              | upload      |                       |         |          |           |      |         |
 | configbackup                      | Radio Config         | upload      |        direct         |   ✓    |    ✓    |           |      |         |
 | controltype                       | Control              | ref lookup  |        direct         |   ✓    |    ✓    |           |      |         |
@@ -141,6 +142,7 @@ Join path to models: `model_component.model` where `model_component.component = 
 | component | Component | reference |          —          |
 | purpose   | Purpose   | string    | via:model_component |
 | channel   | Channel   | integer   |                     |
+| note      | Comment   | string    |                     |
 
 ---
 
@@ -344,8 +346,28 @@ No individual fields are exposed to the QueryBuilder.
 | db.switch / db.switch_position                              | Configuration detail, low search demand                         |
 | db.url                                                      | Links, not searchable                                           |
 | db.lookup / db.modelstate / db.chemistry / db.componenttype | Reference/config tables                                         |
+| db.diagramedge / db.diagram_component / db.diagram_connector | Wiring-diagram style config; see the note below                 |
 | db.migrations / db.tag                                      | System tables                                                   |
 
 ## Activity Search — Potential Separate Feature
 
 `db.activity` has its own search shape (date ranges, type, location, duration) that doesn't map cleanly onto a model-centric QueryBuilder. Suggested as a future stand-alone search page rather than part of the main model search.
+
+---
+
+## Wiring Diagram Style Tables
+
+Not searchable — these drive how `model.diagram` (Graphviz DOT) is generated and
+rendered. Each stores its style as structured columns; the DOT string is generated
+from them at read time by `_style_to_dot_attribs()` / `_component_style_to_dot_attribs()`
+in `models/db.py`, so an admin edit takes effect without re-saving any diagram.
+
+| Table                  | Style fields                                                                 | Legacy column                          |
+| ---------------------- | ---------------------------------------------------------------------------- | -------------------------------------- |
+| db.diagramedge         | `stroke_color`, `stroke_width`, `stroke_style`, `arrow_start`, `arrow_end`   | `dot_attribs` (hidden, historical only) |
+| db.diagram_component   | `shape`, `fillcolor`, `stroke_color`, `stroke_width`, `stroke_style`         | `dot_attribs` (hidden, historical only) |
+| db.diagram_connector   | `left_count`, `right_count`, `left_label`, `right_label`, `fillcolor`        | `custom_dot` (raw DOT override)         |
+| db.componenttype       | `diagram_shape`, `diagram_color`, `diagram_edgeattrib`                       | —                                       |
+
+`arrow_start` / `arrow_end` are why generated diagrams are `digraph`s: Graphviz
+ignores `dir`/`arrowhead`/`arrowtail` in an undirected `graph`.

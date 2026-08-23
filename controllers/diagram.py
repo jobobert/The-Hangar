@@ -13,8 +13,8 @@ def rendermodeldiagram():
 
     model = db.model(model_id)
 
-    return dict(mermaid=model.diagram_mermaid, model_id=model.id, options=request.args(1),
-                is_mobile=is_mobile, edge_styles_json=json.dumps(mermaid_edge_styles))
+    return dict(dot=model.diagram, model_id=model.id, options=request.args(1),
+                is_mobile=is_mobile)
 
 def rendermodelexport():
     session.forget(response)
@@ -23,7 +23,7 @@ def rendermodelexport():
 
     model = db.model(model_id)
 
-    return dict(mermaid=model.diagram_mermaid, edge_styles_json=json.dumps(mermaid_edge_styles))
+    return dict(dot=model.diagram)
 
 # This list must be kept in sync with the component.componenttype(s) in the database,
 # Plus battery and connector
@@ -110,190 +110,85 @@ subgraph cluster_legend {{
         <tr><td port="i3">&nbsp;</td></tr>
         <tr><td port="i4">&nbsp;</td></tr>
         </table>>;];
-    key:i1:e -- key2:i1:w [{edge_attribs['5v Servo']}];
-    key:i2:e -- key2:i2:w [{edge_attribs['5v Signal']}];
-    key:i3:e -- key2:i3:w [{edge_attribs['12v 12gauge']}];
-    key:i4:e -- key2:i4:w [{edge_attribs['12v 20gauge']}];
+    key:i1:e -> key2:i1:w [{edge_attribs['5v Servo']}];
+    key:i2:e -> key2:i2:w [{edge_attribs['5v Signal']}];
+    key:i3:e -> key2:i3:w [{edge_attribs['12v 12gauge']}];
+    key:i4:e -> key2:i4:w [{edge_attribs['12v 20gauge']}];
 }}
     """
 
 ###############################################
-## MERMAID GENERATION
-## Parallel to the Graphviz generation above — reads the same
-## model_component/model_battery source of truth, but Mermaid flowcharts
-## have no port-anchored edges like Graphviz record shapes, so receiver
-## ports and connector terminals are represented as separate small nodes.
+## DOT DOCUMENT ASSEMBLY
+## Generated diagrams are `digraph`s using `->` edges, not the undirected
+## `graph`/`--` form used before wire types gained arrowheads: Graphviz
+## silently ignores dir/arrowhead/arrowtail inside an undirected graph, so
+## arrowheads are only expressible on a directed one. Hand-written legacy
+## documents still using `graph`/`--` keep rendering untouched — the read-only
+## views pass saved text straight to Viz.js — and the editor's Connections
+## table sniffs the current document's directedness before emitting an edge,
+## since mixing `->` and `--` in one document is a hard Graphviz parse error.
 
-MERMAID_SHAPES = {
-    'Engine':                 {'open': '[/', 'close': '\\]', 'class': 'ctEngine'},
-    'Servo':                  {'open': '[\\', 'close': '/]', 'class': 'ctServo'},
-    'Receiver':               {'open': '[',  'close': ']',   'class': 'ctReceiver'},
-    'Motor':                  {'open': '[(', 'close': ')]',  'class': 'ctMotor'},
-    'ESC':                    {'open': '{{', 'close': '}}',  'class': 'ctEsc'},
-    'BEC':                    {'open': '[[', 'close': ']]',  'class': 'ctBec'},
-    'Regulator':              {'open': '[[', 'close': ']]',  'class': 'ctRegulator'},
-    'Flight Controller':      {'open': '[',  'close': ']',   'class': 'ctFc'},
-    'Gyro':                   {'open': '((', 'close': '))',  'class': 'ctGyro'},
-    'Flybarless Controller':  {'open': '{{', 'close': '}}',  'class': 'ctFbl'},
-    'Electrical':             {'open': '[',  'close': ']',   'class': 'ctElec'},
-    'Switch':                 {'open': '{',  'close': '}',   'class': 'ctSwitch'},
-    'Winch':                  {'open': '[[', 'close': ']]',  'class': 'ctWinch'},
-    'Other':                  {'open': '[',  'close': ']',   'class': 'ctOther'},
-    'Retracts':               {'open': '[/', 'close': '/]',  'class': 'ctRetract'},
-    'Battery':                {'open': '((', 'close': '))',  'class': 'ctBattery'},
-    'Connector':               {'open': '[/', 'close': '\\]', 'class': 'ctConnector'},
-    'Pump':                   {'open': '{{', 'close': '}}',  'class': 'ctPump'},
-    'Sensor':                 {'open': '[',  'close': ']',   'class': 'ctSensor'},
-}
-
-# Fallback for shape names coming from componenttype_diagram (admin-defined
-# custom component types) or diagram_component.shape — every Graphviz shape
-# previously offered in the editor's shape picker maps to one of Mermaid's
-# real tokens, with plain rect as the universal fallback.
-GRAPHVIZ_SHAPE_TO_MERMAID = {
-    'box': ('[', ']'), 'rect': ('[', ']'), 'square': ('[', ']'),
-    'circle': ('((', '))'), 'doublecircle': ('((', '))'),
-    'ellipse': ('(', ')'), 'oval': ('(', ')'), 'egg': ('(', ')'),
-    'diamond': ('{', '}'), 'Mdiamond': ('{', '}'),
-    'triangle': ('[/', '\\]'), 'invtriangle': ('[\\', '/]'),
-    'trapezium': ('[\\', '/]'), 'invtrapezium': ('[/', '\\]'),
-    'parallelogram': ('[/', '/]'),
-    'house': ('[/', '\\]'), 'invhouse': ('[/', '\\]'),
-    'pentagon': ('{{', '}}'), 'hexagon': ('{{', '}}'), 'septagon': ('{{', '}}'),
-    'octagon': ('{{', '}}'), 'doubleoctagon': ('{{', '}}'), 'tripleoctagon': ('{{', '}}'),
-    'star': ('{{', '}}'), 'polygon': ('{{', '}}'),
-    'box3d': ('[(', ')]'), 'component': ('[(', ')]'), 'cylinder': ('[(', ')]'),
-    'Msquare': ('[', ']'), 'Mcircle': ('((', '))'),
-    'plaintext': ('[', ']'), 'none': ('[', ']'), 'note': ('[', ']'),
-    'tab': ('[', ']'), 'folder': ('[', ']'),
-    'cds': ('[', ']'), 'promoter': ('[', ']'), 'rpromoter': ('[', ']'),
-    'terminator': ('[', ']'), 'utr': ('[', ']'),
-    'larrow': ('[', ']'), 'rarrow': ('[', ']'),
-    'point': ('((', '))'),
-}
-
-def _mermaid_escape_label(text):
-    """Wrap in quotes and strip characters Mermaid labels can't contain
-    unquoted. Real newlines are collapsed to spaces — customdot-driven
-    multi-line labels are exactly the case that forces manual review (see
-    mermaid_migration_status), so the generator never needs a literal
-    newline. A visual second line (e.g. a component's diagram comment) is
-    instead added as an explicit <br/> by the caller before this function
-    ever sees the text — see _mermaid_label_with_comment()."""
+def _dot_escape_label(text):
+    """Escape a label for a plain (non-HTML, non-record) Graphviz label."""
     if text is None:
         text = ''
-    text = str(text).replace('\n', ' ').replace('"', "'")
-    return f'"{text}"'
+    return str(text).replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
 
-def _mermaid_label_with_comment(main_text, comment):
-    """Append a component's optional diagram comment as an italicized
-    second line on its node label, using <br/> (a real Mermaid line-break
-    the renderer supports) rather than a newline, which
-    _mermaid_escape_label() would otherwise collapse to a space."""
-    text = str(main_text)
-    if comment:
-        text += '<br/><i>' + str(comment).replace('\n', ' ') + '</i>'
-    return text
+def _dot_record_escape(text):
+    """Escape a label fragment destined for a record-shaped node, where
+    Graphviz additionally treats | < > { } as structural characters."""
+    out = _dot_escape_label(text)
+    for ch in '|<>{}':
+        out = out.replace(ch, '\\' + ch)
+    return out
 
-def _mermaid_click_line(node_id, component_id):
-    """Make a component's diagram node a clickable link to its own detail
-    page, opening in a new tab so the diagram/editor isn't navigated away
-    from."""
-    return f'  click {node_id} href "{URL("component", "index.html", args=[component_id])}" _blank'
+def _dot_label(compname, purpose=None, note=None):
+    """Node label with each populated extra on its own line. `purpose` is the
+    model_component's role; `note` is its optional diagram comment."""
+    parts = [str(compname)]
+    if purpose:
+        parts.append(str(purpose))
+    if note:
+        parts.append(str(note))
+    return _dot_escape_label('\n'.join(parts))
 
-def _extract_fillcolor(attribs_str, default='#efefef'):
-    m = re.search(r'fillcolor\s*=\s*"?(#[0-9a-fA-F]{3,8})"?', attribs_str or '')
-    return m.group(1) if m else default
+def _dot_click_attribs(component_id):
+    """Make a component's node a link to its own detail page, opening in a new
+    tab so the diagram/editor isn't navigated away from. Viz.js renders these
+    as real <a xlink:href> elements in the output SVG."""
+    return f' URL="{URL("component", "index.html", args=[component_id])}"; target="_blank";'
 
-def _mermaid_node_line(node_id, label, comptype):
-    shape = MERMAID_SHAPES.get(comptype)
-    if shape:
-        return f'    {node_id}{shape["open"]}{_mermaid_escape_label(label)}{shape["close"]}:::{shape["class"]}'
-    _diag = componenttype_diagram.get(comptype, {})
-    gv_shape = _diag.get('shape', 'box')
-    open_, close_ = GRAPHVIZ_SHAPE_TO_MERMAID.get(gv_shape, ('[', ']'))
-    cls = 'ct_' + re.sub(r'[^A-Za-z0-9]', '', comptype)
-    return f'    {node_id}{open_}{_mermaid_escape_label(label)}{close_}:::{cls}'
+def dot_title(model_name):
+    return f"""
+// Title
+fontsize = 30;
+label = "{_dot_escape_label(model_name)} Wiring Diagram";
+labelloc = "t";
+    """
 
-def _mermaid_classdefs():
-    lines = []
-    for comptype, shape in MERMAID_SHAPES.items():
-        color = _extract_fillcolor(components.get(comptype, {}).get('attribs', ''))
-        lines.append(f'  classDef {shape["class"]} fill:{color},stroke:#333,stroke-width:1px')
-    for name, info in componenttype_diagram.items():
-        if name in MERMAID_SHAPES:
-            continue  # _mermaid_node_line() checks MERMAID_SHAPES first, so these names never hit the componenttype_diagram fallback
-        cls = 'ct_' + re.sub(r'[^A-Za-z0-9]', '', name)
-        lines.append(f'  classDef {cls} fill:{info.get("color") or "#efefef"},stroke:#333,stroke-width:1px')
-    lines.append('  classDef ctPort fill:#ffffff,stroke:#999,stroke-width:1px')
-    lines.append('  classDef legendLabel fill:none,stroke:none')
-    lines.append('  classDef legendSwatch fill:none,stroke:none')
-    return '\n'.join(lines)
+def _wrap_dot(body, model_name):
+    """Assemble a complete Graphviz document: header, legend, component body,
+    and title."""
+    return f"""digraph model {{
+rankdir = LR;
+fontsize="10"
+{legend}
+{body}
+{dot_title(model_name)}
+}}
+"""
 
-def _legend_row_selection():
-    preferred = ['5v Servo', '5v Signal', '12v 12gauge', '12v 20gauge']
-    rows = [n for n in preferred if n in mermaid_edge_styles]
-    if len(rows) < 4:
-        rows += [n for n in mermaid_edge_styles if n not in rows][: 4 - len(rows)]
-    return rows[:4]
-
-def mermaid_legend():
-    """4-row wire-type legend as a Mermaid subgraph — no ports/anchors,
-    each row is two invisible nodes joined by a real edge carrying the wire
-    type's name as its label (id -- "Wire Type" --- id), same convention as
-    creatediagramfrommermaid()'s body edges.
-
-    Commented out (every line prefixed with %%): wires already carry their
-    type as an inline edge label, so a separate legend is redundant screen
-    space. The generation logic is kept intact rather than deleted so this
-    is a one-line change to re-enable (drop the '%% ' prefix below) if
-    inline labels are ever turned off for a decluttered view instead.
-    Since commented lines aren't real Mermaid edges, they don't consume
-    positional linkStyle/edge-index slots — mermaid-helpers.js's
-    injectMermaidLinkStyles() skips them the same way Mermaid itself does,
-    so the two stay in sync without any special-casing there."""
-    legend_rows = _legend_row_selection()
-    lines = ['  subgraph legend ["Legend"]', '    direction TB']
-    for i, edge_name in enumerate(legend_rows, 1):
-        lines.append(f'    lg{i}_a[" "]:::legendLabel')
-        lines.append(f'    lg{i}_b[" "]:::legendSwatch')
-        lines.append(f'    lg{i}_a -- "{edge_name}" --- lg{i}_b')
-    lines.append('  end')
-    return '\n'.join('%% ' + line for line in lines)
-
-def _wrap_mermaid(body, model_name):
-    """Assemble a complete Mermaid flowchart document: title comment,
-    header, classDefs, legend, and component body. Edge styling is
-    intentionally NOT baked in here — see mermaid_legend()'s docstring."""
-    parts = [
-        f'%% {model_name} Wiring Diagram',
-        'flowchart LR',
-        _mermaid_classdefs(),
-        mermaid_legend(),
-        body,
-    ]
-    return '\n\n'.join(p for p in parts if p and p.strip())
-
-def default_mermaid_body():
-    """Canned Receiver+Servo example body, mirroring default_components'
-    role for the 'Use default diagram' button. Uses the same %% Nodes/%%
-    Edges marker convention and labeled-edge format as
-    creatediagramfrommermaid() so it round-trips through the same
+def default_dot_body():
+    """Canned Receiver+Servo example body for the 'Use default diagram'
+    button, using the same // Nodes / // Edges markers as
+    creatediagramfromcomponents() so it round-trips through the same
     Connections-table parsing."""
-    node_lines = [
-        _mermaid_node_line('receiver', 'Receiver', 'Receiver'),
-        '  receiver_p1(["Port 1"]):::ctPort',
-        '  receiver --- receiver_p1',
-        _mermaid_node_line('servo1', 'Servo', 'Servo'),
-    ]
-    edge_lines = ['  receiver_p1 -- "5v Servo" --- servo1']
-
-    body = '%% Nodes\n'
-    body += '\n'.join(node_lines)
-    body += '\n%% End Nodes\n\n%% Edges\n'
-    body += '\n'.join(edge_lines)
-    body += '\n%% End Edges'
-
+    body = '// Nodes\n'
+    body += default_components['Receiver'] + '\n'
+    body += default_components['Servo']
+    body += '\n// End Nodes\n\n// Edges\n'
+    body += f'"receiver":f1 -> "servo" [{edge_attribs["5v Servo"]}];'
+    body += '\n// End Edges'
     return body
 
 def diagram_connector_json():
@@ -402,6 +297,11 @@ def diagramedge_json():
         'id': r.id, 'name': r.name,
         'stroke_color': r.stroke_color, 'stroke_width': r.stroke_width, 'stroke_style': r.stroke_style,
         'arrow_start': r.arrow_start, 'arrow_end': r.arrow_end,
+        # Generated server-side from the structured columns above so the
+        # editor's findEdgeTypeName() reverse match is exact by construction —
+        # it compares against the same string creatediagramfromcomponents()
+        # emits, rather than re-deriving DOT in JS.
+        'dot_attribs': _style_to_dot_attribs(r),
         'sort_order': r.sort_order,
     } for r in rows])
 
@@ -451,6 +351,9 @@ def diagram_component_json():
         'id': r.id, 'name': r.name, 'shape': r.shape or 'box',
         'fillcolor': r.fillcolor or '#efefef',
         'stroke_color': r.stroke_color or '', 'stroke_width': r.stroke_width or 1, 'stroke_style': r.stroke_style or 'solid',
+        # Full node-attribute fragment generated from the structured columns —
+        # the editor inserts this verbatim rather than rebuilding it in JS.
+        'dot_attribs': _component_style_to_dot_attribs(r),
         'sort_order': r.sort_order,
     } for r in rows])
 
@@ -462,6 +365,15 @@ def creatediagramfromcomponents(model_id):
     // Edges / // End Edges) for use in the diagram editor. Node IDs use the
     stable scheme mc{model_component.id} so connections survive component
     additions and removals.
+
+    A receiver is one `record`-shaped node whose channels are addressable
+    sub-fields (<f1>..<fN>, plus <t1>/<t2>/<t3> for telemetry/SBUS/power), so a
+    channel wire anchors to the exact port it belongs to via "mc12":f3. Every
+    port is emitted, used or not — unlike separate per-port nodes, record
+    fields cost almost nothing.
+
+    Edges use `->` because wire types can carry arrowheads; see the DOT
+    DOCUMENT ASSEMBLY note above.
     """
     model_components = db(db.model_component.model == model_id).select()
     model_battery = db(db.model_battery.model == model_id).select()
@@ -482,6 +394,8 @@ def creatediagramfromcomponents(model_id):
         node_id = 'mc' + str(row.id)
         comptype = row.component.componenttype
         compname = row.component.diagramname if row.component.diagramname else row.component.name
+        label = _dot_label(compname, row.purpose, row.note)
+        click = _dot_click_attribs(row.component.id)
         # None means no receiver channel — component floats as unconnected node
         from_ref = f'"{receiver_node_id}":f{row.channel}' if (receiver_node_id and row.channel) else None
 
@@ -490,35 +404,38 @@ def creatediagramfromcomponents(model_id):
             if not _diag or not _diag.get('shape'):
                 continue
             nodes.append(
-                f'"{node_id}" [label="{compname}\\n{row.purpose or ""}"; '
-                f'shape="{_diag["shape"]}"; style="filled"; fillcolor="{_diag["color"]}";];'
+                f'"{node_id}" [label="{label}"; '
+                f'shape="{_diag["shape"]}"; style="filled"; fillcolor="{_diag["color"]}";{click}];'
             )
             if from_ref:
-                edges.append(f'{from_ref} -- "{node_id}" [{edge_attribs[_diag["edge"]]}];')
+                edges.append(f'{from_ref} -> "{node_id}" [{edge_attribs[_diag["edge"]]}];')
             continue
 
         if row.component.customdot:
             customReplacement = row.component.customdot.replace('{id}', node_id).replace('{name}', compname).replace('{purpose}', row.purpose if row.purpose else '')
             nodes.append(f'"{node_id}" {customReplacement}')
             if from_ref:
-                edges.append(f'{from_ref} -- "{node_id}" [{edge_attribs[components[comptype]["edgeattrib"]]}];')
+                edges.append(f'{from_ref} -> "{node_id}" [{edge_attribs[components[comptype]["edgeattrib"]]}];')
         else:
             match comptype:
                 case 'ESC':
-                    nodes.append(f'"{node_id}" [label="{compname}\n{row.purpose}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
+                    nodes.append(f'"{node_id}" [label="{label}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}";{click}];')
                     if from_ref:
-                        edges.append(f'{from_ref} -- "{node_id}" [{edge_attribs[components[comptype]["edgeattrib"]]}];')
+                        edges.append(f'{from_ref} -> "{node_id}" [{edge_attribs[components[comptype]["edgeattrib"]]}];')
                     esc_node_id = node_id
                 case 'Motor':
-                    nodes.append(f'"{node_id}" [label="{compname}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
+                    nodes.append(f'"{node_id}" [label="{_dot_label(compname, None, row.note)}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}";{click}];')
                     if esc_node_id:
-                        edges.append(f'"{esc_node_id}" -- "{node_id}" [{edge_attribs[components[comptype]["edgeattrib"]]}];')
+                        edges.append(f'"{esc_node_id}" -> "{node_id}" [{edge_attribs[components[comptype]["edgeattrib"]]}];')
                 case 'Receiver':
                     count = 4
                     ports = []
                     if row.component.attr_channel_count:
                         count = row.component.attr_channel_count
-                    ports.append(f'"{node_id}" [label = "<f0>{compname}')
+                    # The record label is its own mini-syntax — | < > separate
+                    # and name the fields — so the component name is escaped
+                    # against those characters rather than plain-label rules.
+                    ports.append(f'"{node_id}" [label = "<f0>{_dot_record_escape(_dot_label(compname, None, row.note))}')
                     for x in range(1, count + 1):
                         ports.append(f'| <f{x}>Port {x} ')
                     if row.component.attr_telemetry_port:
@@ -527,14 +444,14 @@ def creatediagramfromcomponents(model_id):
                         ports.append(' | <t2>SBUS ')
                     if row.component.attr_pwr_port:
                         ports.append(' | <t3>Power ')
-                    ports.append('";shape = "record";];')
+                    ports.append(f'";shape = "record"; {components[comptype]["attribs"]};{click}];')
                     nodes.append(''.join(ports))
                 case 'Battery':
                     pass
                 case _:
-                    nodes.append(f'"{node_id}" [label="{compname}\n{row.purpose if row.purpose else ""}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}"];')
+                    nodes.append(f'"{node_id}" [label="{label}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}";{click}];')
                     if from_ref:
-                        edges.append(f'{from_ref} -- "{node_id}" [{edge_attribs[components[comptype]["edgeattrib"]]}];')
+                        edges.append(f'{from_ref} -> "{node_id}" [{edge_attribs[components[comptype]["edgeattrib"]]}];')
 
     for batt_row in model_battery.render():
         batt_count = batt_row.quantity if batt_row.quantity else 1
@@ -542,9 +459,9 @@ def creatediagramfromcomponents(model_id):
             continue
         for x in range(1, batt_count + 1):
             batt_id = f'batt{batt_row.id}_{x}' if batt_count > 1 else f'batt{batt_row.id}'
-            nodes.append(f'"{batt_id}" [label = "{batt_row.battery}"; {components["Battery"]["attribs"]}];')
+            nodes.append(f'"{batt_id}" [label = "{_dot_escape_label(batt_row.battery)}"; {components["Battery"]["attribs"]}; shape="{components["Battery"]["shape"]}";];')
             if esc_node_id:
-                edges.append(f'"{esc_node_id}" -- "{batt_id}" [{edge_attribs[components["Battery"]["edgeattrib"]]}];')
+                edges.append(f'"{esc_node_id}" -> "{batt_id}" [{edge_attribs[components["Battery"]["edgeattrib"]]}];')
 
     ret = '// Nodes\n'
     ret += "\n".join(nodes)
@@ -554,165 +471,11 @@ def creatediagramfromcomponents(model_id):
 
     return ret
 
-def creatediagramfrommermaid(model_id):
-    """Build a Mermaid flowchart body for the given model, from the same
-    structured source of truth (model_component / model_battery rows) used
-    by creatediagramfromcomponents() above — mirrors its exact branching
-    order (ignore-list/Receiver -> componenttype_diagram fallback ->
-    customdot -> hardcoded match/case) so the two generators stay in sync
-    for the "safe to auto-migrate" comparison in mermaid_migration_status().
-
-    Returns a partial Mermaid body with section markers (%% Nodes / %% End
-    Nodes / %% Edges / %% End Edges), mirroring creatediagramfromcomponents()'s
-    // Nodes / // Edges convention so the editor's Connections-table JS can
-    scope its parsing to genuine cross-component connections only (a
-    receiver's own port-wiring lives in the Nodes section as part of its
-    subgraph, not the Edges section). Every edge line carries its wire-type
-    name as an inline Mermaid edge label (id -- "Wire Type" --- id) rather
-    than relying on positional linkStyle indices, since those don't survive
-    live add/remove/reorder edits in the browser. Edge color/width/dash is
-    never baked into the returned text — every render call site computes it
-    live from these labels via mermaid-helpers.js's injectMermaidLinkStyles().
-
-    Returns (body_text, warnings). warnings is a list of human-readable
-    strings describing anything that couldn't be represented (non-empty
-    means this model needs manual review — see mermaid_migration_status()).
-    """
-    model_components = db(db.model_component.model == model_id).select()
-    model_battery = db(db.model_battery.model == model_id).select()
-
-    node_lines = []
-    edge_lines = []
-    warnings = []
-    esc_node_id = None
-
-    receiver_row = next((r for r in model_components if r.component.componenttype == 'Receiver'), None)
-    receiver_node_id = ('mc' + str(receiver_row.id)) if receiver_row else None
-    receiver_port_nodes = {}
-    # Channels actually assigned to some component — a receiver's unused
-    # ports (e.g. channels 6-16 on a 16ch receiver when only 5 are wired)
-    # would otherwise add a node+edge per port for nothing anyone connects
-    # to, which is most of the size cost on a fully-populated receiver.
-    used_channels = {r.channel for r in model_components if r.channel}
-
-    def edge_line(from_id, to_id, edgeattrib_name):
-        edge_lines.append(f'  {from_id} -- "{edgeattrib_name}" --- {to_id}')
-
-    if receiver_row:
-        comp = receiver_row.component
-        compname = comp.diagramname if comp.diagramname else comp.name
-        count = comp.attr_channel_count or 4
-        # Deliberately NOT wrapped in a subgraph: Mermaid bundles edges that
-        # cross a subgraph boundary at the boundary itself rather than at
-        # the specific internal node, which defeats the whole point of
-        # per-port nodes (a viewer couldn't tell which port a wire actually
-        # went to). Plain sibling nodes + --- edges render each connection
-        # precisely from the port it belongs to.
-        node_lines.append(_mermaid_node_line(receiver_node_id, _mermaid_label_with_comment(compname, receiver_row.note), 'Receiver'))
-        node_lines.append(_mermaid_click_line(receiver_node_id, comp.id))
-        for x in range(1, count + 1):
-            if x not in used_channels:
-                continue
-            port_id = f'{receiver_node_id}_p{x}'
-            node_lines.append(f'  {port_id}(["Port {x}"]):::ctPort')
-            node_lines.append(f'  {receiver_node_id} --- {port_id}')
-            receiver_port_nodes[x] = port_id
-        if comp.attr_telemetry_port:
-            node_lines.append(f'  {receiver_node_id}_tlm(["Telemetry"]):::ctPort')
-            node_lines.append(f'  {receiver_node_id} --- {receiver_node_id}_tlm')
-        if comp.attr_sbus_port:
-            node_lines.append(f'  {receiver_node_id}_sbus(["SBUS"]):::ctPort')
-            node_lines.append(f'  {receiver_node_id} --- {receiver_node_id}_sbus')
-        if comp.attr_pwr_port:
-            node_lines.append(f'  {receiver_node_id}_pwr(["Power"]):::ctPort')
-            node_lines.append(f'  {receiver_node_id} --- {receiver_node_id}_pwr')
-
-    for row in sorted(model_components, key=lambda r: r.component.componenttype):
-        comp = row.component
-        comptype = comp.componenttype
-        if comptype in components_to_ignore or comptype == 'Receiver':
-            continue
-
-        node_id = 'mc' + str(row.id)
-        compname = comp.diagramname if comp.diagramname else comp.name
-        from_port_id = receiver_port_nodes.get(row.channel) if row.channel else None
-
-        if comptype not in components:
-            _diag = componenttype_diagram.get(comptype)
-            if not _diag or not _diag.get('shape'):
-                continue
-            label = f'{compname} {row.purpose}' if row.purpose else compname
-            label = _mermaid_label_with_comment(label, row.note)
-            node_lines.append(_mermaid_node_line(node_id, label, comptype))
-            node_lines.append(_mermaid_click_line(node_id, comp.id))
-            if from_port_id:
-                edge_line(from_port_id, node_id, _diag['edge'])
-            continue
-
-        if comp.customdot:
-            warnings.append(f'Component "{compname}" (mc{row.id}) uses Custom .dot Code — cannot auto-convert.')
-            node_lines.append(_mermaid_node_line(node_id, _mermaid_label_with_comment(compname, row.note), comptype))
-            node_lines.append(_mermaid_click_line(node_id, comp.id))
-            if from_port_id:
-                edge_line(from_port_id, node_id, components[comptype]['edgeattrib'])
-            continue
-
-        match comptype:
-            case 'ESC':
-                label = f'{compname} {row.purpose}' if row.purpose else compname
-                label = _mermaid_label_with_comment(label, row.note)
-                node_lines.append(_mermaid_node_line(node_id, label, comptype))
-                node_lines.append(_mermaid_click_line(node_id, comp.id))
-                if from_port_id:
-                    edge_line(from_port_id, node_id, components[comptype]['edgeattrib'])
-                esc_node_id = node_id
-            case 'Motor':
-                node_lines.append(_mermaid_node_line(node_id, _mermaid_label_with_comment(compname, row.note), comptype))
-                node_lines.append(_mermaid_click_line(node_id, comp.id))
-                if esc_node_id:
-                    edge_line(esc_node_id, node_id, components[comptype]['edgeattrib'])
-            case 'Battery':
-                pass
-            case _:
-                label = f'{compname} {row.purpose}' if row.purpose else compname
-                label = _mermaid_label_with_comment(label, row.note)
-                node_lines.append(_mermaid_node_line(node_id, label, comptype))
-                node_lines.append(_mermaid_click_line(node_id, comp.id))
-                if from_port_id:
-                    edge_line(from_port_id, node_id, components[comptype]['edgeattrib'])
-
-    for batt_row in model_battery.render():
-        batt_count = batt_row.quantity if batt_row.quantity else 1
-        if batt_count == 0:
-            continue
-        for x in range(1, batt_count + 1):
-            batt_id = f'batt{batt_row.id}_{x}' if batt_count > 1 else f'batt{batt_row.id}'
-            node_lines.append(_mermaid_node_line(batt_id, str(batt_row.battery), 'Battery'))
-            if esc_node_id:
-                edge_line(esc_node_id, batt_id, components['Battery']['edgeattrib'])
-
-    body = '%% Nodes\n'
-    body += '\n'.join(node_lines)
-    body += '\n%% End Nodes\n\n%% Edges\n'
-    body += '\n'.join(edge_lines)
-    body += '\n%% End Edges'
-
-    return body, warnings
-
 def createcomponentexamples():
     comps = []
     for name, details in components.items():
         comps.append((name, f'"{details["id"]}" [label="{name}"; shape="{details["shape"]}"; {details["attribs"]}];'))
 
-    return comps
-
-def createmermaidcomponentexamples():
-    comps = []
-    for name, shape in MERMAID_SHAPES.items():
-        details = components.get(name)
-        if not details:
-            continue
-        comps.append((name, f'{details["id"]}{shape["open"]}"{name}"{shape["close"]}:::{shape["class"]}'))
     return comps
 
 def migrate_model_diagram():
@@ -777,22 +540,25 @@ def editmodeldiagram():
     model = db.model(model_id)
 
     details_form = SQLFORM(db.model, model.id, fields=[
-                           'diagram_mermaid'], showid=False, formstyle='divs')
+                           'diagram'], showid=False, formstyle='divs')
 
-    default_mermaid = _wrap_mermaid(default_mermaid_body(), model.name)
+    default_dot = _wrap_dot(default_dot_body(), model.name)
 
-    components_body, mermaid_warnings = creatediagramfrommermaid(model.id)
-    model_mermaid = _wrap_mermaid(components_body, model.name)
+    components_body = creatediagramfromcomponents(model.id)
+    model_components_dot = _wrap_dot(components_body, model.name)
 
-    # Full node body for "Rebuild from Components" — a full-text replace of
-    # the textarea (matches what the button's own confirm dialog already
-    # promises: "replace all nodes and connections... custom wiring lost").
-    model_nodes_mermaid = model_mermaid
+    # Full document for "Rebuild from Components" — a full-text replace of the
+    # textarea rather than splicing a new body between the // Nodes and
+    # // End Edges markers. Splicing would leave a generated `->` body inside a
+    # legacy `graph`/`--` document, which Graphviz rejects outright; a whole
+    # replace is also exactly what the button's own confirm dialog promises
+    # ("replace all nodes and connections... custom wiring lost").
+    model_nodes_dot = model_components_dot
 
-    # Build node options for the connections manager dropdowns (mc{id}
-    # scheme), including one option per receiver port sub-node — Mermaid
-    # has no port-anchored edges, so a "connection to Receiver Port 2" is
-    # just an edge to that port's own node id.
+    # Build node options for the connections manager dropdowns (mc{id} scheme),
+    # including one entry per receiver port. These port entries are UI-level
+    # ids — the editor maps e.g. mc12_p3 to the real DOT port reference
+    # "mc12":f3 when it writes an edge, and back again when it reads one.
     model_comps = db(db.model_component.model == model_id).select()
     node_options = []
     for mc in model_comps:
@@ -827,18 +593,20 @@ def editmodeldiagram():
         if info.get('shape')
     ]
 
-    edge_styles_json = json.dumps(mermaid_edge_styles)
+    edge_attribs_json = json.dumps(edge_attribs)
     node_options_json = json.dumps(node_options)
-    model_nodes_mermaid_json = json.dumps(model_nodes_mermaid)
+    model_nodes_dot_json = json.dumps(model_nodes_dot)
     componenttype_nodes_json = json.dumps(sorted(componenttype_nodes, key=lambda x: x['name']))
 
-    # LEGACY GRAPHVIZ SCAFFOLDING — temporary, read-only reference so old
-    # diagrams that never got auto-migrated to Mermaid aren't just lost from
-    # view. Remove this along with model.diagram, diagram_comment_legacy
-    # (models/db.py), and the matching accordion + viz-global.js include in
-    # editmodeldiagram.html once every model is off the legacy field.
-    legacy_dot = model.diagram or ''
-    legacy_dot_json = json.dumps(legacy_dot)
+    # LEGACY MERMAID SCAFFOLDING — temporary, read-only reference so diagrams
+    # drawn during the Mermaid period aren't just lost from view while they get
+    # re-drawn in Graphviz. Remove this along with model.diagram_mermaid,
+    # diagram_comment_mermaid_legacy (models/db.py), and the matching card +
+    # mermaid.min.js include in editmodeldiagram.html once every model has a
+    # model.diagram again.
+    legacy_mermaid = model.diagram_mermaid or ''
+    legacy_mermaid_json = json.dumps(legacy_mermaid)
+    mermaid_edge_styles_json = json.dumps(mermaid_edge_styles)
 
     if details_form.process().accepted:
         session.flash = "Model Updated"
@@ -847,17 +615,18 @@ def editmodeldiagram():
         response.flash = "Error Adding New Model"
 
     return dict(
-        mermaid=model.diagram_mermaid,
+        dot=model.diagram,
         model_name=model.name,
         form=details_form,
-        default_mermaid=default_mermaid,
-        edge_styles=mermaid_edge_styles,
-        components=createmermaidcomponentexamples(),
-        model_mermaid=model_mermaid,
-        edge_styles_json=edge_styles_json,
+        default_dot=default_dot,
+        edge_attribs=edge_attribs,
+        components=createcomponentexamples(),
+        model_components_dot=model_components_dot,
+        edge_attribs_json=edge_attribs_json,
         node_options_json=node_options_json,
-        model_nodes_mermaid_json=model_nodes_mermaid_json,
+        model_nodes_dot_json=model_nodes_dot_json,
         componenttype_nodes_json=componenttype_nodes_json,
-        legacy_dot=legacy_dot,
-        legacy_dot_json=legacy_dot_json,
+        legacy_mermaid=legacy_mermaid,
+        legacy_mermaid_json=legacy_mermaid_json,
+        mermaid_edge_styles_json=mermaid_edge_styles_json,
     )

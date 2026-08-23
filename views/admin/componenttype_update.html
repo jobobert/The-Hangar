@@ -186,14 +186,15 @@ Your submitted form contains the following errors:
 
 {{=form.custom.end}}
 
-<script src="{{=URL('static','js/mermaid.min.js')}}"></script>
-<script src="{{=URL('static','js/mermaid-helpers.js', vars=dict(v=static_cachebust('js/mermaid-helpers.js')))}}"></script>
+<script src="{{=URL('static','js/viz-global.js')}}"></script>
 <script>
 (function () {
     // Embed JSON directly as a JS object — avoids quote-escaping issues with JSON.parse('...')
-    var edgeStyles = {{=XML(edge_styles_json)}};
+    // Values are generated server-side from each wire type's structured style
+    // columns, so this preview shows exactly what a diagram would render.
+    var edgeAttribs = {{=XML(edge_attribs_json)}};
 
-    function buildMermaid() {
+    function buildDot() {
         var shapeEl = document.getElementById('meta_diagram_shape');
         var colorEl = document.getElementById('meta_diagram_color');
         var edgeEl  = document.getElementById('meta_diagram_edgeattrib');
@@ -203,23 +204,25 @@ Your submitted form contains the following errors:
         var color = (colorEl && colorEl.value)        || '#efefef';
         var edge  = (edgeEl  && edgeEl.value)         || 'default';
         var label = (nameEl  && nameEl.value.trim())  || 'Component';
+        var ea    = edgeAttribs[edge]                 || 'color="#efefef";';
 
-        var tokens = mermaidShapeTokens(shape);
-        var safeLabel = label.replace(/"/g, "'");
-
-        return 'flowchart LR\n'
-             + '  default_["Default"]\n'
-             + '  comp' + tokens[0] + '"' + safeLabel + '"' + tokens[1] + '\n'
-             + '  default_ -- "' + edge + '" --- comp\n'
-             + '  style comp fill:' + color + ',stroke:#333,stroke-width:1px';
+        // Mirror the exact node/edge syntax used by diagram.py — a digraph, so
+        // a wire type's arrowheads show up in the preview.
+        return 'digraph preview {\n'
+             + '  rankdir = LR;\n'
+             + '  "default" [label="Default"; shape="rect";];\n'
+             + '  "comp" [label="' + label.replace(/"/g, '\\"') + '"; shape="' + shape + '"; style="filled"; fillcolor="' + color + '";];\n'
+             + '  "default" -> "comp" [' + ea + '];\n'
+             + '}';
     }
 
     function renderPreview() {
-        renderMermaidInto(document.getElementById('diagram-preview'), buildMermaid(), {
-            edgeStyles: edgeStyles,
-            onError: function (err) {
-                document.getElementById('diagram-preview').textContent = 'Preview error: ' + err;
-            },
+        Viz.instance().then(function (viz) {
+            var svg = viz.renderSVGElement(buildDot());
+            svg.style.maxWidth = '100%';
+            document.getElementById('diagram-preview').replaceChildren(svg);
+        }).catch(function (err) {
+            document.getElementById('diagram-preview').textContent = 'Preview error: ' + err;
         });
     }
 
