@@ -24,7 +24,7 @@ def update():
     response.title = 'Add/Update Tool'
 
     form = SQLFORM(db.tool, request.args(0), upload=URL(
-        'default', 'download'), deletable=True, showid=False).process(
+        'default', 'download'), showid=False).process(
         message_onsuccess='Tool %s' % (
             'updated' if request.args else 'added'))
 
@@ -125,22 +125,10 @@ def renderexport():
 def removefrommodel():
     # try to do this via ajax sometime...
 
-    VerifyTableID('model', request.args(0)) or redirect(URL('default', 'index'))
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('default', 'index'))
     relationship_id = VerifyTableID('model_tool', request.args(1))  or redirect(URL('default', 'index'))
 
     if relationship_id:
         db(db.model_tool.id == relationship_id).delete()
 
     redirect(URL('model', 'index.html', args=model_id))
-
-def delete():
-    tool_id = VerifyTableID('tool', request.args(0)) or redirect(URL('tool', 'listview'))
-
-    #if db(db.model_tool.tool == tool_id).count() > 0:
-    if db(db.model_tool.tool == tool_id).select(db.model_tool.id, limitby=(0,1)).first():
-        session.flash = "Cannot delete: tool is assigned to models!"
-        redirect(URL('tool', 'listview'))
-
-    db(db.tool.id == tool_id).delete()
-    session.flash = "Deleted"
-    redirect(URL('tool', 'listview'))

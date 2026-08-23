@@ -824,8 +824,14 @@ db.model.attr_antenna_mount.requires        = lookup_set('attr_antenna_mount', e
 
 db.model.notes.format = lambda model: MARKMIN(model.notes)
 
-db.model.img.default = os.path.join(
-    request.folder, 'static', 'images', 'defaultUpload.png')
+# NB: img.default deliberately stays '' (set on the Field itself). Do NOT point
+# it at static/images/defaultUpload.png. Field(default='path/to/file') is a real
+# web2py feature, but the path it stores is not servable here: everything renders
+# through default/download, which only accepts table.field.uuid.name.ext, so the
+# path 404s. Worse, every upload field here is uploadseparate+autodelete, and
+# pydal's delete_uploaded_files splits the old value on '.' and reads items[2] —
+# a path has too few parts, so the first update that added a real image crashed
+# with IndexError. The fallback lives in default/download() instead.
 
 db.model.attr_covering.widget = SQLFORM.widgets.autocomplete(
     request, db.model.attr_covering, limitby=(0, 10), min_length=2, distinct=True)
@@ -994,7 +1000,7 @@ db.define_table('activity',
                 Field('duration', type='double', label='Duration (min)', comment='The duration, in minutes', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control')), 
                 Field('activitylocation', type='string', label='Location'), 
                 Field('notes', type='text', label='Notes', comment='Notes about the event'), 
-                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the activity (1500px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), 
+                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the activity (1500px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))),
                 format=lambda row: 'Unknown' if row is None else f'{row.activitydate}: {row.activitytype or "Activity"}'
                 )
 
@@ -1091,8 +1097,7 @@ db.component.attr_weight_oz.extra = {'measurement': 'oz'}
 db.component.attr_displacement_cc.extra = {'measurement': 'cc'}
 db.component.attr_travel.extra = {'measurement': 'mm'}
 
-db.component.img.default = os.path.join(
-    request.folder, 'static', 'images', 'defaultUpload.png')
+# See the note on db.model.img above: no path default here either.
 
 db.component.attr_pump_type.requires    = lookup_set('attr_pump_type', empty_ok=True)
 db.component.attr_rf_connector.requires = lookup_set('attr_rf_connector', empty_ok=True)
@@ -1347,7 +1352,7 @@ db.define_table('supportitem',
                 Field('item', type='string', label='Support Item'), 
                 Field('model', type='reference model', label='Model'), 
                 Field('notes', type='text', label='Notes', comment=markmin_comment, represent=lambda id, row: MARKMIN(row.notes)), 
-                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the support item (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img_thumbnail]))), 
+                Field('img', uploadseparate=True, type='upload', autodelete=True, label='Picture', comment='The picture of the support item (1000px max)', default='', represent=lambda id, row: IMG(_src=URL('default', 'download', args=[row.img]))), 
                 format=lambda row: row.item
                 )
 db.supportitem.item.widget = SQLFORM.widgets.autocomplete(
@@ -1958,6 +1963,70 @@ if not _migration_applied('modelcategory_new_controllers_v1'):
             _meta['controllers'] = _ctrl
             _row.update_record(metadata=_json.dumps(_meta))
     _mark_migration('modelcategory_new_controllers_v1')
+    db.commit()
+
+###############################################
+## UPLOAD FIELD SAFETY
+
+from pydal.helpers.regex import REGEX_UPLOAD_PATTERN
+
+
+def _safe_upload_delete(field):
+    """Build a custom_delete for one upload field.
+
+    pydal's own delete_uploaded_files (pydal/helpers/methods.py) assumes every
+    stored value is a web2py upload name — table.field.uuidkey.b16name.ext — and
+    does `oldname.split('.')` then reads items[2] to find the uploadseparate
+    subfolder. Any value with fewer than three dot-separated parts raises
+    IndexError, and because that runs from _before_update/_before_delete it takes
+    the whole save down with it. That is what a path-style Field default did to
+    db.model.img and db.component.img.
+
+    Setting field.custom_delete makes pydal call this instead and skip its own
+    parsing entirely, so a malformed value can no longer break a write: there is
+    nothing on disk under such a name, so there is nothing to delete.
+    """
+    def _delete(name):
+        if not name or not re.match(REGEX_UPLOAD_PATTERN, name):
+            return
+        items = name.split('.')
+        folder = field.uploadfolder or os.path.join(request.folder, 'uploads')
+        if field.uploadseparate:
+            folder = os.path.join(folder, '%s.%s' % (items[0], items[1]), items[2][:2])
+        path = os.path.join(folder, name)
+        if os.path.exists(path):
+            os.unlink(path)
+    return _delete
+
+
+# Install on every autodelete upload field. Covers deletes as well as updates —
+# delete_uploaded_files backs both _before_update and _before_delete.
+for _tname in db.tables:
+    for _field in db[_tname]:
+        if _field.type == 'upload' and _field.autodelete:
+            _field.custom_delete = _safe_upload_delete(_field)
+
+# Clear upload values that are not web2py upload names. db.model.img and
+# db.component.img used to default to a filesystem path
+# (applications/init/static/images/defaultUpload.png), which web2py stored
+# verbatim on every record saved without a picture. Those values never served —
+# default/download and Field.retrieve both require a table.field.uuid.name.ext
+# name and 404 on anything else — and they crashed the first update that added a
+# real image. Clearing rather than rewriting: there is no upload behind them, so
+# NULL is the honest value, and default/download() now supplies the placeholder.
+# Table-driven so a restored older snapshot gets repaired too.
+# Depends on the custom_delete guard above being installed first, since the
+# UPDATEs below fire _before_update on the very rows holding bad values.
+if not _migration_applied('clear_invalid_upload_values_v1'):
+    for _tname in db.tables:
+        for _field in db[_tname]:
+            if _field.type != 'upload':
+                continue
+            _rows = db((_field != None) & (_field != '')).select(db[_tname].id, _field)
+            for _r in _rows:
+                if not re.match(REGEX_UPLOAD_PATTERN, _r[_field.name] or ''):
+                    db(db[_tname].id == _r.id).update(**{_field.name: None})
+    _mark_migration('clear_invalid_upload_values_v1')
     db.commit()
 
 # Load runtime dicts from lookup metadata (overrides the hardcoded dicts above).

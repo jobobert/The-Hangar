@@ -522,6 +522,11 @@ def log_activity(model_id, activitytype, notes=''):
         notes=notes
     )
 
+def fleetQuery():
+    """DAL condition for the selected fleet — the dashboard's scope.
+    modelstate 1 is Retired/Disposed (see db.py:145-152)."""
+    return (db.model.selected == True) & (db.model.modelstate != 1)
+
 def underConstructionModels():
     models = db((db.model.modelstate == 3) | (db.model.modelstate == 6)).select(
         db.model.id, db.model.name, db.model.img, db.model.description).as_list()
@@ -590,15 +595,21 @@ def theHangarStats():
     return stats
 
 def delete_file(row, uploadfield):
-    # https://groups.google.com/g/web2py/c/hNYpxTsgk0E
-    import os
-    file = row(uploadfield)
-    table, field, subfolder = file.split('.')[0:3]
-    subfolder = subfolder[:2]
-    upf = db[table][field].uploadfolder
-    if not upf:
-        upf = os.path.join(request.folder, 'uploads')
-    os.remove(os.path.join(upf, '%s.%s' % (table, field), subfolder, file))
+    """Clear an upload column and remove its file from disk.
+
+    Removal is best-effort and goes through _safe_upload_delete (models/db.py),
+    which validates the name and skips anything that is not a web2py upload
+    name. The old inline version did `table, field, subfolder = file.split('.')[0:3]`
+    and raised ValueError on a short value, plus os.remove raised on an already
+    missing file — either way the column was then never cleared.
+    """
+    name = row(uploadfield)
+    m = re.match(REGEX_UPLOAD_PATTERN, name or '')
+    if m:
+        # The upload name encodes its own table.field, which is also what
+        # determines where the file sits on disk. Same source response.download
+        # uses, so it stays correct even if called with a row from a join.
+        _safe_upload_delete(db[m.group('table')][m.group('field')])(name)
     row.update_record(**{uploadfield: None})
 
 def makeTagList(tags, divClass=""): 
@@ -630,17 +641,45 @@ def completeButton(controller, action, args, size=24):
 def deleteButton(controller, action, args, size=24 ):
     return _makeButton(action_icon('delete', size), controller, action ,args, 'btn btn-danger')
 
+def deleteItemButton(table, row_id, size=24):
+    """Delete an inventory item through the guarded flow in controllers/item.py.
+
+    No JS confirm() here on purpose — item/delete shows what the delete would
+    affect and takes the confirmation itself. See models/m_delete.py.
+    """
+    return _makeButton(action_icon('delete', size), 'item', 'delete',
+                       [table, row_id], 'btn btn-danger')
+
 def newButton(controller, action, args, size=24):
     return _makeButton('Create', controller, action, args, 'btn btn-success')
+
+######################################################
+## THUMBNAILS
+
+def thumbIMG(value, size=48, _class='mr-2 rounded'):
+    """Fixed-size square thumbnail, falling back to the neutral placeholder.
+
+    Deliberately NOT default/download()'s fallback: that serves the 240x130
+    branded defaultUpload.png, which suits a large reserved slot but squashes
+    in a square box. Small avatar slots get icons/nopicture.png instead, the
+    same choice views/default/search.html already makes. _onerror covers the
+    other case download() would answer with the wide image — a name that looks
+    valid but whose file is gone.
+    """
+    nopicture = URL('static', 'icons/nopicture.png')
+    return IMG(_src=URL('default', 'download', args=value) if value else nopicture,
+               _width=size, _height=size, _alt='', _class=_class,
+               _onerror="this.src='%s'" % nopicture)
 
 ######################################################
 ## LIST ITEM CREATION
 def _makeListItem(controller:str, action:str, args, img:str=None, icon:str=None, label:str='', detail:str=None):
     parts = []
-    imgsize = '48px'
 
-    if img:
-        parts.append(IMG(_src=URL('default', 'download', args=img), _width=imgsize, _height=imgsize) if img else '')
+    # None means "no thumbnail on this item"; '' means "thumbnail slot, but this
+    # row has no picture" — which still renders, as the placeholder.
+    if img is not None:
+        parts.append(thumbIMG(img, 48, _class=''))
     if icon:
         parts.append(icon)
     if detail:
@@ -660,10 +699,9 @@ def modelListItem(model, img:bool, label:str = None, idOverride:int = None, deta
     if idOverride:
         modelID = idOverride
 
-    if img and model.img:
-        return _makeListItem('model', 'index', modelID, model.img, label or model.name, detail=detail)
-
-    return _makeListItem('model', 'index', modelID, None, label or model.name, detail=detail)
+    return _makeListItem('model', 'index', modelID,
+                         (model.img or '') if img else None,
+                         label or model.name, detail=detail)
 
 def transmitterListItem(transmitter, img:bool, label:str = None, idOverride:int = None):
     if idOverride:
@@ -671,10 +709,9 @@ def transmitterListItem(transmitter, img:bool, label:str = None, idOverride:int 
     else:
         transID = transmitter.id
         
-    if img and transmitter.img:
-        return _makeListItem('transmitter', 'index', transID, transmitter.img, label or transmitter.name)
-
-    return _makeListItem('transmitter', 'index', transID, None, label or transmitter.name)
+    return _makeListItem('transmitter', 'index', transID,
+                         (transmitter.img or '') if img else None,
+                         label or transmitter.name)
 
 def attachmentListItem(attachment, img:bool, label:str):
     #print(filetype_icon(attachment, 32))

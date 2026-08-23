@@ -43,7 +43,7 @@ def subtractcount():
 def update():
     response.title = "Add/Update Battery"
 
-    form = SQLFORM(db.battery, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False, submit_button='Submit')
+    form = SQLFORM(db.battery, request.args(0), upload=URL('default', 'download'), showid=False, submit_button='Submit')
     form.process(
         message_onsuccess='Document %s' % ('updated' if request.args else 'added'),
         next=(URL('battery', 'index', args=form.vars.id, extension="html"))
@@ -105,24 +105,6 @@ def rendercard():
 
     return dict(model_batteries=model_batteries, model_id=model_id, addform=addform, newform=newform, deleteform=deleteform, battery_count=battery_count)
  
-def delete():
-
-    battery_id = VerifyTableID('battery', request.args(0)) or redirect(URL('battery', 'listview'))
-
-    #if db(db.model_battery.battery == battery_id).count() > 0:
-    if db(db.model_battery.battery == battery_id).select(db.model_battery.id, limitby=(0,1)).first():
-        session.flash = "Cannot delete: battery is assigned to models!"
-        redirect(URL('battery', 'listview'))
-
-    #if db(db.eflite_time.battery == battery_id).count() > 0:
-    if db(db.eflite_time.battery == battery_id).select(db.model_battery.id, limitby=(0,1)).first():
-        session.flash = "Cannot delete: battery is assigned to flight time record!"
-        redirect(URL('battery', 'listview'))
-
-    db(db.battery.id == battery_id).delete()
-    session.flash = "Deleted"
-    redirect(URL('battery', 'listview'))
-
 def removefrommodel():
     # try to do this via ajax sometime...
 

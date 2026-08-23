@@ -48,5 +48,6 @@
     </div>
         <div class=" row bg-light fixed-bottom pl-5 p-2">
             <a class="btn btn-primary" href="{{=URL('protocol', 'update', args=(protocol.id))}}">Edit</a>
+            {{=deleteItemButton('protocol', protocol.id)}}
         </div>
     </div>

@@ -8,11 +8,10 @@
 
 
     <div class="row">
-        {{if comp.img:}}
+        {{# Image column always renders (download falls back to the placeholder) so notes stay at 50% either way — every component page keeps the same shape. }}
         <div class="col mb-5 ">
             <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=comp.img)}}" alt="Card image cap">
         </div>
-        {{pass}}
         <div class="col mb-5 ">
             {{=MARKMIN(comp.notes)}}
         </div>
@@ -124,6 +123,7 @@
     </div>
     <div class=" row bg-light fixed-bottom pl-5 p-2">
         <a class="btn btn-primary" href="{{=URL('component','update',args=comp.id,extension='html')}}">Edit</a>
+        {{=deleteItemButton('component', comp.id)}}
     </div>
 </div>
 

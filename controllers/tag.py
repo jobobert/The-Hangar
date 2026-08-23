@@ -6,7 +6,7 @@ def listview():
 def update():
     response.title = 'Add/Update Tag'
 
-    form = SQLFORM(db.tag, request.args(0), upload=URL('default', 'download'), _id='tagform', showid=False, deletable=True)
+    form = SQLFORM(db.tag, request.args(0), upload=URL('default', 'download'), _id='tagform', showid=False)
     disable_autocomplete(form)
     if form.process().accepted:
         session.flash = "Tag Added/Updated"
@@ -17,14 +17,3 @@ def update():
         pass
     
     return dict(form=form)
-
-def delete():
-    tag_id = VerifyTableID('tag', request.args(0))
-
-    if tag_id:
-        response.flash = "Tag deleted"
-        db(db.tag.id == tag_id).delete()
-    else:
-        session.flash = "Could not delete: tag not found"
-    
-    redirect(URL('tag', 'listview'))

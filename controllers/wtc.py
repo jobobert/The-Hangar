@@ -66,7 +66,7 @@ def rendercard():
 def update():
     response.title = 'Add/Update WTC'
 
-    form = SQLFORM(db.wtc, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False).process(
+    form = SQLFORM(db.wtc, request.args(0), upload=URL('default', 'download'), showid=False).process(
         message_onsuccess='WTC %s' % ('updated' if request.args else 'added')
     )
 
@@ -82,17 +82,6 @@ def listview():
     wtcs = db(db.wtc).select(orderby=db.wtc.name)
 
     return dict(wtcs=wtcs)
-
-def delete():
-    wtc_id = VerifyTableID('wtc', request.args(0)) or redirect(URL('wtc', 'listview'))
-
-    if db(db.model_wtc.wtc == wtc_id).select(db.model_wtc.id, limitby=(0,1)).first():
-        session.flash = "Cannot delete: WTC is assigned to models!"        
-        redirect(URL('wtc', 'listview'))
-
-    db(db.wtc.id == wtc_id).delete()
-    session.flash = "Deleted"
-    redirect(URL('wtc', 'listview'))
 
 def renderexport():
     session.forget(response)

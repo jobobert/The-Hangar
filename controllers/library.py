@@ -85,7 +85,7 @@ def update():
     buttons=[BUTTON('Submit', _type='submit', _value='Submit', _class="btn btn-primary pl-5 p-2 fixed-bottom")]
 
     form = SQLFORM(db.article, request.args(0), upload=URL(
-        'default', 'download'), deletable=True, showid=False, buttons=buttons, _id='articleform')
+        'default', 'download'), showid=False, buttons=buttons, _id='articleform')
     disable_autocomplete(form)
 
     if form.process().accepted:

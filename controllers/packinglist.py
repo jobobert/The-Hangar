@@ -147,16 +147,10 @@ def listview():
 def update():
     response.title = 'Update Packing Item'
 
-    form = SQLFORM(db.packingitems, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False).process(
+    form = SQLFORM(db.packingitems, request.args(0), upload=URL('default', 'download'), showid=False).process(
         message_onsuccess='Packing Item %s' % ('updated' if request.args else 'added'),
         next=(URL('packingitems', 'allitems', extension="html"))
     )
     disable_autocomplete(form)
 
     return dict(form=form)
-
-def delete():
-    item_id = VerifyTableID('packingitems', request.args(0)) or redirect(URL('default', 'index'))
-
-    db(db.packingitems.id == item_id).delete()
-    return redirect(URL('packingitems', 'listview'))

@@ -21,7 +21,7 @@ def listview():
 def update():
     response.title = "Add/Update Sail Rig"
 
-    form = SQLFORM(db.sailrig, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False).process(
+    form = SQLFORM(db.sailrig, request.args(0), upload=URL('default', 'download'), showid=False).process(
         formname='updateform',
         message_onsuccess='Rig %s' % ('updated' if request.args else 'added'),
         next=(URL('sailrig', 'index', args=request.vars.id, extension='html'))
@@ -29,14 +29,6 @@ def update():
     disable_autocomplete(form)
 
     return dict(form=form)
-
-
-def delete():
-    sailrig_id = VerifyTableID('sailrig', request.args(0)) or redirect(URL('sailrig', 'listview'))
-
-    db(db.sailrig.id == sailrig_id).delete()
-    session.flash = "Deleted"
-    return redirect(URL('sailrig', 'listview'))
 
 
 def rendercard():

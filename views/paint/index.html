@@ -10,9 +10,7 @@
     <div class="row mt-5">
 
         <div class="col-12 col-sm-3">
-            {{if paint.img:}}
             <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=paint.img)}}" alt="Card image cap">
-            {{pass}}
 
             {{if paint.colorhex:}}
             <div style="width: 100px; height:100px; background-color:{{=paint.colorhex}}">{{=paint.colorhex}}</div>
@@ -61,6 +59,6 @@
 
     <div class=" row bg-light fixed-bottom pl-5 p-2">
         {{=editButton('paint', 'update', paint.id)}}
-        {{=deleteButton('paint', 'delete', paint.id)}}
+        {{=deleteItemButton('paint', paint.id)}}
     </div>
 </div>

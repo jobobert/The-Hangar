@@ -39,15 +39,6 @@ def listview():
     propellers = db(db.propeller.model.belongs(activemodels)).select(orderby=db.propeller.item | db.propeller.model)
     return dict(propellers=propellers)
 
-def delete():
-    
-    item_id = VerifyTableID('propeller', request.args(0)) or redirect(URL('default', 'index'))
-    
-    if item_id:
-        db(db.propeller.id == item_id).delete()
-        
-        redirect(URL('propeller', 'index', args=item_id, extension="html"))
-
 def renderexport():
     session.forget(response)
 

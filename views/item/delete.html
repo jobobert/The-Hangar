@@ -1,0 +1,70 @@
+{{extend 'layout.html'}}
+
+<div class="container">
+
+  <div class="row mt-3">
+    <div class="col-12">
+      <h2>Delete {{=table_label.rstrip('s')}}: <i>{{=impact['label']}}</i></h2>
+    </div>
+  </div>
+
+  {{if not impact['groups']:}}
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="alert alert-secondary">
+        Nothing else references this {{=table_label.rstrip('s')}} &mdash; it can be removed safely.
+      </div>
+    </div>
+  </div>
+  {{else:}}
+
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="alert {{='alert-danger' if impact['has_destroy'] else 'alert-warning'}}">
+        This {{=table_label.rstrip('s')}} is <b>in use</b>.
+        Deleting it also affects {{=impact['total']}} other record{{='s' if impact['total'] != 1 else ''}},
+        listed below. The models themselves are not deleted.
+      </div>
+    </div>
+  </div>
+
+  {{for group in impact['groups']:}}
+  <div class="row mt-2">
+    <div class="col-12 col-md-8">
+      <div class="card mb-2 {{='border-danger' if group['policy'] == 'destroy' else ''}}">
+        <div class="card-header {{='bg-danger text-white' if group['policy'] == 'destroy' else ''}}">
+          {{=group['heading']}} &mdash; {{=group['count']}}
+          {{=group['table_label'].rstrip('s') if group['count'] == 1 else group['table_label']}}
+        </div>
+        <ul class="list-group list-group-flush">
+          {{for label in group['labels']:}}
+          <li class="list-group-item py-1">{{=label}}</li>
+          {{pass}}
+          {{if group['truncated']:}}
+          <li class="list-group-item py-1 text-muted">
+            <i>&hellip;and {{=group['count'] - len(group['labels'])}} more</i>
+          </li>
+          {{pass}}
+        </ul>
+      </div>
+    </div>
+  </div>
+  {{pass}}
+
+  {{pass}}
+
+  <div class="row mt-4 mb-5">
+    <div class="col-12">
+      <a class="btn btn-secondary mr-2" href="{{=cancel_url}}">Cancel</a>
+      {{=form}}
+    </div>
+  </div>
+
+</div>
+
+<style>
+  /* The confirm form carries only a submit button; keep it inline with Cancel. */
+  #confirm_delete { display: inline-block; }
+  #confirm_delete .form-group,
+  #confirm_delete div { margin: 0; padding: 0; }
+</style>

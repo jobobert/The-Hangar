@@ -207,7 +207,7 @@ def update():
     response.title = 'Add/Update Component'
 
     form = SQLFORM(db.component, request.args(0), upload=URL(
-        'default', 'download'), deletable=True, showid=False).process(
+        'default', 'download'), showid=False).process(
         message_onsuccess='Document %s' % ('updated' if request.args else 'added')) 
 
     if form.accepted:
@@ -474,22 +474,3 @@ def updatemodelrelation():
         header = rel.component.name + ' on ' + rel.model.name
 
     return dict(content=form, header=header)
-
-def delete():
-    component_id = VerifyTableID('component', request.args(0)) or redirect(URL('component', 'listview'))
-
-    #if db(db.model_component.component == component_id).count() > 0:
-    if db(db.model_component.component == component_id).select(db.model_component.id, limitby=(0,1)).first():
-        session.flash = "Cannot delete: component is assigned to models!"
-        redirect(URL('component', 'listview'))
-
-    #if db(db.eflite_time.motor == component_id).count() > 0:
-    if db(db.eflite_time.motor == component_id).select(db.eflite_time.id, limitby=(0,1)).first():
-        session.flash = "Cannot delete: component is assigned to a flight time!"
-        redirect(URL('component', 'listview'))
-
-    if component_id:
-        db(db.component.id == component_id).delete()
-        session.flash = "Deleted"
-        
-    return redirect(URL('component', 'listview'))

@@ -13,7 +13,7 @@ def index():
 def update():
     response.title = "Add/Update Paint Type"
 
-    form = SQLFORM(db.paint, request.args(0), upload=URL('default', 'download'), deletable=True, showid=False, submit_button='Submit').process(
+    form = SQLFORM(db.paint, request.args(0), upload=URL('default', 'download'), showid=False, submit_button='Submit').process(
         message_onsuccess='Document %s' % ('updated' if request.args else 'added'),
         next=(URL('paint', 'index', args=request.vars.id, extension="html"))
     )
@@ -28,21 +28,6 @@ def listview():
     paints = db(db.paint).select( orderby=db.paint.color)
 
     return dict(paints=paints)
-
-def delete():
-    paint_id = VerifyTableID('paint', request.args(0)) or redirect(URL('paint', 'listview'))
-
-    if db(db.model_paint.paint == paint_id).count() > 0:
-        session.flash = "Cannot delete: paint is assigned to models!"
-        return redirect(URL('paint', 'listview'))
-    
-    if paint_id:
-        db(db.paint.id == paint_id).delete()
-        response.flash = 'Paint Deleted'    
-    else:
-        session.flash = "Cannot delete: paint not found"
-        
-    return redirect(URL('paint', 'listview'))
 
 def removefrommodel():
     model_id = VerifyTableID('model', request.args(0)) or redirect(URL('default', 'index'))

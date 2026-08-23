@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import random
+import re
 import urllib
 import os
 import json as _json
@@ -220,10 +221,14 @@ def index():
 
     response.title = 'The Hangar: Models'
 
-    if 'ui' not in request.cookies:
-        request.cookies['ui'] = 'list'
-
-    is_dashboard = 'ui' in request.cookies and request.cookies['ui'].value == 'dashboard'
+    # The 'ui' cookie records which UI the user last chose. The dashboard is
+    # its own action now, so send them there on a bare visit — this keeps the
+    # navbar brand and the many redirect(URL('default','index')) error
+    # fallbacks landing in the UI they expect. Any explicit card-list link
+    # (?c=, ?fstates=) or a filter-form POST renders the card list as asked.
+    if 'ui' in request.cookies and request.cookies['ui'].value == 'dashboard' \
+            and not request.vars:
+        redirect(URL('default', 'dashboard', args=request.args))
 
     filter_text = {
         'modeltype': '', 'controltype': '', 'powerplant': '',
@@ -232,23 +237,18 @@ def index():
 
     states = db(db.modelstate).select(db.modelstate.id, db.modelstate.name)
     all_state_ids = [s.id for s in states]
-    # Context default when no explicit fstates= selection is given: the
-    # dashboard hides only Retired, the list view also hides Idea/On The
-    # Board (matches the previous state_number>1 / state_number>=4 defaults).
-    default_state_ids = [s.id for s in states if s.id > 1] if is_dashboard \
-        else [s.id for s in states if s.id >= 4]
+    # Default when no explicit fstates= selection is given: hide Retired,
+    # Idea and On The Board (matches the previous state_number>=4 default).
+    default_state_ids = [s.id for s in states if s.id >= 4]
 
     log = []
     queries = []
 
-    wasFormUsed = False
-    modelCategory = None
-    if not is_dashboard:
-        viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
-        modelCategory = next((o for o in viableOptions if o), None)
-        if request.vars.get('c') in viableOptions:
-            modelCategory = request.vars['c']
-        queries.append(db.model.modelcategory == modelCategory)
+    viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
+    modelCategory = next((o for o in viableOptions if o), None)
+    if request.vars.get('c') in viableOptions:
+        modelCategory = request.vars['c']
+    queries.append(db.model.modelcategory == modelCategory)
 
     for s in states:
         filter_text[s.name] = ''
@@ -332,11 +332,6 @@ def index():
         redirect(URL('default', 'index', vars=rvars))
 
     # Apply filter queries from GET params
-    wasFormUsed = bool(
-        any(filters.get(k) for k in ['modeltype', 'controltype', 'powerplant', 'plankit', 'transmitter', 'subjecttype', 'isselected'])
-        or fstates_explicit
-    )
-
     if filters['modeltype']:
         queries.append(db.model.modeltype == filters['modeltype'])
         filter_text['modeltype'] = filters['modeltype']
@@ -385,33 +380,34 @@ def index():
         if not active_state_ids:
             filter_text['modelstate_empty'] = 'No States Selected'
 
-    # Dashboard's implicit "only show my selected fleet" default — only
-    # when nothing was explicitly filtered, same as before.
-    if not wasFormUsed and is_dashboard:
-        queries.append(db.model.selected == True)
-
     # Combine all active filter conditions with AND into a single DAL query
     query = reduce(lambda a, b: (a & b), queries)
     models = db(query).select(db.model.ALL, orderby=db.model.name)
 
-    selected = None
-    selectedmodel = None
-    if request.args:
-        selected = VerifyTableID('model', request.args(0))
-        if selected:
-            selectedmodel = db(db.model.id == selected).select().first()
-    if selected is None:
-        selected = -1
-        selectedmodel = None
-
-    if is_dashboard:
-        response.view = 'default/dashboard.html'
-
-    return dict(models=models, form=selectform, filters=filter_text, selected=selected,
-                selectedmodel=selectedmodel, log=log, modelCategory=modelCategory,
+    return dict(models=models, form=selectform, filters=filter_text,
+                log=log, modelCategory=modelCategory,
                 active_state_ids=active_state_ids, all_state_ids=all_state_ids,
                 default_state_ids=default_state_ids, state_is_all=state_is_all,
                 state_is_default=state_is_default, fstates_param=active_fstates_param)
+
+
+def dashboard():
+    """The selected-fleet dashboard. Scope is always db.model.selected —
+    no request var can widen it. args(0), if given, is the model to detail."""
+
+    response.title = 'The Hangar: Dashboard'
+
+    models = db(fleetQuery()).select(db.model.ALL, orderby=db.model.name)
+
+    selected = -1
+    selectedmodel = None
+    if request.args(0):
+        model_id = VerifyTableID('model', request.args(0))
+        if model_id:
+            selected = model_id
+            selectedmodel = db.model(model_id)
+
+    return dict(models=models, selected=selected, selectedmodel=selectedmodel)
 
 
 def setui():
@@ -424,15 +420,16 @@ def setui():
 
     response.cookies['ui']['path'] = '/'
 
+    if request.args(0) == 'dashboard':
+        return redirect(URL('default', 'dashboard'))
+
     return redirect(URL('default', 'index'))
 
 
 def dashboard_version():
     """Lightweight fingerprint of dashboard data — used by the 30s auto-refresh poll."""
     response.generic_patterns = ['json']
-    model_ids = [r.id for r in db(
-        (db.model.selected == True) & (db.model.modelstate > 1)
-    ).select(db.model.id)]
+    model_ids = [r.id for r in db(fleetQuery()).select(db.model.id)]
 
     act_max = 0
     todo_max = 0
@@ -453,13 +450,35 @@ def dashboard_version():
 # ---- action to server uploaded static content (required) ---
 
 
+# Placeholder served when there is no upload to serve. db.model.img and
+# db.component.img used to carry this file's *path* as their Field default, which
+# web2py stored but could never serve — response.download and Field.retrieve both
+# require a table.field.uuid.name.ext upload name (see models/db.py). Serving it
+# from static/ here is what actually makes a default image appear, and it covers
+# every URL('default', 'download', args=...) site in the app at once.
+DEFAULT_IMAGE = 'images/defaultUpload.png'
+
+
 @cache.action(time_expire=2592000)
 def download():
     """
     allows downloading of uploaded files
     http://..../[app]/default/download/[filename]
+
+    Falls back to DEFAULT_IMAGE when the name is absent, is not a web2py upload
+    name, or its file is gone. Side effect worth knowing: an empty *attachment*
+    value now yields an image rather than a 404. Views guard attachment links
+    behind a truthiness check, so that is not reachable in practice.
     """
-    return response.download(request, db)
+    name = request.args[-1] if request.args else ''
+    if not name or not re.match(REGEX_UPLOAD_PATTERN, name):
+        redirect(URL('static', DEFAULT_IMAGE))
+    try:
+        return response.download(request, db)
+    except HTTP as e:
+        if not str(e.status).startswith('404'):
+            raise
+    redirect(URL('static', DEFAULT_IMAGE))
 
 
 def inline():

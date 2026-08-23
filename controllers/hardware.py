@@ -106,10 +106,3 @@ def renderexport():
     response.view = 'renderexport.load'
     return dict(content=torender)
 
-
-def delete():
-    hardware_id = VerifyTableID('hardware', request.args(0)) or redirect(URL('hardware', 'listview'))
-
-    db(db.hardware.id == hardware_id).delete()
-    session.flash = "Deleted"
-    redirect(URL('hardware', 'listview'))

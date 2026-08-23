@@ -8,8 +8,7 @@
 
     <div class="row mb-3">
         <div class="col-sm-6">
-            {{if rig.img:}}
-            <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=rig.img)}}" alt="Card image cap"> {{pass}}
+            <img class="" style="max-width: 200px;" src="{{=URL('default', 'download', args=rig.img)}}" alt="Card image cap">
         </div>
         <div class="col-sm-6">
             <div>{{=rig.notes or ''}}</div>
@@ -138,6 +137,6 @@
     </div>
     <div class=" row bg-light fixed-bottom pl-5 p-2">
         {{=editButton('sailrig', 'update', rig.id)}}
-        {{=deleteButton('sailrig', 'delete', rig.id)}}
+        {{=deleteItemButton('sailrig', rig.id)}}
     </div>
 </div>

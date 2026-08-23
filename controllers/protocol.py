@@ -19,7 +19,7 @@ def listview():
 def update():
     response.title = 'Add/Update Protocol'
 
-    form = SQLFORM(db.protocol, request.args(0), upload=URL('default', 'download'), _id='protocolform', showid=False, deletable=True)
+    form = SQLFORM(db.protocol, request.args(0), upload=URL('default', 'download'), _id='protocolform', showid=False)
     disable_autocomplete(form)
     if form.process().accepted:
         session.flash = "Protocol Added/Updated"

@@ -254,60 +254,16 @@ def renderhass():
     # return dict(model=model)
 
 def renderstatecounts():
-    if request.args(0) == 'dashboard':
-        counts = db(db.model).select(db.model.modelstate,
-                                    db.model.id.count(), groupby=db.model.modelstate)
+    viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
+    default_category = next((o for o in viableOptions if o), None)
+    modelCategory = request.vars.get('c') or session.modelcategory or default_category
+    if modelCategory not in viableOptions:
+        modelCategory = default_category
 
-        return dict(counts=counts, options=request.args(0))
-    else:
-        viableOptions = [o[1] for o in db.model.modelcategory.requires.options()]
-        default_category = next((o for o in viableOptions if o), None)
-        modelCategory = request.vars.get('c') or session.modelcategory or default_category
-        if modelCategory not in viableOptions:
-            modelCategory = default_category
+    counts = db(db.model.modelcategory == modelCategory).select(db.model.modelstate,
+                                db.model.id.count(), groupby=db.model.modelstate)
 
-        counts = db(db.model.modelcategory == modelCategory).select(db.model.modelstate,
-                                    db.model.id.count(), groupby=db.model.modelstate)
-
-        return dict(counts=counts, options=request.args(0))
-
-def renderdashboard():
-    model_id = VerifyTableID('model', request.args(0))
-
-    if not model_id:
-        return render_card_error('Unable to locate this model', 'model', 'Models')
-    
-    model = db.model(model_id)
-    
-    todo_count = db((db.todo.model == model.id) &
-                    (db.todo.complete == False)).count()
-    note_count = db((db.activity.model == model.id) & (
-        db.activity.activitytype == 'Note')).count()
-    component_count = db((db.model_component.model == model.id)).count()
-    tool_count = db((db.model_tool.model == model.id)).count()
-    attachment_count = db((db.attachment.model == model.id)).count()
-    _new_sw = db(db.model_switch.model == model.id).count()
-    switch_count = _new_sw if _new_sw else db(db.switch.model == model.id).count()
-
-    opts = {
-        "todo": todo_count,
-        "note": note_count,
-        "component": component_count,
-        "tool": tool_count,
-        "attachment": attachment_count,
-        "switch": switch_count
-    }
-
-    details_form = SQLFORM(db.model, model.id, fields=[
-                           'notes'], showid=False, formstyle='divs')
-    if details_form.process(session=None, formname=f'dashdetails_{model_id}').accepted:
-        session.flash = "Details Updated"
-        redirect(URL('default', 'index',
-                     args=details_form.vars.id, extension="html"))
-    elif details_form.errors:
-        response.flash = "Error Updating Details"
-
-    return dict(model=model, details_form=details_form, options=opts)
+    return dict(counts=counts)
 
 def listview():
     response.title = 'Model List'
