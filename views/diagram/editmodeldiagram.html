@@ -486,28 +486,31 @@ const COMPONENT_TYPES = {{=XML(componenttype_nodes_json)}};
 function isDirected(text) { return /^\s*digraph\b/m.test(text || ''); }
 function edgeOp(text)     { return isDirected(text) ? '->' : '--'; }
 
-// Receiver ports are record sub-fields in DOT, so the dropdown's synthetic
-// "mc12_p3" option id becomes the real port reference "mc12":f3 on the way out,
-// and back again on the way in. _tlm/_sbus/_pwr map to the <t1>/<t2>/<t3>
-// fields creatediagramfromcomponents() emits.
-const PORT_SUFFIX_TO_FIELD = { tlm: 't1', sbus: 't2', pwr: 't3' };
-const FIELD_TO_PORT_SUFFIX = { t1: 'tlm', t2: 'sbus', t3: 'pwr' };
+// A port is a record sub-field in DOT, addressed as "mc12":f3. An option id is
+// that same reference unquoted — "mc12" for a whole node, "mc12:f3" for one of
+// its ports — so the mapping is a split/join on the first colon and ANY port
+// name round-trips.
+//
+// This replaces an earlier mc12_p3/_tlm/_sbus/_pwr suffix scheme that could
+// only express f<n>/t1/t2/t3. Anything else (a customdot record port, a
+// connector terminal, an f7 on a 4-channel receiver) folded to an option id
+// that wasn't in the select; buildNodeSelect then fell back to blank and
+// syncDotFromTable's `if (!from || !to) return;` silently dropped that edge
+// from the document on the next sync.
+//
+// Generated node ids are mc<n>/batt<n>/gen<n>/conn<n>, none of which contain a
+// colon. Option ids live only in the browser — nothing persists them.
 
-// "mc12_p3" -> '"mc12":f3'   |   "mc12" -> '"mc12"'
+// "mc12:f3" -> '"mc12":f3'   |   "mc12" -> '"mc12"'
 function optionIdToDotRef(optionId) {
-    const m = /^(.*)_(?:p(\d+)|(tlm|sbus|pwr))$/.exec(optionId || '');
-    if (!m) return `"${optionId}"`;
-    const field = m[2] ? 'f' + m[2] : PORT_SUFFIX_TO_FIELD[m[3]];
-    return `"${m[1]}":${field}`;
+    const s = optionId || '';
+    const i = s.indexOf(':');
+    return i === -1 ? `"${s}"` : `"${s.slice(0, i)}":${s.slice(i + 1)}`;
 }
 
-// ('mc12', 'f3') -> "mc12_p3"   |   ('mc12', '') -> "mc12"
+// ('mc12', 'f3') -> "mc12:f3"   |   ('mc12', '') -> "mc12"
 function dotRefToOptionId(nodeId, port) {
-    if (!port) return nodeId;
-    const fm = /^f(\d+)$/.exec(port);
-    if (fm) return `${nodeId}_p${fm[1]}`;
-    if (FIELD_TO_PORT_SUFFIX[port]) return `${nodeId}_${FIELD_TO_PORT_SUFFIX[port]}`;
-    return nodeId;
+    return port ? `${nodeId}:${port}` : nodeId;
 }
 
 const textarea = document.getElementById('model_diagram');
@@ -567,7 +570,52 @@ function parseDotEdges(dot) {
     return edges;
 }
 
-// Get node IDs from NODE_OPTIONS + any custom nodes defined in // Nodes section
+// Pull the connectable ports out of one node's attribute block. Two label
+// syntaxes carry ports, and they must be told apart — an HTML label is full of
+// <table>/<tr>/<td> tags that would otherwise read as record fields:
+//
+//   label = <...>   HTML label   -> ports are every  port="X"   (connector l1/r1)
+//   label = "..."   record label -> ports are every  <X>  field  (f1, t1, in, out)
+//
+// Returns [{port, label}]. A leading field named exactly f0 is skipped: this
+// app puts the node's own name there (see default_components['Receiver'] and
+// _record_node() in controllers/diagram.py), so it is a title, not a port. A
+// hand-written record that names its first field anything else keeps it.
+function extractNodePorts(attribBlock) {
+    const ports = [];
+
+    const html = /label\s*=\s*</.test(attribBlock);
+    if (html) {
+        const re = /port\s*=\s*"([^"]+)"\s*>([^<]*)/g;
+        let m;
+        while ((m = re.exec(attribBlock)) !== null) {
+            // A connector's terminal cells hold only their index ("1", "2"),
+            // which would make every terminal read the same; the port name
+            // (l1/r2) is the part that identifies it. Keep real cell text when
+            // there is any.
+            const text = m[2].trim();
+            ports.push({ port: m[1], label: /^\d*$/.test(text) ? m[1] : text });
+        }
+        return ports;
+    }
+
+    if (!/shape\s*=\s*"?M?record"?/.test(attribBlock)) return ports;
+    const lm = /label\s*=\s*"((?:[^"\\]|\\.)*)"/.exec(attribBlock);
+    if (!lm) return ports;
+
+    lm[1].split('|').forEach((field, i) => {
+        const fm = /^\s*<([^>]+)>\s*([\s\S]*)$/.exec(field);
+        if (!fm) return;
+        const port = fm[1].trim();
+        if (i === 0 && port === 'f0') return;
+        ports.push({ port, label: fm[2].trim() });
+    });
+    return ports;
+}
+
+// Get node IDs from NODE_OPTIONS + any nodes defined in the // Nodes section,
+// each with its ports. NODE_OPTIONS is seeded first so the server's friendlier
+// labels ("FrSky R-XSR — Port 3") win over anything parsed out of the text.
 function getAllNodeIds(dot) {
     const nodeMap = new Map(NODE_OPTIONS.map(n => [n.id, n.label]));
     const startMarker = '// Nodes';
@@ -579,10 +627,20 @@ function getAllNodeIds(dot) {
         const edgesIdx = dot.indexOf('// Edges', lineEnd);
         const nodesEnd = endIdx !== -1 ? endIdx : (edgesIdx !== -1 ? edgesIdx : dot.lastIndexOf('}'));
         const nodesText = dot.slice(lineEnd, nodesEnd);
-        const re = /"([^"]+)"\s*\[label/g;
+        // Node id followed by its bracketed attribute block. [^\]] is safe
+        // here because none of the label syntaxes contain a literal ']'.
+        const re = /"([^"]+)"\s*\[([^\]]*)\]/g;
         let m;
         while ((m = re.exec(nodesText)) !== null) {
-            if (!nodeMap.has(m[1])) nodeMap.set(m[1], m[1]);
+            const id = m[1];
+            if (!nodeMap.has(id)) nodeMap.set(id, id);
+            const nodeLabel = nodeMap.get(id);
+            extractNodePorts(m[2]).forEach(p => {
+                const optId = dotRefToOptionId(id, p.port);
+                if (!nodeMap.has(optId)) {
+                    nodeMap.set(optId, `${nodeLabel} — ${p.label || p.port}`);
+                }
+            });
         }
     }
     return [...nodeMap.entries()].map(([id, label]) => ({id, label}));
@@ -614,6 +672,15 @@ function buildNodeSelect(cls, selectedId, nodes) {
     blank.value = '';
     blank.textContent = '— select —';
     sel.appendChild(blank);
+
+    // An endpoint the document names but we cannot account for — a port on a
+    // node that no longer declares it, a node deleted from the Nodes section —
+    // is still offered, so selecting nothing is never forced. Without this the
+    // select falls back to blank and syncDotFromTable's `if (!from || !to)`
+    // guard erases that edge from the document on the next sync.
+    if (selectedId && !nodes.some(n => n.id === selectedId)) {
+        nodes = nodes.concat([{ id: selectedId, label: selectedId + ' (not in diagram)' }]);
+    }
     nodes.forEach(n => {
         const opt = document.createElement('option');
         opt.value = n.id;
@@ -1279,7 +1346,12 @@ function insertGenericNode(dotAttribs, label) {
     while ((m = genRe.exec(dot)) !== null) maxNum = Math.max(maxNum, parseInt(m[1]));
     const nodeId = `gen${maxNum + 1}`;
 
-    const nodeDot = `"${nodeId}" [label="${label.replace(/"/g, '\\"')}"; ${dotAttribs}];`;
+    // Mirrors _dot_record_escape() in controllers/diagram.py. Escaping only `"`
+    // is not enough now that record shapes are reachable from the palette: in a
+    // record label | < > { } are structural, so an unescaped `|` in a name
+    // silently splits the node into phantom fields.
+    const safeLabel = label.replace(/([\\"|<>{}])/g, '\\$1');
+    const nodeDot = `"${nodeId}" [label="${safeLabel}"; ${dotAttribs}];`;
 
     const endNodesMarker = '// End Nodes';
     const nodesMarker = '// Nodes';

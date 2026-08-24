@@ -158,6 +158,87 @@ def _dot_click_attribs(component_id):
     as real <a xlink:href> elements in the output SVG."""
     return f' URL="{URL("component", "index.html", args=[component_id])}"; target="_blank";'
 
+###############################################
+## PORT RECORDS
+## A Graphviz `record` node carries named sub-fields (ports) that edges anchor
+## to individually — "mc12":f3. Whether a component is one resolves through a
+## hierarchy, highest priority first:
+##
+##   1. the node already written in model.diagram   -> defines the record
+##   2. component.customdot                         -> defines the record
+##   3. component.diagram_is_record ('yes'/'no')    -> decides only
+##   4. componenttype.diagram_is_record             -> decides only
+##   5. neither set                                 -> plain node
+##
+## Levels 1-2 supply a complete record label, so their ports and labels are read
+## back out of the text — that extraction lives in the editor's getAllNodeIds()
+## (views/diagram/editmodeldiagram.html), the only place that sees the live
+## document. Levels 3-4 only decide, so the ports are generated here from
+## attr_channel_count plus the telemetry/SBUS/power flags.
+##
+## _resolves_to_record() covers levels 3-4 only; levels 1-2 short-circuit before
+## it is ever consulted, because the generator emits customdot verbatim and the
+## saved text is whatever the user last wrote.
+
+def _resolves_to_record(comp):
+    """Levels 3-4 of the hierarchy: does this component render as a port record?
+
+    The component's own tri-state setting wins when set ('yes'/'no'); '' means
+    inherit from its componenttype. Deliberately independent of diagram_shape —
+    see the note on componenttype.diagram_is_record in models/db.py."""
+    if not comp:
+        return False
+    own = (comp.diagram_is_record or '').strip().lower()
+    if own == 'yes':
+        return True
+    if own == 'no':
+        return False
+    return bool(componenttype_is_record.get(comp.componenttype))
+
+def _record_shape(resolved_shape):
+    """A record label only renders inside a record shape, so the flag overrides
+    whatever shape was resolved — preserving Mrecord (the rounded variant) if
+    that is what was asked for."""
+    return 'Mrecord' if resolved_shape == 'Mrecord' else 'record'
+
+def _record_node(node_id, title, comp, attribs, click, shape=None):
+    """Build a record node whose ports come from the component's port
+    attributes. `title` becomes the <f0> field (this app's convention — see
+    default_components['Receiver'] and the f0 skip in the editor's port
+    extraction); numbered channels become <f1>..<fN>, and the three optional
+    ports become <t1>/<t2>/<t3>.
+
+    Every channel is emitted, used or not: record fields are sub-fields of one
+    node, so unlike separate per-port nodes they cost almost nothing."""
+    count = comp.attr_channel_count or 4
+    parts = [f'"{node_id}" [label = "<f0>{_dot_record_escape(title)}']
+    for x in range(1, count + 1):
+        parts.append(f'| <f{x}>Port {x} ')
+    if comp.attr_telemetry_port:
+        parts.append(' | <t1>Telemetry ')
+    if comp.attr_sbus_port:
+        parts.append(' | <t2>SBUS ')
+    if comp.attr_pwr_port:
+        parts.append(' | <t3>Power ')
+    parts.append(f'"; shape = "{_record_shape(shape)}"; {attribs};{click}];')
+    return ''.join(parts)
+
+def record_port_options(comp, label):
+    """The ports _record_node() will emit, as (port, label) pairs, for the
+    editor's connection dropdowns. Shares its channel/flag reading with the
+    generator so the two cannot drift."""
+    ports = []
+    count = comp.attr_channel_count or 4
+    for x in range(1, count + 1):
+        ports.append((f'f{x}', f'{label} — Port {x}'))
+    if comp.attr_telemetry_port:
+        ports.append(('t1', f'{label} — Telemetry'))
+    if comp.attr_sbus_port:
+        ports.append(('t2', f'{label} — SBUS'))
+    if comp.attr_pwr_port:
+        ports.append(('t3', f'{label} — Power'))
+    return ports
+
 def dot_title(model_name):
     return f"""
 // Title
@@ -396,17 +477,33 @@ def creatediagramfromcomponents(model_id):
         compname = row.component.diagramname if row.component.diagramname else row.component.name
         label = _dot_label(compname, row.purpose, row.note)
         click = _dot_click_attribs(row.component.id)
-        # None means no receiver channel — component floats as unconnected node
-        from_ref = f'"{receiver_node_id}":f{row.channel}' if (receiver_node_id and row.channel) else None
+        # None means no receiver channel — component floats as unconnected node.
+        # The node_id guard matters now that a record component reaches an
+        # edge-emitting branch: the receiver used to be handled by a case that
+        # emitted no edge at all, so a channel set on the receiver itself would
+        # now produce a self-loop.
+        from_ref = (f'"{receiver_node_id}":f{row.channel}'
+                    if (receiver_node_id and row.channel and node_id != receiver_node_id)
+                    else None)
+
+        is_record = _resolves_to_record(row.component)
 
         if comptype not in components:
             _diag = componenttype_diagram.get(comptype)
-            if not _diag or not _diag.get('shape'):
+            # A record-flagged type needs no explicit shape — the flag implies
+            # one — but a non-record type with no shape has nothing to draw.
+            if not _diag or not (_diag.get('shape') or is_record):
                 continue
-            nodes.append(
-                f'"{node_id}" [label="{label}"; '
-                f'shape="{_diag["shape"]}"; style="filled"; fillcolor="{_diag["color"]}";{click}];'
-            )
+            _attribs = f'style="filled"; fillcolor="{_diag["color"] if _diag else "#efefef"}"'
+            if is_record:
+                nodes.append(_record_node(
+                    node_id, _dot_label(compname, None, row.note), row.component,
+                    _attribs, click, _diag.get('shape') if _diag else None))
+            else:
+                nodes.append(
+                    f'"{node_id}" [label="{label}"; '
+                    f'shape="{_diag["shape"]}"; {_attribs};{click}];'
+                )
             if from_ref:
                 edges.append(f'{from_ref} -> "{node_id}" [{edge_attribs[_diag["edge"]]}];')
             continue
@@ -427,27 +524,24 @@ def creatediagramfromcomponents(model_id):
                     nodes.append(f'"{node_id}" [label="{_dot_label(compname, None, row.note)}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}";{click}];')
                     if esc_node_id:
                         edges.append(f'"{esc_node_id}" -> "{node_id}" [{edge_attribs[components[comptype]["edgeattrib"]]}];')
-                case 'Receiver':
-                    count = 4
-                    ports = []
-                    if row.component.attr_channel_count:
-                        count = row.component.attr_channel_count
-                    # The record label is its own mini-syntax — | < > separate
-                    # and name the fields — so the component name is escaped
-                    # against those characters rather than plain-label rules.
-                    ports.append(f'"{node_id}" [label = "<f0>{_dot_record_escape(_dot_label(compname, None, row.note))}')
-                    for x in range(1, count + 1):
-                        ports.append(f'| <f{x}>Port {x} ')
-                    if row.component.attr_telemetry_port:
-                        ports.append(' | <t1>Telemetry ')
-                    if row.component.attr_sbus_port:
-                        ports.append(' | <t2>SBUS ')
-                    if row.component.attr_pwr_port:
-                        ports.append(' | <t3>Power ')
-                    ports.append(f'";shape = "record"; {components[comptype]["attribs"]};{click}];')
-                    nodes.append(''.join(ports))
                 case 'Battery':
                     pass
+                case _ if is_record:
+                    # Replaces what used to be a hardcoded `case 'Receiver':`.
+                    # Receiver is now simply the one built-in type seeded with
+                    # the record flag; Flight Controller, Flybarless Controller
+                    # or an admin-added type behave identically once flagged.
+                    #
+                    # Placed after ESC/Motor/Battery deliberately: those three
+                    # carry bespoke wiring (esc_node_id tracking, and batteries
+                    # being emitted by the battery loop below instead), which a
+                    # record node would break. Flagging one of them is a no-op.
+                    nodes.append(_record_node(
+                        node_id, _dot_label(compname, None, row.note), row.component,
+                        components[comptype]["attribs"], click,
+                        components[comptype]["shape"]))
+                    if from_ref:
+                        edges.append(f'{from_ref} -> "{node_id}" [{edge_attribs[components[comptype]["edgeattrib"]]}];')
                 case _:
                     nodes.append(f'"{node_id}" [label="{label}"; {components[comptype]["attribs"]}; shape="{components[comptype]["shape"]}";{click}];')
                     if from_ref:
@@ -555,10 +649,16 @@ def editmodeldiagram():
     # ("replace all nodes and connections... custom wiring lost").
     model_nodes_dot = model_components_dot
 
-    # Build node options for the connections manager dropdowns (mc{id} scheme),
-    # including one entry per receiver port. These port entries are UI-level
-    # ids — the editor maps e.g. mc12_p3 to the real DOT port reference
-    # "mc12":f3 when it writes an edge, and back again when it reads one.
+    # Build node options for the connections manager dropdowns. An option id is
+    # the DOT reference itself, unquoted: "mc12" for a whole node, "mc12:f3" for
+    # one of its ports. That mapping is lossless, so any port name round-trips —
+    # unlike the old mc12_p3/_tlm/_sbus/_pwr suffix scheme, which could only
+    # express f<n>/t1/t2/t3 and silently dropped edges to anything else.
+    #
+    # These cover the components this model already knows about, with good
+    # labels. The editor's getAllNodeIds() adds any further ports it finds by
+    # parsing the live document (customdot records, connector terminals,
+    # hand-written nodes); its Map de-dupes by id, so these labels win.
     model_comps = db(db.model_component.model == model_id).select()
     node_options = []
     for mc in model_comps:
@@ -567,16 +667,9 @@ def editmodeldiagram():
             continue
         label = comp.diagramname if comp.diagramname else comp.name
         node_options.append({'id': 'mc' + str(mc.id), 'label': label})
-        if comp.componenttype == 'Receiver':
-            count = comp.attr_channel_count or 4
-            for x in range(1, count + 1):
-                node_options.append({'id': f'mc{mc.id}_p{x}', 'label': f'{label} — Port {x}'})
-            if comp.attr_telemetry_port:
-                node_options.append({'id': f'mc{mc.id}_tlm', 'label': f'{label} — Telemetry'})
-            if comp.attr_sbus_port:
-                node_options.append({'id': f'mc{mc.id}_sbus', 'label': f'{label} — SBUS'})
-            if comp.attr_pwr_port:
-                node_options.append({'id': f'mc{mc.id}_pwr', 'label': f'{label} — Power'})
+        if _resolves_to_record(comp):
+            for port, port_label in record_port_options(comp, label):
+                node_options.append({'id': f'mc{mc.id}:{port}', 'label': port_label})
 
     for batt_row in db(db.model_battery.model == model_id).select().render():
         batt_count = batt_row.quantity if batt_row.quantity else 1

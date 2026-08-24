@@ -94,9 +94,22 @@ def getDatabaseHelp(field) -> str:
             Use this format:
 
                 [label="My Component\nPurpose"; shape=box; color=blue];
-            
+
             to customize how this component appears in diagrams. You can use {id}, {name}, and {purpose}
-            as variables that will be replaced with the component's unique ID, name, and purpose respectively
+            as variables that will be replaced with the component's unique ID, name, and purpose respectively.
+
+            For a component with individually connectable ports, use a record instead. Each <name>
+            marks a field that wires can attach to on its own:
+
+                [label="<f0>{name}|<out_a>Out A|<out_b>Out B"; shape=record];
+
+            The first field holds the component's name and is not connectable; every other field
+            becomes its own entry in the diagram editor's From/To lists. Because | < > separate and
+            name the fields, a label containing those characters must escape them with a backslash.
+
+            Writing a record here overrides the Port Record setting on this component and its type -
+            use the setting instead when the ports are just the channel/telemetry/SBUS/power
+            attributes, since those are generated for you.
             """
         case 'component.diagramname':
             return """

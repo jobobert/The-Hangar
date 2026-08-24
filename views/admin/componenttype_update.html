@@ -142,6 +142,21 @@ Your submitted form contains the following errors:
                         <small class="text-muted">Leave blank to exclude from diagrams.</small>
                     </div>
                 </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label" for="meta_diagram_is_record">Port Record</label>
+                    <div class="col-sm-4 d-flex align-items-center">
+                        <input type="checkbox" class="mr-2"
+                               name="meta_diagram_is_record" id="meta_diagram_is_record"
+                               value="on" {{='checked' if diagram_is_record else ''}}>
+                        <small class="text-muted">Draw as a record with individually connectable ports</small>
+                    </div>
+                    <div class="col-sm-5 d-flex align-items-center">
+                        <small class="text-muted">
+                            Ports come from this type's Channel Count, Telemetry, SBUS and Power
+                            attributes. Overrides Shape. A component can override this individually.
+                        </small>
+                    </div>
+                </div>
                 <div class="form-group row align-items-center">
                     <label class="col-sm-3 col-form-label" for="meta_diagram_color">Fill Color</label>
                     <div class="col-sm-2">

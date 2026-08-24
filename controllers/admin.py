@@ -474,6 +474,8 @@ def componenttype_update():
             diagram_shape      = (request.post_vars.get('meta_diagram_shape') or '').strip(),
             diagram_color      = (request.post_vars.get('meta_diagram_color') or '#efefef').strip(),
             diagram_edgeattrib = (request.post_vars.get('meta_diagram_edgeattrib') or 'default').strip(),
+            # An unchecked checkbox posts nothing, so absence means False.
+            diagram_is_record  = bool(request.post_vars.get('meta_diagram_is_record')),
             pinned_cols        = json.dumps(request.post_vars.getlist('meta_pinned_cols') or []),
         )
 
@@ -525,6 +527,7 @@ def componenttype_update():
         diagram_shape=old_row.diagram_shape if old_row else '',
         diagram_color=old_row.diagram_color if old_row else '#efefef',
         diagram_edgeattrib=old_row.diagram_edgeattrib if old_row else 'default',
+        diagram_is_record=bool(old_row.diagram_is_record) if old_row else False,
         pinnable_cols=pinnable_cols,
     )
 

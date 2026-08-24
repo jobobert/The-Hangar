@@ -103,6 +103,7 @@ Join path to models: `model_component.model` where `model_component.component = 
 | serial                | Serial Number      | string            |                     |      |         |
 | diagramname           | Diagram Name       | string            |                     |  ✓  |         |
 | customdot             | Custom .dot Code   | string            |                     |  ✓  |         |
+| diagram_is_record     | Port Record        | string (tri)      |                     |      |         |
 | notes                 | Notes              | text              |                     |      |         |
 | img                   | Picture            | upload            |                     |      |         |
 | attachment            | Attachment         | upload            |                     |      |         |
@@ -367,7 +368,31 @@ in `models/db.py`, so an admin edit takes effect without re-saving any diagram.
 | db.diagramedge         | `stroke_color`, `stroke_width`, `stroke_style`, `arrow_start`, `arrow_end`   | `dot_attribs` (hidden, historical only) |
 | db.diagram_component   | `shape`, `fillcolor`, `stroke_color`, `stroke_width`, `stroke_style`         | `dot_attribs` (hidden, historical only) |
 | db.diagram_connector   | `left_count`, `right_count`, `left_label`, `right_label`, `fillcolor`        | `custom_dot` (raw DOT override)         |
-| db.componenttype       | `diagram_shape`, `diagram_color`, `diagram_edgeattrib`                       | —                                       |
+| db.componenttype       | `diagram_shape`, `diagram_color`, `diagram_edgeattrib`, `diagram_is_record`  | —                                       |
 
 `arrow_start` / `arrow_end` are why generated diagrams are `digraph`s: Graphviz
 ignores `dir`/`arrowhead`/`arrowtail` in an undirected `graph`.
+
+### Port records
+
+`diagram_is_record` marks a component as a Graphviz `record` — a node whose ports
+(`<f1>`, `<t1>`, …) accept edges individually, as `"mc12":f3`. It is deliberately
+separate from `diagram_shape`: a shape is how a node is drawn, ports are what it is,
+and keying off the shape string would miss `Mrecord` and force `diagram_shape` to start
+overriding the hardcoded `components` dict in `controllers/diagram.py`.
+
+Resolution runs highest-priority-first, and the first level that applies wins:
+
+| # | Source | Supplies |
+| --- | --- | --- |
+| 1 | the node already in `model.diagram` | a record label → ports are **extracted** from it |
+| 2 | `component.customdot` | a record label → ports are **extracted** from it |
+| 3 | `component.diagram_is_record` (`yes`/`no`; `''` = inherit) | the decision only → ports **generated** |
+| 4 | `componenttype.diagram_is_record` (boolean) | the decision only → ports **generated** |
+| 5 | none | plain node |
+
+Generated ports come from `attr_channel_count` plus `attr_telemetry_port` /
+`attr_sbus_port` / `attr_pwr_port`. Extraction lives in `getAllNodeIds()` /
+`extractNodePorts()` in `views/diagram/editmodeldiagram.html` — the only place that sees
+the live document — and also covers a connector's HTML-table `port="l1"` terminals.
+ESC, Motor and Battery ignore the flag: they carry bespoke wiring in the generator.

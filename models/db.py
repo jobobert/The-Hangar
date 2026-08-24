@@ -398,6 +398,15 @@ db.define_table('componenttype',
     Field('diagram_shape',      type='string',      label='Diagram Shape', default=''),
     Field('diagram_color',      type='string',      label='Diagram Color', default='#efefef'),
     Field('diagram_edgeattrib', type='string',      label='Diagram Edge',  default='default'),
+    # Structural, not cosmetic — deliberately NOT inferred from diagram_shape
+    # == 'record'. A shape is how a node is drawn; "has addressable ports" is
+    # what it is. Keying off the shape string would also silently miss
+    # 'Mrecord' (Graphviz's rounded record), and would force diagram_shape to
+    # start overriding the hardcoded `components` dict in controllers/diagram.py
+    # — a behavior change for all 18 built-in types. See component.diagram_is_record
+    # for the per-component override.
+    Field('diagram_is_record',  type='boolean',     label='Port Record',   default=False,
+          comment='Components of this type render as a record with individually connectable ports'),
     Field('pinned_cols',        type='text',         label='Pinned Columns', default=''),
     format=lambda r: r.name
 )
@@ -1097,6 +1106,13 @@ db.define_table('component',
                 Field('serial', type='string', label='Serial Number'), 
                 Field('diagramname', type='string', label='Diagram Name', comment='The name used in the diagram', required=False, unique=False),
                 Field('customdot', type='string', label='Custom .dot Code', comment='Custom .dot code for diagrams', required=False, unique=False),
+                # Tri-state rather than boolean: '' means "inherit from the
+                # componenttype", which is what makes this a hierarchy instead of
+                # two independent switches. A boolean could not distinguish
+                # "not specified" from "explicitly no".
+                Field('diagram_is_record', type='string', label='Port Record', default='',
+                      requires=IS_IN_SET([('', 'Inherit from type'), ('yes', 'Yes'), ('no', 'No')], zero=None),
+                      comment='Render as a record with individually connectable ports'),
                 Field('componenttype', type='string', label='Type', comment='The type of component', required=True), 
                 Field('componentsubtype', type='string', label='Subtype', comment='The Sub Type'), 
                 Field('ownedcount', type='integer', label='Count', comment='How many are owned?', default=0, widget=lambda field, value: SQLFORM.widgets.integer.widget(field, value, _type='number', _class='generic-widget form-control')), 
@@ -1929,10 +1945,21 @@ if not _migration_applied('componenttype_seed_v1'):
                 diagram_shape      = _lm.get('diagram_shape') or _diag.get('shape', ''),
                 diagram_color      = _diag.get('color', '#efefef'),
                 diagram_edgeattrib = _diag.get('edge', 'default'),
+                diagram_is_record  = (_lm.get('diagram_shape') or _diag.get('shape', '')) in ('record', 'Mrecord'),
             )
     # Remove lookup componenttype rows now that db.componenttype is the authority.
     db(db.lookup.category == 'componenttype').delete()
     _mark_migration('componenttype_seed_v1')
+
+# Backfill the record flag for types already configured with a record shape —
+# today that is exactly Receiver, so existing diagrams keep their ports without
+# anyone having to tick a box. Field(default=...) only applies at insert time,
+# not to rows that predate the column.
+if not _migration_applied('componenttype_is_record_v1'):
+    db(db.componenttype.diagram_shape.belongs(('record', 'Mrecord'))).update(diagram_is_record=True)
+    db(db.componenttype.diagram_is_record == None).update(diagram_is_record=False)
+    _mark_migration('componenttype_is_record_v1')
+    db.commit()
 
 # Built-in component types are system-locked to prevent deletion/renaming of core types.
 # This corrects an earlier seed that left all types with is_system=False.
@@ -2162,17 +2189,24 @@ _PHYSICAL_ATTR_NAMES = [
 
 component_attribs = {}
 componenttype_diagram = {}
+# Kept separate from componenttype_diagram, which is only populated for types
+# that have a diagram_shape: the record flag is meaningful even for a type with
+# no shape set (the flag implies shape="record"), so it needs its own map over
+# every type.
+componenttype_is_record = {}
 for _row in db(db.componenttype.id > 0).select():
     _type_attrs = list(_row.attrs or [])
     for _pa in _PHYSICAL_ATTR_NAMES:
         if _pa not in _type_attrs:
             _type_attrs.append(_pa)
     component_attribs[_row.name] = _type_attrs
+    componenttype_is_record[_row.name] = bool(_row.diagram_is_record)
     if _row.diagram_shape:
         componenttype_diagram[_row.name] = {
             'shape': _row.diagram_shape,
             'color': _row.diagram_color or '#efefef',
             'edge':  _row.diagram_edgeattrib or 'default',
+            'is_record': bool(_row.diagram_is_record),
         }
 
 # set all modelcategory from 'Remote Control' to 'Dynamic'
