@@ -1,0 +1,130 @@
+{{extend 'layout.html'}}
+
+{{block head}}
+<style>
+    /* Landscape Letter, scoped to this view. Overrides the global portrait
+       `@page` in static/css/thehangar.css and Bootstrap's `@page{size:a3}` --
+       this block is emitted after both stylesheets, so it wins the cascade.
+       The size is declared here (not left to the print dialog) because the
+       fit-to-page math below needs to know the exact paper box. */
+    @page {
+        size: 11in 8.5in;
+        margin: 0.3in;
+    }
+
+    .diagram-scroll {
+        overflow-x: auto;
+    }
+
+    /* The printable area: 11in - 0.6in wide by 8.5in - 0.6in tall. Sized on
+       screen too, so the page doubles as a true preview of the sheet. */
+    .diagram-sheet {
+        width: 10.4in;
+        height: 7.9in;
+        overflow: hidden;
+    }
+
+    @media print {
+        /* Bootstrap's print block forces body/.container to 992px, which on its
+           own clips the page horizontally no matter how small the diagram is. */
+        body,
+        .container,
+        .container-fluid {
+            min-width: 0 !important;
+        }
+
+        body,
+        .container-fluid,
+        .main-container,
+        .diagram-sheet,
+        #graph-container {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* The DOT itself renders "<model> Wiring Diagram" as a graph label
+           (dot_title() in controllers/diagram.py), so the on-page heading is
+           redundant here. The whole row goes, not just the <h1>: an emptied
+           row still contributes its `mb-2` margin, and the sheet already fills
+           the printable height exactly, so even 8px spills onto a second page. */
+        .print-header {
+            display: none !important;
+        }
+
+        /* The screen scroller must not clip on paper. */
+        .diagram-scroll {
+            overflow: visible !important;
+        }
+    }
+</style>
+{{end}}
+
+<script src="{{=URL('static','js/viz-global.js')}}"></script>
+
+<div class="row mb-2 print-header">
+    <div class="col">
+        <h1>Diagram for {{=model_name}}</h1>
+    </div>
+    <div class="col-auto align-self-center">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">Print</button>
+    </div>
+</div>
+
+<div class="diagram-scroll">
+    <div class="diagram-sheet">
+        <div id="graph-container"></div>
+    </div>
+</div>
+
+<script>
+    // IIFE, not top-level declarations: this fragment is injected into a host page
+    // that has its own script scope (views/model/index.html already declares a
+    // `container`), and a top-level const here would collide with it.
+    (function () {
+        // Printable area of the @page above, in points (72pt = 1in). Graphviz
+        // emits SVG dimensions in the same points CSS uses, so no conversion.
+        const PAGE_W_PT = 748.8;   // (11in  - 0.6in) * 72
+        const PAGE_H_PT = 568.8;   // (8.5in - 0.6in) * 72
+
+        // Shrink an oversized graph until it fits the sheet. Only the width and
+        // height attributes change; the viewBox is left alone, so the SVG scales
+        // its own contents and stays vector. Setting the real dimensions (rather
+        // than a CSS transform) also shrinks the layout box, so an oversized
+        // diagram can't spill onto a second page.
+        function fitToPage(svg) {
+            let w = parseFloat(svg.getAttribute('width'));
+            let h = parseFloat(svg.getAttribute('height'));
+
+            if (!(w > 0 && h > 0)) {
+                const vb = (svg.getAttribute('viewBox') || '').split(/[\s,]+/);
+                w = parseFloat(vb[2]);
+                h = parseFloat(vb[3]);
+            }
+
+            if (!(w > 0 && h > 0)) return;   // nothing sane to scale against
+
+            // Cap at 1: small diagrams print at natural size, never blown up.
+            const scale = Math.min(PAGE_W_PT / w, PAGE_H_PT / h, 1);
+
+            svg.setAttribute('width', (w * scale).toFixed(2) + 'pt');
+            svg.setAttribute('height', (h * scale).toFixed(2) + 'pt');
+        }
+
+        // Saved text is rendered verbatim — a legacy undirected `graph`/`--`
+        // document and a generated `digraph`/`->` one both render as-is.
+        const dotGraph = `{{=XML(dot)}}`;
+        const container = document.getElementById("graph-container");
+
+        if (dotGraph.trim()) {
+            Viz.instance().then(viz => {
+                const svg = viz.renderSVGElement(dotGraph);
+                fitToPage(svg);
+                container.replaceChildren(svg);
+            }).catch(err => {
+                container.textContent = 'Diagram error: ' + err;
+            });
+        } else {
+            container.textContent = 'No diagram yet.';
+        }
+    })();
+</script>

@@ -5,7 +5,9 @@
 <div>
     {{=A("Edit", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="btn btn-primary")}}
 
-    <div style="overflow-x:auto"><div id="graph-container" class="col"></div></div>
+    <div style="overflow-x:auto">
+        <div id="graph-container" class="col"></div>
+    </div>
 </div>
 
 {{else:}}
@@ -15,13 +17,17 @@
             <span class="card-icon">{{=controller_icon('diagram', 25)}}</span>
             Wiring Diagram
         </h5>
-        {{=A("Edit", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="card-link th-new-link")}}
+        {{# Kept as bare siblings so `.th-new-link + .th-new-link` can space them. }}
+        {{=A(" Print ", _href=URL('diagram', 'printmodeldiagram.html', args=model_id ), _class="card-link th-new-link")}}
+        {{=A(" Edit ", _href=URL('diagram', 'editmodeldiagram.html', args=model_id ), _class="card-link th-new-link")}}
 
     </div>
 
     <div class="card-body">
 
-        <div style="overflow-x:auto"><div id="graph-container" class="col"></div></div>
+        <div style="overflow-x:auto">
+            <div id="graph-container" class="col"></div>
+        </div>
 
     </div>
 
@@ -30,24 +36,24 @@
 
 
 <script>
-// IIFE, not top-level declarations: this fragment is injected into a host page
-// that has its own script scope (views/model/index.html already declares a
-// `container`), and a top-level const here would collide with it.
-(function () {
-    // Saved text is rendered verbatim — a legacy undirected `graph`/`--`
-    // document and a generated `digraph`/`->` one both render as-is.
-    const dotGraph = `{{=XML(dot)}}`;
-    const container = document.getElementById("graph-container");
+    // IIFE, not top-level declarations: this fragment is injected into a host page
+    // that has its own script scope (views/model/index.html already declares a
+    // `container`), and a top-level const here would collide with it.
+    (function () {
+        // Saved text is rendered verbatim — a legacy undirected `graph`/`--`
+        // document and a generated `digraph`/`->` one both render as-is.
+        const dotGraph = `{{=XML(dot)}}`;
+        const container = document.getElementById("graph-container");
 
-    if (dotGraph.trim()) {
-        Viz.instance().then(viz => {
-            const svg = viz.renderSVGElement(dotGraph);
-            container.replaceChildren(svg);
-        }).catch(err => {
-            container.textContent = 'Diagram error: ' + err;
-        });
-    } else {
-        container.textContent = 'No diagram yet.';
-    }
-})();
+        if (dotGraph.trim()) {
+            Viz.instance().then(viz => {
+                const svg = viz.renderSVGElement(dotGraph);
+                container.replaceChildren(svg);
+            }).catch(err => {
+                container.textContent = 'Diagram error: ' + err;
+            });
+        } else {
+            container.textContent = 'No diagram yet.';
+        }
+    })();
 </script>

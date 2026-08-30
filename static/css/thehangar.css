@@ -327,6 +327,18 @@ div.card-footer-dark {
 
 }
 
+/* Space out card-header links when there is more than one, mirroring
+   Bootstrap's own `.card-link + .card-link` rule. Because these float right,
+   the first in source order lands rightmost and each later one sits to its
+   left -- so the gap comes from margin-right on the later link, and a lone
+   link is unaffected (margin-left/right of a solitary right float can't move
+   it off the right edge). Do not wrap these in a span to space them: a float
+   leaves its wrapper with no in-flow content, so the wrapper's padding
+   collapses to nothing and this selector stops matching. */
+.th-new-link + .th-new-link {
+    margin-right: 1rem;
+}
+
 .component_name {
     display: inline;
 }

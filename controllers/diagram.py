@@ -1,6 +1,15 @@
 import re
 import json
 
+def printmodeldiagram():
+    session.forget(response)
+
+    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
+
+    model = db.model(model_id)
+
+    return dict(dot=model.diagram, model_name=model.name)
+
 def rendermodeldiagram():
     session.forget(response)
 
@@ -68,7 +77,7 @@ components = {
         {'id': 'retract', 'shape': 'parallelogram', 'attribs': 'style="filled"; fillcolor="#666699"', 'edgeattrib': '5v Servo'}
     
     , 'Battery': 
-        {'id': 'batt', 'shape': 'circle', 'attribs': 'style="filled"; fillcolor="#ffcc00"', 'edgeattrib': '12v 12gauge'}
+        {'id': 'batt', 'shape': 'egg', 'attribs': 'style="filled"; fillcolor="#ffcc00"', 'edgeattrib': '12v 12gauge'}
     , 'Connector': 
         {'id': 'conn', 'shape': 'house', 'attribs': 'style="filled"; fillcolor="#806600"', 'edgeattrib': '12v 12gauge'}
 
