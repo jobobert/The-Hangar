@@ -111,7 +111,7 @@
 
                                         {{if key.startswith('attr_plane_') and selectedmodel.modeltype != 'Airplane' :}}{{c="model_attr_light"}}
                                         {{elif key.startswith('attr_rocket_') and selectedmodel.modeltype != 'Rocket':}}{{c="model_attr_light"}}
-                                        {{elif key.startswith('attr_boat_') and selectedmodel.modeltype != 'Boat':}}{{c="model_attr_light"}}
+                                        {{elif key.startswith('attr_boat_') and selectedmodel.modeltype not in ('Boat', 'Submarine'):}}{{c="model_attr_light"}}
                                         {{elif key.startswith('attr_copter_') and (selectedmodel.modeltype != 'Helicopter' and selectedmodel.modeltype != 'Autogyro') :}}{{c="model_attr_light"}}
                                         {{elif key.startswith('attr_multi_') and selectedmodel.modeltype != 'Multirotor' :}}{{c="model_attr_light"}}
                                         {{elif key.startswith('attr_robot_') and selectedmodel.modeltype != 'Robot' :}}{{c="model_attr_light"}}

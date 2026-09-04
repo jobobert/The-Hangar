@@ -97,7 +97,9 @@
 </div>
 
 
+{{if model.transmitter:}}
 {{=LOAD('transmitter', 'renderexport.load', args=[model.transmitter.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Transmitter Details"))}}
+{{pass}}
 
 <div style="margin-left: 3rem">
     <h4 class="export-h4">Switch Details</h4>

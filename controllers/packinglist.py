@@ -63,8 +63,12 @@ def thelist():
             if model.transmitter.name not in transmitter_list:
                 transmitter_list.append(model.transmitter.name)
 
-        model_list.append((model.name, model.attr_plane_rem_wings or False, model.attr_plane_rem_wing_tube or False,
-                           model.attr_plane_rem_struts or False, rig_list))
+        model_list.append((model.name,
+                           model.attr_plane_rem_wings or False,
+                           model.attr_plane_rem_wing_tube or False,
+                           model.attr_plane_rem_struts or False,
+                           model.attr_boat_rem_planes or False,
+                           rig_list))
     if len(model_list) > 0:
         model_list = sorted([item for item in model_list if item is not None])
     if len(transmitter_list) > 0:

@@ -50,8 +50,14 @@
             </div>
 
             <div style="margin-left: 2em; ">
-                {{if len(x[4]) > 0:}}
-                {{for s in x[4]:}}
+                {{if x[4]:}}
+                <input type="checkbox" class="packinglist-checkbox" />Dive Planes
+                {{pass}}
+            </div>
+
+            <div style="margin-left: 2em; ">
+                {{if len(x[5]) > 0:}}
+                {{for s in x[5]:}}
                 <input type="checkbox" class="packinglist-checkbox" />{{=s}}<br />
                 {{pass}}
 

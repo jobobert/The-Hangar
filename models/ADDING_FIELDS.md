@@ -26,6 +26,14 @@ db.model.attr_plane_mymmprop.extra = {'measurement': 'mm'}
 
 Supported measurement keys: `mm`, `oz`, `dm2`, `sqin`, `cc`.
 
+> **A new `notnull=True` field must also carry an explicit `default=`.** The app runs on
+> SQLite, and pydal only emits `DEFAULT 'F' NOT NULL` when `field.default is not None`.
+> Without a default it emits a bare `NOT NULL`, which SQLite refuses on
+> `ALTER TABLE ... ADD COLUMN` — the app then fails to boot against any existing database.
+> Some older fields (`attr_plane_rem_wings`) have `notnull` with no default; they predate
+> the table's creation and are not a pattern to copy. Use
+> `type='boolean', notnull=True, default=False`.
+
 **For `db.component`** — inside `db.define_table('component', ...)` (~line 747), same
 pattern. Add `.extra` after that block (~line 815).
 

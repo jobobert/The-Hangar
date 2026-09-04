@@ -619,8 +619,12 @@ db.define_table('model'
                 , Field('attr_rocket_body_tube', type='string', label='Body Tube', comment='What is the size of the body tube?')
                 , Field('attr_rocket_motors', type='list:string', label='Motors', comments='Motors, seperated by "|"')
                 #
-                , Field('attr_boat_draft', type='double', label='Draft', comment='The draft in mm', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))                
-                # 
+                , Field('attr_boat_draft', type='double', label='Draft', comment='The draft in mm', widget=lambda field, value: SQLFORM.widgets.double.widget(field, value, _type='number', _step='any', _class='generic-widget form-control'))
+                # NB: notnull needs an explicit default here. The attr_plane_rem_* booleans
+                # get away without one only because they predate the table's creation; a new
+                # NOT NULL column with a NULL default cannot be added to an existing SQLite table.
+                , Field('attr_boat_rem_planes', type='boolean', notnull=True, default=False, label='Removable Dive Planes?', comment='Does it have removable dive planes?')
+                #
                 , Field('attr_sub_ballast', type='string', label='Ballast Type', comment='The ballast type')
                 #
                 , Field('attr_copter_headtype', type='string', label='Head Type', comment='The type of rotor head')
@@ -955,30 +959,32 @@ modeltype_controller_mapping = {
 # Fields that are not editable when a modeltype is selected
 # This list seeds new modeltype DB entries only — the admin is the source of truth.
 modeltype_hide_attribs = {
-    'Airplane'    : [],
-    'Rocket'      : ['controltype', 'attr_covering'],
+    'Airplane'    : ['attr_boat_rem_planes'],
+    'Rocket'      : ['controltype', 'attr_covering', 'attr_boat_rem_planes'],
     'Boat'        : ['attr_covering'],
-    'Helicopter'  : ['attr_covering'],
-    'Multirotor'  : ['attr_covering'],
-    'Robot'       : ['attr_covering'],
+    'Helicopter'  : ['attr_covering', 'attr_boat_rem_planes'],
+    'Multirotor'  : ['attr_covering', 'attr_boat_rem_planes'],
+    'Robot'       : ['attr_covering', 'attr_boat_rem_planes'],
     'Experimental': [],
-    'Car'         : ['attr_cog', 'attr_covering'],
-    'Autogyro'    : [],
+    'Car'         : ['attr_cog', 'attr_covering', 'attr_boat_rem_planes'],
+    'Autogyro'    : ['attr_boat_rem_planes'],
     'Submarine'   : ['attr_covering'],
     'Non-Model'   : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog',
-                     'attr_covering', 'configbackup', 'transmitter', 'protocol'],
+                     'attr_covering', 'configbackup', 'transmitter', 'protocol',
+                     'attr_boat_rem_planes'],
     'Miniature'   : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog',
-                     'attr_covering', 'configbackup', 'transmitter', 'protocol'],
-    'Train'       : ['attr_cog', 'attr_covering', 'configbackup'],
+                     'attr_covering', 'configbackup', 'transmitter', 'protocol',
+                     'attr_boat_rem_planes'],
+    'Train'       : ['attr_cog', 'attr_covering', 'configbackup', 'attr_boat_rem_planes'],
     'Other'       : [],
     'HAM Radio'   : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog', 'attr_covering',
-                     'configbackup', 'transmitter', 'protocol',
+                     'configbackup', 'transmitter', 'protocol', 'attr_boat_rem_planes',
                      'attr_antenna_type', 'attr_antenna_gain_dbi', 'attr_antenna_freq_low_mhz',
                      'attr_antenna_freq_high_mhz', 'attr_antenna_max_power_w',
                      'attr_antenna_impedance_ohm', 'attr_antenna_connector',
                      'attr_antenna_polarization', 'attr_antenna_mount', 'attr_antenna_elements'],
     'Antenna'     : ['controltype', 'powerplant', 'attr_flight_timer', 'attr_cog', 'attr_covering',
-                     'configbackup', 'transmitter', 'protocol',
+                     'configbackup', 'transmitter', 'protocol', 'attr_boat_rem_planes',
                      'attr_hardware_os', 'attr_hardware_os_version', 'attr_hardware_firmware_version',
                      'attr_radio_freq_low_mhz', 'attr_radio_freq_high_mhz', 'attr_radio_power_w',
                      'attr_radio_mode', 'attr_radio_bands', 'attr_radio_memory_ch',
@@ -991,25 +997,27 @@ modelcategory_hide_attribs = {
     'Remote Control' : [], 
     'Dynamic' : [],
     'Static' : [
-        'controltype', 
-        'powerplant', 
-        'attr_flight_timer', 
+        'controltype',
+        'powerplant',
+        'attr_flight_timer',
         'attr_cog',
         'attr_boat_draft',
+        'attr_boat_rem_planes',
         'attr_sub_ballast',
         'attr_copter_swashplate_type',
         'configbackup',
         'transmitter',
         'protocol'
-        ], 
+        ],
     'Non-Model' : [
-        'controltype', 
-        'powerplant', 
-        'attr_cog', 
-        'attr_plane_rem_wings', 
+        'controltype',
+        'powerplant',
+        'attr_cog',
+        'attr_plane_rem_wings',
         'attr_plane_rem_wing_tube',
         'attr_plane_rem_struts',
         'attr_boat_draft',
+        'attr_boat_rem_planes',
         'attr_sub_ballast',
         'attr_copter_swashplate_type',
         'configbackup',
@@ -2142,6 +2150,33 @@ if not _migration_applied('clear_invalid_upload_values_v1'):
                 if not re.match(REGEX_UPLOAD_PATTERN, _r[_field.name] or ''):
                     db(db[_tname].id == _r.id).update(**{_field.name: None})
     _mark_migration('clear_invalid_upload_values_v1')
+    db.commit()
+
+# Hide attr_boat_rem_planes on the model types and categories it does not apply to.
+# The metadata seeds (modeltype_metadata_v1 / modelcategory_metadata_v1) have already run
+# on existing databases, so the hardcoded dicts above never reach them. Append-only: this
+# never removes anything an admin has already set.
+if not _migration_applied('boat_rem_planes_hide_v1'):
+    _BRP = 'attr_boat_rem_planes'
+    # Experimental and Other are deliberate catch-alls and hide nothing.
+    _BRP_KEEP_TYPES = frozenset(['Boat', 'Submarine', 'Experimental', 'Other'])
+    _BRP_HIDE_CATS = frozenset(['Static', 'Non-Model'])
+    for _cat in ('modeltype', 'modelcategory'):
+        for _row in db(db.lookup.category == _cat).select():
+            if _cat == 'modeltype' and _row.name in _BRP_KEEP_TYPES:
+                continue
+            if _cat == 'modelcategory' and _row.name not in _BRP_HIDE_CATS:
+                continue
+            try:
+                _m = _json.loads(_row.metadata or '{}')
+            except (ValueError, TypeError):
+                _m = {}
+            _hide = _m.get('hide', [])
+            if _BRP not in _hide:
+                _hide.append(_BRP)
+                _m['hide'] = _hide
+                _row.update_record(metadata=_json.dumps(_m))
+    _mark_migration('boat_rem_planes_hide_v1')
     db.commit()
 
 # Load runtime dicts from lookup metadata (overrides the hardcoded dicts above).

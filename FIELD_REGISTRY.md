@@ -68,6 +68,7 @@ Blank cell = no / not applicable. `?` = uncertain, needs verification.
 | attr_rocket_body_tube             | Body Tube            | string      |                       |   ✓    |    ✓    |           |      |         |
 | attr_rocket_motors                | Motors               | list:string |        direct         |   ✓    |    ✓    |           |      |         |
 | attr_boat_draft                   | Draft                | double      |        direct         |   ✓    |    ✓    |    ✓     |      |   mm    |
+| attr_boat_rem_planes              | Removable Dive Planes? | boolean   |        direct         |   ✓    |    ✓    |           |      |         |
 | attr_sub_ballast                  | Ballast Type         | string      |        direct         |   ✓    |    ✓    |           |      |         |
 | attr_copter_headtype              | Head Type            | ref lookup  |        direct         |   ✓    |          |           |      |         |
 | attr_copter_swashplate_type       | Swashplate Type      | ref lookup  |        direct         |   ✓    |    ✓    |    ✓     |      |         |

@@ -109,7 +109,7 @@ _MODEL_FIELD_GROUPS = [
     ]),
     ('Multirotor', ['attr_multi_rotor_count']),
     ('Rocket',    ['attr_rocket_parachute', 'attr_rocket_body_tube', 'attr_rocket_motors']),
-    ('Boat / Submarine', ['attr_boat_draft', 'attr_sub_ballast']),
+    ('Boat / Submarine', ['attr_boat_draft', 'attr_boat_rem_planes', 'attr_sub_ballast']),
     ('Car / Vehicle', [
         'attr_car_scale', 'attr_car_drive', 'attr_car_drivetrain',
         'attr_car_bodystyle', 'attr_car_wheelbase',

@@ -147,11 +147,15 @@ Your submitted form contains the following errors:
     <div class="card w-100 py-2">
         <div class="card-header" id="headingBoat">
             <h5 class="mb-0">
-                <a class=" " data-toggle="collapse" data-target="#collapse_boat" , aria-expanded="false" aria-controls="collapse_boat">Boat &#8681;</a>
+                <a class=" " data-toggle="collapse" data-target="#collapse_boat" , aria-expanded="false" aria-controls="collapse_boat">Boat / Submarine &#8681;</a>
             </h5>
         </div>
         <div class="card-body collapse" id="collapse_boat">
 
+            <div class="row ml-1 mb-2 border-bottom border-secondary">
+                {{=makeFormField(form, "attr_boat_rem_planes", FormFieldType.COLUMNS, columns=4)}}
+
+            </div>
             <div class="row">
                 {{=makeFormField(form, "attr_boat_draft", FormFieldType.COLUMNS, columns=6)}}
                 {{=makeFormField(form, "attr_sub_ballast", FormFieldType.COLUMNS, columns=6)}}

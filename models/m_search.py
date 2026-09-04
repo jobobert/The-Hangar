@@ -257,6 +257,18 @@ SEARCH_FIELDS = [
         'operators': ['equal'], 'values': _YES_NO,
         'table': 'model', 'field': 'attr_plane_rem_wings', 'join': None,
     },
+    {
+        'id': 'attr_plane_rem_wing_tube', 'label': 'Removable Wing Tube', 'group': 'Airplane',
+        'type': 'boolean', 'input': 'radio',
+        'operators': ['equal'], 'values': _YES_NO,
+        'table': 'model', 'field': 'attr_plane_rem_wing_tube', 'join': None,
+    },
+    {
+        'id': 'attr_plane_rem_struts', 'label': 'Removable Struts', 'group': 'Airplane',
+        'type': 'boolean', 'input': 'radio',
+        'operators': ['equal'], 'values': _YES_NO,
+        'table': 'model', 'field': 'attr_plane_rem_struts', 'join': None,
+    },
 
     # =========================================================================
     # GROUP: Helicopter / Multirotor
@@ -290,6 +302,20 @@ SEARCH_FIELDS = [
         'operators': ['equal', 'greater', 'greater_or_equal', 'less',
                       'less_or_equal', 'is_null', 'is_not_null'],
         'values': None, 'table': 'model', 'field': 'attr_boat_draft', 'join': None,
+    },
+    {
+        'id': 'attr_boat_rem_planes', 'label': 'Removable Dive Planes',
+        'group': 'Boat / Submarine',
+        'type': 'boolean', 'input': 'radio',
+        'operators': ['equal'], 'values': _YES_NO,
+        'table': 'model', 'field': 'attr_boat_rem_planes', 'join': None,
+    },
+    {
+        'id': 'attr_sub_ballast', 'label': 'Ballast Type', 'group': 'Boat / Submarine',
+        'type': 'string', 'input': 'select',
+        'operators': ['equal', 'not_equal', 'in', 'not_in', 'is_empty', 'is_not_empty'],
+        'values': _lookup_vals('attr_sub_ballast'),
+        'table': 'model', 'field': 'attr_sub_ballast', 'join': None,
     },
 
     # =========================================================================
