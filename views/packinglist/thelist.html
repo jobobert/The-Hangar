@@ -103,10 +103,11 @@
 {{if batteries:}}
 <h5 class="card-title" style="margin-top: 1rem;">Batteries</h5>
 <ul class="list-group list-group-flush pl-3">
-    {{for x in batteries:}}
-    <li class="list-group-item"><input type="checkbox" class="packinglist-checkbox" />{{=x}}</li>
+    {{for name, qty in batteries:}}
+    <li class="list-group-item"><input type="checkbox" class="packinglist-checkbox" />({{=qty}}) {{=name}}</li>
     {{pass}}
 </ul>
+<div class="pl-3"><b>Total: {{=battery_total}} packs</b></div>
 {{pass}}
 </div>
 <div class="col">

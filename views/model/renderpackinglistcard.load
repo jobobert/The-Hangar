@@ -19,8 +19,9 @@
             <h5 class="">Batteries</h5>
             {{if batteries:}}
             {{for battery in batteries:}}
-            <div class="ml-2">({{=battery.quantity}}) {{=battery.battery.name}}</div>
+            <div class="ml-2">({{=battery.quantity or 0}}) {{=battery.battery.name}}</div>
             {{pass}}
+            <div class="ml-2 mt-1"><b>Total: {{=battery_total}} packs</b></div>
             {{else:}}
             <div class="ml-2">No Batteries</div>
             {{pass}}

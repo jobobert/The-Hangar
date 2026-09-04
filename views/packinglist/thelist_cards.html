@@ -113,10 +113,11 @@
         </div>
         <div class="card-body">
             <ul class="list-group list-group-flush two-column">
-                {{for x in batteries:}}
-                <li class="list-group-item"><input type="checkbox" class="packinglist-checkbox" />{{=x}}</li>
+                {{for name, qty in batteries:}}
+                <li class="list-group-item"><input type="checkbox" class="packinglist-checkbox" />({{=qty}}) {{=name}}</li>
                 {{pass}}
             </ul>
+            <div><b>Total: {{=battery_total}} packs</b></div>
         </div>
     </div>
     {{pass}}

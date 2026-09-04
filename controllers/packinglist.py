@@ -83,14 +83,14 @@ def thelist():
     if len(tool_list) > 0:
         tool_list = sorted([item for item in tool_list if item is not None])
 
-    battery_list = []
+    battery_counts = {}
     batteries = db(db.model_battery.model.belongs(
         model_ids)).select()
     for battery in batteries:
-        if battery.battery.get_name() not in battery_list:
-            battery_list.append(battery.battery.get_name())
-    if len(battery_list) > 0:
-        battery_list = sorted([item for item in battery_list if item is not None])
+        name = battery.battery.get_name()
+        battery_counts[name] = battery_counts.get(name, 0) + (battery.quantity or 0)
+    battery_list = sorted(battery_counts.items())
+    battery_total = sum(battery_counts.values())
 
     propeller_list = []
     propellers = db(db.propeller.model.belongs(
@@ -140,7 +140,7 @@ def thelist():
 
     # return dict(content = request.vars)
     return dict(
-        models=model_list, tools=tool_list, supportitems=si_list, batteries=battery_list, propellers=propeller_list, rocketmotors=rm_list, transmitters=transmitter_list, todos=todo_list, model_ids=model_ids
+        models=model_list, tools=tool_list, supportitems=si_list, batteries=battery_list, battery_total=battery_total, propellers=propeller_list, rocketmotors=rm_list, transmitters=transmitter_list, todos=todo_list, model_ids=model_ids
     )
 
 def listview():
