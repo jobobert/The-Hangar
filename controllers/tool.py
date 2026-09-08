@@ -8,7 +8,8 @@ def index():
     tools = db(db.tool.id == tool_id).select() 
 
     models = models_and_tools(
-        db.tool.id == tool_id).select(db.model.id, db.model.name, db.model.img)
+        (db.tool.id == tool_id) & (db.model.modelstate != 1)).select(
+        db.model.id, db.model.name, db.model.img, db.model.modelstate)
 
     return dict(tools=tools, models=models)
 

@@ -5,7 +5,8 @@ def index():
     response.title = "Paint"
 
     models = models_and_paints(
-        db.paint.id == paint_id).select(db.model.id, db.model.name, db.model.img)
+        (db.paint.id == paint_id) & (db.model.modelstate != 1)).select(
+        db.model.id, db.model.name, db.model.img, db.model.modelstate)
     
     return dict(paint=paint, models=models)
 

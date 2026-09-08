@@ -6,7 +6,9 @@ def index():
     
     wtc_id = request.args(0, cast=int) or redirect(URL('default', 'index'))
     wtc = db.wtc(wtc_id) or redirect(URL('default', 'index'))
-    models = db(db.model_wtc.wtc == wtc_id).select()
+    activemodels = db(db.model.modelstate > 1)._select(db.model._id)
+    models = db((db.model_wtc.wtc == wtc_id)
+                & (db.model_wtc.model.belongs(activemodels))).select()
     
     # Fetch associated WTCs
     

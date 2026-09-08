@@ -12,7 +12,9 @@ def index():
         response.flash = "Error Adding to Model"
 
     component = db(db.component.id == component_id).select() or redirect(URL('component', 'listview'))
-    models = models_and_components( db.component.id == component_id).select(db.model.id, db.model.name, db.model.img)
+    models = models_and_components(
+        (db.component.id == component_id) & (db.model.modelstate != 1)).select(
+        db.model.id, db.model.name, db.model.img, db.model.modelstate)
     flitetimes = db(db.eflite_time.motor == component_id).select()
 
     modelCount = dict()

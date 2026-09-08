@@ -6,7 +6,7 @@ def index():
     
     protocol = db.protocol(protocol_id) or redirect(URL('default', 'index'))
 
-    models = db(db.model.protocol == protocol_id).select()
+    models = db((db.model.protocol == protocol_id) & (db.model.modelstate != 1)).select()
     transmitters = db(db.transmitter.protocol.contains(protocol_id)).select()
     
     return dict(protocol=protocol, models=models, transmitters=transmitters)

@@ -8,7 +8,8 @@ def index():
     response.title = "Battery: " + battery.name
 
     models = models_and_batteries(
-        db.battery.id == battery_id).select(db.model.id, db.model.name, db.model.img)
+        (db.battery.id == battery_id) & (db.model.modelstate != 1)).select(
+        db.model.id, db.model.name, db.model.img, db.model.modelstate)
 
     return dict(battery=battery, models=models)
 

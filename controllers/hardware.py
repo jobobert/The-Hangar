@@ -6,7 +6,7 @@ def index():
     hardware_id = VerifyTableID('hardware', request.args(0), URL('hardware', 'listview'), prefer_referer=True)
 
     item = db.hardware(hardware_id)
-    model = db.model(item.model) if item else None
+    model = db((db.model.id == item.model) & (db.model.modelstate != 1)).select().first() if item else None
 
     return dict(item=item, model=model)
 

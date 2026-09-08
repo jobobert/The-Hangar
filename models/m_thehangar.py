@@ -688,12 +688,26 @@ def _makeListItem(controller:str, action:str, args, img:str=None, icon:str=None,
 
     return LI(A(DIV(parts), _href=URL(controller, action, args=args)), _class='list-group-item')
 
-def modelListItem(model, img:bool, label:str = None, idOverride:int = None, detail:str = None):
+def modelListItem(model, img:bool, label:str = None, idOverride:int = None, detail:str = None, show_retired:bool = False):
+    """Render a model as a list-group <li>.
 
+    modelstate 1 is Retired/Disposed (see db.py:147). Retired models are
+    omitted unless show_retired is True; an omitted model returns '' so the
+    surrounding <ul> just gets one fewer row.
+    """
     if isinstance(model, int):
-        model = db(db.model.id == model).select(db.model.id, db.model.img, db.model.name).first()
-       
-    #print(model)
+        model = db(db.model.id == model).select(
+            db.model.id, db.model.img, db.model.name, db.model.modelstate).first()
+
+    if not model:
+        return ''
+
+    if not show_retired:
+        # Callers that select only id/name/img don't carry the state; re-read it.
+        state = model.modelstate if 'modelstate' in model else db.model(model.id).modelstate
+        if state == 1:
+            return ''
+
     modelID = model.id
 
     if idOverride:
