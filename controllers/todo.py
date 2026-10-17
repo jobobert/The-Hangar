@@ -107,27 +107,3 @@ def newmodal():
     disable_autocomplete(form)
 
     return dict(content=form)
-
-def renderexport():
-    model_id = VerifyTableID('model', request.args(0))
-    if not model_id:
-            return render_card_error('Unable to locate the associated model', 'todo', 'Todos')
-
-    todos = db((db.todo.model == model_id) &
-            (db.todo.complete == False)).select() or None
-
-    torender = {
-        'title': 'Todos',
-        'items': [],
-        'emptymsg': 'No todos assigned to this model',
-        'controller': 'todo',
-        'header': None,
-    }
-    for todo in todos or []:
-        torender['items'].append((
-            f"{todo.todo}{' (Critical)' if todo.critical else ''}", 
-            MARKMIN(todo.notes) if todo.notes else 'No Notes'
-        ))
-
-    response.view = 'renderexport.load'
-    return dict(content=torender)

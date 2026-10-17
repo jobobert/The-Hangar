@@ -1,0 +1,74 @@
+{{extend 'layout.html'}}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <h2>{{=controller_icon('model', 48)}} Model Export Settings</h2>
+        <p class="text-muted mb-0">
+            Choose which sections the printable model export includes, their order, and the fields each one shows.
+            Sections that don't apply to a model (per its type/category controllers) or have no data are always left out,
+            and model fields hidden for a type or category are never printed.
+        </p>
+    </div>
+</div>
+
+{{=form.custom.begin}}
+
+<div class="mb-3">
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{{=URL('admin', 'index')}}" class="btn btn-outline-secondary">Back</a>
+    <button type="submit" name="reset" value="1" class="btn btn-outline-danger float-right"
+            onclick="return confirm('Reset every export section to its defaults?');">Reset to defaults</button>
+</div>
+
+{{for s in sections:}}
+<div class="card mb-2{{=' border-light text-muted' if not s['enabled'] else ''}}">
+    <div class="card-header py-2 d-flex align-items-center">
+        <div class="form-check mb-0 mr-3">
+            <input class="form-check-input" type="checkbox" name="en_{{=s['key']}}" id="en_{{=s['key']}}"
+                   value="1" {{='checked' if s['enabled'] else ''}}>
+            <label class="form-check-label font-weight-bold" for="en_{{=s['key']}}">
+                {{=controller_icon(s['icon'], 18)}} {{=s['title']}}
+            </label>
+        </div>
+        <label class="mb-0 ml-auto mr-2 small text-muted" for="ord_{{=s['key']}}">Order</label>
+        <input class="form-control form-control-sm" style="width:5rem" type="number" step="1"
+               name="ord_{{=s['key']}}" id="ord_{{=s['key']}}" value="{{=s['order']}}">
+    </div>
+    {{if s['fields'] or s['option_keys']:}}
+    <div class="card-body py-2">
+        {{if s['fields']:}}
+        <div class="d-flex flex-wrap">
+            {{for fname, label, checked in s['fields']:}}
+            <div class="form-check mr-3" style="min-width: 12rem">
+                <input class="form-check-input" type="checkbox" name="f_{{=s['key']}}" value="{{=fname}}"
+                       id="f_{{=s['key']}}_{{=fname}}" {{='checked' if checked else ''}}>
+                <label class="form-check-label" for="f_{{=s['key']}}_{{=fname}}">{{=label or fname}}</label>
+            </div>
+            {{pass}}
+        </div>
+        {{pass}}
+        {{if 'limit' in s['option_keys']:}}
+        <div class="form-inline mt-2">
+            <label class="mr-2" for="opt_{{=s['key']}}_limit">Recent entries to list</label>
+            <input class="form-control form-control-sm" style="width:5rem" type="number" min="0" max="100"
+                   name="opt_{{=s['key']}}_limit" id="opt_{{=s['key']}}_limit" value="{{=s['options'].get('limit', 0)}}">
+            <small class="text-muted ml-2">0 prints the summary line only</small>
+        </div>
+        {{pass}}
+        {{if 'thumbs' in s['option_keys']:}}
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" name="opt_{{=s['key']}}_thumbs" value="1"
+                   id="opt_{{=s['key']}}_thumbs" {{='checked' if s['options'].get('thumbs') else ''}}>
+            <label class="form-check-label" for="opt_{{=s['key']}}_thumbs">Show thumbnails</label>
+        </div>
+        {{pass}}
+    </div>
+    {{pass}}
+</div>
+{{pass}}
+
+<div class="mt-3 mb-5">
+    <button type="submit" class="btn btn-primary">Save</button>
+</div>
+
+{{=form.custom.end}}

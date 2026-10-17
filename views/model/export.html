@@ -1,134 +1,39 @@
 {{extend 'layout.html'}}
 
+<div class="exp-sheet">
 
-{{if model.img:}}
-<div class="d-inline-block">
-    <img width="200px" class="export-img-sm" src="{{=URL('default', 'download', args=model.img)}}" alt="Model Image">
-</div>
-{{pass}}
-<div class="d-inline-block">
-    <h2>{{=model.name}}</h2>
-</div>
-<div style="overflow-x:auto">
-<table class="table export-table">
+    <div class="exp-toolbar no-print">
+        <a class="btn btn-sm btn-outline-secondary" href="{{=URL('model', 'index', args=[model.id])}}">&larr; Back to model</a>
+        <button type="button" class="btn btn-sm btn-primary" onclick="window.print()">Print</button>
+        <a class="btn btn-sm btn-link" href="{{=URL('admin', 'export_config')}}">Export settings</a>
+    </div>
 
-    <tr class="row export-row">
-        <th class="col export-field_name">{{=getattr(db.model,'modelorigin').label}}</th>
-        <td class="col export-field_value">{{=model.modelorigin}}</td>
-    </tr>
-    <tr class="row export-row">
-        <th class="col export-field_name">{{=getattr(db.model,'modelstate').label}}</th>
-        <td class="col export-field_value">{{=model.modelstate.name}}</td>
-    </tr>
-    <tr class="row export-row">
-        <th class="col export-field_name">{{=getattr(db.model,'modeltype').label}}</th>
-        <td class="col export-field_value">{{=model.modeltype}}</td>
-    </tr>
-    <tr class="row export-row">
-        <th class="col export-field_name">{{=getattr(db.model,'controltype').label}}</th>
-        <td class="col export-field_value">{{=model.controltype}}</td>
-    </tr>
-    <tr class="row export-row">
-        <th class="col export-field_name">{{=getattr(db.model,'powerplant').label}}</th>
-        <td class="col export-field_value">{{=model.powerplant}}</td>
-    </tr>
-    <tr class="row export-row">
-        <th class="col export-field_name">{{=getattr(db.model,'protocol').label}}</th>
-        <td class="col export-field_value">{{=db.protocol(model.protocol).name if model.protocol else 'No Protocol Specified'}}</td>
-    </tr>
-    <tr class="row export-row">
-        <th class="col export-field_name">{{=getattr(db.model,'description').label}}</th>
-        <td class="col export-field_value">{{=model.description}}</td>
-    </tr>
-    <tr class="row export-row" colspan="2">
-        <th class="col export-field_name">{{=getattr(db.model,'notes').label}}</th>
-    </tr>
-    <tr class="row export-row" colspan="2">
-        <td class="col export-field_value">
-            <div class=" export-field_notes">{{=MARKMIN(model.notes)}}</div>
-        </td>
-    </tr>
-    <tr class="row export-row">
-        <th class="col export-field_name">{{=getattr(db.model,'haveplans').label}}</th>
-        <td class="col export-field_value">{{=model.haveplans}}</td>
-    </tr>
-
-    <tr class="row export-row">
-        <th class="col export-field_name">Config Backup</th>
-        <td class="col export-field_name">
-            {{if model.get_radio_config_backedup() == 'Yes':}}
-            Radio/Receiver Config is Backed Up
-            {{=A('Download', _href=URL('default', 'download', args=model.configbackup))}}
-            {{elif model.get_radio_config_backedup() == 'No':}}
-            Radio/Receiver Config is not Backed Up
-            {{pass}}
-        </td>
-    </tr>
-
-    {{for key in sorted(model.__dict__):}}
-    {{if key.startswith('attr_') and model[key]:}}
-    <tr class="row export-row">
-        <th class="col export-field_name">{{=getattr(db.model,key).label}}</th>
-        <td class="col export-field_value">{{=model[key]}}</td>
-    </tr>
-    {{pass}}
-    {{pass}}
-
-    <tr class="row export-row">
-        <th class="col export-field_name">Attachments</th>
-        <td class="col export-field_name">
-            {{if attachments:}}
-            {{for att in attachments:}}
-            <div class="d-inline-block attachment_icon">{{=filetype_icon(att.attachment, 32) }}</div>
-            <div class="d-inline-block attachment_name">
-                {{=A(att.name + " (" + att.attachmenttype + ")", _href=URL('default', 'download', args=att.attachment))}}
+    <div class="exp-head">
+        <div class="exp-head-text">
+            <h1 class="exp-title">{{=model.name}}</h1>
+            <div class="exp-sub">
+                {{=' · '.join(x for x in (model.modeltype, model.modelcategory,
+                    model.modelstate.name if model.modelstate else None) if x)}}
             </div>
-            {{if isimage(att.attachment):}}
-            <img style="max-width: 20rem;" class='card-img-top' src="{{=URL('default', 'download', args=att.attachment)}}" alt='Attachment'>
+            {{if model.manufacturer or model.kitnumber:}}
+            <div class="exp-sub">{{=' '.join(x for x in (model.manufacturer, model.kitnumber) if x)}}</div>
             {{pass}}
-            {{pass}}
-            {{else:}}
-            <div class="export-notfound">No Attachments</div>
-            {{pass}}
-        </td>
-    </tr>
+        </div>
+        {{if model.img:}}
+        <img class="exp-hero" src="{{=URL('default', 'download', args=model.img)}}" alt="">
+        {{pass}}
+    </div>
 
-</table>
+    {{for kind, item in blocks:}}
+    {{if kind == 'grid':}}
+    <div class="exp-grid">
+        {{for sec in item:}}{{include '_export_section.html'}}{{pass}}
+    </div>
+    {{else:}}
+    {{sec = item}}
+    {{include '_export_section.html'}}
+    {{pass}}
+    {{pass}}
+
+    <footer class="exp-foot">{{=model.name}} &middot; printed {{=request.now.strftime('%Y-%m-%d')}} &middot; The Hangar</footer>
 </div>
-
-
-{{if model.transmitter:}}
-{{=LOAD('transmitter', 'renderexport.load', args=[model.transmitter.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Transmitter Details"))}}
-{{pass}}
-
-<div style="margin-left: 3rem">
-    <h4 class="export-h4">Switch Details</h4>
-    {{=LOAD('switch', 'renderswitchtable.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Switches"))}}
-</div>
-
-{{=LOAD('todo', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Todos"))}}
-
-
-{{=LOAD('tool', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Tools"))}}
-
-{{=LOAD('hardware', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Hardware"))}}
-
-{{=LOAD('battery', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Batteries"))}}
-
-{{=LOAD('propeller', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Propellers"))}}
-
-{{=LOAD('supportitem', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Support Items"))}}
-
-{{=LOAD('paint', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Paints"))}}
-
-{{=LOAD('model', 'exportflighttimes.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Flight Times"))}}
-
-{{=LOAD('wtc', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Water Tight Cylinders"))}}
-
-{{=LOAD('sailrig', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Sail Rigs"))}}
-
-{{=LOAD('component', 'renderexport_formodel.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Components"))}}
-
-{{=LOAD('diagram', 'rendermodelexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Switches"))}}
-
-{{=LOAD('activity', 'renderexport.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static', 'images/waiting.gif')),"Activities"))}}

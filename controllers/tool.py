@@ -88,41 +88,6 @@ def rendercard():
     # ,other=other)
     return dict(model_tools=model_tools, model_id=model_id, addform=addform, newform=newform, deleteform=deleteform, tool_count=tool_count, options=request.args(1))
 
-def renderexport():
-    session.forget(response)
-
-    model_id = VerifyTableID('model', request.args(0))
-    if not model_id:
-        return render_card_error('Unable to locate the associated model', 'tool', 'Tools')
-    
-    tools = db(db.model_tool.model == model_id).select() or None
-
-    torender = {
-        'title': 'Tools',
-        'items': [],
-        'emptymsg': 'No tools assigned to this model',
-        'controller': 'tool',
-        'header': None,
-    }
-    for tool in tools or []:
-        t = tool.tool
-        content = {
-            'name': t.name,
-            'img': t.img,
-            'attachment': t.attachment,
-            'details': []
-        }
-        content['details'] = [
-            (getattr(db.tool,'tooltype').label, t.tooltype),
-            (getattr(db.tool,'notes').label, t.purpose or 'No purpose specified'),
-        ]
-
-        torender['items'].append(content)
-
-    response.view = 'renderexport.load'
-    return dict(content=torender)
-
-
 def removefrommodel():
     # try to do this via ajax sometime...
 

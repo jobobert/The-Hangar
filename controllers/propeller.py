@@ -38,26 +38,3 @@ def listview():
 
     propellers = db(db.propeller.model.belongs(activemodels)).select(orderby=db.propeller.item | db.propeller.model)
     return dict(propellers=propellers)
-
-def renderexport():
-    session.forget(response)
-
-    model_id = VerifyTableID('model', request.args(0))
-    if not model_id:
-        return render_card_error('Unable to locate the associated model', 'propeller', 'Propellers')
-
-    propellers = db(db.propeller.model == model_id).select()
-
-    torender = {
-        'title': 'Propellers',
-        'items': [],
-        'emptymsg': 'No propellers associated with this model',
-        'controller': 'propeller',
-        'header': None,
-    }
-
-    for propeller in propellers or []:
-        torender['items'].append((propeller.item, ""))
-
-    response.view = 'renderexport.load'
-    return dict(content=torender)

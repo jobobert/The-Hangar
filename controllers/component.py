@@ -338,91 +338,29 @@ def export():
 
     comp = db(db.component.id == component_id).select().first() or redirect(URL('component', 'listview'))
 
-    torender = {
-        'title': comp.name,
-        'items': [],
-        'emptymsg': 'Component Not Found',
-        'controller': 'component',
-        'header': None,
-    }
+    response.title = 'Export: ' + comp.name
 
-    content = {
-        'name': comp.name,
-        'img': comp.img,
-        'attachment': comp.attachment, 
-        'details': []
-    }
-    
+    # Same section shapes as the model export (models/m_export.py, views/_export_section.html).
+    fields = ['componenttype', 'componentsubtype', 'manufacturer', 'model', 'serial',
+              'significantdetail', 'ownedcount', 'storedat']
+    fields += sorted(f for f in db.component.fields if f.startswith('attr_'))
+    pairs = []
+    for f in fields:
+        val = _exp_value(db.component, comp, f)
+        if val is not None:
+            pairs.append((db.component[f].label, val))
+    if comp.attachment:
+        pairs.append((db.component.attachment.label,
+                      A('Download', _href=URL('default', 'download', args=comp.attachment))))
 
-    content['details'] = [
-        (getattr(db.component,'serial').label, comp.serial),
-        (getattr(db.component,'componenttype').label, comp.componenttype),
-        (getattr(db.component,'componentsubtype').label, comp.componentsubtype),
-        (getattr(db.component,'significantdetail').label, comp.significantdetail),
-        (getattr(db.component,'notes').label, MARKMIN(comp.notes) if comp.notes else  ''),
-        (getattr(db.component,'ownedcount').label, comp.ownedcount),
-        (getattr(db.component,'storedat').label, comp.storedat),
-    ]
-    # Append any populated type-specific attribute fields (stored as attr_* columns)
-    for key in comp.__dict__:
-        if key.startswith('attr_') and comp[key]:
-            name = getattr(db.component, key).label
-            value = None
-            if getattr(db.component, key).type == 'double':
-                value = TwoDecimal(comp[key])
-            else:
-                value = comp[key]
-            content['details'].append((name, value))
+    sections = [Storage(key='details', title='Details', icon='component',
+                        data={'kind': 'kv', 'pairs': pairs, 'thumb': None})]
+    if comp.notes:
+        sections.append(Storage(key='notes', title=db.component.notes.label, icon='component',
+                                data={'kind': 'text', 'body': DIV(MARKMIN(comp.notes), _class='exp-markmin')}))
 
+    return dict(comp=comp, sections=sections)
 
-    torender['items'].append(content)
-    
-    return dict(content=torender)
-
-def renderexport_formodel():
-    model_id = VerifyTableID('model', request.args(0))
-    if not model_id:
-        return render_card_error('Unable to locate the associated model', 'component', 'Components')
-    
-    components = models_and_components(
-        db.model.id == model_id).select() or None
-
-    torender = {
-        'title': 'Components',
-        'items': [],
-        'emptymsg': 'No Components',
-        'controller': 'component',
-        'header': None,
-    }
-    for component in components or []:
-        comp = component.component
-        content = {
-            'name': comp.name,
-            'img': comp.img,
-            'attachment': comp.attachment, 
-            'details': []
-        }
-        function = ''
-        if component.model_component.purpose:
-            function = component.model_component.purpose
-        else:
-            function = "General Purpose"
-        if component.model_component.channel:
-            function += " on channel " + str(component.model_component.channel)
-
-        content['details'] = [
-            (getattr(db.component,'componenttype').label, comp.componenttype),
-            (getattr(db.component,'componentsubtype').label, comp.componentsubtype),
-            ('function', function),
-        ]
-        if comp.serial:
-            content['details'].append((getattr(db.component,'serial').label, comp.serial))
-        
-        torender['items'].append(content)
-    
-    response.view = 'renderexport.load'
-    return dict(content=torender)
-    
 def addtomodel():
 
     response.title = 'Add Component to Model'

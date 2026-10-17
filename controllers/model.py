@@ -82,59 +82,14 @@ def wishlist():
     return dict(list=list, addform=addform, convertform=convertform)
 
 def export():
+    # Sections, fields and order come from admin/export_config; see models/m_export.py.
+    model_id = VerifyTableID('model', request.args(0), URL('model', 'listview'))
 
-    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
+    model = db.model(model_id)
 
-    model = db.model(model_id) 
+    response.title = 'Export: ' + model.name
 
-    attachments = db(db.attachment.model == model_id).select()
-
-    response.title = 'Export Model: ' + model.name
-
-    return dict(model=model, attachments=attachments)
-
-def exportflighttimes():
-    model_id = VerifyTableID('model', request.args(0)) or None
-
-    flighttimes = db(db.eflite_time.model == model_id).select() or None
-
-    torender = {
-        'title': 'Flight Times',
-        'items': None,
-        'emptymsg': 'No flight times calculated',
-        'controller': None,
-        'header': None,
-    }
-
-    if flighttimes:
-        table = TABLE(_class="table export-table")
-        header = [
-            TH(getattr(db.component,'componenttype').label, _class="col export-field_name"),
-            TH('Battery', _class="col export-field_name"),
-            TH(getattr(db.propeller,'item').label, _class="col export-field_name"),
-            TH(getattr(db.eflite_time,'amps').label, _class="col export-field_name"),
-            TH(getattr(db.eflite_time,'watts').label, _class="col export-field_name"),
-            TH('Minutes', _class="col export-field_name"),
-            TH('Watts/Pound', _class="col export-field_name"),
-            TH('Is Over Rating?', _class="col export-field_name")
-        ]
-        table.append(TR(*header, _class="row export-row"))
-        for ft in flighttimes or []:
-            row = [
-                TD(ft.motor.name if ft.motor else '', _class="col export-field_value"),
-                TD(ft.battery.name if ft.battery else '', _class="col export-field_value"),            TD(ft.propeller, _class="col export-field_value"),
-                TD(ft.amps, _class="col export-field_value"),
-                TD(ft.watts, _class="col export-field_value"),
-                TD(ft.get_minutes(), _class="col export-field_value"),
-                TD(ft.get_wattsperpound(), _class="col export-field_value"),
-                TD(ft.is_overrating(), _class="col export-field_value")
-            ]
-            table.append(TR(*row, _class="row export-row"))
-
-        torender['items'] = table
-
-    response.view = 'renderexport.load'
-    return dict(content=torender)
+    return dict(model=model, blocks=build_model_export(model))
 
 def rendercard():
     session.forget(response)

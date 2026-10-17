@@ -23,7 +23,7 @@
                 </tr>
                 <tr>
                     <td><strong>{{=getattr(db.activity, 'activitytype').label}}</strong></td>
-                    <td>{{=activity.activitytype}}</td>
+                    <td>{{=activity_label(activity)}}</td>
                 </tr>
                 <tr>
                     <td><strong>{{=getattr(db.activity, 'duration').label}}</strong></td>

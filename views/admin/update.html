@@ -137,6 +137,34 @@ Your submitted form contains the following errors:
     </div>
     {{pass}}
 
+    {{# --- Activity Wording card (modeltype only) -------------------------- }}
+    {{if meta_config.get('activity_labels'):}}
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header"><strong>Activity Wording</strong></div>
+                <div class="card-body">
+                <p class="card-subtitle mb-2 text-muted">What this model type calls each activity &mdash; a Boat <em>sails</em> where an Airplane <em>flies</em>. Only the displayed word changes; the stored value is unaffected, so colors, icons and counts keep working. Leave blank to use the standard name.</p>
+                <div class="row mb-1">
+                    {{for actname, actlabel in meta_config['activity_labels']:}}
+                    <div class="col-md-4 col-sm-6 mb-2">
+                        <label class="mb-0" for="meta_actlabel_{{=actname}}">
+                            <small class="text-muted">{{=actname}}</small>
+                        </label>
+                        <input class="form-control" type="text"
+                               name="meta_actlabel_{{=actname}}"
+                               id="meta_actlabel_{{=actname}}"
+                               placeholder="{{=actname}}"
+                               value="{{=actlabel}}">
+                    </div>
+                    {{pass}}
+                </div>
+                </div>{{# end card-body}}
+            </div>{{# end card}}
+        </div>
+    </div>
+    {{pass}}
+
     {{elif meta_config['type'] == 'chemistry':}}
     {{# --- Per-cell Voltage (chemistry) ----------------------------------- }}
     <div class="row mt-3">

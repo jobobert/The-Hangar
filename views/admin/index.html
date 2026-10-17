@@ -77,6 +77,15 @@
         <a href="{{=URL('admin', 'integrity_report')}}" class="btn btn-sm btn-outline-primary">View</a>
     </div>
 </div>
+<div class="row border-bottom my-1 align-items-center pl-4">
+    <div class="col">Model Export
+        <br><small class="text-muted">Sections, order and fields printed on a model's export sheet</small>
+    </div>
+    <div class="col-2"></div>
+    <div class="col-2">
+        <a href="{{=URL('admin', 'export_config')}}" class="btn btn-sm btn-outline-primary">Manage</a>
+    </div>
+</div>
 
 {{for table_name, categories in groups:}}
 

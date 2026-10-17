@@ -434,9 +434,11 @@ class lookup_set:
 
     multiple = False  # required by SQLFORM's field.requires.multiple check
 
-    def __init__(self, category, empty_ok=False):
+    def __init__(self, category, empty_ok=False, label_map=None):
         self.category  = category
         self.empty_ok  = empty_ok
+        # Display-only overrides {value: shown text}; never affects validation.
+        self.label_map = label_map or {}
 
     def _vals(self):
         rows = db(db.lookup.category == self.category).select(
@@ -452,7 +454,7 @@ class lookup_set:
 
     def options(self):
         """Return [(value, label), ...] — matches IS_IN_SET.options() contract."""
-        return [(v, v) for v in self._vals()]
+        return [(v, self.label_map.get(v) or v) for v in self._vals()]
 
     def formatter(self, value):
         return value
@@ -1877,6 +1879,33 @@ if not _migration_applied('activitytype_metadata_v1'):
     _mark_migration('activitytype_metadata_v1')
     db.commit()
 
+# Modeltype: seed per-modeltype activity wording. Airplane/Helicopter/
+# Multirotor/Autogyro are deliberately left unset so they read 'Flight', as are
+# the non-vehicle types (Robot, Non-Model, Antenna, ...) which have no obvious
+# word. Blank always falls back to the canonical activitytype name.
+_ACTIVITY_WORDING = {
+    'Boat':      {'Flight': 'Sail'},
+    'Car':       {'Flight': 'Run'},
+    'Train':     {'Flight': 'Run'},
+    'Submarine': {'Flight': 'Dive'},
+    'Rocket':    {'Flight': 'Launch'},
+}
+if not _migration_applied('modeltype_activity_labels_v1'):
+    for _row in db(db.lookup.category == 'modeltype').select():
+        _words = _ACTIVITY_WORDING.get(_row.name)
+        if not _words:
+            continue
+        try:
+            _m = _json.loads(_row.metadata or '{}')
+        except (ValueError, TypeError):
+            _m = {}
+        # Merge, don't replace — these rows already carry hide/controllers/important.
+        if not _m.get('activity_labels'):
+            _m['activity_labels'] = _words
+            _row.update_record(metadata=_json.dumps(_m))
+    _mark_migration('modeltype_activity_labels_v1')
+    db.commit()
+
 if not _migration_applied('diagramedge_seed_v1'):
     if db(db.diagramedge.id > 0).count() == 0:
         # Seeds the structured columns directly. This block runs far below
@@ -2183,6 +2212,7 @@ if not _migration_applied('boat_rem_planes_hide_v1'):
 # These run after all migration/sync steps so they reflect current DB state.
 modeltype_controller_mapping = {}
 modeltype_hide_attribs = {}
+modeltype_activity_labels = {}
 for _row in db(db.lookup.category == 'modeltype').select():
     try:
         _m = _json.loads(_row.metadata or '{}')
@@ -2190,6 +2220,7 @@ for _row in db(db.lookup.category == 'modeltype').select():
         _m = {}
     modeltype_controller_mapping[_row.name] = _m.get('controllers', [])
     modeltype_hide_attribs[_row.name] = _m.get('hide', [])
+    modeltype_activity_labels[_row.name] = _m.get('activity_labels', {}) or {}
 
 modelcategory_hide_attribs = {}
 modelcategory_controllers = {}

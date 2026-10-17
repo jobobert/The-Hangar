@@ -3,11 +3,14 @@
 # @mobilize
 def rendercard():
 
-    model_id = request.args[0]
+    model_id = VerifyTableID('model', request.args(0))
+    if not model_id:
+        return render_card_error('Unable to locate the associated model', 'activity', 'Activities')
+
     fields = ['activitydate', 'activitytype',
                   'duration', 'activitylocation', 'notes']
-    
 
+    apply_activity_labels(model_id)
     form = SQLFORM(db.activity, fields=fields, formstyle="divs")
     form.vars.model = model_id
     if form.process(session=None, formname='activityform').accepted:
@@ -61,7 +64,7 @@ def events():
                     'notes': activity.notes,
                     'model': activity.model.name,
                     'model_id': activity.model.id,
-                    'activitytype': activity.activitytype
+                    'activitytype': activity_label(activity)
                 }
             })
 
@@ -77,6 +80,9 @@ def index():
     return dict(activity=activity)
 
 def addactivity():
+    # Must precede SQLFORM: the widget reads requires.options() at construction.
+    apply_activity_labels(VerifyTableID('model', request.args(0)) if request.args(0) else None)
+
     form = SQLFORM(db.activity)
     disable_autocomplete(form)
 
@@ -116,6 +122,7 @@ def update():
     existing = db.activity(activity_id)
     model_id = existing.model if existing else None
 
+    apply_activity_labels(model_id)
     form = SQLFORM(db.activity, activity_id, upload=URL(
         'default', 'download'), deletable=True, showid=False)
     if form.process().accepted:
@@ -216,42 +223,3 @@ def addcrash():
         return redirect(RefererOrDefault(URL('model', 'index', args=model_id)))
 
     return redirect(URL('default', 'index'))
-
-def renderexport():
-
-    model_id = VerifyTableID('model', request.args(0))
-    if not model_id:
-        return render_card_error('Unable to locate the associated model', 'activity', 'Activities')
-    
-    activities = db(db.activity.model == model_id).select(orderby=~db.activity.activitydate | ~db.activity.id)
-    torender = {
-        'title': 'Activities',
-        'items': None,
-        'emptymsg': 'No activities are associated with this model',
-        'controller': 'activity',
-        'header': None,
-    }
-
-    table = TABLE(_class="table export-table")
-    header = [
-        TH(getattr(db.activity,'activitydate').label, _class="col export-field_name"),
-        TH(getattr(db.activity,'activitytype').label, _class="col export-field_name"),
-        TH(getattr(db.activity,'duration').label, _class="col export-field_name"),
-        TH(getattr(db.activity,'activitylocation').label, _class="col export-field_name"),
-        TH(getattr(db.activity,'notes').label, _class="col export-field_name"),
-    ]
-    table.append(TR(*header, _class="row export-row"))
-    for activity in activities or []:
-        row = [
-            TD(activity.activitydate, _class="col export-field_value"),
-            TD(activity.activitytype, _class="col export-field_value"),
-            TD(activity.duration, _class="col export-field_value"),
-            TD(activity.activitylocation, _class="col export-field_value"),
-            TD(MARKMIN(activity.notes) if activity.notes else "", _class="col export-field_value"),
-        ]
-        table.append(TR(*row, _class="row export-row"))
-
-    torender['items'] = table
-
-    response.view = 'renderexport.load'
-    return dict(content=torender)

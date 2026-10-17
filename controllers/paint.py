@@ -86,25 +86,3 @@ def rendercard():
     model_paints = paint_query.select()
 
     return dict(model_paints=model_paints, model_id=model_id, addform=addform, newform=newform, deleteform=deleteform, paint_count=paint_count)
-
-def renderexport():
-    session.forget(response)
-    model_id = VerifyTableID('model', request.args(0))
-    if not model_id:
-        return render_card_error('Unable to locate the associated model', 'paint', 'Paint')
-
-    paints = db(db.model_paint.model == model_id).select() or None
-
-    torender = {
-        'title': 'Paints',
-        'items': [],
-        'emptymsg': 'No paints are associated with this model',
-        'controller': 'paint',
-        'header': None,
-    }
-
-    for paint in paints or []:
-        torender['items'].append((paint.paint.color, paint.purpose))
-
-    response.view = 'renderexport.load'
-    return dict(content=torender)

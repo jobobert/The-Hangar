@@ -144,10 +144,7 @@
         {{=LOAD('todo', 'rendercard.load', args=[model.id], ajax_trap=True, content=DIV(IMG(_src=URL('static','images/waiting.gif')),"Todos"))}}
     </div>
 
-    {{allowed_controllers = modeltype_controller_mapping.get(model.modeltype, [])}}
-    {{_mt_controllers = set(allowed_controllers) if allowed_controllers else _ALL_CONTROLLERS}}
-    {{category_controllers = set(modelcategory_controllers.get(cat, []))}}
-    {{final_controllers = category_controllers & _mt_controllers}}
+    {{final_controllers = model_card_controllers(model)}}
 
     {{if cat == 'Dynamic':}}
     <div class="col-12 col-md-6 mb-3">

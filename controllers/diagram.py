@@ -25,15 +25,6 @@ def rendermodeldiagram():
     return dict(dot=model.diagram, model_id=model.id, options=request.args(1),
                 is_mobile=is_mobile)
 
-def rendermodelexport():
-    session.forget(response)
-
-    model_id = VerifyTableID('model', request.args(0)) or redirect(URL('model', 'listview'))
-
-    model = db.model(model_id)
-
-    return dict(dot=model.diagram)
-
 # This list must be kept in sync with the component.componenttype(s) in the database,
 # Plus battery and connector
 # The "edgeattrib" has to be in the edge_attribs dict

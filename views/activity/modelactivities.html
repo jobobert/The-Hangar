@@ -20,7 +20,7 @@
             {{for activity in activities:}}
             <tr>
                 <td style="border-left: solid 10px {{=activitytype_colors.get(activity.activitytype, '#cccccc')}}">{{=activity.activitydate}}</td>
-                <td>{{=activity.activitytype}}</td>
+                <td>{{=activity_label(activity)}}</td>
                 <td>{{=activity.duration}}</td>
                 <td>{{=activity.activitylocation}}</td>
                 <td>{{=MARKMIN(activity.notes)}}</td>

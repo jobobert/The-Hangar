@@ -903,70 +903,234 @@ td.battery-ownedcount {
     background-color: #efefef;
 }
 
-/* Export Styles */
-.export-h3 {
+/* Model Export (model/export) — compact, print-first sheet */
+.exp-sheet {
+    page: exp;
+    max-width: 1100px;
+    margin: 0 auto;
+    font-size: 0.875rem;
+    line-height: 1.3;
+    color: #222;
+}
+
+.exp-toolbar {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    margin: .5rem 0 1rem;
+}
+
+.exp-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
     border-bottom: 3px solid #630556;
-    padding-bottom: 3px;
-    margin-top: 1em;
-    margin-bottom: 1em;
+    padding-bottom: .5rem;
+    margin-bottom: .75rem;
 }
 
-.export-h4 {
-    border-bottom: 3px solid rgb(139, 110, 219);
-    padding-bottom: 3px;
-    margin-top: 1em;
-    margin-bottom: 1em;
+.exp-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0 0 .15rem;
 }
 
-.export-item-name
-{
-    font-weight: bold;
-    font-size: 1.2em;
+.exp-sub {
+    color: #555;
 }
 
-.export-row {
-    padding-left: 2em;
-}
-
-.export-img-sm {
-    max-width: 100px;
-    max-height: auto;
+.exp-hero {
+    max-height: 150px;
+    max-width: 260px;
     object-fit: contain;
+    border-radius: 4px;
 }
 
-.export-img-xsm {
-    max-width: 50px;
-    max-height: auto;
-    object-fit: contain;
+.exp-sec {
+    margin-bottom: .75rem;
+    break-inside: avoid;
+    page-break-inside: avoid;
 }
 
-.export-row_header {
-    /*background-color: rgb(139, 110, 219);*/
-    border-bottom: 3px solid rgb(139, 110, 219);
+.exp-h {
+    font-size: .95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: #630556;
+    border-bottom: 1px solid #c9a9c4;
+    padding-bottom: 2px;
+    margin: 0 0 .35rem;
 }
 
-.export-col_header {
-    background-color: rgb(69, 36, 161);
-    font-weight: bold;
+.exp-h img {
+    vertical-align: -2px;
 }
 
-div.export-field_value img.export-image-sm {
+.exp-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.25rem;
+    align-items: start;
+}
+
+.exp-groups {
+    columns: 3 14rem;
+    column-gap: 1.25rem;
+}
+
+.exp-group {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: .4rem;
+}
+
+.exp-group-title {
+    font-size: .75rem;
+    font-weight: 700;
+    color: #777;
+    text-transform: uppercase;
+}
+
+dl.exp-kv {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: .6rem;
+    row-gap: 1px;
+    margin: 0;
+}
+
+dl.exp-kv dt {
+    font-weight: 600;
+    color: #555;
+}
+
+dl.exp-kv dd {
+    margin: 0;
+}
+
+.exp-kv-wrap {
+    display: flex;
+    gap: .6rem;
+    align-items: flex-start;
+}
+
+.exp-table {
     width: 100%;
+    border-collapse: collapse;
+}
+
+.exp-table th {
+    font-size: .75rem;
+    font-weight: 700;
+    color: #555;
+    text-align: left;
+    border-bottom: 1px solid #999;
+    padding: 1px 6px 1px 0;
+}
+
+.exp-table td {
+    border-bottom: 1px solid #e3e3e3;
+    padding: 2px 6px 2px 0;
+    vertical-align: top;
+}
+
+.exp-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.exp-thumb-cell {
+    width: 32px;
+}
+
+.exp-thumb,
+.exp-thumb-lg {
+    object-fit: cover;
+    border-radius: 3px;
+}
+
+.exp-swatch {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid #888;
+    border-radius: 2px;
+    vertical-align: middle;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+.exp-text .exp-lead {
+    font-size: 1rem;
+    margin-bottom: .35rem;
+}
+
+.exp-markmin p {
+    margin-bottom: .35rem;
+}
+
+.exp-summary {
+    margin-bottom: .25rem;
+}
+
+.exp-more {
+    font-size: .75rem;
+    color: #777;
+    margin: .15rem 0 0;
+}
+
+.exp-diagram svg {
+    display: block;
+    width: auto;
     height: auto;
-    max-width: 200px;
-    object-fit: contain;
+    max-width: 100%;
+    max-height: 230mm;  /* one Letter page less margins and heading */
+    margin: 0 auto;
 }
 
-.export-field_notes {
-    padding-left: 2em;
-    border-left: 5px solid #888585;
+.exp-sec-diagram {
+    break-before: page;
+    page-break-before: always;
 }
 
-.export-notfound {
-    font-weight: bold;
-    padding-left: 2em;
-    padding-top: 1em;
-    padding-bottom: 1em;
+.exp-foot {
+    margin-top: 1rem;
+    border-top: 1px solid #ccc;
+    font-size: .75rem;
+    color: #777;
+    text-align: center;
+}
+
+@page exp {
+    size: 8.5in 11in;
+    margin: 12mm;
+}
+
+@media print {
+    body:has(.exp-sheet) nav.navbar,
+    body:has(.exp-sheet) #go-back-wrap {
+        display: none !important;
+    }
+
+    body:has(.exp-sheet) .main-container,
+    body:has(.exp-sheet) .container-fluid {
+        padding: 0;
+    }
+
+    .exp-sheet {
+        max-width: none;
+        font-size: 9.5pt;
+    }
+
+    .exp-title {
+        font-size: 18pt;
+    }
+
+    .exp-sheet a[href*='//']:after {
+        content: none;
+    }
 }
 
 .button-model-select {

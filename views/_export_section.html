@@ -1,0 +1,56 @@
+{{# One export section. Expects `sec` = Storage(key, title, icon, data) from build_model_export(). }}
+{{d = sec.data}}
+<section class="exp-sec exp-sec-{{=sec.key}}">
+    <h2 class="exp-h">{{=controller_icon(sec.icon, 16)}} {{=sec.title}}</h2>
+
+    {{if d['kind'] == 'groups':}}
+    <div class="exp-groups">
+        {{for grp, pairs in d['groups']:}}
+        <div class="exp-group">
+            <div class="exp-group-title">{{=grp}}</div>
+            <dl class="exp-kv">
+                {{for label, val in pairs:}}<dt>{{=label}}</dt><dd>{{=val}}</dd>{{pass}}
+            </dl>
+        </div>
+        {{pass}}
+    </div>
+
+    {{elif d['kind'] == 'kv':}}
+    <div class="exp-kv-wrap">
+        {{if d.get('thumb'):}}{{=thumbIMG(d['thumb'], 56, _class='exp-thumb-lg')}}{{pass}}
+        <dl class="exp-kv">
+            {{for label, val in d['pairs']:}}<dt>{{=label}}</dt><dd>{{=val}}</dd>{{pass}}
+        </dl>
+    </div>
+
+    {{elif d['kind'] == 'text':}}
+    <div class="exp-text">{{=d['body']}}</div>
+
+    {{elif d['kind'] == 'table':}}
+    {{include '_export_table.html'}}
+
+    {{elif d['kind'] == 'activity':}}
+    <p class="exp-summary">{{=d['summary']}}</p>
+    {{if d.get('table'):}}
+    {{d = d['table']}}
+    {{include '_export_table.html'}}
+    {{d = sec.data}}
+    {{if d.get('more'):}}<p class="exp-more">{{=d['more']}}</p>{{pass}}
+    {{pass}}
+
+    {{elif d['kind'] == 'diagram':}}
+    <div class="exp-diagram" id="exp-diagram-{{=sec.key}}"></div>
+    <script src="{{=URL('static','js/viz-global.js')}}"></script>
+    <script>
+    (function () {
+        const dotGraph = `{{=XML(d['dot'])}}`;
+        Viz.instance().then(viz => {
+            const svg = viz.renderSVGElement(dotGraph);
+            svg.removeAttribute('width');
+            svg.removeAttribute('height');
+            document.getElementById("exp-diagram-{{=sec.key}}").replaceChildren(svg);
+        });
+    })();
+    </script>
+    {{pass}}
+</section>

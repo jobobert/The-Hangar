@@ -72,46 +72,8 @@ def renderswitchtable():
     if not model_id:
         return render_card_error('Unable to locate this model', 'model', 'Models')
 
-    switchList = {}
-    x = 0
-
-    new_switches = db(db.model_switch.model == model_id).select(
-        orderby=db.model_switch.id)
-
-    if new_switches:
-        all_ms_ids = [s.id for s in new_switches]
-        pos_rows = db(db.model_switch_position.model_switch.belongs(all_ms_ids)).select(
-            orderby=db.model_switch_position.id)
-        pos_map = {}
-        for p in pos_rows:
-            pos_map.setdefault(p.model_switch, {})[p.pos] = p.func
-
-        for s in new_switches:
-            x += 1
-            ts = db.transmitter_switch[s.transmitter_switch] if s.transmitter_switch else None
-            switchList[x] = {
-                'id':       s.id,
-                'mid':      s.model,
-                'switch':   ts.name if ts else (s.name or ''),
-                'type':     ts.switchtype if ts else (s.switchtype or ''),
-                'purpose':  s.purpose or '',
-                'positions': pos_map.get(s.id, {}),
-            }
-    else:
-        switches = db(db.switch.model == model_id).select()
-        for s in switches:
-            x += 1
-            switchPos = {}
-            for p in db(db.switch_position.switch == s.id).select():
-                switchPos[p.pos] = p.func
-            switchList[x] = {
-                'id':       s.id,
-                'mid':      s.model.id,
-                'switch':   s.switch,
-                'type':     s.switchtype,
-                'purpose':  s.purpose,
-                'positions': switchPos,
-            }
+    switchList = {i: sw for i, sw in enumerate(model_switch_list(model_id), 1)}
+    x = len(switchList)
 
     return dict(switchList=switchList, switch_count=x, model_id=model_id, options=request.args(1))
 

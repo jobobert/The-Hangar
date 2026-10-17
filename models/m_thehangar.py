@@ -267,6 +267,41 @@ def activity_icon(activity:str, size:int):
     
     return show_icon(folder + activity.lower() + '.png', size, activity)
 
+def activity_type_label(activitytype, modeltype=None):
+    """Display wording for an activitytype, varied by model type.
+
+    Display only — the stored value stays 'Flight' because it keys
+    activitytype_colors, the activitytype_* CSS classes, activity_icon()'s
+    filename and get_flightcount. Words come from the modeltype lookup row's
+    metadata['activity_labels']; blank falls back to the canonical name.
+    """
+    if not activitytype:
+        return ''
+    return modeltype_activity_labels.get(modeltype, {}).get(activitytype) or activitytype
+
+
+def activity_label(activity):
+    """activity_type_label for an activity row, resolving its own model's type."""
+    modeltype = activity.model.modeltype if activity.model else None
+    return activity_type_label(activity.activitytype, modeltype)
+
+
+def apply_activity_labels(model_id):
+    """Relabel the activitytype dropdown for one model's type.
+
+    Call BEFORE constructing the SQLFORM — SQLFORM reads
+    field.requires.options() when it builds the widget. Mutating the field is
+    safe: web2py re-executes model files every request, so this is
+    request-scoped and cannot leak into another request.
+    """
+    if not model_id:
+        return
+    model = db.model(model_id)
+    labels = modeltype_activity_labels.get(model.modeltype, {}) if model else {}
+    if labels:
+        db.activity.activitytype.requires = lookup_set('activitytype', label_map=labels)
+
+
 def attribute_icon(attribute:str, size:int):
     folder = 'attribute/'
 

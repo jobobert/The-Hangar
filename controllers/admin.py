@@ -73,6 +73,22 @@ def _edge_options():
     return [r.name for r in db(db.diagramedge.id > 0).select(
         orderby=db.diagramedge.sort_order | db.diagramedge.name)]
 
+def _activitytype_options():
+    """Return ordered list of activitytype names from db.lookup."""
+    return [r.name for r in db(db.lookup.category == 'activitytype').select(
+        orderby=db.lookup.sort_order | db.lookup.name)]
+
+
+def _collect_activity_labels(post_vars):
+    """Gather meta_actlabel_<activitytype> POST vars, dropping blanks/no-ops."""
+    out = {}
+    for name in _activitytype_options():
+        val = (post_vars.get('meta_actlabel_' + name) or '').strip()
+        if val and val != name:
+            out[name] = val
+    return out
+
+
 def _parse_metadata(s):
     """Safely parse a JSON metadata string; returns {} on error or empty."""
     try:
@@ -81,56 +97,8 @@ def _parse_metadata(s):
         return {}
 
 
-# Grouped model fields for the hide-fields editor.
-_MODEL_FIELD_GROUPS = [
-    ('General', [
-        'modelorigin', 'description', 'notes', 'img', 'manufacturer',
-        'kitnumber', 'kitlocation', 'subjecttype', 'attr_scale',
-        'haveplans', 'havekit',
-    ]),
-    ('Control & Radio', [
-        'controltype', 'powerplant', 'transmitter', 'protocol', 'configbackup',
-    ]),
-    ('Physical', [
-        'attr_construction', 'attr_covering', 'attr_cog',
-        'attr_length', 'attr_width', 'attr_height', 'attr_weight_oz', 'attr_flight_timer',
-    ]),
-    ('Airplane', [
-        'attr_plane_rem_wings', 'attr_plane_rem_wing_tube', 'attr_plane_rem_struts',
-        'attr_plane_wingspan_mm', 'attr_plane_wingarea',
-        'attr_plane_throw_aileron', 'attr_plane_throw_elevator',
-        'attr_plane_throw_rudder', 'attr_plane_throw_flap',
-    ]),
-    ('Helicopter / Gyro', [
-        'attr_copter_headtype', 'attr_copter_mainrotor_length',
-        'attr_copter_tailrotor_span', 'attr_copter_tailrotor_drive',
-        'attr_copter_swashplate_type', 'attr_copter_size',
-        'attr_copter_blade_count', 'attr_copter_tailrotor_blade_count',
-    ]),
-    ('Multirotor', ['attr_multi_rotor_count']),
-    ('Rocket',    ['attr_rocket_parachute', 'attr_rocket_body_tube', 'attr_rocket_motors']),
-    ('Boat / Submarine', ['attr_boat_draft', 'attr_boat_rem_planes', 'attr_sub_ballast']),
-    ('Car / Vehicle', [
-        'attr_car_scale', 'attr_car_drive', 'attr_car_drivetrain',
-        'attr_car_bodystyle', 'attr_car_wheelbase',
-    ]),
-    ('Hardware', ['attr_hardware_os', 'attr_hardware_os_version', 'attr_hardware_firmware_version',]),
-    ('HAM Radio', [
-        'attr_radio_freq_low_mhz', 'attr_radio_freq_high_mhz', 'attr_radio_power_w',
-        'attr_radio_mode', 'attr_radio_bands', 'attr_radio_memory_ch',
-        'attr_radio_rf_connector', 'attr_radio_aprs', 'attr_radio_dstar', 'attr_radio_dmr',
-    ]),
-    ('Antenna', [
-        'attr_antenna_type', 'attr_antenna_gain_dbi',
-        'attr_antenna_freq_low_mhz', 'attr_antenna_freq_high_mhz',
-        'attr_antenna_max_power_w', 'attr_antenna_impedance_ohm',
-        'attr_antenna_connector', 'attr_antenna_polarization',
-        'attr_antenna_mount', 'attr_antenna_elements',
-    ]),
-    ('Status & Notes', [
-        'selected', 'final_disposition', 'final_value', 'fieldnotes', 'diagram',
-    ]),
-]
+# Grouped model fields for the hide-fields editor (defined in models/m_export.py).
+_MODEL_FIELD_GROUPS = MODEL_FIELD_GROUPS
 
 # Physical component attributes are universal — always shown for every component type.
 _PHYSICAL_ATTRS = [
@@ -187,10 +155,13 @@ def _physical_attr_options():
 def _build_metadata_json(category, post_vars):
     """Build a JSON metadata string from the category-specific POST vars."""
     if category == 'modeltype':
+        # NOTE: this replaces the whole blob, so every key the modeltype row
+        # carries must be emitted here or saving the row silently drops it.
         return json.dumps({
             'hide':        post_vars.getlist('meta_hide')        or [],
             'controllers': post_vars.getlist('meta_controllers') or [],
             'important':   post_vars.getlist('meta_important')   or [],
+            'activity_labels': _collect_activity_labels(post_vars),
         })
     elif category == 'modelcategory':
         return json.dumps({
@@ -223,12 +194,19 @@ def _build_meta_config(category, meta):
             (grp, [(f, lbl, f in imp_set) for f, lbl in fields])
             for grp, fields in _model_hide_options()
         ]
-        return {
+        cfg = {
             'type':        category,
             'hide_groups': hide_groups,
             'controllers': [(c, c in ctrl_set) for c in _CARD_CONTROLLERS],
             'imp_groups':  imp_groups,
         }
+        if category == 'modeltype':
+            # Wording is per model type only — modelcategory rows carry no key,
+            # which is what keeps the card off the modelcategory page.
+            act_labels = meta.get('activity_labels') or {}
+            cfg['activity_labels'] = [(a, act_labels.get(a, ''))
+                                      for a in _activitytype_options()]
+        return cfg
     elif category == 'chemistry':
         return {'type': 'chemistry', 'volt': meta.get('volt', 3.7)}
     elif category == 'activitytype':
@@ -248,6 +226,17 @@ def _cascade_rename(category, old_name, new_name):
     """Bulk-update all data rows from old_name → new_name for this category."""
     for tbl, field in LOOKUP_FIELD_MAP.get(category, []):
         db(tbl[field] == old_name).update(**{field: new_name})
+    if category == 'activitytype':
+        # Per-modeltype wording is keyed by activitytype name; move the key too
+        # or the override silently stops applying. (Modeltype renames need no
+        # equivalent: the wording lives on the row being renamed.)
+        for row in db(db.lookup.category == 'modeltype').select():
+            meta = _parse_metadata(row.metadata)
+            labels = meta.get('activity_labels') or {}
+            if old_name in labels:
+                labels[new_name] = labels.pop(old_name)
+                meta['activity_labels'] = labels
+                row.update_record(metadata=json.dumps(meta))
 
 
 def index():
@@ -903,3 +892,63 @@ def integrity_report():
                 diagram_pending=diagram_pending,
                 diagram_generation_pending=diagram_generation_pending,
                 transmitters_no_switches=transmitters_no_switches)
+
+
+# ---------------------------------------------------------------------------
+# Model Export Settings
+# ---------------------------------------------------------------------------
+
+def export_config():
+    """Edit which sections the model export prints, their order, and the
+    fields per section. Registry and defaults live in models/m_export.py."""
+    form = SQLFORM.factory()
+    if form.process(formname='exportconfig').accepted:
+        pv = request.post_vars
+        if pv.reset:
+            db(db.export_section.id > 0).delete()
+            session.flash = 'Export settings reset to defaults'
+        else:
+            for spec in EXPORT_SECTIONS:
+                key = spec['key']
+                avail = [k for k, _l in export_available_fields(spec)]
+                fields = [f for f in pv.getlist('f_' + key) if f in avail]
+                opts = {}
+                defaults = spec.get('options') or {}
+                if 'limit' in defaults:
+                    try:
+                        opts['limit'] = max(0, min(100, int(pv.get('opt_%s_limit' % key))))
+                    except (ValueError, TypeError):
+                        opts['limit'] = defaults['limit']
+                if 'thumbs' in defaults:
+                    opts['thumbs'] = bool(pv.get('opt_%s_thumbs' % key))
+                try:
+                    order = int(pv.get('ord_' + key))
+                except (ValueError, TypeError):
+                    order = 0
+                db.export_section.update_or_insert(
+                    db.export_section.section_key == key,
+                    section_key=key,
+                    enabled=bool(pv.get('en_' + key)),
+                    sort_order=order,
+                    shown_fields=fields,
+                    section_options=json.dumps(opts),
+                )
+            session.flash = 'Export settings saved'
+        redirect(URL('admin', 'export_config'))
+    elif form.errors:
+        response.flash = 'Unable to save export settings'
+
+    sections = []
+    for cfg in export_section_config():
+        chosen = set(cfg.fields)
+        sections.append(dict(
+            key=cfg.key,
+            title=cfg.spec['title'],
+            icon=cfg.spec['icon'],
+            enabled=cfg.enabled,
+            order=cfg.order,
+            fields=[(k, l, k in chosen) for k, l in export_available_fields(cfg.spec)],
+            options=cfg.options,
+            option_keys=list((cfg.spec.get('options') or {}).keys()),
+        ))
+    return dict(form=form, sections=sections)

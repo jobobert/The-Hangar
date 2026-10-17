@@ -1,3 +1,25 @@
 {{extend 'layout.html'}}
 
-{{=content}}
+<div class="exp-sheet">
+
+    <div class="exp-toolbar no-print">
+        <a class="btn btn-sm btn-outline-secondary" href="{{=URL('component', 'index', args=[comp.id])}}">&larr; Back to component</a>
+        <button type="button" class="btn btn-sm btn-primary" onclick="window.print()">Print</button>
+    </div>
+
+    <div class="exp-head">
+        <div class="exp-head-text">
+            <h1 class="exp-title">{{=comp.name}}</h1>
+            <div class="exp-sub">{{=' · '.join(x for x in (comp.componenttype, comp.componentsubtype) if x)}}</div>
+        </div>
+        {{if comp.img:}}
+        <img class="exp-hero" src="{{=URL('default', 'download', args=comp.img)}}" alt="">
+        {{pass}}
+    </div>
+
+    {{for sec in sections:}}
+    {{include '_export_section.html'}}
+    {{pass}}
+
+    <footer class="exp-foot">{{=comp.name}} &middot; printed {{=request.now.strftime('%Y-%m-%d')}} &middot; The Hangar</footer>
+</div>
